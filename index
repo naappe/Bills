@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Cash Counter Pro</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f2f5;padding:12px;max-width:480px;margin:auto;padding-bottom:80px}
+        
+        .header{background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;padding:16px 20px;border-radius:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+        .header h1{font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px}
+        .header h1 span{font-size:14px;font-weight:400;opacity:.6}
+        .header .badge{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600}
+        
+        .card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid #e8ecf2}
+        .card-title{font-size:11px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+        .card-title .icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+        .card-title .icon.blue{background:#ebf4ff;color:#2b6cb0}
+        .card-title .icon.green{background:#f0fff4;color:#2f855a}
+        .card-title .icon.purple{background:#faf5ff;color:#6b46c1}
+        .card-title .icon.orange{background:#fffff0;color:#d69e2e}
+        .card-title .icon.red{background:#fff5f5;color:#c53030}
+        
+        .input-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f2f5}
+        .input-row:last-child{border-bottom:none}
+        .input-row label{font-size:14px;color:#2d3748;font-weight:500}
+        .input-row .input-group{display:flex;align-items:center;gap:4px}
+        .input-row .currency{font-size:12px;color:#718096;font-weight:600;background:#f7fafc;padding:2px 6px;border-radius:4px}
+        .input-row input{width:90px;padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;font-weight:600;text-align:right;background:#f7fafc;transition:all .2s}
+        .input-row input:focus{border-color:#2b6cb0;outline:none;background:#fff;box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        
+        .note-row{display:flex;align-items:center;padding:5px 0;border-bottom:1px solid #f0f2f5}
+        .note-row:last-child{border-bottom:none}
+        .note-row .denom{font-weight:600;font-size:15px;color:#2d3748;width:70px}
+        .note-row .count-wrap{display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end}
+        .note-row input{width:56px;padding:5px 4px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:15px;font-weight:600;text-align:center;background:#f7fafc;transition:all .2s}
+        .note-row input:focus{border-color:#2b6cb0;outline:none;background:#fff;box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        .note-row .subtotal{font-weight:600;font-size:14px;color:#2f855a;min-width:65px;text-align:right}
+        
+        .total-box{background:linear-gradient(135deg,#ebf8ff,#e0f2fe);padding:10px;border-radius:10px;text-align:center;margin-top:8px;font-size:15px;font-weight:600;color:#2b6cb0}
+        .total-box span{color:#2f855a;font-size:20px}
+        
+        .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .payment-box{background:#f7fafc;padding:10px;border-radius:10px;border:2px solid #e2e8f0;text-align:center;transition:all .2s}
+        .payment-box.bank{border-color:#2b6cb0;background:#ebf4ff}
+        .payment-box.card{border-color:#d69e2e;background:#fffff0}
+        .payment-box .label{font-size:10px;font-weight:700;color:#4a5568;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px}
+        .payment-box input{width:100%;padding:6px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:16px;font-weight:600;text-align:center;background:#fff;transition:all .2s}
+        .payment-box input:focus{border-color:#2b6cb0;outline:none;box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        .payment-box .display-total{font-size:10px;color:#718096;margin-top:3px}
+        
+        .result-card{background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;border-radius:14px;padding:16px 18px;margin-bottom:10px}
+        .result-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+        .result-card .top .title{font-size:13px;font-weight:600;opacity:.8}
+        .result-card .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+        .result-card .row:last-child{border-bottom:none;padding-top:8px;margin-top:4px;border-top:2px solid rgba(255,255,255,.15)}
+        .result-card .label{font-size:12px;opacity:.7}
+        .result-card .value{font-weight:600;font-size:14px}
+        .result-card .value.large{font-size:20px;font-weight:700}
+        .result-card .value.green{color:#48bb78}
+        .result-card .value.red{color:#fc8181}
+        .result-card .value.gold{color:#f6ad55}
+        
+        .status-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700}
+        .status-badge.balanced{background:#48bb78;color:#fff}
+        .status-badge.over{background:#d69e2e;color:#fff}
+        .status-badge.short{background:#fc8181;color:#fff}
+        .status-badge.waiting{background:#718096;color:#fff}
+        
+        /* BILLS - Compact Layout */
+        .bill-entry{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-bottom:8px;align-items:center}
+        .bill-entry input{padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f7fafc;transition:all .2s;width:100%;min-width:0}
+        .bill-entry input:focus{border-color:#2b6cb0;outline:none;background:#fff;box-shadow:0 0 0 3px rgba(43,108,176,.1)}
+        .bill-entry input::placeholder{font-size:11px;color:#a0aec0}
+        .bill-entry .btn{padding:6px 12px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#2b6cb0;color:#fff;transition:all .2s;white-space:nowrap}
+        .bill-entry .btn:hover{background:#1a4f8b}
+        .bill-entry .btn:active{transform:scale(.96)}
+        
+        .bill-list-container{max-height:200px;overflow-y:auto;margin:4px 0;border:1px solid #e8ecf2;border-radius:8px;padding:4px;background:#fafbfc}
+        .bill-item{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:8px 10px;border-radius:6px;margin:3px 0;border-left:3px solid #2b6cb0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+        .bill-item .info{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
+        .bill-item .vendor{font-weight:600;font-size:13px;color:#2d3748}
+        .bill-item .desc{font-size:10px;color:#718096}
+        .bill-item .amount{font-weight:700;font-size:13px;color:#2d3748;margin-right:8px;white-space:nowrap}
+        .bill-item .del{background:#fc8181;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .bill-item .del:hover{background:#c53030}
+        .bill-total{text-align:right;font-weight:700;font-size:13px;color:#2d3748;border-top:2px solid #e2e8f0;padding-top:6px;margin-top:4px}
+        .empty-state{text-align:center;color:#a0aec0;padding:16px;font-size:13px;background:#f7fafc;border-radius:6px;border:1px dashed #e2e8f0}
+        
+        .btn-group{display:flex;gap:6px;margin-top:6px}
+        .btn-group .btn{flex:1;padding:6px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+        .btn-group .btn:hover{opacity:.8}
+        .btn-group .btn:active{transform:scale(.96)}
+        .btn-danger{background:#fc8181;color:#fff}
+        .btn-outline{background:transparent;color:#4a5568;border:1.5px solid #e2e8f0}
+        .btn-outline:hover{background:#f7fafc}
+        
+        .action-bar{position:fixed;bottom:0;left:0;right:0;padding:10px 16px;background:#fff;box-shadow:0 -2px 10px rgba(0,0,0,.06);display:flex;gap:10px;max-width:480px;margin:auto;border-top:1px solid #e2e8f0}
+        .action-bar .btn{flex:1;padding:10px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+        .action-bar .btn:hover{opacity:.9}
+        .action-bar .btn:active{transform:scale(.96)}
+        .btn-reset{background:#e2e8f0;color:#4a5568}
+        .btn-print{background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff}
+        .btn-print:hover{background:#2d3748}
+        
+        .helper{background:#f7fafc;padding:6px 12px;border-radius:8px;margin:4px 0;font-size:12px;color:#4a5568;text-align:center;border:1px solid #e2e8f0}
+        .helper .big{font-weight:700;color:#2f855a;font-size:15px}
+        
+        .warning{background:#fff5f5;border:1px solid #fc8181;color:#c53030;padding:8px 12px;border-radius:8px;font-size:13px;margin:4px 0}
+        .warning.hidden{display:none}
+        
+        .settle{background:linear-gradient(135deg,#1a202c,#2d3748);color:#fff;border-radius:12px;padding:12px 16px;margin-bottom:10px}
+        .settle .srow{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+        .settle .srow:last-child{border-bottom:none;padding-top:6px;border-top:2px solid rgba(255,255,255,.15)}
+        .settle .srow .lbl{opacity:.7}
+        .settle .srow .val{font-weight:600}
+        .settle .srow .big{font-size:20px;color:#48bb78;font-weight:700}
+        .settle .title{text-align:center;font-weight:600;font-size:13px;margin-bottom:6px}
+        
+        .variance-box{background:#f7fafc;border-radius:8px;padding:10px 12px;border-left:3px solid #48bb78}
+        .variance-box .vtitle{font-weight:600;font-size:13px}
+        .variance-box .vamt{font-size:16px;font-weight:700;color:#2f855a}
+        .variance-box .vdetail{color:#4a5568;font-size:12px;margin-top:2px}
+        
+        .available{background:#ebf8ff;border:1px solid #63b3ed;border-radius:8px;padding:5px 12px;margin-bottom:8px;font-size:13px;color:#2b6cb0;text-align:center}
+        .available span{font-weight:700;font-size:15px}
+        
+        @media print {
+            body{background:#fff;padding:0;margin:0;max-width:100%}
+            .header,.card,.result-card,.settle,.action-bar,.btn,.bill-entry,.btn-group,#warning,.available{display:none!important}
+            #printContainer{display:block!important}
+            .no-print{display:none!important}
+        }
+        
+        #printContainer{display:none;font-family:'Courier New',monospace;font-size:11px;line-height:1.5;padding:6px 8px;max-width:80mm;margin:0 auto;background:#fff;color:#000}
+        #printContainer .receipt-header{text-align:center;border-bottom:1px dashed #000;padding-bottom:4px;margin-bottom:4px}
+        #printContainer .receipt-header h2{font-size:15px;font-weight:bold;margin-bottom:2px}
+        #printContainer .receipt-header .sub{font-size:9px;color:#666}
+        #printContainer .receipt-header .date{font-size:9px;color:#666;margin-top:2px}
+        #printContainer .section{margin-bottom:4px}
+        #printContainer .section-title{font-weight:bold;font-size:10px;border-bottom:1px dotted #999;padding-bottom:2px;margin-bottom:2px;text-transform:uppercase;letter-spacing:.5px}
+        #printContainer .row{display:flex;justify-content:space-between;padding:2px 0;font-size:10px}
+        #printContainer .row .label{flex:1}
+        #printContainer .row .value{font-weight:bold;text-align:right;min-width:55px}
+        #printContainer .row .value.green{color:#2f855a}
+        #printContainer .row .value.red{color:#c53030}
+        #printContainer .row .value.gold{color:#975a16}
+        #printContainer .divider{border-top:1px dashed #999;margin:3px 0}
+        #printContainer .divider-double{border-top:2px solid #000;margin:3px 0}
+        #printContainer .total-row{font-weight:bold;font-size:12px;padding:3px 0;border-top:2px solid #000;margin-top:2px}
+        #printContainer .total-row .row{font-size:12px}
+        #printContainer .note-line{padding-left:6px;font-size:9px;color:#444}
+        #printContainer .bill-line{padding-left:6px;font-size:9px;color:#444}
+        #printContainer .footer{text-align:center;font-size:8px;color:#999;border-top:1px dashed #999;padding-top:3px;margin-top:4px}
+        #printContainer .status-line{text-align:center;font-weight:bold;font-size:13px;padding:3px 0;margin:3px 0;border:1px solid #000}
+        #printContainer .status-line.balanced{background:#f0fff4;color:#2f855a}
+        #printContainer .status-line.over{background:#fffff0;color:#975a16}
+        #printContainer .status-line.short{background:#fff5f5;color:#c53030}
+        
+        @media(max-width:400px){
+            .note-row input{width:48px;font-size:13px}
+            .note-row .denom{width:60px}
+            .input-row input{width:70px}
+            .bill-entry{grid-template-columns:1fr 1fr;gap:4px}
+            .bill-entry .btn{grid-column:span 2}
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>💰 Cash Counter <span>Pro</span></h1>
+    <span class="badge">MVR</span>
+</div>
+
+<div id="warning" class="warning hidden"></div>
+
+<!-- Sales & Opening -->
+<div class="card">
+    <div class="card-title">
+        <span class="icon blue">📊</span> Sales & Opening
+    </div>
+    <div class="input-row">
+        <label>Opening Balance</label>
+        <div class="input-group">
+            <span class="currency">MVR</span>
+            <input type="number" id="opening" value="500" min="0">
+        </div>
+    </div>
+    <div class="input-row">
+        <label>Total Sales</label>
+        <div class="input-group">
+            <span class="currency">MVR</span>
+            <input type="number" id="expected" value="0" min="0">
+        </div>
+    </div>
+    <div class="helper">
+        Expected Cash in Drawer: <span class="big" id="expectedCashDisplay">0.00</span> MVR
+    </div>
+</div>
+
+<!-- Cash Count -->
+<div class="card">
+    <div class="card-title">
+        <span class="icon green">💵</span> Cash Count
+    </div>
+    <div id="notesContainer"></div>
+    <div class="total-box">
+        Total Cash: <span id="totalCash">0.00</span> MVR
+    </div>
+</div>
+
+<!-- Bank & Card -->
+<div class="card">
+    <div class="card-title">
+        <span class="icon purple">🏦</span> Bank &amp; Card
+    </div>
+    <div class="grid-2">
+        <div class="payment-box bank">
+            <span class="label">Bank Transfer</span>
+            <input type="number" id="bank" value="0" min="0">
+            <div class="display-total">Total: <span id="bankDisplay">0.00</span></div>
+        </div>
+        <div class="payment-box card">
+            <span class="label">Card Payment</span>
+            <input type="number" id="card" value="0" min="0">
+            <div class="display-total">Total: <span id="cardDisplay">0.00</span></div>
+        </div>
+    </div>
+    <div style="text-align:center;font-size:12px;color:#4a5568;padding-top:4px;border-top:1px solid #e2e8f0;margin-top:6px;">
+        Non-Cash Total: <strong id="nonCash">0.00</strong> MVR
+    </div>
+</div>
+
+<!-- Vendor Bills -->
+<div class="card">
+    <div class="card-title">
+        <span class="icon orange">📋</span> Vendor Bills
+    </div>
+    <div class="available">Available Cash: <span id="available">500.00</span> MVR</div>
+    
+    <div class="bill-entry">
+        <input type="text" id="vName" placeholder="Vendor">
+        <input type="number" id="vAmount" placeholder="Amount" min="0">
+        <input type="text" id="vDesc" placeholder="Desc">
+        <button class="btn" id="addBillBtn">Add</button>
+    </div>
+    
+    <div class="bill-list-container" id="billListContainer">
+        <div id="billList"><div class="empty-state">No bills</div></div>
+    </div>
+    
+    <div class="btn-group">
+        <button class="btn btn-danger" id="clearBillsBtn">Clear All</button>
+        <button class="btn btn-outline" id="sampleBillsBtn">Sample</button>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="result-card">
+    <div class="top">
+        <span class="title">📊 Summary</span>
+        <span id="statusBadge" class="status-badge waiting">⏳ Enter Data</span>
+    </div>
+    <div class="row"><span class="label">Cash Counted</span><span class="value" id="rCash">0.00</span></div>
+    <div class="row"><span class="label">Bank Transfer</span><span class="value" id="rBank">0.00</span></div>
+    <div class="row"><span class="label">Card Payment</span><span class="value" id="rCard">0.00</span></div>
+    <div class="row"><span class="label">Vendor Bills</span><span class="value" id="rBills">0.00</span></div>
+    <div class="row" style="border-bottom:2px solid rgba(255,255,255,.15);padding-bottom:4px;">
+        <span class="label">Net Received</span>
+        <span class="value large green" id="rNet">0.00</span>
+    </div>
+    <div class="row"><span class="label">Expected Sales</span><span class="value" id="rExpected">0.00</span></div>
+    <div class="row" style="border-bottom:2px solid rgba(255,255,255,.2);">
+        <span class="label" style="font-weight:600;">Variance</span>
+        <span class="value large" id="rVariance">0.00</span>
+    </div>
+    <div class="row"><span class="label">Opening</span><span class="value" id="rOpening">0.00</span></div>
+    <div class="row" style="border-top:2px solid rgba(255,255,255,.2);padding-top:6px;">
+        <span class="label" style="font-weight:600;">Total in Drawer</span>
+        <span class="value large green" id="rDrawer">0.00</span>
+    </div>
+</div>
+
+<!-- Settlement -->
+<div class="settle">
+    <div class="title">🏦 Cash Settlement</div>
+    <div class="srow"><span class="lbl">Total in Drawer</span><span class="val" id="setDrawer">0.00</span></div>
+    <div class="srow"><span class="lbl">Less: Opening</span><span class="val" id="setOpening">0.00</span></div>
+    <div class="srow"><span class="lbl" style="font-weight:600;">Cash to Deposit</span><span class="big" id="setDeposit">0.00</span></div>
+    <div class="srow"><span class="lbl">Cash to Keep</span><span class="val" id="setKeep" style="color:#48bb78;">0.00</span></div>
+</div>
+
+<!-- Variance -->
+<div class="card">
+    <div class="card-title">
+        <span class="icon red">📈</span> Variance Analysis
+    </div>
+    <div id="varianceContent">
+        <div class="variance-box" style="border-left-color:#718096;">
+            <div class="vtitle">No Data</div>
+            <div class="vamt" style="color:#718096;">0.00 MVR</div>
+            <div class="vdetail">Enter expected sales and cash to check variance.</div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Container -->
+<div id="printContainer"></div>
+
+<!-- Actions -->
+<div class="action-bar">
+    <button class="btn btn-reset" id="resetBtn">🔄 Reset</button>
+    <button class="btn btn-print" id="printBtn">🖨️ Print Receipt</button>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const DENOMS = [500, 100, 50, 20, 10, 5, 1];
+
+const state = {
+    opening: 500,
+    expected: 0,
+    bank: 0,
+    card: 0,
+    notes: [0, 0, 0, 0, 0, 0, 0],
+    bills: [],
+    nextId: 0
+};
+
+// ============================================================
+// CALCULATE
+// ============================================================
+function calculate(s) {
+    const totalCash = s.notes.reduce((sum, c, i) => sum + c * DENOMS[i], 0);
+    const nonCash = s.bank + s.card;
+    const collected = totalCash + nonCash;
+    const billsTotal = s.bills.reduce((sum, b) => sum + b.amount, 0);
+    const netReceived = collected - billsTotal;
+    const drawerTotal = s.opening + netReceived;
+    const variance = netReceived - s.expected;
+    const expectedCash = Math.max(0, s.expected - nonCash);
+    const deposit = Math.max(0, drawerTotal - s.opening);
+    const available = s.opening + collected;
+
+    return {
+        totalCash, nonCash, collected, billsTotal, netReceived,
+        drawerTotal, variance, expectedCash, deposit, available,
+        isBalanced: Math.abs(variance) < 0.01,
+        isOver: variance > 0.01,
+        isShort: variance < -0.01,
+        hasData: s.expected > 0 || s.opening > 0 || totalCash > 0 || nonCash > 0 || billsTotal > 0
+    };
+}
+
+// ============================================================
+// SYNC
+// ============================================================
+function syncState() {
+    state.opening = parseFloat(document.getElementById('opening').value) || 0;
+    state.expected = parseFloat(document.getElementById('expected').value) || 0;
+    state.bank = parseFloat(document.getElementById('bank').value) || 0;
+    state.card = parseFloat(document.getElementById('card').value) || 0;
+
+    document.querySelectorAll('.note-input').forEach((el, i) => {
+        if (i < state.notes.length) {
+            state.notes[i] = Math.max(0, Math.floor(parseInt(el.value) || 0));
+        }
+    });
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function render(c) {
+    document.getElementById('expectedCashDisplay').textContent = c.expectedCash.toFixed(2);
+    document.getElementById('totalCash').textContent = c.totalCash.toFixed(2);
+    document.getElementById('bankDisplay').textContent = state.bank.toFixed(2);
+    document.getElementById('cardDisplay').textContent = state.card.toFixed(2);
+    document.getElementById('nonCash').textContent = c.nonCash.toFixed(2);
+    document.getElementById('available').textContent = c.available.toFixed(2);
+
+    document.getElementById('rCash').textContent = c.totalCash.toFixed(2);
+    document.getElementById('rBank').textContent = state.bank.toFixed(2);
+    document.getElementById('rCard').textContent = state.card.toFixed(2);
+    document.getElementById('rBills').textContent = c.billsTotal.toFixed(2);
+    document.getElementById('rNet').textContent = c.netReceived.toFixed(2);
+    document.getElementById('rExpected').textContent = state.expected.toFixed(2);
+    document.getElementById('rOpening').textContent = state.opening.toFixed(2);
+    document.getElementById('rDrawer').textContent = c.drawerTotal.toFixed(2);
+
+    document.querySelectorAll('.note-subtotal').forEach((el, i) => {
+        if (i < state.notes.length) {
+            el.textContent = (state.notes[i] * DENOMS[i]).toFixed(2);
+        }
+    });
+
+    const vEl = document.getElementById('rVariance');
+    const diff = c.variance;
+    vEl.textContent = (diff > 0 ? '+' : '') + diff.toFixed(2);
+    
+    if (c.isBalanced && c.hasData) {
+        vEl.className = 'value large green';
+    } else if (c.isOver) {
+        vEl.className = 'value large gold';
+        vEl.style.color = '#f6ad55';
+    } else if (c.isShort) {
+        vEl.className = 'value large red';
+        vEl.style.color = '#fc8181';
+    } else {
+        vEl.className = 'value large';
+        vEl.style.color = '#718096';
+    }
+
+    const badge = document.getElementById('statusBadge');
+    if (!c.hasData) {
+        badge.className = 'status-badge waiting';
+        badge.textContent = '⏳ Enter Data';
+    } else if (c.isBalanced) {
+        badge.className = 'status-badge balanced';
+        badge.textContent = '✅ Balanced';
+    } else if (c.isOver) {
+        badge.className = 'status-badge over';
+        badge.textContent = '📈 +' + diff.toFixed(2) + ' Over';
+    } else if (c.isShort) {
+        badge.className = 'status-badge short';
+        badge.textContent = '📉 ' + diff.toFixed(2) + ' Short';
+    }
+
+    document.getElementById('setDrawer').textContent = c.drawerTotal.toFixed(2);
+    document.getElementById('setOpening').textContent = state.opening.toFixed(2);
+    document.getElementById('setDeposit').textContent = c.deposit.toFixed(2);
+    document.getElementById('setKeep').textContent = state.opening.toFixed(2);
+
+    renderVariance(c);
+    renderBills();
+}
+
+function renderVariance(c) {
+    const el = document.getElementById('varianceContent');
+    const { netReceived, expected, variance, isBalanced, isOver, isShort, hasData } = c;
+
+    let cls, color, title, detail;
+    if (!hasData) {
+        cls = '#718096'; color = '#718096'; title = 'No Data';
+        detail = 'Enter expected sales and cash to check variance.';
+    } else if (isBalanced) {
+        cls = '#48bb78'; color = '#2f855a'; title = '✅ Match!';
+        detail = 'Net Received matches Expected Sales exactly.';
+    } else if (isOver) {
+        cls = '#d69e2e'; color = '#975a16'; title = '📈 Overage';
+        detail = 'Net Received is ' + variance.toFixed(2) + ' MVR MORE than Expected Sales.';
+    } else {
+        cls = '#fc8181'; color = '#9b2c2c'; title = '📉 Shortage';
+        detail = 'Net Received is ' + Math.abs(variance).toFixed(2) + ' MVR LESS than Expected Sales.';
+    }
+
+    el.innerHTML = `
+        <div class="variance-box" style="border-left-color:${cls};">
+            <div class="vtitle">${title}</div>
+            <div class="vamt" style="color:${color};">${variance > 0 ? '+' : ''}${variance.toFixed(2)} MVR</div>
+            <div class="vdetail">${detail}</div>
+            <div style="font-size:10px;color:#718096;background:#edf2f7;padding:3px 6px;border-radius:4px;margin-top:4px;">
+                Expected: ${expected.toFixed(2)} | Net: ${netReceived.toFixed(2)}
+            </div>
+        </div>
+    `;
+}
+
+// ============================================================
+// RENDER BILLS - VISIBLE LIST
+// ============================================================
+function renderBills() {
+    const el = document.getElementById('billList');
+    if (!state.bills.length) {
+        el.innerHTML = '<div class="empty-state">No bills</div>';
+        return;
+    }
+    let html = '', total = 0;
+    state.bills.forEach((b) => {
+        total += b.amount;
+        html += `
+            <div class="bill-item">
+                <div class="info">
+                    <span class="vendor">${b.vendor}</span>
+                    <span class="desc">${b.desc}</span>
+                </div>
+                <span class="amount">MVR ${b.amount.toFixed(2)}</span>
+                <button class="del" data-id="${b.id}">×</button>
+            </div>
+        `;
+    });
+    html += `<div class="bill-total">Total Bills: MVR ${total.toFixed(2)}</div>`;
+    el.innerHTML = html;
+
+    el.querySelectorAll('.del').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = parseInt(this.dataset.id);
+            state.bills = state.bills.filter(b => b.id !== id);
+            update();
+        });
+    });
+}
+
+function update() {
+    syncState();
+    const c = calculate(state);
+    render(c);
+}
+
+// ============================================================
+// NOTES GRID
+// ============================================================
+function renderNotesGrid() {
+    const container = document.getElementById('notesContainer');
+    container.innerHTML = '';
+    
+    DENOMS.forEach((d, i) => {
+        const div = document.createElement('div');
+        div.className = 'note-row';
+        div.innerHTML = `
+            <span class="denom">MVR ${d}</span>
+            <div class="count-wrap">
+                <input type="number" class="note-input" min="0" step="1" value="0" data-idx="${i}">
+                <span class="subtotal note-subtotal">0.00</span>
+            </div>
+        `;
+        const input = div.querySelector('.note-input');
+        input.addEventListener('input', function() {
+            const idx = parseInt(this.dataset.idx);
+            const val = Math.max(0, Math.floor(parseInt(this.value) || 0));
+            state.notes[idx] = val;
+            const subtotal = this.parentElement.querySelector('.note-subtotal');
+            subtotal.textContent = (val * DENOMS[idx]).toFixed(2);
+            update();
+        });
+        container.appendChild(div);
+    });
+}
+
+// ============================================================
+// BILLS OPERATIONS
+// ============================================================
+function addBill() {
+    const name = document.getElementById('vName').value.trim();
+    const amount = parseFloat(document.getElementById('vAmount').value);
+    const desc = document.getElementById('vDesc').value.trim() || '-';
+
+    if (!name || !amount || amount <= 0) {
+        showWarning('Enter vendor and amount');
+        return;
+    }
+
+    const c = calculate(state);
+    if (amount > c.available) {
+        showWarning('Insufficient funds. Available: ' + c.available.toFixed(2));
+        return;
+    }
+
+    state.bills.push({ 
+        id: state.nextId++, 
+        vendor: name, 
+        amount: Math.round(amount * 100) / 100, 
+        desc: desc 
+    });
+    
+    document.getElementById('vName').value = '';
+    document.getElementById('vAmount').value = '';
+    document.getElementById('vDesc').value = '';
+    hideWarning();
+    update();
+}
+
+function clearBills() {
+    if (state.bills.length && confirm('Clear all bills?')) {
+        state.bills = [];
+        state.nextId = 0;
+        update();
+    }
+}
+
+function sampleBills() {
+    const c = calculate(state);
+    if (c.available < 50) { 
+        showWarning('Add funds first'); 
+        return; 
+    }
+    
+    const samples = [
+        { vendor: 'ABC Supplies', amount: Math.min(200, c.available * 0.3), desc: 'Stationery' },
+        { vendor: 'XYZ Traders', amount: Math.min(150, c.available * 0.25), desc: 'Equipment' },
+        { vendor: 'Fresh Market', amount: Math.min(300, c.available * 0.3), desc: 'Groceries' }
+    ];
+    
+    let added = 0;
+    samples.forEach(s => {
+        const amt = Math.round(s.amount * 100) / 100;
+        if (added + amt <= c.available) {
+            state.bills.push({ 
+                id: state.nextId++, 
+                vendor: s.vendor, 
+                amount: amt, 
+                desc: s.desc 
+            });
+            added += amt;
+        }
+    });
+    hideWarning();
+    update();
+}
+
+function showWarning(msg) {
+    const el = document.getElementById('warning');
+    el.textContent = '⚠️ ' + msg;
+    el.classList.remove('hidden');
+}
+function hideWarning() {
+    document.getElementById('warning').classList.add('hidden');
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetAll() {
+    if (confirm('Reset everything?')) {
+        state.opening = 500;
+        state.expected = 0;
+        state.bank = 0;
+        state.card = 0;
+        state.notes = [0, 0, 0, 0, 0, 0, 0];
+        state.bills = [];
+        state.nextId = 0;
+
+        document.getElementById('opening').value = 500;
+        document.getElementById('expected').value = 0;
+        document.getElementById('bank').value = 0;
+        document.getElementById('card').value = 0;
+        
+        document.querySelectorAll('.note-input').forEach((el, i) => {
+            if (i < state.notes.length) {
+                el.value = 0;
+                const subtotal = el.parentElement.querySelector('.note-subtotal');
+                subtotal.textContent = '0.00';
+            }
+        });
+        
+        hideWarning();
+        update();
+    }
+}
+
+// ============================================================
+// PRINT
+// ============================================================
+function printReport() {
+    const c = calculate(state);
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    let html = `
+        <div class="receipt-header">
+            <h2>💰 CASH COUNT</h2>
+            <div class="sub">Maldives Rufiyaa (MVR)</div>
+            <div class="date">${dateStr} · ${timeStr}</div>
+        </div>
+    `;
+
+    html += `
+        <div class="section">
+            <div class="section-title">📊 Sales & Opening</div>
+            <div class="row"><span class="label">Opening Balance</span><span class="value">${state.opening.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Total Sales</span><span class="value">${state.expected.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Expected Cash</span><span class="value">${c.expectedCash.toFixed(2)}</span></div>
+        </div>
+    `;
+
+    html += `
+        <div class="section">
+            <div class="section-title">💵 Cash Count</div>
+    `;
+    DENOMS.forEach((d, i) => {
+        const count = state.notes[i] || 0;
+        if (count > 0) {
+            html += `<div class="row note-line"><span class="label">MVR ${d} × ${count}</span><span class="value">${(count * d).toFixed(2)}</span></div>`;
+        }
+    });
+    html += `
+            <div class="row total-row"><span class="label">Total Cash</span><span class="value">${c.totalCash.toFixed(2)}</span></div>
+        </div>
+    `;
+
+    if (state.bank > 0 || state.card > 0) {
+        html += `
+            <div class="section">
+                <div class="section-title">🏦 Bank & Card</div>
+                ${state.bank > 0 ? `<div class="row"><span class="label">Bank Transfer</span><span class="value">${state.bank.toFixed(2)}</span></div>` : ''}
+                ${state.card > 0 ? `<div class="row"><span class="label">Card Payment</span><span class="value">${state.card.toFixed(2)}</span></div>` : ''}
+                <div class="row"><span class="label">Non-Cash Total</span><span class="value">${c.nonCash.toFixed(2)}</span></div>
+            </div>
+        `;
+    }
+
+    if (state.bills.length > 0) {
+        html += `
+            <div class="section">
+                <div class="section-title">📋 Vendor Bills</div>
+        `;
+        state.bills.forEach(b => {
+            html += `<div class="row bill-line"><span class="label">${b.vendor}</span><span class="value">${b.amount.toFixed(2)}</span></div>`;
+        });
+        html += `
+                <div class="row"><span class="label">Total Bills</span><span class="value">${c.billsTotal.toFixed(2)}</span></div>
+            </div>
+        `;
+    }
+
+    html += `
+        <div class="divider-double"></div>
+        <div class="section">
+            <div class="section-title">📊 Summary</div>
+            <div class="row"><span class="label">Cash Counted</span><span class="value">${c.totalCash.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Bank Transfer</span><span class="value">${state.bank.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Card Payment</span><span class="value">${state.card.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Vendor Bills</span><span class="value">${c.billsTotal.toFixed(2)}</span></div>
+            <div class="row total-row"><span class="label">Net Received</span><span class="value">${c.netReceived.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Expected Sales</span><span class="value">${state.expected.toFixed(2)}</span></div>
+    `;
+
+    let varColor = '';
+    let varLabel = '';
+    if (c.isBalanced && c.hasData) {
+        varColor = 'green';
+        varLabel = 'Balanced ✅';
+    } else if (c.isOver) {
+        varColor = 'gold';
+        varLabel = 'Overage';
+    } else if (c.isShort) {
+        varColor = 'red';
+        varLabel = 'Shortage';
+    } else {
+        varColor = '';
+        varLabel = '';
+    }
+    const varSign = c.variance > 0 ? '+' : '';
+    html += `
+            <div class="row"><span class="label">Variance ${varLabel}</span><span class="value ${varColor}">${varSign}${c.variance.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Opening</span><span class="value">${state.opening.toFixed(2)}</span></div>
+            <div class="row total-row"><span class="label">Total in Drawer</span><span class="value">${c.drawerTotal.toFixed(2)}</span></div>
+        </div>
+    `;
+
+    html += `
+        <div class="divider"></div>
+        <div class="section">
+            <div class="section-title">🏦 Cash Settlement</div>
+            <div class="row"><span class="label">Total in Drawer</span><span class="value">${c.drawerTotal.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Less: Opening</span><span class="value">${state.opening.toFixed(2)}</span></div>
+            <div class="row total-row"><span class="label">Cash to Deposit</span><span class="value green">${c.deposit.toFixed(2)}</span></div>
+            <div class="row"><span class="label">Cash to Keep</span><span class="value green">${state.opening.toFixed(2)}</span></div>
+        </div>
+    `;
+
+    let statusClass = 'balanced';
+    let statusText = '✅ BALANCED';
+    if (!c.hasData) {
+        statusClass = '';
+        statusText = '⏳ NO DATA';
+    } else if (c.isBalanced) {
+        statusClass = 'balanced';
+        statusText = '✅ BALANCED';
+    } else if (c.isOver) {
+        statusClass = 'over';
+        statusText = '📈 OVER +' + c.variance.toFixed(2);
+    } else if (c.isShort) {
+        statusClass = 'short';
+        statusText = '📉 SHORT ' + c.variance.toFixed(2);
+    }
+    html += `
+        <div class="divider"></div>
+        <div class="status-line ${statusClass}">${statusText}</div>
+        <div class="footer">Generated by Cash Counter Pro · ${dateStr} ${timeStr}</div>
+    `;
+
+    const container = document.getElementById('printContainer');
+    container.innerHTML = html;
+    window.print();
+    setTimeout(() => { container.innerHTML = ''; }, 1000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+    renderNotesGrid();
+    document.querySelectorAll('input').forEach(el => el.addEventListener('input', update));
+    document.getElementById('addBillBtn').addEventListener('click', addBill);
+    document.getElementById('clearBillsBtn').addEventListener('click', clearBills);
+    document.getElementById('sampleBillsBtn').addEventListener('click', sampleBills);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    document.getElementById('printBtn').addEventListener('click', printReport);
+    document.getElementById('vAmount').addEventListener('keypress', e => { if (e.key === 'Enter') addBill(); });
+    document.getElementById('vName').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('vAmount').focus(); });
+    update();
+}
+
+init();
+</script>
+</body>
+</html>
