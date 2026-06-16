@@ -68,7 +68,6 @@
         .status-badge.short{background:#fc8181;color:#fff}
         .status-badge.waiting{background:#718096;color:#fff}
         
-        /* BILLS - Compact Layout */
         .bill-entry{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-bottom:8px;align-items:center}
         .bill-entry input{padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f7fafc;transition:all .2s;width:100%;min-width:0}
         .bill-entry input:focus{border-color:#2b6cb0;outline:none;background:#fff;box-shadow:0 0 0 3px rgba(43,108,176,.1)}
@@ -130,7 +129,6 @@
             body{background:#fff;padding:0;margin:0;max-width:100%}
             .header,.card,.result-card,.settle,.action-bar,.btn,.bill-entry,.btn-group,#warning,.available{display:none!important}
             #printContainer{display:block!important}
-            .no-print{display:none!important}
         }
         
         #printContainer{display:none;font-family:'Courier New',monospace;font-size:11px;line-height:1.5;padding:6px 8px;max-width:80mm;margin:0 auto;background:#fff;color:#000}
@@ -471,7 +469,7 @@ function renderVariance(c) {
 }
 
 // ============================================================
-// RENDER BILLS - VISIBLE LIST
+// RENDER BILLS
 // ============================================================
 function renderBills() {
     const el = document.getElementById('billList');
