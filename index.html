@@ -68,10 +68,11 @@
         .status-badge.short{background:#fc8181;color:#fff}
         .status-badge.waiting{background:#718096;color:#fff}
         
-        .bill-entry{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;margin-bottom:8px;align-items:center}
+        /* BILLS - FIXED WITH QUANTITY */
+        .bill-entry{display:grid;grid-template-columns:1fr 0.7fr 1fr 0.7fr auto;gap:6px;margin-bottom:8px;align-items:center}
         .bill-entry input{padding:6px 8px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f7fafc;transition:all .2s;width:100%;min-width:0}
         .bill-entry input:focus{border-color:#2b6cb0;outline:none;background:#fff;box-shadow:0 0 0 3px rgba(43,108,176,.1)}
-        .bill-entry input::placeholder{font-size:11px;color:#a0aec0}
+        .bill-entry input::placeholder{font-size:10px;color:#a0aec0}
         .bill-entry .btn{padding:6px 12px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#2b6cb0;color:#fff;transition:all .2s;white-space:nowrap}
         .bill-entry .btn:hover{background:#1a4f8b}
         .bill-entry .btn:active{transform:scale(.96)}
@@ -80,11 +81,13 @@
         .bill-item{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:8px 10px;border-radius:6px;margin:3px 0;border-left:3px solid #2b6cb0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
         .bill-item .info{flex:1;display:flex;flex-direction:column;gap:1px;min-width:0}
         .bill-item .vendor{font-weight:600;font-size:13px;color:#2d3748}
-        .bill-item .desc{font-size:10px;color:#718096}
+        .bill-item .qty-desc{font-size:11px;color:#718096}
+        .bill-item .qty-desc span{font-weight:600;color:#2d3748}
         .bill-item .amount{font-weight:700;font-size:13px;color:#2d3748;margin-right:8px;white-space:nowrap}
         .bill-item .del{background:#fc8181;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .bill-item .del:hover{background:#c53030}
         .bill-total{text-align:right;font-weight:700;font-size:13px;color:#2d3748;border-top:2px solid #e2e8f0;padding-top:6px;margin-top:4px}
+        .bill-total .count{font-weight:400;font-size:12px;color:#718096}
         .empty-state{text-align:center;color:#a0aec0;padding:16px;font-size:13px;background:#f7fafc;border-radius:6px;border:1px dashed #e2e8f0}
         
         .btn-group{display:flex;gap:6px;margin-top:6px}
@@ -176,14 +179,12 @@
 
 <!-- Sales & Opening -->
 <div class="card">
-    <div class="card-title">
-        <span class="icon blue">📊</span> Sales & Opening
-    </div>
+    <div class="card-title"><span class="icon blue">📊</span> Sales & Opening</div>
     <div class="input-row">
         <label>Opening Balance</label>
         <div class="input-group">
             <span class="currency">MVR</span>
-            <input type="number" id="opening" value="500" min="0">
+            <input type="number" id="opening" value="0" min="0">
         </div>
     </div>
     <div class="input-row">
@@ -200,9 +201,7 @@
 
 <!-- Cash Count -->
 <div class="card">
-    <div class="card-title">
-        <span class="icon green">💵</span> Cash Count
-    </div>
+    <div class="card-title"><span class="icon green">💵</span> Cash Count</div>
     <div id="notesContainer"></div>
     <div class="total-box">
         Total Cash: <span id="totalCash">0.00</span> MVR
@@ -211,9 +210,7 @@
 
 <!-- Bank & Card -->
 <div class="card">
-    <div class="card-title">
-        <span class="icon purple">🏦</span> Bank &amp; Card
-    </div>
+    <div class="card-title"><span class="icon purple">🏦</span> Bank &amp; Card</div>
     <div class="grid-2">
         <div class="payment-box bank">
             <span class="label">Bank Transfer</span>
@@ -231,15 +228,14 @@
     </div>
 </div>
 
-<!-- Vendor Bills -->
+<!-- Vendor Bills - WITH QUANTITY -->
 <div class="card">
-    <div class="card-title">
-        <span class="icon orange">📋</span> Vendor Bills
-    </div>
-    <div class="available">Available Cash: <span id="available">500.00</span> MVR</div>
+    <div class="card-title"><span class="icon orange">📋</span> Vendor Bills</div>
+    <div class="available">Available Cash: <span id="available">0.00</span> MVR</div>
     
     <div class="bill-entry">
         <input type="text" id="vName" placeholder="Vendor">
+        <input type="number" id="vQty" placeholder="Qty" min="1" value="1">
         <input type="number" id="vAmount" placeholder="Amount" min="0">
         <input type="text" id="vDesc" placeholder="Desc">
         <button class="btn" id="addBillBtn">Add</button>
@@ -292,9 +288,7 @@
 
 <!-- Variance -->
 <div class="card">
-    <div class="card-title">
-        <span class="icon red">📈</span> Variance Analysis
-    </div>
+    <div class="card-title"><span class="icon red">📈</span> Variance Analysis</div>
     <div id="varianceContent">
         <div class="variance-box" style="border-left-color:#718096;">
             <div class="vtitle">No Data</div>
@@ -320,7 +314,7 @@
 const DENOMS = [500, 100, 50, 20, 10, 5, 1];
 
 const state = {
-    opening: 500,
+    opening: 0,
     expected: 0,
     bank: 0,
     card: 0,
@@ -469,7 +463,7 @@ function renderVariance(c) {
 }
 
 // ============================================================
-// RENDER BILLS
+// RENDER BILLS - WITH QUANTITY DISPLAY
 // ============================================================
 function renderBills() {
     const el = document.getElementById('billList');
@@ -477,21 +471,23 @@ function renderBills() {
         el.innerHTML = '<div class="empty-state">No bills</div>';
         return;
     }
-    let html = '', total = 0;
+    let html = '', total = 0, totalQty = 0;
     state.bills.forEach((b) => {
         total += b.amount;
+        totalQty += b.qty || 1;
+        const qtyDisplay = b.qty > 1 ? ` × ${b.qty}` : '';
         html += `
             <div class="bill-item">
                 <div class="info">
                     <span class="vendor">${b.vendor}</span>
-                    <span class="desc">${b.desc}</span>
+                    <span class="qty-desc">${qtyDisplay} ${b.desc}</span>
                 </div>
                 <span class="amount">MVR ${b.amount.toFixed(2)}</span>
                 <button class="del" data-id="${b.id}">×</button>
             </div>
         `;
     });
-    html += `<div class="bill-total">Total Bills: MVR ${total.toFixed(2)}</div>`;
+    html += `<div class="bill-total">Total Bills: MVR ${total.toFixed(2)} <span class="count">(${totalQty} items)</span></div>`;
     el.innerHTML = html;
 
     el.querySelectorAll('.del').forEach(btn => {
@@ -540,15 +536,21 @@ function renderNotesGrid() {
 }
 
 // ============================================================
-// BILLS OPERATIONS
+// BILLS OPERATIONS - WITH QUANTITY
 // ============================================================
 function addBill() {
     const name = document.getElementById('vName').value.trim();
+    const qty = parseInt(document.getElementById('vQty').value) || 1;
     const amount = parseFloat(document.getElementById('vAmount').value);
     const desc = document.getElementById('vDesc').value.trim() || '-';
 
     if (!name || !amount || amount <= 0) {
-        showWarning('Enter vendor and amount');
+        showWarning('Enter vendor name and amount');
+        return;
+    }
+
+    if (qty < 1) {
+        showWarning('Quantity must be at least 1');
         return;
     }
 
@@ -561,11 +563,13 @@ function addBill() {
     state.bills.push({ 
         id: state.nextId++, 
         vendor: name, 
+        qty: qty,
         amount: Math.round(amount * 100) / 100, 
         desc: desc 
     });
     
     document.getElementById('vName').value = '';
+    document.getElementById('vQty').value = '1';
     document.getElementById('vAmount').value = '';
     document.getElementById('vDesc').value = '';
     hideWarning();
@@ -588,9 +592,9 @@ function sampleBills() {
     }
     
     const samples = [
-        { vendor: 'ABC Supplies', amount: Math.min(200, c.available * 0.3), desc: 'Stationery' },
-        { vendor: 'XYZ Traders', amount: Math.min(150, c.available * 0.25), desc: 'Equipment' },
-        { vendor: 'Fresh Market', amount: Math.min(300, c.available * 0.3), desc: 'Groceries' }
+        { vendor: 'ABC Supplies', qty: 2, amount: Math.min(200, c.available * 0.3), desc: 'Stationery' },
+        { vendor: 'XYZ Traders', qty: 1, amount: Math.min(150, c.available * 0.25), desc: 'Equipment' },
+        { vendor: 'Fresh Market', qty: 3, amount: Math.min(100, c.available * 0.2), desc: 'Groceries' }
     ];
     
     let added = 0;
@@ -600,6 +604,7 @@ function sampleBills() {
             state.bills.push({ 
                 id: state.nextId++, 
                 vendor: s.vendor, 
+                qty: s.qty,
                 amount: amt, 
                 desc: s.desc 
             });
@@ -624,7 +629,7 @@ function hideWarning() {
 // ============================================================
 function resetAll() {
     if (confirm('Reset everything?')) {
-        state.opening = 500;
+        state.opening = 0;
         state.expected = 0;
         state.bank = 0;
         state.card = 0;
@@ -632,10 +637,11 @@ function resetAll() {
         state.bills = [];
         state.nextId = 0;
 
-        document.getElementById('opening').value = 500;
+        document.getElementById('opening').value = 0;
         document.getElementById('expected').value = 0;
         document.getElementById('bank').value = 0;
         document.getElementById('card').value = 0;
+        document.getElementById('vQty').value = 1;
         
         document.querySelectorAll('.note-input').forEach((el, i) => {
             if (i < state.notes.length) {
@@ -708,7 +714,8 @@ function printReport() {
                 <div class="section-title">📋 Vendor Bills</div>
         `;
         state.bills.forEach(b => {
-            html += `<div class="row bill-line"><span class="label">${b.vendor}</span><span class="value">${b.amount.toFixed(2)}</span></div>`;
+            const qtyDisplay = b.qty > 1 ? ` ×${b.qty}` : '';
+            html += `<div class="row bill-line"><span class="label">${b.vendor}${qtyDisplay}</span><span class="value">${b.amount.toFixed(2)}</span></div>`;
         });
         html += `
                 <div class="row"><span class="label">Total Bills</span><span class="value">${c.billsTotal.toFixed(2)}</span></div>
@@ -801,7 +808,8 @@ function init() {
     document.getElementById('resetBtn').addEventListener('click', resetAll);
     document.getElementById('printBtn').addEventListener('click', printReport);
     document.getElementById('vAmount').addEventListener('keypress', e => { if (e.key === 'Enter') addBill(); });
-    document.getElementById('vName').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('vAmount').focus(); });
+    document.getElementById('vName').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('vQty').focus(); });
+    document.getElementById('vQty').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('vAmount').focus(); });
     update();
 }
 
