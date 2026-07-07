@@ -1,0 +1,54 @@
+{
+  "report_created": "2026-07-08T02:52:08+05:00",
+  "source": "AI Librarian 24-Hour Evolution Report",
+  "window": "last 24 hours",
+  "queries_reviewed": 4,
+  "average_lookup_ms": 4,
+  "difficulties_found": [
+    "3 question(s) had weak or no exact knowledge match.",
+    "1 repeated question pattern(s) appeared."
+  ],
+  "top_code_areas": [
+    "switchView",
+    "change_bill_filter",
+    "rls_warning"
+  ],
+  "learned_common_requests": {
+    "prevent_duplicate_bills": {
+      "aliases": [
+        "prevent duplicate bills",
+        "duplicate bills",
+        "same bill twice",
+        "bill already exists"
+      ],
+      "edit": [
+        "saveBill",
+        "buildPayload",
+        "loadBills",
+        "Supabase duplicate check RPC or unique index migration",
+        "optional duplicate warning before insert"
+      ],
+      "answer": "Duplicate bills should be prevented in two layers: show a frontend warning before save, and add a database-level duplicate rule so two users cannot create the same bill at the same time.",
+      "warning": "Frontend-only duplicate checks are not full protection. Best database rule is usually based on normalized vendor, bill_no, bill_date, and amount. Keep imported shared bills visible when changing RLS or indexes."
+    },
+    "stats": {
+      "aliases": [
+        "Stats",
+        "dashboard stats",
+        "record stats",
+        "total MVR",
+        "paid pending stats"
+      ],
+      "edit": [
+        "renderStats",
+        "applyFilters",
+        "inDateScope",
+        "renderInsights"
+      ],
+      "answer": "Stats are calculated from the currently filtered bill set. Showing Records, Total MVR, Paid, Pending, This Month, and averages should respect the active date scope.",
+      "warning": "Keep this-year default unless user asks otherwise. If admin asks for all years, add it as an explicit filter option only."
+    }
+  },
+  "recommended_merge_target": "PROJECT_KNOWLEDGE.json common_requests and debug_checklists",
+  "manual_merge_note": "Add prevent_duplicate_bills and stats to common_requests. Add duplicate_bills and stats_wrong to debug_checklists. Keep change_bill_filter warning: Keep this-year default unless user asks otherwise."
+}
