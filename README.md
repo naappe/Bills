@@ -10,14 +10,22 @@ GitHub Pages:
 https://naappe.github.io/Bills/
 ```
 
+Admin AI Librarian Monitor:
+
+```text
+https://naappe.github.io/Bills/librarian.html
+```
+
 ## File Structure
 
 ```text
 Bills/
-├── index.html          # Full application: HTML, CSS, JavaScript, Supabase client
-├── README.md           # Project structure and operating notes
-├── AI_LIBRARIAN.md     # Read-first project map for future AI/code changes
-└── AI_BRAIN_GUIDE.md   # Optional AI assistant/backend hosting plan
+├── index.html              # Full application: HTML, CSS, JavaScript, Supabase client
+├── librarian.html          # Admin-only AI Librarian Monitor V1
+├── PROJECT_KNOWLEDGE.json  # Machine-readable project knowledge index
+├── README.md               # Project structure and operating notes
+├── AI_LIBRARIAN.md         # Read-first project map for future AI/code changes
+└── AI_BRAIN_GUIDE.md       # Optional AI assistant/backend hosting plan
 ```
 
 The app is intentionally kept as one deployable HTML file so GitHub Pages can host it without build tools, Node, or a server.
@@ -25,6 +33,8 @@ The app is intentionally kept as one deployable HTML file so GitHub Pages can ho
 ## AI Librarian
 
 Future AI/code assistants should read [`AI_LIBRARIAN.md`](AI_LIBRARIAN.md) first. It explains the project structure, important functions, Supabase columns, roles, admin-only AI behavior, and common edit locations so changes can be made faster.
+
+The live V1 Librarian Monitor is [`librarian.html`](librarian.html). It is admin-only, reads [`PROJECT_KNOWLEDGE.json`](PROJECT_KNOWLEDGE.json), searches known project areas, shows local recent queries, and displays simple knowledge/monitoring stats. It does not need OpenAI, WebSocket, or a backend yet.
 
 ## AI Brain Plan
 
