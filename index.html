@@ -7,28 +7,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #f4f6f8;
-      --surface: #ffffff;
-      --surface-2: #fafbfc;
-      --ink: #15181e;
-      --muted: #667085;
-      --line: #d9dee7;
-      --line-soft: #edf0f4;
-      --accent: #0f766e;
-      --accent-soft: #e7f4f2;
-      --danger: #b42318;
-      --danger-soft: #fff1f0;
-      --warning: #9a5b13;
-      --shadow: 0 12px 34px rgba(18, 25, 38, .08);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --bg: #f4f6f8; --surface: #ffffff; --surface-2: #fafbfc; --ink: #15181e; --muted: #667085; --line: #d9dee7; --line-soft: #edf0f4; --accent: #0f766e; --accent-soft: #e7f4f2; --danger: #b42318; --danger-soft: #fff1f0; --warning: #9a5b13; --shadow: 0 12px 34px rgba(18, 25, 38, .08); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
     button, input, select { font: inherit; }
     button:disabled { opacity: .45; cursor: not-allowed; }
     .hidden { display: none !important; }
-
     .login-page { min-height: 100vh; display: grid; place-items: center; padding: 18px; }
     .login-card { width: min(420px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 24px; box-shadow: var(--shadow); }
     .brand-mark { width: 42px; height: 42px; border-radius: 8px; background: var(--accent); margin-bottom: 18px; }
@@ -36,7 +21,6 @@
     h2 { margin: 0; font-size: 15px; letter-spacing: 0; }
     .muted { color: var(--muted); font-size: 13px; line-height: 1.45; }
     .login-card form { display: grid; gap: 12px; margin-top: 18px; }
-
     .shell { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
     .sidebar { background: #111827; color: #fff; padding: 18px; display: flex; flex-direction: column; gap: 18px; }
     .side-brand { display: flex; align-items: center; gap: 11px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.12); }
@@ -47,7 +31,6 @@
     .nav button { width: 100%; min-height: 40px; border: 0; border-radius: 8px; padding: 0 12px; background: transparent; color: #cbd5e1; font-weight: 750; text-align: left; cursor: pointer; }
     .nav button.active, .nav button:hover { background: rgba(255,255,255,.09); color: #fff; }
     .side-note { margin-top: auto; color: #aab2c0; font-size: 12px; line-height: 1.45; }
-
     .main { min-width: 0; padding: 22px; }
     .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
     .title-block p { margin: 6px 0 0; }
@@ -59,44 +42,38 @@
     .btn.danger { background: var(--danger-soft); color: var(--danger); border-color: #ffd4d0; }
     .btn.small { min-height: 30px; padding: 0 9px; font-size: 12px; }
     .pill { min-height: 30px; display: inline-flex; align-items: center; padding: 0 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 850; }
-
     .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
     .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 15px; box-shadow: 0 4px 14px rgba(18,25,38,.04); }
     .label { color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; }
     .value { margin-top: 8px; font-size: 24px; font-weight: 900; letter-spacing: -.01em; }
-
     .toolbar { display: grid; grid-template-columns: 1fr 170px 170px 150px; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px; margin-bottom: 12px; }
     .field { width: 100%; min-height: 40px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); padding: 0 11px; outline: none; }
     .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(15,118,110,.12); }
-
     .notice { display: none; border-radius: 8px; padding: 10px 12px; margin: 10px 0 12px; border: 1px solid var(--line); font-size: 13px; }
     .notice.error { display: block; color: var(--danger); background: var(--danger-soft); border-color: #ffd4d0; }
     .notice.warn { display: block; color: var(--warning); background: #fff8eb; border-color: #ffe0a3; }
     .notice.ok { display: block; color: var(--accent); background: #f2fbf9; border-color: #bfe6df; }
-
     .grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr); gap: 14px; align-items: start; }
     .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 14px rgba(18,25,38,.04); }
     .panel.pad { padding: 15px; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border-bottom: 1px solid var(--line-soft); background: var(--surface-2); }
-
     .table-wrap { max-height: calc(100vh - 310px); overflow: auto; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 11px 13px; border-bottom: 1px solid var(--line-soft); text-align: left; font-size: 13px; vertical-align: top; }
     th { position: sticky; top: 0; z-index: 1; background: var(--surface-2); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .02em; }
     tr:hover td { background: #fbfcfd; }
     .vendor { font-weight: 850; }
+    .created { color: var(--muted); white-space: nowrap; }
     .amount { text-align: right; font-weight: 900; white-space: nowrap; }
     .category-tag { display: inline-flex; min-height: 24px; align-items: center; padding: 0 8px; border-radius: 999px; background: #eef2f7; color: #344054; font-size: 12px; font-weight: 800; }
     .row-actions { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
     .empty { padding: 34px; color: var(--muted); text-align: center; }
-
     .bar-row { display: grid; grid-template-columns: minmax(120px, 1fr) 122px; gap: 10px; align-items: center; margin: 11px 0; }
     .bar { height: 8px; border-radius: 999px; background: #e9edf3; overflow: hidden; margin-top: 6px; }
     .bar span { display: block; height: 100%; background: var(--accent); }
     .bar-meta { text-align: right; color: var(--muted); font-size: 12px; }
     .insight { background: #fbfcfd; border: 1px solid var(--line-soft); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
     .insight strong { display: block; margin-bottom: 5px; }
-
     dialog { width: min(680px, calc(100% - 24px)); border: 0; border-radius: 8px; padding: 0; box-shadow: 0 24px 80px rgba(16,24,40,.25); }
     dialog::backdrop { background: rgba(17,24,39,.48); }
     .modal-head, .modal-foot { padding: 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
@@ -104,32 +81,8 @@
     .modal-body { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .modal-body label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 800; }
     .full { grid-column: 1 / -1; }
-
-    @media (max-width: 980px) {
-      .shell { grid-template-columns: 1fr; }
-      .sidebar { position: sticky; top: 0; z-index: 10; padding: 12px; }
-      .side-brand, .side-note { display: none; }
-      .nav { display: flex; overflow-x: auto; }
-      .nav button { white-space: nowrap; width: auto; }
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .toolbar, .grid { grid-template-columns: 1fr; }
-      .table-wrap { max-height: none; }
-    }
-
-    @media (max-width: 680px) {
-      .main { padding: 12px; }
-      .topbar { display: block; }
-      .actions { justify-content: stretch; margin-top: 12px; }
-      .btn { flex: 1; }
-      table, thead, tbody, tr, th, td { display: block; }
-      thead { display: none; }
-      tr { padding: 12px; border-bottom: 1px solid var(--line); }
-      td { border: 0; padding: 5px 0; }
-      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; }
-      .amount { text-align: left; }
-      .row-actions { justify-content: flex-start; }
-      .modal-body { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 980px) { .shell { grid-template-columns: 1fr; } .sidebar { position: sticky; top: 0; z-index: 10; padding: 12px; } .side-brand, .side-note { display: none; } .nav { display: flex; overflow-x: auto; } .nav button { white-space: nowrap; width: auto; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .toolbar, .grid { grid-template-columns: 1fr; } .table-wrap { max-height: none; } }
+    @media (max-width: 680px) { .main { padding: 12px; } .topbar { display: block; } .actions { justify-content: stretch; margin-top: 12px; } .btn { flex: 1; } table, thead, tbody, tr, th, td { display: block; } thead { display: none; } tr { padding: 12px; border-bottom: 1px solid var(--line); } td { border: 0; padding: 5px 0; } td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; } .amount { text-align: left; } .row-actions { justify-content: flex-start; } .modal-body { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -146,90 +99,23 @@
       </form>
     </div>
   </section>
-
   <section class="shell hidden" id="appView">
     <aside class="sidebar">
       <div class="side-brand"><div class="side-logo"></div><div class="side-title"><strong>White Saffron</strong><span>Bill control</span></div></div>
-      <nav class="nav">
-        <button class="active" data-view="dashboard">Dashboard</button>
-        <button data-view="bills">Bills</button>
-        <button data-view="analysis">Analysis</button>
-      </nav>
+      <nav class="nav"><button class="active" data-view="dashboard">Dashboard</button><button data-view="bills">Bills</button><button data-view="analysis">Analysis</button></nav>
       <div class="side-note">Staff can add and view. Edit/delete is limited to new own entries within 24 hours unless admin policy allows more.</div>
     </aside>
-
     <main class="main">
-      <header class="topbar">
-        <div class="title-block">
-          <h1>Bills Tracker</h1>
-          <p class="muted">Supabase table <strong>bills</strong> · <span id="recordStatus">Loading...</span></p>
-        </div>
-        <div class="actions">
-          <span class="pill" id="rolePill">Role</span>
-          <button class="btn secondary" id="refreshBtn">Refresh</button>
-          <button class="btn secondary" id="exportBtn">Export</button>
-          <button class="btn" id="addBtn">Add Bill</button>
-          <button class="btn ghost" id="logoutBtn">Logout</button>
-        </div>
-      </header>
-
-      <section class="stats">
-        <div class="stat"><div class="label">Records</div><div class="value" id="totalCount">0</div></div>
-        <div class="stat"><div class="label">Total MVR</div><div class="value" id="totalAmount">0.00</div></div>
-        <div class="stat"><div class="label">This Month</div><div class="value" id="monthAmount">0.00</div></div>
-        <div class="stat"><div class="label">Today</div><div class="value" id="todayAmount">0.00</div></div>
-        <div class="stat"><div class="label">Average</div><div class="value" id="avgAmount">0.00</div></div>
-      </section>
-
-      <section class="toolbar">
-        <input class="field" id="searchInput" placeholder="Search vendor, bill no, location, TIN">
-        <select class="field" id="locationFilter"><option value="">All locations</option></select>
-        <select class="field" id="categoryFilter"><option value="">All categories</option></select>
-        <select class="field" id="dateFilter"><option value="all">All dates</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option><option value="year">This year</option></select>
-      </section>
-
+      <header class="topbar"><div class="title-block"><h1>Bills Tracker</h1><p class="muted">Supabase table <strong>bills</strong> · <span id="recordStatus">Loading...</span></p></div><div class="actions"><span class="pill" id="rolePill">Role</span><button class="btn secondary" id="refreshBtn">Refresh</button><button class="btn secondary" id="exportBtn">Export</button><button class="btn" id="addBtn">Add Bill</button><button class="btn ghost" id="logoutBtn">Logout</button></div></header>
+      <section class="stats"><div class="stat"><div class="label">Records</div><div class="value" id="totalCount">0</div></div><div class="stat"><div class="label">Total MVR</div><div class="value" id="totalAmount">0.00</div></div><div class="stat"><div class="label">This Month</div><div class="value" id="monthAmount">0.00</div></div><div class="stat"><div class="label">Today</div><div class="value" id="todayAmount">0.00</div></div><div class="stat"><div class="label">Average</div><div class="value" id="avgAmount">0.00</div></div></section>
+      <section class="toolbar"><input class="field" id="searchInput" placeholder="Search vendor, bill no, location, TIN"><select class="field" id="locationFilter"><option value="">All locations</option></select><select class="field" id="categoryFilter"><option value="">All categories</option></select><select class="field" id="dateFilter"><option value="all">All dates</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option><option value="year">This year</option></select></section>
       <div class="notice" id="notice"></div>
-
-      <section class="grid" id="dashboardView">
-        <div class="panel pad"><h2>Top Vendors</h2><div id="topVendors"></div></div>
-        <div class="panel pad"><h2>Category Summary</h2><div id="categorySummary"></div></div>
-      </section>
-
-      <section class="panel hidden" id="billsView">
-        <div class="panel-head"><h2>Bill Records</h2><span class="muted">Filtered table</span></div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Date</th><th>Vendor</th><th>Bill No</th><th>Location</th><th>Category</th><th class="amount">Amount</th><th></th></tr></thead>
-            <tbody id="billRows"></tbody>
-          </table>
-        </div>
-        <div class="empty" id="emptyState">Loading bills...</div>
-      </section>
-
-      <section class="grid hidden" id="analysisView">
-        <div class="panel pad"><h2>AI Analysis</h2><div id="aiInsights"></div></div>
-        <div class="panel pad"><h2>Location Analysis</h2><div id="locationSummary"></div></div>
-      </section>
+      <section class="grid" id="dashboardView"><div class="panel pad"><h2>Top Vendors</h2><div id="topVendors"></div></div><div class="panel pad"><h2>Category Summary</h2><div id="categorySummary"></div></div></section>
+      <section class="panel hidden" id="billsView"><div class="panel-head"><h2>Bill Records</h2><span class="muted">Filtered table</span></div><div class="table-wrap"><table><thead><tr><th>Bill Date</th><th>Created</th><th>Vendor</th><th>Bill No</th><th>Location</th><th>Category</th><th class="amount">Amount</th><th></th></tr></thead><tbody id="billRows"></tbody></table></div><div class="empty" id="emptyState">Loading bills...</div></section>
+      <section class="grid hidden" id="analysisView"><div class="panel pad"><h2>AI Analysis</h2><div id="aiInsights"></div></div><div class="panel pad"><h2>Location Analysis</h2><div id="locationSummary"></div></div></section>
     </main>
   </section>
-
-  <dialog id="billDialog">
-    <form method="dialog" id="billForm">
-      <div class="modal-head"><strong id="dialogTitle">Add Bill</strong><button class="btn secondary" type="button" id="closeDialog">Close</button></div>
-      <div class="modal-body">
-        <input type="hidden" name="id">
-        <label>Bill Date<input class="field" name="bill_date" placeholder="25/11/2025" required></label>
-        <label>Vendor<input class="field" name="vendor" required></label>
-        <label>Amount<input class="field" name="amount" required inputmode="decimal" placeholder="250.00"></label>
-        <label>Bill No<input class="field" name="bill_no"></label>
-        <label>Location<input class="field" name="location" placeholder="Male / Villimale"></label>
-        <label>TIN<input class="field" name="tin"></label>
-        <label class="full">Category<select class="field" name="category"><option value="Auto">Auto</option><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label>
-      </div>
-      <div class="modal-foot"><button class="btn secondary" type="button" id="cancelBtn">Cancel</button><button class="btn" type="submit">Save</button></div>
-    </form>
-  </dialog>
-
+  <dialog id="billDialog"><form method="dialog" id="billForm"><div class="modal-head"><strong id="dialogTitle">Add Bill</strong><button class="btn secondary" type="button" id="closeDialog">Close</button></div><div class="modal-body"><input type="hidden" name="id"><label>Bill Date<input class="field" name="bill_date" placeholder="25/11/2025" required></label><label>Vendor<input class="field" name="vendor" required></label><label>Amount<input class="field" name="amount" required inputmode="decimal" placeholder="250.00"></label><label>Bill No<input class="field" name="bill_no"></label><label>Location<input class="field" name="location" placeholder="Male / Villimale"></label><label>TIN<input class="field" name="tin"></label><label class="full">Category<select class="field" name="category"><option value="Auto">Auto</option><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label></div><div class="modal-foot"><button class="btn secondary" type="button" id="cancelBtn">Cancel</button><button class="btn" type="submit">Save</button></div></form></dialog>
   <script>
     const SUPABASE_URL = 'https://tmupbruwmwlrmewhoodn.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
@@ -237,23 +123,11 @@
     const EDIT_WINDOW_HOURS = 24;
     const LOGIN_ALIASES = { white: 'whitesafrron2025@gmail.com', staff: 'whitesafrron2025@gmail.com', admin: 'naappe@gmail.com', naappe: 'naappe@gmail.com' };
     const ADMIN_EMAILS = ['naappe@gmail.com'];
-
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const state = { user: null, role: 'staff', rows: [], filtered: [], view: 'dashboard' };
     const $ = id => document.getElementById(id);
-    const els = {
-      loginView: $('loginView'), appView: $('appView'), loginForm: $('loginForm'), loginNotice: $('loginNotice'), notice: $('notice'), rolePill: $('rolePill'), recordStatus: $('recordStatus'),
-      rows: $('billRows'), empty: $('emptyState'), search: $('searchInput'), location: $('locationFilter'), category: $('categoryFilter'), date: $('dateFilter'),
-      totalCount: $('totalCount'), totalAmount: $('totalAmount'), monthAmount: $('monthAmount'), todayAmount: $('todayAmount'), avgAmount: $('avgAmount'),
-      topVendors: $('topVendors'), categorySummary: $('categorySummary'), locationSummary: $('locationSummary'), aiInsights: $('aiInsights'),
-      dashboardView: $('dashboardView'), billsView: $('billsView'), analysisView: $('analysisView'), dialog: $('billDialog'), form: $('billForm'), dialogTitle: $('dialogTitle')
-    };
-
-    const keys = {
-      date: ['Bill Date', 'bill_date'], vendor: ['Vendor', 'vendor'], amount: ['Amount', 'amount'], billNo: ['Bill No', 'bill_no'], location: ['Location', 'location'], tin: ['TIN', 'tin'],
-      category: ['Category', 'category'], userId: ['user_id', 'User ID'], createdBy: ['created_by', 'Created By'], createdAt: ['created_at', 'createdAt']
-    };
-
+    const els = { loginView: $('loginView'), appView: $('appView'), loginForm: $('loginForm'), loginNotice: $('loginNotice'), notice: $('notice'), rolePill: $('rolePill'), recordStatus: $('recordStatus'), rows: $('billRows'), empty: $('emptyState'), search: $('searchInput'), location: $('locationFilter'), category: $('categoryFilter'), date: $('dateFilter'), totalCount: $('totalCount'), totalAmount: $('totalAmount'), monthAmount: $('monthAmount'), todayAmount: $('todayAmount'), avgAmount: $('avgAmount'), topVendors: $('topVendors'), categorySummary: $('categorySummary'), locationSummary: $('locationSummary'), aiInsights: $('aiInsights'), dashboardView: $('dashboardView'), billsView: $('billsView'), analysisView: $('analysisView'), dialog: $('billDialog'), form: $('billForm'), dialogTitle: $('dialogTitle') };
+    const keys = { date: ['Bill Date', 'bill_date'], vendor: ['Vendor', 'vendor'], amount: ['Amount', 'amount'], billNo: ['Bill No', 'bill_no'], location: ['Location', 'location'], tin: ['TIN', 'tin'], category: ['Category', 'category'], userId: ['user_id', 'User ID'], createdBy: ['created_by', 'Created By'], createdAt: ['created_at', 'createdAt'] };
     function get(row, key) { for (const name of keys[key]) if (row && row[name] !== undefined && row[name] !== null) return row[name]; return ''; }
     function hasColumn(key) { return state.rows.some(row => keys[key].some(name => Object.prototype.hasOwnProperty.call(row, name))); }
     function columnName(key) { return (state.rows[0] && keys[key].find(name => Object.prototype.hasOwnProperty.call(state.rows[0], name))) || keys[key][0]; }
@@ -265,16 +139,8 @@
     function roleFor(user) { const email = String(user?.email || '').toLowerCase(); const meta = user?.app_metadata?.role || user?.user_metadata?.role; return ADMIN_EMAILS.includes(email) || String(meta).toLowerCase() === 'admin' ? 'admin' : 'staff'; }
     function isAdmin() { return state.role === 'admin'; }
     function parseDate(value) { const raw = String(value || '').trim(); const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])); const d = new Date(raw); return Number.isNaN(d.getTime()) ? null : d; }
-    function category(rowOrText) {
-      const text = typeof rowOrText === 'string' ? rowOrText.toLowerCase() : [get(rowOrText, 'category'), get(rowOrText, 'vendor'), get(rowOrText, 'billNo')].join(' ').toLowerCase();
-      if (text.includes('pack') || text.includes('paper') || text.includes('cup') || text.includes('box')) return 'Packaging';
-      if (text.includes('stelco') || text.includes('mwsc') || text.includes('dhiraagu') || text.includes('ooredoo')) return 'Utilities';
-      if (text.includes('fuel') || text.includes('transport') || text.includes('ferry')) return 'Transport';
-      if (text.includes('repair') || text.includes('hardware') || text.includes('maintenance')) return 'Maintenance';
-      if (text.includes('office') || text.includes('station') || text.includes('print')) return 'Office';
-      if (text.includes('shop') || text.includes('fihaara') || text.includes('market') || text.includes('food') || text.includes('grocery')) return 'Food & Grocery';
-      return typeof rowOrText === 'string' ? 'Other' : (get(rowOrText, 'category') || 'Other');
-    }
+    function formatCreated(value) { const d = new Date(value || ''); if (Number.isNaN(d.getTime())) return '-'; return d.toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    function category(rowOrText) { const text = typeof rowOrText === 'string' ? rowOrText.toLowerCase() : [get(rowOrText, 'category'), get(rowOrText, 'vendor'), get(rowOrText, 'billNo')].join(' ').toLowerCase(); if (text.includes('pack') || text.includes('paper') || text.includes('cup') || text.includes('box')) return 'Packaging'; if (text.includes('stelco') || text.includes('mwsc') || text.includes('dhiraagu') || text.includes('ooredoo')) return 'Utilities'; if (text.includes('fuel') || text.includes('transport') || text.includes('ferry')) return 'Transport'; if (text.includes('repair') || text.includes('hardware') || text.includes('maintenance')) return 'Maintenance'; if (text.includes('office') || text.includes('station') || text.includes('print')) return 'Office'; if (text.includes('shop') || text.includes('fihaara') || text.includes('market') || text.includes('food') || text.includes('grocery')) return 'Food & Grocery'; return typeof rowOrText === 'string' ? 'Other' : (get(rowOrText, 'category') || 'Other'); }
     function canEdit(row) { if (isAdmin()) return true; const created = new Date(get(row, 'createdAt') || Date.now()); const within24 = !Number.isNaN(created.getTime()) && Date.now() - created.getTime() <= EDIT_WINDOW_HOURS * 3600 * 1000; const owner = get(row, 'userId') || get(row, 'createdBy'); return within24 && (!owner || owner === state.user?.id || owner === state.user?.email); }
     function notice(type, message, target = els.notice) { target.className = `notice ${type || ''}`; target.textContent = message || ''; }
     function filterDate(row) { const f = els.date.value; if (f === 'all') return true; const d = parseDate(get(row, 'date')); if (!d) return false; const n = new Date(); if (f === 'today') return d.toDateString() === n.toDateString(); if (f === 'month') return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); if (f === 'year') return d.getFullYear() === n.getFullYear(); const s = new Date(n); s.setDate(n.getDate() - n.getDay()); s.setHours(0,0,0,0); return d >= s && d <= n; }
@@ -284,7 +150,7 @@
     function renderSelects() { const oldLoc = els.location.value, oldCat = els.category.value; const locs = [...new Set(state.rows.map(r => get(r,'location')).filter(Boolean))].sort(); const cats = [...new Set(state.rows.map(category).filter(Boolean))].sort(); els.location.innerHTML = '<option value="">All locations</option>' + locs.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(''); els.category.innerHTML = '<option value="">All categories</option>' + cats.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join(''); els.location.value = oldLoc; els.category.value = oldCat; }
     function renderStats() { const total = state.filtered.reduce((s,r) => s + amount(get(r,'amount')), 0); const now = new Date(); const today = state.filtered.filter(r => { const d = parseDate(get(r,'date')); return d && d.toDateString() === now.toDateString(); }).reduce((s,r) => s + amount(get(r,'amount')), 0); const month = state.filtered.filter(r => { const d = parseDate(get(r,'date')); return d && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).reduce((s,r) => s + amount(get(r,'amount')), 0); els.totalCount.textContent = state.filtered.length.toLocaleString(); els.totalAmount.textContent = money(total); els.monthAmount.textContent = money(month); els.todayAmount.textContent = money(today); els.avgAmount.textContent = money(state.filtered.length ? total / state.filtered.length : 0); els.recordStatus.textContent = `${state.rows.length.toLocaleString()} loaded`; }
     function renderInsights() { const vendor = totals(state.filtered, r => get(r,'vendor'))[0]; const cat = totals(state.filtered, category)[0]; const dupes = new Map(); state.filtered.forEach(r => { const no = get(r,'billNo'); if (no) dupes.set(no, (dupes.get(no) || 0) + 1); }); const dupCount = [...dupes.values()].filter(n => n > 1).length; const total = state.filtered.reduce((s,r) => s + amount(get(r,'amount')), 0); const avg = state.filtered.length ? total / state.filtered.length : 0; const high = state.filtered.filter(r => avg && amount(get(r,'amount')) > avg * 2).length; els.aiInsights.innerHTML = [['Spending focus', vendor ? `${vendor[0]} is highest with ${money(vendor[1])} MVR.` : 'No vendor data yet.'], ['Category pattern', cat ? `${cat[0]} is biggest with ${money(cat[1])} MVR.` : 'No category data yet.'], ['Duplicate check', dupCount ? `${dupCount} bill number(s) appear more than once.` : 'No duplicate bill numbers found.'], ['Risk signal', high ? `${high} bill(s) are more than 2x average.` : 'No unusual high-value bills in this filter.']].map(([a,b]) => `<div class="insight"><strong>${esc(a)}</strong>${esc(b)}</div>`).join(''); }
-    function renderRows() { els.rows.innerHTML = state.filtered.map(row => { const editable = canEdit(row); return `<tr><td data-label="Date">${esc(get(row,'date'))}</td><td data-label="Vendor"><div class="vendor">${esc(get(row,'vendor'))}</div><div class="muted">${esc(get(row,'tin'))}</div></td><td data-label="Bill No">${esc(get(row,'billNo'))}</td><td data-label="Location">${esc(get(row,'location'))}</td><td data-label="Category"><span class="category-tag">${esc(category(row))}</span></td><td data-label="Amount" class="amount">${money(get(row,'amount'))} MVR</td><td data-label="Actions"><div class="row-actions"><button class="btn secondary small" data-action="edit" data-id="${esc(row.id)}" ${editable ? '' : 'disabled'}>Edit</button><button class="btn danger small" data-action="delete" data-id="${esc(row.id)}" ${editable ? '' : 'disabled'}>Delete</button></div></td></tr>`; }).join(''); els.empty.style.display = state.filtered.length ? 'none' : 'block'; els.empty.textContent = state.rows.length ? 'No bills match this filter.' : 'No bills loaded yet.'; }
+    function renderRows() { els.rows.innerHTML = state.filtered.map(row => { const editable = canEdit(row); return `<tr><td data-label="Bill Date">${esc(get(row,'date'))}</td><td data-label="Created" class="created">${esc(formatCreated(get(row,'createdAt')))}</td><td data-label="Vendor"><div class="vendor">${esc(get(row,'vendor'))}</div><div class="muted">${esc(get(row,'tin'))}</div></td><td data-label="Bill No">${esc(get(row,'billNo'))}</td><td data-label="Location">${esc(get(row,'location'))}</td><td data-label="Category"><span class="category-tag">${esc(category(row))}</span></td><td data-label="Amount" class="amount">${money(get(row,'amount'))} MVR</td><td data-label="Actions"><div class="row-actions"><button class="btn secondary small" data-action="edit" data-id="${esc(row.id)}" ${editable ? '' : 'disabled'}>Edit</button><button class="btn danger small" data-action="delete" data-id="${esc(row.id)}" ${editable ? '' : 'disabled'}>Delete</button></div></td></tr>`; }).join(''); els.empty.style.display = state.filtered.length ? 'none' : 'block'; els.empty.textContent = state.rows.length ? 'No bills match this filter.' : 'No bills loaded yet.'; }
     function render() { renderStats(); renderRows(); renderBars(els.topVendors, totals(state.filtered, r => get(r,'vendor'))); renderBars(els.categorySummary, totals(state.filtered, category)); renderBars(els.locationSummary, totals(state.filtered, r => get(r,'location'))); renderInsights(); }
     function switchView(view) { state.view = view; document.querySelectorAll('[data-view]').forEach(t => t.classList.toggle('active', t.dataset.view === view)); els.dashboardView.classList.toggle('hidden', view !== 'dashboard'); els.billsView.classList.toggle('hidden', view !== 'bills'); els.analysisView.classList.toggle('hidden', view !== 'analysis'); }
     async function loadBills() { notice('', ''); const { data, error } = await db.from(TABLE_NAME).select('*').order('id', { ascending: false }).limit(5000); if (error) { notice('error', `Supabase read failed: ${error.message}`); state.rows = []; state.filtered = []; render(); return; } state.rows = data || []; renderSelects(); applyFilters(); notice('ok', `Loaded ${state.rows.length.toLocaleString()} bill record(s).`); }
@@ -292,11 +158,10 @@
     function openDialog(row = null) { els.dialogTitle.textContent = row ? 'Edit Bill' : 'Add Bill'; els.form.reset(); els.form.elements.id.value = row?.id || ''; els.form.elements.bill_date.value = row ? get(row,'date') : new Date().toLocaleDateString('en-GB'); els.form.elements.vendor.value = row ? get(row,'vendor') : ''; els.form.elements.amount.value = row ? amount(get(row,'amount')).toFixed(2) : ''; els.form.elements.bill_no.value = row ? get(row,'billNo') : ''; els.form.elements.location.value = row ? get(row,'location') : ''; els.form.elements.tin.value = row ? get(row,'tin') : ''; els.form.elements.category.value = row ? category(row) : 'Auto'; els.dialog.showModal(); }
     async function saveBill(e) { e.preventDefault(); const id = els.form.elements.id.value; const row = id ? state.rows.find(r => String(r.id) === String(id)) : null; if (row && !canEdit(row)) { notice('error', 'This entry is locked. Staff can edit/delete only within 24 hours.'); return; } const request = id ? db.from(TABLE_NAME).update(buildPayload(new FormData(els.form))).eq('id', id) : db.from(TABLE_NAME).insert(buildPayload(new FormData(els.form))); const { error } = await request; if (error) { notice('error', `Save failed: ${error.message}`); return; } els.dialog.close(); await loadBills(); }
     async function deleteBill(id) { const row = state.rows.find(r => String(r.id) === String(id)); if (!row || !canEdit(row)) { notice('error', 'This entry is locked. Staff can delete only within 24 hours.'); return; } if (!confirm('Delete this bill?')) return; const { error } = await db.from(TABLE_NAME).delete().eq('id', id); if (error) { notice('error', `Delete failed: ${error.message}`); return; } await loadBills(); }
-    function exportCsv() { const headers = ['Bill Date','Vendor','Amount','Bill No','Location','TIN','Category']; const rows = state.filtered.map(r => [get(r,'date'), get(r,'vendor'), amount(get(r,'amount')).toFixed(2), get(r,'billNo'), get(r,'location'), get(r,'tin'), category(r)].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')); const blob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `bills-export-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url); }
+    function exportCsv() { const headers = ['Bill Date','Created Date','Vendor','Amount','Bill No','Location','TIN','Category']; const rows = state.filtered.map(r => [get(r,'date'), formatCreated(get(r,'createdAt')), get(r,'vendor'), amount(get(r,'amount')).toFixed(2), get(r,'billNo'), get(r,'location'), get(r,'tin'), category(r)].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')); const blob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `bills-export-${new Date().toISOString().slice(0,10)}.csv`; a.click(); URL.revokeObjectURL(url); }
     async function signIn(e) { e.preventDefault(); notice('', '', els.loginNotice); const email = loginName($('emailInput').value); const password = $('passwordInput').value; if (!email || !password) { notice('error', 'Enter username/email and password.', els.loginNotice); return; } const { data, error } = await db.auth.signInWithPassword({ email, password }); if (error) { notice('error', error.message, els.loginNotice); return; } await startSession(data.session); }
     async function startSession(session) { state.user = session?.user || null; if (!state.user) { els.loginView.classList.remove('hidden'); els.appView.classList.add('hidden'); return; } state.role = roleFor(state.user); els.rolePill.textContent = `${state.role.toUpperCase()} · ${state.user.email}`; els.loginView.classList.add('hidden'); els.appView.classList.remove('hidden'); await loadBills(); }
     async function logout() { await db.auth.signOut(); state.user = null; state.rows = []; state.filtered = []; els.loginView.classList.remove('hidden'); els.appView.classList.add('hidden'); }
-
     els.loginForm.addEventListener('submit', signIn);
     $('refreshBtn').addEventListener('click', loadBills); $('exportBtn').addEventListener('click', exportCsv); $('addBtn').addEventListener('click', () => openDialog()); $('logoutBtn').addEventListener('click', logout);
     $('closeDialog').addEventListener('click', () => els.dialog.close()); $('cancelBtn').addEventListener('click', () => els.dialog.close()); els.form.addEventListener('submit', saveBill);
