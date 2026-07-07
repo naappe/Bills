@@ -16,10 +16,15 @@ https://naappe.github.io/Bills/
 Bills/
 ├── index.html          # Full application: HTML, CSS, JavaScript, Supabase client
 ├── README.md           # Project structure and operating notes
+├── AI_LIBRARIAN.md     # Read-first project map for future AI/code changes
 └── AI_BRAIN_GUIDE.md   # Optional AI assistant/backend hosting plan
 ```
 
 The app is intentionally kept as one deployable HTML file so GitHub Pages can host it without build tools, Node, or a server.
+
+## AI Librarian
+
+Future AI/code assistants should read [`AI_LIBRARIAN.md`](AI_LIBRARIAN.md) first. It explains the project structure, important functions, Supabase columns, roles, admin-only AI behavior, and common edit locations so changes can be made faster.
 
 ## AI Brain Plan
 
