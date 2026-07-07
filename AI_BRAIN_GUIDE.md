@@ -7,12 +7,18 @@ This guide describes the optional AI layer for the White Saffron Bills app. The 
 ```text
 User browser
   -> GitHub Pages Bills app
-  -> AI backend API or Supabase Edge Function
+  -> Admin-only AI backend API or Supabase Edge Function
   -> Supabase bills table
   -> OpenAI or other AI provider
 ```
 
 Important rule: do not put `OPENAI_API_KEY`, Gemini keys, service role keys, or database passwords in `index.html` or any public frontend file. Keep them as server environment variables only.
+
+## Admin-Only Visibility
+
+AI Assistant, Smart Dashboard, Predictions, and Anomalies belong inside the admin dashboard only. Staff and white users should keep the normal Bills workflow: add, read, view, edit/delete only within the allowed window, and export if permitted.
+
+Frontend hiding is useful for a clean interface, but it is not security by itself. The backend API or Supabase Edge Function must also reject non-admin requests before reading bills or calling an AI provider.
 
 ## Minimal File Structure
 
@@ -68,13 +74,14 @@ Bills/
     └── docker-compose.yml
 ```
 
-## Pages
+## Admin Pages
 
 ### 1. AI Assistant
 
 ```text
-URL: /ai-assistant
+URL: /admin/ai-assistant
 Purpose: Natural language questions about bills
+Visibility: admin only
 ```
 
 Example questions:
@@ -88,8 +95,9 @@ Example questions:
 ### 2. Smart Dashboard
 
 ```text
-URL: /ai-insights
+URL: /admin/ai-insights
 Purpose: AI-generated business insights
+Visibility: admin only
 ```
 
 Examples:
@@ -102,8 +110,9 @@ Examples:
 ### 3. Predictions
 
 ```text
-URL: /predictions
+URL: /admin/predictions
 Purpose: Forecast future spending
+Visibility: admin only
 ```
 
 Examples:
@@ -116,8 +125,9 @@ Examples:
 ### 4. Anomalies
 
 ```text
-URL: /anomalies
+URL: /admin/anomalies
 Purpose: Find unusual patterns and possible mistakes
+Visibility: admin only
 ```
 
 Examples:
@@ -129,20 +139,20 @@ Examples:
 
 ## Backend API Shape
 
-The frontend should call a backend like this:
+The admin dashboard should call a backend like this:
 
 ```text
-POST /api/ai/chat
-POST /api/ai/insights
-POST /api/ai/predict
-POST /api/ai/anomalies
+POST /api/admin/ai/chat
+POST /api/admin/ai/insights
+POST /api/admin/ai/predict
+POST /api/admin/ai/anomalies
 ```
 
 The backend should:
 
 1. Verify the Supabase user session.
-2. Check whether the user is admin or staff.
-3. Query only the bills the user is allowed to read.
+2. Require the admin role for all AI routes.
+3. Query only the bills the admin is allowed to read.
 4. Summarize or aggregate bill data before sending it to AI.
 5. Send the smallest useful context to the AI provider.
 6. Return a clean answer to the frontend.
@@ -265,10 +275,10 @@ Send raw bill rows only when the question truly needs row-level detail.
 
 ## Suggested First Build
 
-Start with only one endpoint:
+Start with only one admin endpoint:
 
 ```text
-POST /api/ai/chat
+POST /api/admin/ai/chat
 ```
 
 First version features:
@@ -282,9 +292,9 @@ First version features:
 After that works, add:
 
 ```text
-/api/ai/insights
-/api/ai/anomalies
-/api/ai/predict
+/api/admin/ai/insights
+/api/admin/ai/anomalies
+/api/admin/ai/predict
 ```
 
 ## Deployment Checklist
@@ -293,10 +303,12 @@ After that works, add:
 - Add server-only AI provider key.
 - Add server-only Supabase service role key if needed.
 - Verify user session before reading data.
+- Reject non-admin API requests server-side.
 - Add CORS for the live frontend domain.
-- Add `/api/ai/chat` first.
+- Add `/api/admin/ai/chat` first.
 - Test with a small summary of bills.
-- Add AI Assistant link in the app navigation.
+- Add AI links inside the admin dashboard only.
+- Keep AI links hidden for staff and white users.
 - Add insights, anomalies, and predictions later.
 
 ## Useful Official References
