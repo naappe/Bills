@@ -7,8 +7,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #f6f7fb;
+      --bg: #f7f8fb;
       --panel: #ffffff;
+      --panel-2: #f9fafb;
       --text: #101828;
       --muted: #667085;
       --line: #e4e7ec;
@@ -16,106 +17,172 @@
       --brand-2: #0f5d4b;
       --danger: #b42318;
       --warning: #b54708;
+      --info: #175cd3;
       --shadow: 0 10px 28px rgba(16, 24, 40, .08);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--text); }
-    button, input, select { font: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
 
-    .app { max-width: 1180px; margin: 0 auto; padding: 22px; }
-    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .app { max-width: 1240px; margin: 0 auto; padding: 18px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
     h1 { margin: 0; font-size: 26px; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
     .sub { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-size: 12px; font-weight: 800; }
 
     .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-    .btn { border: 0; background: var(--brand); color: #fff; min-height: 40px; padding: 0 14px; border-radius: 8px; cursor: pointer; font-weight: 700; }
+    .btn { border: 0; background: var(--brand); color: #fff; min-height: 40px; padding: 0 14px; border-radius: 8px; cursor: pointer; font-weight: 800; }
     .btn:hover { background: var(--brand-2); }
     .btn.secondary { background: #fff; color: var(--text); border: 1px solid var(--line); }
     .btn.danger { background: var(--danger); }
+    .btn.small { min-height: 32px; padding: 0 10px; font-size: 12px; }
 
-    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .login { max-width: 440px; margin: 8vh auto; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 22px; box-shadow: var(--shadow); }
+    .login form { display: grid; gap: 12px; margin-top: 18px; }
+    .login .hint { color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; overflow-x: auto; }
+    .tab { background: #fff; border: 1px solid var(--line); color: var(--muted); border-radius: 8px; padding: 10px 14px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+    .tab.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
     .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; box-shadow: var(--shadow); }
-    .label { color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
-    .value { margin-top: 8px; font-size: 24px; font-weight: 800; }
+    .label { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .value { margin-top: 8px; font-size: 24px; font-weight: 900; }
 
-    .toolbar { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; grid-template-columns: 1fr 170px 150px; gap: 10px; margin-bottom: 14px; box-shadow: var(--shadow); }
+    .toolbar { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; grid-template-columns: 1fr 170px 170px 150px; gap: 10px; margin-bottom: 14px; box-shadow: var(--shadow); }
     .field { min-height: 42px; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; background: #fff; color: var(--text); width: 100%; }
+    textarea.field { min-height: 92px; padding: 10px 12px; resize: vertical; }
 
     .notice { display: none; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid var(--line); background: #fff; color: var(--muted); }
     .notice.error { display: block; border-color: #fecdca; background: #fffbfa; color: var(--danger); }
     .notice.warn { display: block; border-color: #fedf89; background: #fffcf5; color: var(--warning); }
     .notice.ok { display: block; border-color: #abefc6; background: #f6fef9; color: var(--brand-2); }
 
+    .grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; align-items: start; }
     .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+    .panel.pad { padding: 14px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; font-size: 14px; vertical-align: top; }
     th { color: var(--muted); font-size: 12px; text-transform: uppercase; background: #fcfcfd; }
     tr:last-child td { border-bottom: 0; }
-    .amount { text-align: right; font-weight: 800; white-space: nowrap; }
+    .amount { text-align: right; font-weight: 900; white-space: nowrap; }
     .muted { color: var(--muted); }
     .empty { padding: 36px; text-align: center; color: var(--muted); }
+    .row-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
 
-    dialog { width: min(620px, calc(100% - 24px)); border: 0; border-radius: 8px; padding: 0; box-shadow: 0 24px 80px rgba(16, 24, 40, .25); }
+    .insights { display: grid; gap: 10px; }
+    .insight { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: var(--panel-2); }
+    .insight strong { display: block; margin-bottom: 4px; }
+    .bar-row { display: grid; grid-template-columns: minmax(110px, 1fr) 120px; gap: 10px; align-items: center; margin: 10px 0; }
+    .bar { height: 10px; background: #e4e7ec; border-radius: 999px; overflow: hidden; }
+    .bar span { display: block; height: 100%; background: var(--brand); }
+    .bar-meta { font-size: 12px; color: var(--muted); text-align: right; }
+
+    dialog { width: min(680px, calc(100% - 24px)); border: 0; border-radius: 8px; padding: 0; box-shadow: 0 24px 80px rgba(16, 24, 40, .25); }
     dialog::backdrop { background: rgba(16, 24, 40, .42); }
     .modal-head, .modal-foot { padding: 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .modal-foot { border-top: 1px solid var(--line); border-bottom: 0; justify-content: flex-end; }
     .modal-body { padding: 16px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    .modal-body label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 700; }
+    .modal-body label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 800; }
     .full { grid-column: 1 / -1; }
+    .hidden { display: none !important; }
 
-    @media (max-width: 760px) {
-      .app { padding: 14px; }
+    @media (max-width: 920px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .app { padding: 12px; }
       header { display: block; }
       .actions { justify-content: stretch; margin-top: 12px; }
       .btn { flex: 1; }
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .toolbar { grid-template-columns: 1fr; }
       table, thead, tbody, tr, th, td { display: block; }
       thead { display: none; }
       tr { padding: 12px; border-bottom: 1px solid var(--line); }
       td { border: 0; padding: 5px 0; }
-      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
+      td::before { content: attr(data-label); display: block; color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 2px; }
       .amount { text-align: left; }
+      .row-actions { justify-content: flex-start; }
       .modal-body { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
+  <section class="login" id="loginView">
+    <h1>Bills Tracker</h1>
+    <p class="hint">Sign in with the Supabase user you create. Admin can manage everything. Staff can add and view, and can only edit/delete their own new entries for 24 hours when the database policy allows it.</p>
+    <form id="loginForm">
+      <input class="field" id="emailInput" type="email" placeholder="Email" autocomplete="email" required>
+      <input class="field" id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button class="btn" type="submit">Sign In</button>
+      <div class="notice" id="loginNotice"></div>
+    </form>
+  </section>
+
+  <main class="app hidden" id="appView">
     <header>
       <div>
         <h1>Bills Tracker</h1>
-        <p class="sub">Connected to Supabase table <strong>bills</strong>.</p>
+        <p class="sub">Supabase table <strong>bills</strong> · <span id="recordStatus">Loading...</span></p>
       </div>
       <div class="actions">
+        <span class="pill" id="rolePill">Role</span>
         <button class="btn secondary" id="refreshBtn">Refresh</button>
+        <button class="btn secondary" id="exportBtn">Export CSV</button>
         <button class="btn" id="addBtn">Add Bill</button>
+        <button class="btn secondary" id="logoutBtn">Logout</button>
       </div>
     </header>
 
+    <nav class="tabs">
+      <button class="tab active" data-view="dashboard">Dashboard</button>
+      <button class="tab" data-view="bills">Bills</button>
+      <button class="tab" data-view="analysis">AI Analysis</button>
+    </nav>
+
     <section class="stats">
-      <div class="stat"><div class="label">Bills</div><div class="value" id="totalCount">0</div></div>
+      <div class="stat"><div class="label">Records</div><div class="value" id="totalCount">0</div></div>
       <div class="stat"><div class="label">Total MVR</div><div class="value" id="totalAmount">0.00</div></div>
-      <div class="stat"><div class="label">Male</div><div class="value" id="maleAmount">0.00</div></div>
-      <div class="stat"><div class="label">Villimale</div><div class="value" id="villimaleAmount">0.00</div></div>
+      <div class="stat"><div class="label">This Month</div><div class="value" id="monthAmount">0.00</div></div>
+      <div class="stat"><div class="label">Today</div><div class="value" id="todayAmount">0.00</div></div>
+      <div class="stat"><div class="label">Average</div><div class="value" id="avgAmount">0.00</div></div>
     </section>
 
     <section class="toolbar">
       <input class="field" id="searchInput" placeholder="Search vendor, bill no, location, TIN">
       <select class="field" id="locationFilter"><option value="">All locations</option></select>
+      <select class="field" id="categoryFilter"><option value="">All categories</option></select>
       <select class="field" id="dateFilter">
         <option value="all">All dates</option>
         <option value="today">Today</option>
         <option value="week">This week</option>
         <option value="month">This month</option>
+        <option value="year">This year</option>
       </select>
     </section>
 
     <div class="notice" id="notice"></div>
 
-    <section class="panel">
+    <section class="grid" id="dashboardView">
+      <div class="panel pad">
+        <h2>Top Vendors</h2>
+        <div id="topVendors"></div>
+      </div>
+      <div class="panel pad">
+        <h2>Category Summary</h2>
+        <div id="categorySummary"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="billsView">
       <table>
         <thead>
           <tr>
@@ -123,29 +190,54 @@
             <th>Vendor</th>
             <th>Bill No</th>
             <th>Location</th>
-            <th>TIN</th>
+            <th>Category</th>
             <th class="amount">Amount</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="billRows"></tbody>
       </table>
       <div class="empty" id="emptyState">Loading bills...</div>
     </section>
+
+    <section class="grid hidden" id="analysisView">
+      <div class="panel pad">
+        <h2>AI Analysis</h2>
+        <div class="insights" id="aiInsights"></div>
+      </div>
+      <div class="panel pad">
+        <h2>Location Analysis</h2>
+        <div id="locationSummary"></div>
+      </div>
+    </section>
   </main>
 
   <dialog id="billDialog">
     <form method="dialog" id="billForm">
       <div class="modal-head">
-        <strong>Add Bill</strong>
-        <button class="btn secondary" value="cancel" type="button" id="closeDialog">Close</button>
+        <strong id="dialogTitle">Add Bill</strong>
+        <button class="btn secondary" type="button" id="closeDialog">Close</button>
       </div>
       <div class="modal-body">
-        <label>Bill Date<input class="field" name="bill_date" placeholder="25/11/2025"></label>
+        <input type="hidden" name="id">
+        <label>Bill Date<input class="field" name="bill_date" placeholder="25/11/2025" required></label>
         <label>Vendor<input class="field" name="vendor" required></label>
-        <label>Amount<input class="field" name="amount" required inputmode="decimal"></label>
+        <label>Amount<input class="field" name="amount" required inputmode="decimal" placeholder="250.00"></label>
         <label>Bill No<input class="field" name="bill_no"></label>
-        <label>Location<input class="field" name="location"></label>
+        <label>Location<input class="field" name="location" placeholder="Male / Villimale"></label>
         <label>TIN<input class="field" name="tin"></label>
+        <label class="full">Category
+          <select class="field" name="category">
+            <option value="Auto">Auto</option>
+            <option>Food & Grocery</option>
+            <option>Packaging</option>
+            <option>Utilities</option>
+            <option>Maintenance</option>
+            <option>Transport</option>
+            <option>Office</option>
+            <option>Other</option>
+          </select>
+        </label>
       </div>
       <div class="modal-foot">
         <button class="btn secondary" type="button" id="cancelBtn">Cancel</button>
@@ -158,27 +250,64 @@
     const SUPABASE_URL = 'https://tmupbruwmwlrmewhoodn.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
     const TABLE_NAME = 'bills';
+    const EDIT_WINDOW_HOURS = 24;
 
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const state = { rows: [], filtered: [] };
+    const state = { user: null, role: 'staff', rows: [], filtered: [], currentView: 'dashboard', editingRow: null };
 
     const els = {
+      loginView: document.getElementById('loginView'),
+      appView: document.getElementById('appView'),
+      loginForm: document.getElementById('loginForm'),
+      loginNotice: document.getElementById('loginNotice'),
+      notice: document.getElementById('notice'),
+      rolePill: document.getElementById('rolePill'),
+      recordStatus: document.getElementById('recordStatus'),
       rows: document.getElementById('billRows'),
       empty: document.getElementById('emptyState'),
-      notice: document.getElementById('notice'),
       search: document.getElementById('searchInput'),
       location: document.getElementById('locationFilter'),
+      category: document.getElementById('categoryFilter'),
       date: document.getElementById('dateFilter'),
       totalCount: document.getElementById('totalCount'),
       totalAmount: document.getElementById('totalAmount'),
-      maleAmount: document.getElementById('maleAmount'),
-      villimaleAmount: document.getElementById('villimaleAmount'),
+      monthAmount: document.getElementById('monthAmount'),
+      todayAmount: document.getElementById('todayAmount'),
+      avgAmount: document.getElementById('avgAmount'),
+      topVendors: document.getElementById('topVendors'),
+      categorySummary: document.getElementById('categorySummary'),
+      locationSummary: document.getElementById('locationSummary'),
+      aiInsights: document.getElementById('aiInsights'),
+      dashboardView: document.getElementById('dashboardView'),
+      billsView: document.getElementById('billsView'),
+      analysisView: document.getElementById('analysisView'),
       dialog: document.getElementById('billDialog'),
-      form: document.getElementById('billForm')
+      form: document.getElementById('billForm'),
+      dialogTitle: document.getElementById('dialogTitle')
     };
 
-    function getValue(row, normalKey, csvKey) {
-      return row[normalKey] ?? row[csvKey] ?? '';
+    const keyMap = {
+      date: ['bill_date', 'Bill Date'],
+      vendor: ['vendor', 'Vendor'],
+      amount: ['amount', 'Amount'],
+      billNo: ['bill_no', 'Bill No'],
+      location: ['location', 'Location'],
+      tin: ['tin', 'TIN'],
+      category: ['category', 'Category'],
+      createdBy: ['created_by', 'Created By'],
+      userId: ['user_id', 'User ID'],
+      createdAt: ['created_at', 'createdAt'],
+      updatedAt: ['updated_at', 'updatedAt']
+    };
+
+    function get(row, key) {
+      for (const name of keyMap[key]) if (row && row[name] !== undefined && row[name] !== null) return row[name];
+      return '';
+    }
+
+    function setPayloadValue(payload, key, value) {
+      const preferred = state.rows[0] && keyMap[key].find(name => Object.prototype.hasOwnProperty.call(state.rows[0], name));
+      payload[preferred || keyMap[key][1] || keyMap[key][0]] = value;
     }
 
     function cleanAmount(value) {
@@ -190,42 +319,74 @@
       return cleanAmount(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function showNotice(type, message) {
-      els.notice.className = `notice ${type}`;
-      els.notice.textContent = message;
+    function parseBillDate(value) {
+      if (!value) return null;
+      const raw = String(value).trim();
+      const slash = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (slash) return new Date(Number(slash[3]), Number(slash[2]) - 1, Number(slash[1]));
+      const date = new Date(raw);
+      return Number.isNaN(date.getTime()) ? null : date;
     }
 
-    function normalizeForInsert(formData) {
-      return {
-        'Bill Date': formData.get('bill_date') || null,
-        Vendor: formData.get('vendor') || '',
-        Amount: formData.get('amount') || '0',
-        'Bill No': formData.get('bill_no') || '',
-        Location: formData.get('location') || '',
-        TIN: formData.get('tin') || ''
-      };
+    function isAdmin() {
+      return state.role === 'admin';
+    }
+
+    function isWithinEditWindow(row) {
+      const created = new Date(get(row, 'createdAt') || Date.now());
+      if (Number.isNaN(created.getTime())) return false;
+      return (Date.now() - created.getTime()) <= EDIT_WINDOW_HOURS * 60 * 60 * 1000;
+    }
+
+    function canEdit(row) {
+      if (isAdmin()) return true;
+      const owner = get(row, 'userId') || get(row, 'createdBy');
+      const belongsToUser = !owner || owner === state.user?.id || owner === state.user?.email;
+      return belongsToUser && isWithinEditWindow(row);
+    }
+
+    function inferRole(user) {
+      const metaRole = user?.app_metadata?.role || user?.user_metadata?.role;
+      if (String(metaRole || '').toLowerCase() === 'admin') return 'admin';
+      if (String(user?.email || '').toLowerCase().includes('admin')) return 'admin';
+      return 'staff';
+    }
+
+    function inferCategory(rowOrVendor) {
+      const text = typeof rowOrVendor === 'string'
+        ? rowOrVendor.toLowerCase()
+        : [get(rowOrVendor, 'category'), get(rowOrVendor, 'vendor'), get(rowOrVendor, 'billNo')].join(' ').toLowerCase();
+      if (text.includes('pack') || text.includes('paper') || text.includes('cup') || text.includes('box')) return 'Packaging';
+      if (text.includes('stelco') || text.includes('mwsc') || text.includes('dhiraagu') || text.includes('ooredoo')) return 'Utilities';
+      if (text.includes('fuel') || text.includes('transport') || text.includes('speed') || text.includes('ferry')) return 'Transport';
+      if (text.includes('repair') || text.includes('hardware') || text.includes('maintenance')) return 'Maintenance';
+      if (text.includes('office') || text.includes('station') || text.includes('print')) return 'Office';
+      if (text.includes('shop') || text.includes('fihaara') || text.includes('market') || text.includes('food') || text.includes('grocery')) return 'Food & Grocery';
+      return get(rowOrVendor, 'category') || 'Other';
+    }
+
+    function showNotice(type, message, target = els.notice) {
+      target.className = `notice ${type || ''}`;
+      target.textContent = message || '';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
     }
 
     function rowSearchText(row) {
-      return [
-        getValue(row, 'vendor', 'Vendor'),
-        getValue(row, 'bill_no', 'Bill No'),
-        getValue(row, 'location', 'Location'),
-        getValue(row, 'tin', 'TIN')
-      ].join(' ').toLowerCase();
+      return [get(row, 'vendor'), get(row, 'billNo'), get(row, 'location'), get(row, 'tin'), inferCategory(row)].join(' ').toLowerCase();
     }
 
     function passesDateFilter(row) {
       const filter = els.date.value;
       if (filter === 'all') return true;
-      const raw = getValue(row, 'bill_date', 'Bill Date');
-      if (!raw) return false;
-      const parts = String(raw).includes('/') ? String(raw).split('/') : null;
-      const date = parts ? new Date(parts[2], Number(parts[1]) - 1, parts[0]) : new Date(raw);
-      if (Number.isNaN(date.getTime())) return false;
+      const date = parseBillDate(get(row, 'date'));
+      if (!date) return false;
       const now = new Date();
       if (filter === 'today') return date.toDateString() === now.toDateString();
       if (filter === 'month') return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+      if (filter === 'year') return date.getFullYear() === now.getFullYear();
       if (filter === 'week') {
         const start = new Date(now);
         start.setDate(now.getDate() - now.getDay());
@@ -238,99 +399,278 @@
     function applyFilters() {
       const q = els.search.value.trim().toLowerCase();
       const loc = els.location.value;
+      const cat = els.category.value;
       state.filtered = state.rows.filter(row => {
-        const location = getValue(row, 'location', 'Location');
-        return (!q || rowSearchText(row).includes(q)) && (!loc || location === loc) && passesDateFilter(row);
+        const rowLoc = get(row, 'location');
+        const rowCat = inferCategory(row);
+        return (!q || rowSearchText(row).includes(q)) && (!loc || rowLoc === loc) && (!cat || rowCat === cat) && passesDateFilter(row);
       });
       render();
     }
 
-    function renderLocations() {
-      const selected = els.location.value;
-      const locations = [...new Set(state.rows.map(row => getValue(row, 'location', 'Location')).filter(Boolean))].sort();
+    function groupTotals(rows, getter) {
+      const totals = new Map();
+      rows.forEach(row => {
+        const key = getter(row) || 'Unknown';
+        totals.set(key, (totals.get(key) || 0) + cleanAmount(get(row, 'amount')));
+      });
+      return [...totals.entries()].sort((a, b) => b[1] - a[1]);
+    }
+
+    function renderSelects() {
+      const selectedLocation = els.location.value;
+      const selectedCategory = els.category.value;
+      const locations = [...new Set(state.rows.map(row => get(row, 'location')).filter(Boolean))].sort();
+      const categories = [...new Set(state.rows.map(inferCategory).filter(Boolean))].sort();
       els.location.innerHTML = '<option value="">All locations</option>' + locations.map(loc => `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`).join('');
-      els.location.value = selected;
+      els.category.innerHTML = '<option value="">All categories</option>' + categories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join('');
+      els.location.value = selectedLocation;
+      els.category.value = selectedCategory;
     }
 
     function renderStats() {
-      const total = state.filtered.reduce((sum, row) => sum + cleanAmount(getValue(row, 'amount', 'Amount')), 0);
-      const male = state.filtered.filter(row => String(getValue(row, 'location', 'Location')).toLowerCase() === 'male').reduce((sum, row) => sum + cleanAmount(getValue(row, 'amount', 'Amount')), 0);
-      const villimale = state.filtered.filter(row => String(getValue(row, 'location', 'Location')).toLowerCase() === 'villimale').reduce((sum, row) => sum + cleanAmount(getValue(row, 'amount', 'Amount')), 0);
-      els.totalCount.textContent = state.filtered.length;
+      const total = state.filtered.reduce((sum, row) => sum + cleanAmount(get(row, 'amount')), 0);
+      const now = new Date();
+      const today = state.filtered.filter(row => {
+        const date = parseBillDate(get(row, 'date'));
+        return date && date.toDateString() === now.toDateString();
+      }).reduce((sum, row) => sum + cleanAmount(get(row, 'amount')), 0);
+      const month = state.filtered.filter(row => {
+        const date = parseBillDate(get(row, 'date'));
+        return date && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+      }).reduce((sum, row) => sum + cleanAmount(get(row, 'amount')), 0);
+      els.totalCount.textContent = state.filtered.length.toLocaleString();
       els.totalAmount.textContent = formatMoney(total);
-      els.maleAmount.textContent = formatMoney(male);
-      els.villimaleAmount.textContent = formatMoney(villimale);
+      els.monthAmount.textContent = formatMoney(month);
+      els.todayAmount.textContent = formatMoney(today);
+      els.avgAmount.textContent = formatMoney(state.filtered.length ? total / state.filtered.length : 0);
+      els.recordStatus.textContent = `${state.rows.length.toLocaleString()} loaded`;
     }
 
-    function render() {
-      renderStats();
+    function renderBars(target, rows) {
+      const max = Math.max(...rows.map(row => row[1]), 1);
+      target.innerHTML = rows.slice(0, 8).map(([name, total]) => `
+        <div class="bar-row">
+          <div><strong>${escapeHtml(name)}</strong><div class="bar"><span style="width:${Math.max(4, total / max * 100)}%"></span></div></div>
+          <div class="bar-meta">${formatMoney(total)} MVR</div>
+        </div>
+      `).join('') || '<p class="muted">No data yet.</p>';
+    }
+
+    function renderInsights() {
+      const total = state.filtered.reduce((sum, row) => sum + cleanAmount(get(row, 'amount')), 0);
+      const vendors = groupTotals(state.filtered, row => get(row, 'vendor'));
+      const categories = groupTotals(state.filtered, inferCategory);
+      const duplicates = new Map();
+      state.filtered.forEach(row => {
+        const billNo = get(row, 'billNo');
+        if (billNo) duplicates.set(billNo, (duplicates.get(billNo) || 0) + 1);
+      });
+      const duplicateCount = [...duplicates.values()].filter(count => count > 1).length;
+      const topVendor = vendors[0];
+      const topCategory = categories[0];
+      const avg = state.filtered.length ? total / state.filtered.length : 0;
+      const highBills = state.filtered.filter(row => cleanAmount(get(row, 'amount')) > avg * 2 && avg > 0).length;
+
+      els.aiInsights.innerHTML = [
+        ['Spending focus', topVendor ? `${topVendor[0]} is the highest vendor with ${formatMoney(topVendor[1])} MVR.` : 'No vendor data yet.'],
+        ['Category pattern', topCategory ? `${topCategory[0]} is the biggest category with ${formatMoney(topCategory[1])} MVR.` : 'No category data yet.'],
+        ['Duplicate check', duplicateCount ? `${duplicateCount} bill number(s) appear more than once. Review them before reporting.` : 'No duplicate bill numbers found in the filtered list.'],
+        ['Risk signal', highBills ? `${highBills} bill(s) are more than 2x the current average. Check high-value entries.` : 'No unusual high-value bills in the current filter.']
+      ].map(([title, text]) => `<div class="insight"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></div>`).join('');
+    }
+
+    function renderRows() {
       els.rows.innerHTML = state.filtered.map(row => {
-        const date = getValue(row, 'bill_date', 'Bill Date');
-        const vendor = getValue(row, 'vendor', 'Vendor');
-        const billNo = getValue(row, 'bill_no', 'Bill No');
-        const location = getValue(row, 'location', 'Location');
-        const tin = getValue(row, 'tin', 'TIN');
-        const amount = getValue(row, 'amount', 'Amount');
+        const editable = canEdit(row);
         return `<tr>
-          <td data-label="Date">${escapeHtml(date)}</td>
-          <td data-label="Vendor"><strong>${escapeHtml(vendor)}</strong></td>
-          <td data-label="Bill No">${escapeHtml(billNo)}</td>
-          <td data-label="Location">${escapeHtml(location)}</td>
-          <td data-label="TIN" class="muted">${escapeHtml(tin)}</td>
-          <td data-label="Amount" class="amount">${formatMoney(amount)} MVR</td>
+          <td data-label="Date">${escapeHtml(get(row, 'date'))}</td>
+          <td data-label="Vendor"><strong>${escapeHtml(get(row, 'vendor'))}</strong><div class="muted">${escapeHtml(get(row, 'tin'))}</div></td>
+          <td data-label="Bill No">${escapeHtml(get(row, 'billNo'))}</td>
+          <td data-label="Location">${escapeHtml(get(row, 'location'))}</td>
+          <td data-label="Category">${escapeHtml(inferCategory(row))}</td>
+          <td data-label="Amount" class="amount">${formatMoney(get(row, 'amount'))} MVR</td>
+          <td data-label="Actions"><div class="row-actions">
+            <button class="btn secondary small" data-action="edit" data-id="${escapeHtml(row.id)}" ${editable ? '' : 'disabled'}>Edit</button>
+            <button class="btn danger small" data-action="delete" data-id="${escapeHtml(row.id)}" ${editable ? '' : 'disabled'}>Delete</button>
+          </div></td>
         </tr>`;
       }).join('');
       els.empty.style.display = state.filtered.length ? 'none' : 'block';
       els.empty.textContent = state.rows.length ? 'No bills match this filter.' : 'No bills loaded yet.';
     }
 
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    function render() {
+      renderStats();
+      renderRows();
+      renderBars(els.topVendors, groupTotals(state.filtered, row => get(row, 'vendor')));
+      renderBars(els.categorySummary, groupTotals(state.filtered, inferCategory));
+      renderBars(els.locationSummary, groupTotals(state.filtered, row => get(row, 'location')));
+      renderInsights();
+    }
+
+    function switchView(view) {
+      state.currentView = view;
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.view === view));
+      els.dashboardView.classList.toggle('hidden', view !== 'dashboard');
+      els.billsView.classList.toggle('hidden', view !== 'bills');
+      els.analysisView.classList.toggle('hidden', view !== 'analysis');
     }
 
     async function loadBills() {
       showNotice('', '');
       els.empty.style.display = 'block';
       els.empty.textContent = 'Loading bills...';
-
       const { data, error } = await db.from(TABLE_NAME).select('*').order('id', { ascending: false }).limit(5000);
       if (error) {
-        showNotice('error', `Supabase read failed: ${error.message}. Check RLS policies and make sure the bills table has the CSV columns.`);
+        showNotice('error', `Supabase read failed: ${error.message}. Check RLS select policy for signed-in users.`);
         state.rows = [];
         state.filtered = [];
         render();
         return;
       }
-
       state.rows = data || [];
-      renderLocations();
+      renderSelects();
       applyFilters();
-      showNotice('ok', `Loaded ${state.rows.length} bill record(s).`);
+      showNotice('ok', `Loaded ${state.rows.length.toLocaleString()} bill record(s).`);
     }
 
-    async function addBill(event) {
+    function buildPayload(formData) {
+      const category = formData.get('category') === 'Auto' ? inferCategory(String(formData.get('vendor') || '')) : formData.get('category');
+      const payload = {};
+      setPayloadValue(payload, 'date', formData.get('bill_date') || null);
+      setPayloadValue(payload, 'vendor', formData.get('vendor') || '');
+      setPayloadValue(payload, 'amount', formData.get('amount') || '0');
+      setPayloadValue(payload, 'billNo', formData.get('bill_no') || '');
+      setPayloadValue(payload, 'location', formData.get('location') || '');
+      setPayloadValue(payload, 'tin', formData.get('tin') || '');
+      if (state.rows.some(row => keyMap.category.some(name => Object.prototype.hasOwnProperty.call(row, name)))) setPayloadValue(payload, 'category', category);
+      if (state.rows.some(row => keyMap.createdBy.some(name => Object.prototype.hasOwnProperty.call(row, name)))) setPayloadValue(payload, 'createdBy', state.user?.email || '');
+      if (state.rows.some(row => keyMap.userId.some(name => Object.prototype.hasOwnProperty.call(row, name)))) setPayloadValue(payload, 'userId', state.user?.id || '');
+      return payload;
+    }
+
+    function openBillDialog(row = null) {
+      state.editingRow = row;
+      els.dialogTitle.textContent = row ? 'Edit Bill' : 'Add Bill';
+      els.form.reset();
+      els.form.elements.id.value = row?.id || '';
+      els.form.elements.bill_date.value = row ? get(row, 'date') : new Date().toLocaleDateString('en-GB');
+      els.form.elements.vendor.value = row ? get(row, 'vendor') : '';
+      els.form.elements.amount.value = row ? cleanAmount(get(row, 'amount')).toFixed(2) : '';
+      els.form.elements.bill_no.value = row ? get(row, 'billNo') : '';
+      els.form.elements.location.value = row ? get(row, 'location') : '';
+      els.form.elements.tin.value = row ? get(row, 'tin') : '';
+      els.form.elements.category.value = row ? inferCategory(row) : 'Auto';
+      els.dialog.showModal();
+    }
+
+    async function saveBill(event) {
       event.preventDefault();
-      const payload = normalizeForInsert(new FormData(els.form));
-      const { error } = await db.from(TABLE_NAME).insert(payload);
+      const payload = buildPayload(new FormData(els.form));
+      const id = els.form.elements.id.value;
+      const existing = id ? state.rows.find(row => String(row.id) === String(id)) : null;
+      if (existing && !canEdit(existing)) {
+        showNotice('error', 'This entry is locked. Staff can edit/delete only within 24 hours.');
+        return;
+      }
+      const request = id ? db.from(TABLE_NAME).update(payload).eq('id', id) : db.from(TABLE_NAME).insert(payload);
+      const { error } = await request;
       if (error) {
-        showNotice('error', `Save failed: ${error.message}. If your table uses lowercase columns, rename them or add the original CSV header columns.`);
+        showNotice('error', `Save failed: ${error.message}. Check INSERT/UPDATE RLS policies.`);
         return;
       }
       els.dialog.close();
-      els.form.reset();
       await loadBills();
     }
 
+    async function deleteBill(id) {
+      const row = state.rows.find(item => String(item.id) === String(id));
+      if (!row || !canEdit(row)) {
+        showNotice('error', 'This entry is locked. Staff can delete only within 24 hours.');
+        return;
+      }
+      if (!confirm('Delete this bill?')) return;
+      const { error } = await db.from(TABLE_NAME).delete().eq('id', id);
+      if (error) {
+        showNotice('error', `Delete failed: ${error.message}. Check DELETE RLS policy.`);
+        return;
+      }
+      await loadBills();
+    }
+
+    function exportCsv() {
+      const headers = ['Bill Date', 'Vendor', 'Amount', 'Bill No', 'Location', 'TIN', 'Category'];
+      const lines = [headers.join(',')].concat(state.filtered.map(row => [
+        get(row, 'date'), get(row, 'vendor'), cleanAmount(get(row, 'amount')).toFixed(2), get(row, 'billNo'), get(row, 'location'), get(row, 'tin'), inferCategory(row)
+      ].map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(',')));
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bills-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function signIn(event) {
+      event.preventDefault();
+      showNotice('', '', els.loginNotice);
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+      if (error) {
+        showNotice('error', error.message, els.loginNotice);
+        return;
+      }
+      await startSession(data.session);
+    }
+
+    async function startSession(session) {
+      state.user = session?.user || null;
+      if (!state.user) {
+        els.loginView.classList.remove('hidden');
+        els.appView.classList.add('hidden');
+        return;
+      }
+      state.role = inferRole(state.user);
+      els.rolePill.textContent = `${state.role.toUpperCase()} · ${state.user.email}`;
+      els.loginView.classList.add('hidden');
+      els.appView.classList.remove('hidden');
+      await loadBills();
+    }
+
+    async function logout() {
+      await db.auth.signOut();
+      state.user = null;
+      state.rows = [];
+      state.filtered = [];
+      els.loginView.classList.remove('hidden');
+      els.appView.classList.add('hidden');
+    }
+
+    els.loginForm.addEventListener('submit', signIn);
     document.getElementById('refreshBtn').addEventListener('click', loadBills);
-    document.getElementById('addBtn').addEventListener('click', () => els.dialog.showModal());
+    document.getElementById('exportBtn').addEventListener('click', exportCsv);
+    document.getElementById('addBtn').addEventListener('click', () => openBillDialog());
+    document.getElementById('logoutBtn').addEventListener('click', logout);
     document.getElementById('closeDialog').addEventListener('click', () => els.dialog.close());
     document.getElementById('cancelBtn').addEventListener('click', () => els.dialog.close());
-    els.form.addEventListener('submit', addBill);
+    els.form.addEventListener('submit', saveBill);
     els.search.addEventListener('input', applyFilters);
     els.location.addEventListener('change', applyFilters);
+    els.category.addEventListener('change', applyFilters);
     els.date.addEventListener('change', applyFilters);
+    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => switchView(tab.dataset.view)));
+    els.rows.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const row = state.rows.find(item => String(item.id) === String(button.dataset.id));
+      if (button.dataset.action === 'edit') openBillDialog(row);
+      if (button.dataset.action === 'delete') deleteBill(button.dataset.id);
+    });
 
-    loadBills();
+    db.auth.getSession().then(({ data }) => startSession(data.session));
   </script>
 </body>
 </html>
