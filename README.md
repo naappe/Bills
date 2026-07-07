@@ -27,6 +27,8 @@ The optional AI Brain plan is documented in [`AI_BRAIN_GUIDE.md`](AI_BRAIN_GUIDE
 
 Key rule: keep AI provider keys and service-role database keys in a backend or Supabase Edge Function, never in `index.html` or browser JavaScript.
 
+AI Assistant, Insights, Predictions, and Anomalies are admin-dashboard features only. Staff and white users should not see those pages or call those backend routes.
+
 ## Main Features
 
 - Login with Supabase Auth.
@@ -39,7 +41,8 @@ Key rule: keep AI provider keys and service-role database keys in a backend or S
 - New bills default to `Pending`.
 - Existing imported bills with no payment status are displayed as `Paid` when dated up to today.
 - Staff edit/delete is limited to own new entries within 24 hours in the app UI.
-- Dashboard and analysis use the same filtered data.
+- Dashboard uses the same filtered data as the bills list.
+- Analysis and future AI Brain views are admin-only.
 - Bills list uses paged navigation instead of rendering every bill at once.
 
 ## Supabase
