@@ -10,6 +10,12 @@ GitHub Pages:
 https://naappe.github.io/Bills/
 ```
 
+Stock Photo Entry:
+
+```text
+https://naappe.github.io/Bills/stock.html
+```
+
 Admin AI Librarian Monitor:
 
 ```text
@@ -20,15 +26,30 @@ https://naappe.github.io/Bills/librarian.html
 
 ```text
 Bills/
-├── index.html              # Full application: HTML, CSS, JavaScript, Supabase client
-├── librarian.html          # Admin-only AI Librarian Monitor V1
-├── PROJECT_KNOWLEDGE.json  # Machine-readable project knowledge index
-├── README.md               # Project structure and operating notes
-├── AI_LIBRARIAN.md         # Read-first project map for future AI/code changes
-└── AI_BRAIN_GUIDE.md       # Optional AI assistant/backend hosting plan
+├── index.html               # Full bills application: HTML, CSS, JavaScript, Supabase client
+├── stock.html               # Stock photo upload and manual stock entry page
+├── librarian.html           # Admin-only AI Librarian Monitor V1
+├── SUPABASE_STOCK_SETUP.sql # SQL for stock_entries table and stock-photos storage bucket
+├── PROJECT_KNOWLEDGE.json   # Machine-readable project knowledge index
+├── README.md                # Project structure and operating notes
+├── AI_LIBRARIAN.md          # Read-first project map for future AI/code changes
+└── AI_BRAIN_GUIDE.md        # Optional AI assistant/backend hosting plan
 ```
 
-The app is intentionally kept as one deployable HTML file so GitHub Pages can host it without build tools, Node, or a server.
+The app is intentionally kept as static HTML files so GitHub Pages can host it without build tools, Node, or a server.
+
+## Stock Photo Entry
+
+The live Stock page is [`stock.html`](stock.html). V1 works without a host:
+
+- Upload stock photos to the private Supabase Storage bucket `stock-photos`.
+- Save manual stock data to `public.stock_entries`.
+- Use status values `Needs Review`, `Reviewed`, and `Saved`.
+- Admin can review all records; staff can work with their own records when the RLS setup is applied.
+
+Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) in the Supabase SQL Editor. The Supabase connector did not have permission to apply the schema automatically from this workspace.
+
+AI photo extraction is the next phase. Later, a Supabase Edge Function or hosted backend can read the saved photo and fill the stock fields automatically. Do not put AI provider keys in browser code.
 
 ## AI Librarian
 
@@ -69,6 +90,7 @@ AI Assistant, Insights, Predictions, Anomalies, and Librarian reports are admin-
 - Dashboard uses the same filtered data as the bills list.
 - Analysis and future AI Brain views are admin-only.
 - Bills list uses paged navigation instead of rendering every bill at once.
+- Stock page uploads images to Supabase Storage and saves stock records.
 
 ## Supabase
 
@@ -78,10 +100,22 @@ Project URL used in the app:
 https://tmupbruwmwlrmewhoodn.supabase.co
 ```
 
-Table expected by the app:
+Table expected by the bills app:
 
 ```text
 public.bills
+```
+
+Table expected by the stock page:
+
+```text
+public.stock_entries
+```
+
+Storage bucket expected by the stock page:
+
+```text
+stock-photos
 ```
 
 Supported bill columns include either imported CSV-style names or app-style names:
@@ -121,6 +155,12 @@ created_by text,
 created_at timestamptz default now()
 ```
 
+For stock setup, run:
+
+```text
+SUPABASE_STOCK_SETUP.sql
+```
+
 ## Design System
 
 The app uses a modern dashboard style:
@@ -136,7 +176,7 @@ The app uses a modern dashboard style:
 
 ## Deployment
 
-This repo is static. GitHub Pages serves `index.html` directly from the main branch.
+This repo is static. GitHub Pages serves the HTML files directly from the main branch.
 
 After updates, wait about one minute and hard refresh the browser:
 
