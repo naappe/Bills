@@ -21,6 +21,10 @@
       "description": "Complete deployed app: HTML, CSS, JavaScript, Supabase client, auth, bills, dashboard, admin AI view.",
       "deployment_impact": "Any change affects the live GitHub Pages app after cache refresh."
     },
+    "librarian.html": {
+      "type": "admin_ai_librarian_v1",
+      "description": "Admin-only static AI Librarian Monitor with project search, local usage tracking, anomaly warnings, and 24-hour evolution report generation."
+    },
     "README.md": {
       "type": "human_docs",
       "description": "Project structure, features, Supabase columns, deployment notes."
@@ -41,12 +45,12 @@
   "roles": {
     "admin": {
       "aliases": ["admin", "naappe", "naappe@gmail.com"],
-      "access": ["dashboard", "bills", "admin_ai", "edit_all_ui", "delete_all_ui"]
+      "access": ["dashboard", "bills", "admin_ai", "ai_librarian", "edit_all_ui", "delete_all_ui"]
     },
     "staff": {
       "aliases": ["white", "staff", "whitesafrron2025@gmail.com"],
       "access": ["dashboard", "bills", "own_new_entry_edit_delete_24h_ui"],
-      "blocked": ["admin_ai"]
+      "blocked": ["admin_ai", "ai_librarian"]
     }
   },
   "supabase": {
@@ -80,7 +84,8 @@
     "pagination": "12 bill cards per page.",
     "status_logic": "Blank imported bills dated up to today display as Paid. New bills default to Pending.",
     "mobile_priority": "Vendor name is prominent; amount is smaller on the right.",
-    "admin_ai": "Admin-only smart insight view. It hides bill actions, stats, and filters before showing insight cards."
+    "admin_ai": "Admin-only smart insight view. It hides bill actions, stats, and filters before showing insight cards.",
+    "ai_librarian_daily_report": "librarian.html generates a local 24-hour evolution report from admin searches, weak matches, repeated questions, risky questions, and average lookup time."
   },
   "code_map": {
     "SUPABASE_URL": "Supabase project connection.",
@@ -106,7 +111,10 @@
     "openDialog": "Add/edit modal values.",
     "saveBill": "Insert/update Supabase row.",
     "deleteBill": "Delete Supabase row.",
-    "exportCsv": "CSV export columns and filename."
+    "exportCsv": "CSV export columns and filename.",
+    "makeDailyReport": "librarian.html function that summarizes recent Librarian usage into a 24-hour report.",
+    "renderReport": "librarian.html function that displays the latest daily evolution report.",
+    "riskLevel": "librarian.html function that flags risky admin search words."
   },
   "common_requests": {
     "change_bill_filter": {
@@ -136,28 +144,40 @@
     "add_bill_field": {
       "edit": ["bill modal HTML", "keys", "buildPayload", "openDialog", "renderRows", "exportCsv"],
       "warning": "Database column must exist or Supabase insert/update will fail."
+    },
+    "daily_evolution_report": {
+      "edit": ["librarian.html makeDailyReport", "librarian.html renderReport", "PROJECT_KNOWLEDGE.json librarian_dashboard_v1", "README.md AI Librarian section"],
+      "warning": "V1 report is local browser storage only. For automatic 24-hour delivery, add a backend, Supabase table, and scheduled job."
+    },
+    "report_every_24_hours": {
+      "edit": ["Supabase Edge Function or backend cron", "ai_librarian_reports table", "admin email or in-app notification", "AI_BRAIN_GUIDE.md"],
+      "warning": "Static GitHub Pages cannot send reports by itself when the browser is closed."
     }
   },
   "librarian_dashboard_v1": {
     "goal": "Admin-only project help page that answers where to edit without calling backend AI.",
-    "data_source": "PROJECT_KNOWLEDGE.json",
+    "data_source": "PROJECT_KNOWLEDGE.json plus localStorage usage history",
     "features": [
       "search feature names and code areas",
       "show exact edit targets",
       "show warnings before risky changes",
       "record recent local searches in browser localStorage",
-      "show simple stats like knowledge files, functions indexed, and recent searches"
+      "show simple stats like knowledge files, functions indexed, and recent searches",
+      "generate a 24-hour evolution report from weak matches, repeated questions, risky questions, and lookup time",
+      "copy the report for review"
     ],
     "does_not_need": ["OpenAI key", "backend", "WebSocket", "database changes"]
   },
   "librarian_dashboard_v2": {
-    "goal": "Real hosted AI librarian with chat and monitoring.",
+    "goal": "Real hosted AI librarian with chat, monitoring, and automatic daily reports.",
     "requires": [
       "backend service or Supabase Edge Function",
       "server-only AI provider key",
       "admin session verification",
       "project knowledge ingestion",
       "logs table or server memory for query events",
+      "ai_librarian_reports table",
+      "scheduled job every 24 hours",
       "optional WebSocket or polling for live dashboard"
     ],
     "monitoring_metrics": [
@@ -167,17 +187,20 @@
       "recent_questions",
       "unmatched_questions",
       "suspicious_queries",
+      "repeated_questions",
+      "daily_report_count",
       "admin_usage_only"
     ]
   },
   "do_not_break": [
     "Do not expose service role keys or AI provider keys in browser code.",
     "Do not remove CSV-style column compatibility unless the database is migrated.",
-    "Do not make staff see admin AI.",
+    "Do not make staff see admin AI or AI Librarian.",
     "Do not remove pagination.",
     "Do not load only 1000 records; keep batch loading.",
     "Do not assume every imported bill has user_id.",
-    "Do not convert to React/Vite/Node unless the user explicitly asks."
+    "Do not convert to React/Vite/Node unless the user explicitly asks.",
+    "Do not claim V1 daily reports are automatic server reports; they are generated in the admin browser until V2 exists."
   ],
   "debug_checklists": {
     "bills_not_loading": [
@@ -193,6 +216,12 @@
       "Confirm ADMIN_EMAILS contains admin email.",
       "Confirm body gets class admin after login.",
       "Confirm AI nav button has admin-only class."
+    ],
+    "daily_report_empty": [
+      "Ask the Librarian a few questions first.",
+      "Confirm localStorage is not blocked by the browser.",
+      "Generate Report from librarian.html.",
+      "For automatic delivery, implement backend V2 scheduled reports."
     ]
   }
 }
