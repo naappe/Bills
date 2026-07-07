@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>White Saffron Stock</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#f8fafc;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--primary:#2563eb;--soft:#eff6ff;--good:#16a34a;--warn:#ca8a04;--bad:#dc2626;--bad-soft:#fef2f2;--shadow:0 1px 3px rgba(15,23,42,.08);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}button,input,select,textarea{font:inherit}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(135deg,#f8fafc,#eef6ff)}.card,.panel,.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{width:min(440px,100%);padding:28px}.app{min-height:100vh;padding:24px}.wrap{max-width:1180px;margin:0 auto}.topbar{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:20px}.title h1{margin:0;font-size:30px;line-height:1.15}.muted{color:var(--muted);font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{min-height:42px;border:1px solid transparent;border-radius:11px;padding:0 15px;background:var(--primary);color:#fff;font-weight:750;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.btn.secondary{background:#fff;color:var(--ink);border-color:var(--line)}.btn.ghost{background:transparent;color:var(--muted)}.btn.danger{background:var(--bad-soft);color:#991b1b;border-color:#fecaca}.field{width:100%;min-height:44px;border:1px solid var(--line);border-radius:12px;padding:0 13px;background:#fff;outline:0}.field:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}textarea.field{min-height:94px;padding:11px 13px;resize:vertical}.notice{display:none;margin:0 0 16px;border-radius:12px;padding:12px 14px;font-size:13px}.notice.show{display:block}.notice.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}.notice.ok{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}.notice.warn{background:#fffbeb;color:#92400e;border:1px solid #fde68a}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat{padding:18px}.label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.value{font-size:28px;font-weight:850;margin-top:8px;letter-spacing:-.02em}.grid{display:grid;grid-template-columns:minmax(340px,.9fr) minmax(0,1.1fr);gap:16px;align-items:start}.panel{padding:18px}.panel h2{margin:0 0 12px;font-size:17px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:800}.full{grid-column:1/-1}.upload{border:1px dashed #bfdbfe;background:#f8fbff;border-radius:14px;padding:16px;text-align:center;margin-bottom:14px}.preview{width:100%;max-height:320px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#fff;margin-top:12px}.toolbar{display:grid;grid-template-columns:1fr 150px;gap:10px;margin-bottom:14px}.rows{display:grid;gap:10px}.stock-card{display:grid;grid-template-columns:76px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px}.thumb{width:76px;height:76px;border-radius:12px;object-fit:cover;background:#f1f5f9;border:1px solid var(--line)}.item-title{font-weight:850;font-size:16px}.pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:800;background:var(--soft);color:#1d4ed8}.pill.review{background:#fef3c7;color:#854d0e}.pill.saved{background:#ecfdf5;color:#166534}.amount{font-weight:850;text-align:right;white-space:nowrap}.row-actions{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px}.small{min-height:34px;padding:0 11px;font-size:12px}.setup{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#0f172a;color:#e2e8f0;border-radius:12px;padding:14px;overflow:auto;font-size:12px}.ai-note{border-left:3px solid var(--primary);padding-left:12px;color:#334155;margin:10px 0 14px}@media(max-width:860px){.app{padding:14px}.topbar{display:block}.actions{margin-top:12px}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.stock-card{grid-template-columns:62px 1fr}.thumb{width:62px;height:62px}.amount{grid-column:1/-1;text-align:left}.form-grid{grid-template-columns:1fr}.value{font-size:24px}}@media(max-width:520px){.stats{grid-template-columns:1fr}.title h1{font-size:25px}.panel{padding:14px}}
+  </style>
+</head>
+<body>
+  <section class="login" id="loginView">
+    <div class="card">
+      <h1>Stock Entry</h1>
+      <p class="muted">Sign in with the same Supabase user. Use <strong>admin</strong>, <strong>naappe</strong>, <strong>white</strong>, or full email.</p>
+      <form id="loginForm" style="display:grid;gap:12px;margin-top:18px">
+        <input class="field" id="emailInput" type="text" placeholder="Username or email" autocomplete="username" required>
+        <input class="field" id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required>
+        <button class="btn" type="submit">Sign In</button>
+        <div class="notice" id="loginNotice"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="app hidden" id="appView">
+    <div class="wrap">
+      <header class="topbar">
+        <div class="title">
+          <h1>Stock Photo Entry</h1>
+          <p class="muted">Upload stock photos to Supabase Storage now. AI extraction can be connected later with an Edge Function or host.</p>
+        </div>
+        <div class="actions">
+          <a class="btn secondary" href="./">Bills App</a>
+          <button class="btn secondary" id="refreshBtn" type="button">Refresh</button>
+          <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </header>
+
+      <div class="notice" id="notice"></div>
+
+      <section class="stats">
+        <div class="stat"><div class="label">Records</div><div class="value" id="recordCount">0</div></div>
+        <div class="stat"><div class="label">Needs Review</div><div class="value" id="reviewCount">0</div></div>
+        <div class="stat"><div class="label">Total Value</div><div class="value" id="totalValue">0.00</div></div>
+        <div class="stat"><div class="label">Photos</div><div class="value" id="photoCount">0</div></div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Add Stock From Photo</h2>
+          <p class="ai-note">V1 stores the image and clean manual data. When AI is ready, it can read the saved photo and fill these fields automatically.</p>
+          <form id="stockForm">
+            <input type="hidden" name="id">
+            <input type="hidden" name="photo_path">
+            <div class="upload">
+              <strong>Stock photo</strong>
+              <p class="muted">JPG, PNG, WEBP, HEIC up to 10MB.</p>
+              <input class="field" id="photoInput" type="file" accept="image/*" style="padding-top:10px">
+              <img class="preview hidden" id="preview" alt="Stock photo preview">
+            </div>
+            <div class="form-grid">
+              <label>Item Name<input class="field" name="item_name" placeholder="Tomato / Flour / Paper cup"></label>
+              <label>Vendor<input class="field" name="vendor" placeholder="Supplier name"></label>
+              <label>Quantity<input class="field" name="quantity" type="number" step="0.01" min="0" value="1"></label>
+              <label>Unit<input class="field" name="unit" placeholder="kg / pcs / box"></label>
+              <label>Unit Price<input class="field" name="unit_price" type="number" step="0.01" min="0"></label>
+              <label>Total Price<input class="field" name="total_price" type="number" step="0.01" min="0"></label>
+              <label>Status<select class="field" name="status"><option>Needs Review</option><option>Reviewed</option><option>Saved</option></select></label>
+              <label class="full">Notes / Source Text<textarea class="field" name="source_text" placeholder="Type what you can read from the photo. AI will fill this later."></textarea></label>
+            </div>
+            <div class="actions" style="margin-top:14px;justify-content:flex-start">
+              <button class="btn" type="submit" id="saveBtn">Save Stock</button>
+              <button class="btn secondary" type="button" id="clearBtn">Clear</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2>Stock Records</h2>
+          <div class="toolbar">
+            <input class="field" id="searchInput" placeholder="Search item, vendor, status, notes">
+            <select class="field" id="statusFilter"><option value="">All status</option><option>Needs Review</option><option>Reviewed</option><option>Saved</option></select>
+          </div>
+          <div class="rows" id="rows"></div>
+          <div class="muted" id="emptyState">Loading stock records...</div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <script>
+    const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co',SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
+    const TABLE='stock_entries',BUCKET='stock-photos',ADMIN_EMAILS=['naappe@gmail.com'];
+    const LOGIN_ALIASES={white:'whitesafrron2025@gmail.com',staff:'whitesafrron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
+    const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY),state={user:null,role:'staff',rows:[],filtered:[],urls:{},selectedFile:null};
+    const $=id=>document.getElementById(id),els={login:$('loginView'),app:$('appView'),loginForm:$('loginForm'),loginNotice:$('loginNotice'),notice:$('notice'),form:$('stockForm'),photo:$('photoInput'),preview:$('preview'),rows:$('rows'),empty:$('emptyState'),search:$('searchInput'),status:$('statusFilter'),recordCount:$('recordCount'),reviewCount:$('reviewCount'),totalValue:$('totalValue'),photoCount:$('photoCount')};
+    const esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const num=v=>Number(String(v||0).replace(/,/g,''))||0;
+    const money=v=>num(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const loginName=v=>LOGIN_ALIASES[String(v||'').trim().toLowerCase()]||String(v||'').trim().toLowerCase();
+    const isAdmin=()=>state.role==='admin';
+    function notice(type,msg,target=els.notice){target.className=msg?`notice show ${type}`:'notice';target.textContent=msg||''}
+    function roleFor(u){return ADMIN_EMAILS.includes(String(u?.email||'').toLowerCase())?'admin':'staff'}
+    function stockSetupSql(){return `-- Run this in Supabase SQL Editor\ncreate table if not exists public.stock_entries (\n  id bigint generated by default as identity primary key,\n  item_name text,\n  quantity numeric default 0,\n  unit text,\n  unit_price numeric default 0,\n  total_price numeric default 0,\n  vendor text,\n  photo_path text,\n  source_text text,\n  status text default 'Needs Review',\n  user_id uuid,\n  created_by text,\n  created_at timestamptz default now(),\n  updated_at timestamptz default now()\n);\n\nalter table public.stock_entries enable row level security;\n\ncreate policy "stock select own or admin" on public.stock_entries\nfor select to authenticated\nusing (user_id = (select auth.uid()) or (select auth.jwt() ->> 'email') = 'naappe@gmail.com');\n\ncreate policy "stock insert own" on public.stock_entries\nfor insert to authenticated\nwith check (user_id = (select auth.uid()));\n\ncreate policy "stock update own or admin" on public.stock_entries\nfor update to authenticated\nusing (user_id = (select auth.uid()) or (select auth.jwt() ->> 'email') = 'naappe@gmail.com')\nwith check (user_id = (select auth.uid()) or (select auth.jwt() ->> 'email') = 'naappe@gmail.com');\n\ncreate policy "stock delete admin" on public.stock_entries\nfor delete to authenticated\nusing ((select auth.jwt() ->> 'email') = 'naappe@gmail.com');\n\ngrant select, insert, update, delete on public.stock_entries to authenticated;\ngrant usage, select on sequence public.stock_entries_id_seq to authenticated;\n\ninsert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)\nvalues ('stock-photos', 'stock-photos', false, 10485760, array['image/jpeg','image/png','image/webp','image/heic','image/heif'])\non conflict (id) do nothing;\n\ncreate policy "stock photos insert own folder" on storage.objects\nfor insert to authenticated\nwith check (bucket_id = 'stock-photos' and (storage.foldername(name))[1] = (select auth.uid())::text);\n\ncreate policy "stock photos select own or admin" on storage.objects\nfor select to authenticated\nusing (bucket_id = 'stock-photos' and ((storage.foldername(name))[1] = (select auth.uid())::text or (select auth.jwt() ->> 'email') = 'naappe@gmail.com'));`;}
+    function showSetup(error){notice('warn','Stock setup is not finished in Supabase yet. Run the SQL below in Supabase SQL Editor, then refresh.');els.rows.innerHTML=`<div class="setup">${esc(stockSetupSql())}</div>`;els.empty.textContent=error?`Supabase says: ${error.message}`:'Setup required.'}
+    async function signIn(e){e.preventDefault();notice('', '', els.loginNotice);const email=loginName($('emailInput').value),password=$('passwordInput').value;const{data,error}=await db.auth.signInWithPassword({email,password});if(error){notice('error',error.message,els.loginNotice);return}start(data.session)}
+    async function start(session){state.user=session?.user||null;if(!state.user){els.login.classList.remove('hidden');els.app.classList.add('hidden');return}state.role=roleFor(state.user);els.login.classList.add('hidden');els.app.classList.remove('hidden');await loadRows()}
+    async function logout(){await db.auth.signOut();state.user=null;state.rows=[];els.login.classList.remove('hidden');els.app.classList.add('hidden')}
+    async function signedUrl(path){if(!path)return'';if(state.urls[path])return state.urls[path];const{data,error}=await db.storage.from(BUCKET).createSignedUrl(path,3600);if(error)return'';state.urls[path]=data.signedUrl;return data.signedUrl}
+    async function loadRows(){notice('','');els.empty.textContent='Loading stock records...';const{data,error}=await db.from(TABLE).select('*').order('created_at',{ascending:false}).limit(250);if(error){showSetup(error);return}state.rows=data||[];for(const r of state.rows.slice(0,80))if(r.photo_path)await signedUrl(r.photo_path);applyFilters()}
+    function applyFilters(){const q=els.search.value.trim().toLowerCase(),st=els.status.value;state.filtered=state.rows.filter(r=>{const txt=[r.item_name,r.vendor,r.status,r.unit,r.source_text].join(' ').toLowerCase();return(!q||txt.includes(q))&&(!st||r.status===st)});render()}
+    function render(){els.recordCount.textContent=state.filtered.length.toLocaleString();els.reviewCount.textContent=state.filtered.filter(r=>r.status==='Needs Review').length.toLocaleString();els.totalValue.textContent=money(state.filtered.reduce((s,r)=>s+num(r.total_price),0));els.photoCount.textContent=state.filtered.filter(r=>r.photo_path).length.toLocaleString();els.rows.innerHTML=state.filtered.map(r=>{const url=state.urls[r.photo_path]||'',status=r.status||'Needs Review';return `<article class="stock-card"><img class="thumb" src="${esc(url)}" alt="" onerror="this.style.display='none'"><div><div class="item-title">${esc(r.item_name||'Unnamed stock')}</div><div class="muted">${esc(r.vendor||'No vendor')} · ${esc(r.quantity||0)} ${esc(r.unit||'')}</div><div style="margin-top:6px"><span class="pill ${status==='Needs Review'?'review':'saved'}">${esc(status)}</span></div><div class="row-actions"><button class="btn secondary small" data-action="edit" data-id="${r.id}">Edit</button>${isAdmin()?`<button class="btn danger small" data-action="delete" data-id="${r.id}">Delete</button>`:''}</div></div><div class="amount">${money(r.total_price)} MVR</div></article>`}).join('');els.empty.textContent=state.filtered.length?'':'No stock records found.'}
+    function clearForm(){els.form.reset();els.form.elements.id.value='';els.form.elements.photo_path.value='';state.selectedFile=null;els.preview.classList.add('hidden');els.preview.removeAttribute('src')}
+    function fillForm(r){els.form.elements.id.value=r.id;els.form.elements.photo_path.value=r.photo_path||'';els.form.elements.item_name.value=r.item_name||'';els.form.elements.vendor.value=r.vendor||'';els.form.elements.quantity.value=r.quantity||'';els.form.elements.unit.value=r.unit||'';els.form.elements.unit_price.value=r.unit_price||'';els.form.elements.total_price.value=r.total_price||'';els.form.elements.status.value=r.status||'Needs Review';els.form.elements.source_text.value=r.source_text||'';const url=state.urls[r.photo_path]||'';if(url){els.preview.src=url;els.preview.classList.remove('hidden')}window.scrollTo({top:0,behavior:'smooth'})}
+    async function uploadPhoto(){if(!state.selectedFile)return els.form.elements.photo_path.value||'';const file=state.selectedFile,ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''),path=`${state.user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;const{error}=await db.storage.from(BUCKET).upload(path,file,{cacheControl:'3600',upsert:false});if(error)throw error;els.form.elements.photo_path.value=path;return path}
+    async function saveStock(e){e.preventDefault();notice('','');try{const photoPath=await uploadPhoto(),f=new FormData(els.form),payload={item_name:f.get('item_name')||'',quantity:num(f.get('quantity')),unit:f.get('unit')||'',unit_price:num(f.get('unit_price')),total_price:num(f.get('total_price')),vendor:f.get('vendor')||'',photo_path:photoPath,source_text:f.get('source_text')||'',status:f.get('status')||'Needs Review',user_id:state.user.id,created_by:state.user.email,updated_at:new Date().toISOString()};if(!payload.total_price&&payload.quantity&&payload.unit_price)payload.total_price=payload.quantity*payload.unit_price;const id=f.get('id');const req=id?db.from(TABLE).update(payload).eq('id',id):db.from(TABLE).insert(payload);const{error}=await req;if(error)throw error;notice('ok','Stock saved.');clearForm();await loadRows()}catch(error){showSetup(error)}}
+    async function deleteRow(id){if(!confirm('Delete this stock record?'))return;const{error}=await db.from(TABLE).delete().eq('id',id);if(error){notice('error',error.message);return}await loadRows()}
+    els.loginForm.addEventListener('submit',signIn);$('logoutBtn').addEventListener('click',logout);$('refreshBtn').addEventListener('click',loadRows);$('clearBtn').addEventListener('click',clearForm);els.form.addEventListener('submit',saveStock);els.photo.addEventListener('change',e=>{state.selectedFile=e.target.files?.[0]||null;if(state.selectedFile){els.preview.src=URL.createObjectURL(state.selectedFile);els.preview.classList.remove('hidden')}});['quantity','unit_price'].forEach(n=>els.form.elements[n].addEventListener('input',()=>{const q=num(els.form.elements.quantity.value),p=num(els.form.elements.unit_price.value);if(q&&p)els.form.elements.total_price.value=(q*p).toFixed(2)}));[els.search,els.status].forEach(el=>el.addEventListener(el.tagName==='INPUT'?'input':'change',applyFilters));els.rows.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const r=state.rows.find(x=>String(x.id)===String(b.dataset.id));if(b.dataset.action==='edit'&&r)fillForm(r);if(b.dataset.action==='delete')deleteRow(b.dataset.id)});db.auth.getSession().then(({data})=>start(data.session));
+  </script>
+</body>
+</html>
