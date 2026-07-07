@@ -14,11 +14,18 @@ https://naappe.github.io/Bills/
 
 ```text
 Bills/
-├── index.html   # Full application: HTML, CSS, JavaScript, Supabase client
-└── README.md    # Project structure and operating notes
+├── index.html          # Full application: HTML, CSS, JavaScript, Supabase client
+├── README.md           # Project structure and operating notes
+└── AI_BRAIN_GUIDE.md   # Optional AI assistant/backend hosting plan
 ```
 
 The app is intentionally kept as one deployable HTML file so GitHub Pages can host it without build tools, Node, or a server.
+
+## AI Brain Plan
+
+The optional AI Brain plan is documented in [`AI_BRAIN_GUIDE.md`](AI_BRAIN_GUIDE.md).
+
+Key rule: keep AI provider keys and service-role database keys in a backend or Supabase Edge Function, never in `index.html` or browser JavaScript.
 
 ## Main Features
 
@@ -26,13 +33,14 @@ The app is intentionally kept as one deployable HTML file so GitHub Pages can ho
 - Username aliases:
   - `white` or `staff` maps to `whitesafrron2025@gmail.com`
   - `admin` or `naappe` maps to `naappe@gmail.com`
-- Current-year bill view only.
+- Date filter for this year, today, this week, this month, last month, date range, and all years.
 - Loads all Supabase rows in 1,000-record batches.
 - Add, edit, delete, refresh, and export bills.
 - New bills default to `Pending`.
 - Existing imported bills with no payment status are displayed as `Paid` when dated up to today.
 - Staff edit/delete is limited to own new entries within 24 hours in the app UI.
-- Dashboard and analysis use the same current-year filtered data.
+- Dashboard and analysis use the same filtered data.
+- Bills list uses paged navigation instead of rendering every bill at once.
 
 ## Supabase
 
@@ -92,7 +100,7 @@ The app uses a modern dashboard style:
 - Inter / SF Pro style system fonts.
 - Left sidebar navigation.
 - Card-based stats and bill rows.
-- Current-year filter lock.
+- Date range filtering.
 - Soft shadows, light gray backgrounds, rounded 12px cards.
 - Blue primary action color.
 - Green paid badge, yellow pending badge, red cancelled badge.
