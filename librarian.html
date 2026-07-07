@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Librarian Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#f8fafc;--panel:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--primary:#2563eb;--primary-soft:#eff6ff;--good:#16a34a;--warn:#ca8a04;--bad:#dc2626;--soft:#f1f5f9;--shadow:0 1px 3px rgba(15,23,42,.08);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}button,input{font:inherit}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:24px}.login-card,.panel,.stat,.answer-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.login-card{width:min(440px,100%);padding:28px}.app{min-height:100vh;padding:24px}.wrap{max-width:1180px;margin:0 auto}.topbar{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:22px}.title h1{margin:0;font-size:30px;line-height:1.15}.muted{color:var(--muted);font-size:13px}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{min-height:42px;border:1px solid transparent;border-radius:11px;padding:0 15px;background:var(--primary);color:#fff;font-weight:750;cursor:pointer}.btn.secondary{background:#fff;color:var(--ink);border-color:var(--line)}.btn.ghost{background:transparent;color:var(--muted)}.field{width:100%;min-height:46px;border:1px solid var(--line);border-radius:12px;padding:0 14px;outline:0}.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}.notice{display:none;margin-top:12px;border-radius:11px;padding:11px 13px;font-size:13px}.notice.show{display:block}.notice.error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}.notice.ok{background:#ecfdf5;color:#166534;border:1px solid #bbf7d0}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}.stat{padding:18px}.label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.value{font-size:28px;font-weight:850;margin-top:8px;letter-spacing:-.02em}.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:16px;align-items:start}.panel{padding:18px}.panel h2{margin:0 0 12px;font-size:17px}.search-row{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:14px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted);cursor:pointer}.answer-list{display:grid;gap:10px}.answer-card{padding:14px;background:#fff}.answer-card strong{display:block;font-size:15px;margin-bottom:4px}.path{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#1d4ed8;font-size:12px;margin-top:7px}.warning{margin-top:8px;border-left:3px solid var(--warn);padding-left:10px;color:#854d0e;font-size:13px}.feed{display:grid;gap:8px}.feed-item{display:grid;grid-template-columns:82px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:#fff;font-size:13px}.status-dot{width:9px;height:9px;border-radius:999px;background:var(--good);display:inline-block;margin-right:6px}.bars{display:grid;gap:12px}.bar-line{display:grid;grid-template-columns:120px 1fr 48px;gap:10px;align-items:center;font-size:13px}.bar{height:9px;border-radius:999px;background:#e2e8f0;overflow:hidden}.bar span{display:block;height:100%;background:var(--primary)}.matrix{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-top:10px}.cell{aspect-ratio:1;border-radius:6px;background:#dbeafe}.cell.hot{background:#2563eb}.cell.mid{background:#93c5fd}.cell.low{background:#eff6ff}.anomaly{border:1px solid #fecaca;background:#fef2f2;color:#991b1b;border-radius:11px;padding:10px;font-size:13px;margin-top:10px}.footer-note{margin-top:16px;color:var(--muted);font-size:12px}@media(max-width:860px){.app{padding:14px}.topbar{display:block}.actions{margin-top:12px}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.feed-item{grid-template-columns:1fr}.value{font-size:24px}}@media(max-width:520px){.stats{grid-template-columns:1fr}.title h1{font-size:26px}.panel{padding:14px}}
+  </style>
+</head>
+<body>
+  <section class="login" id="loginView">
+    <div class="login-card">
+      <h1>AI Librarian Monitor</h1>
+      <p class="muted">Admin-only project librarian. Sign in as admin or naappe.</p>
+      <form id="loginForm">
+        <input class="field" id="emailInput" type="text" placeholder="admin or email" autocomplete="username" required style="margin-bottom:10px">
+        <input class="field" id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required style="margin-bottom:14px">
+        <button class="btn" type="submit" style="width:100%">Sign In</button>
+        <div class="notice" id="loginNotice"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="app hidden" id="appView">
+    <div class="wrap">
+      <header class="topbar">
+        <div class="title">
+          <h1>AI Librarian Monitor</h1>
+          <p class="muted"><span class="status-dot"></span>Static V1 live. Reads project knowledge instantly. Backend AI/WebSocket comes in V2.</p>
+        </div>
+        <div class="actions">
+          <a class="btn secondary" href="./">Bills App</a>
+          <button class="btn secondary" id="reloadBtn" type="button">Reload Knowledge</button>
+          <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </header>
+
+      <section class="stats">
+        <div class="stat"><div class="label">Knowledge Files</div><div class="value" id="fileCount">0</div></div>
+        <div class="stat"><div class="label">Functions Indexed</div><div class="value" id="functionCount">0</div></div>
+        <div class="stat"><div class="label">Recent Queries</div><div class="value" id="queryCount">0</div></div>
+        <div class="stat"><div class="label">Confidence</div><div class="value" id="confidence">0%</div></div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Ask Where To Change</h2>
+          <div class="search-row">
+            <input class="field" id="questionInput" placeholder="Example: where is bill filter, mobile card, export, admin AI">
+            <button class="btn" id="askBtn" type="button">Ask</button>
+          </div>
+          <div class="chips" id="quickChips"></div>
+          <div class="answer-list" id="answers"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Live Activity</h2>
+          <div class="feed" id="feed"></div>
+          <div id="anomalyBox"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Knowledge Growth</h2>
+          <div class="bars" id="growthBars"></div>
+          <div class="footer-note">V1 uses the static knowledge index and local browser search history. V2 can store real usage metrics in Supabase.</div>
+        </div>
+
+        <div class="panel">
+          <h2>Knowledge Matrix</h2>
+          <p class="muted">Visual density map of known project areas.</p>
+          <div class="matrix" id="matrix"></div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <script>
+    const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co',SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
+    const LOGIN_ALIASES={admin:'naappe@gmail.com',naappe:'naappe@gmail.com'},ADMIN_EMAILS=['naappe@gmail.com'];
+    const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    const $=id=>document.getElementById(id);
+    const els={login:$('loginView'),app:$('appView'),form:$('loginForm'),loginNotice:$('loginNotice'),files:$('fileCount'),functions:$('functionCount'),queries:$('queryCount'),confidence:$('confidence'),question:$('questionInput'),answers:$('answers'),feed:$('feed'),anomaly:$('anomalyBox'),chips:$('quickChips'),bars:$('growthBars'),matrix:$('matrix')};
+    let knowledge=null,index=[];
+    function notice(type,msg){els.loginNotice.className=`notice show ${type}`;els.loginNotice.textContent=msg}
+    function loginName(v){const k=String(v||'').trim().toLowerCase();return LOGIN_ALIASES[k]||k}
+    function isAdminUser(u){return ADMIN_EMAILS.includes(String(u?.email||'').toLowerCase())||String(u?.app_metadata?.role||'').toLowerCase()==='admin'}
+    function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+    function recent(){try{return JSON.parse(localStorage.getItem('librarian_queries')||'[]')}catch{return[]}}
+    function saveRecent(item){const rows=[item,...recent()].slice(0,20);localStorage.setItem('librarian_queries',JSON.stringify(rows));renderFeed()}
+    function flatten(obj,prefix=''){let out=[];if(Array.isArray(obj)){obj.forEach((v,i)=>out=out.concat(flatten(v,`${prefix}[${i}]`)));return out}if(obj&&typeof obj==='object'){Object.entries(obj).forEach(([k,v])=>{const path=prefix?`${prefix}.${k}`:k;if(v&&typeof v==='object')out=out.concat(flatten(v,path));else out.push({path,key:k,text:String(v)})});return out}return out}
+    function buildIndex(){index=flatten(knowledge);Object.entries(knowledge.common_requests||{}).forEach(([name,item])=>index.push({path:`common_requests.${name}`,key:name,text:[name,(item.edit||[]).join(' '),item.warning||''].join(' ')}));Object.entries(knowledge.code_map||{}).forEach(([name,text])=>index.push({path:`code_map.${name}`,key:name,text:`${name} ${text}`}))}
+    function scoreEntry(q,e){const terms=q.toLowerCase().split(/\s+/).filter(Boolean);const hay=`${e.key} ${e.path} ${e.text}`.toLowerCase();return terms.reduce((s,t)=>s+(hay.includes(t)?1:0),0)}
+    function explain(q){const matches=index.map(e=>({...e,score:scoreEntry(q,e)})).filter(e=>e.score>0).sort((a,b)=>b.score-a.score).slice(0,6);if(!matches.length)return [{key:'No exact match',path:'AI_LIBRARIAN.md / PROJECT_KNOWLEDGE.json',text:'Try words like filter, mobile, export, admin, AI, Supabase, role, delete, field, or bills.',score:0}];return matches}
+    function ask(q){const start=performance.now();q=(q||els.question.value).trim();if(!q)return;const answers=explain(q),duration=Math.max(1,Math.round(performance.now()-start));saveRecent({q,time:new Date().toLocaleTimeString(),duration,matched:answers[0]?.key||'none'});renderAnswers(answers,q,duration);renderStats();detectAnomaly(q)}
+    function renderAnswers(items,q,duration){els.answers.innerHTML=`<div class="answer-card"><strong>Answer for: ${esc(q)}</strong><span class="muted">Found in ${duration}ms from local project knowledge.</span></div>`+items.map(i=>`<div class="answer-card"><strong>${esc(i.key)}</strong><div>${esc(i.text)}</div><div class="path">${esc(i.path)}</div>${warningFor(i.path)}</div>`).join('')}
+    function warningFor(path){const req=knowledge.common_requests||{};const key=Object.keys(req).find(k=>path.includes(k));return key&&req[key].warning?`<div class="warning">${esc(req[key].warning)}</div>`:''}
+    function renderFeed(){const rows=recent();els.feed.innerHTML=rows.length?rows.map(r=>`<div class="feed-item"><span>${esc(r.time)}</span><span>${esc(r.q)}</span><strong>${esc(r.duration)}ms</strong></div>`).join(''):'<p class="muted">No local searches yet.</p>'}
+    function detectAnomaly(q){const rows=recent(),same=rows.filter(r=>r.q.toLowerCase()===q.toLowerCase()).length,bad=/hack|exploit|bypass|drop|delete all|service role|secret/i.test(q),long=q.length>180;if(same>3||bad||long){els.anomaly.innerHTML=`<div class="anomaly"><strong>Anomaly detected:</strong> ${same>3?'Repeated question pattern. ':''}${bad?'Sensitive wording. ':''}${long?'Very long query. ':''}</div>`}else els.anomaly.innerHTML=''}
+    function renderStats(){const files=Object.keys(knowledge.files||{}).length,functions=Object.keys(knowledge.code_map||{}).length,queries=recent().length,confidence=Math.min(98,72+files*2+Math.min(queries,10));els.files.textContent=files;els.functions.textContent=functions;els.queries.textContent=queries;els.confidence.textContent=`${confidence}%`}
+    function renderGrowth(){const rows=[['Files learned',Object.keys(knowledge.files||{}).length,8],['Functions indexed',Object.keys(knowledge.code_map||{}).length,24],['Common requests',Object.keys(knowledge.common_requests||{}).length,10],['Debug checks',Object.keys(knowledge.debug_checklists||{}).length,5]];els.bars.innerHTML=rows.map(([n,v,max])=>`<div class="bar-line"><span>${n}</span><div class="bar"><span style="width:${Math.min(100,v/max*100)}%"></span></div><strong>${v}</strong></div>`).join('')}
+    function renderMatrix(){const count=Object.keys(knowledge.code_map||{}).length+Object.keys(knowledge.common_requests||{}).length+Object.keys(knowledge.files||{}).length;els.matrix.innerHTML=Array.from({length:32},(_,i)=>`<div class="cell ${i<count?'hot':i<count+8?'mid':'low'}"></div>`).join('')}
+    function renderChips(){const chips=['bill filter','mobile bill card','export CSV','admin AI','Supabase columns','staff permissions','add new field','loading bills'];els.chips.innerHTML=chips.map(c=>`<button class="chip" type="button" data-q="${esc(c)}">${esc(c)}</button>`).join('')}
+    async function loadKnowledge(){const res=await fetch('PROJECT_KNOWLEDGE.json',{cache:'no-store'});if(!res.ok)throw new Error('Could not load PROJECT_KNOWLEDGE.json');knowledge=await res.json();buildIndex();renderStats();renderFeed();renderGrowth();renderMatrix();renderChips();renderAnswers([{key:'Ready',path:'PROJECT_KNOWLEDGE.json',text:'Ask where to change a feature, or tap a quick question.'}],'AI Librarian',1)}
+    async function start(session){const user=session?.user;if(!user){els.login.classList.remove('hidden');els.app.classList.add('hidden');return}if(!isAdminUser(user)){await db.auth.signOut();notice('error','Admin only. Please sign in as naappe/admin.');return}els.login.classList.add('hidden');els.app.classList.remove('hidden');await loadKnowledge()}
+    els.form.addEventListener('submit',async e=>{e.preventDefault();notice('ok','Signing in...');const email=loginName($('emailInput').value),password=$('passwordInput').value;const{data,error}=await db.auth.signInWithPassword({email,password});if(error){notice('error',error.message);return}start(data.session)});
+    $('askBtn').addEventListener('click',()=>ask());els.question.addEventListener('keydown',e=>{if(e.key==='Enter')ask()});$('reloadBtn').addEventListener('click',loadKnowledge);$('logoutBtn').addEventListener('click',async()=>{await db.auth.signOut();els.app.classList.add('hidden');els.login.classList.remove('hidden')});els.chips.addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;els.question.value=b.dataset.q;ask(b.dataset.q)});db.auth.getSession().then(({data})=>start(data.session));
+  </script>
+</body>
+</html>
