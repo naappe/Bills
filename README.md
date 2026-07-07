@@ -34,7 +34,17 @@ The app is intentionally kept as one deployable HTML file so GitHub Pages can ho
 
 Future AI/code assistants should read [`AI_LIBRARIAN.md`](AI_LIBRARIAN.md) first. It explains the project structure, important functions, Supabase columns, roles, admin-only AI behavior, and common edit locations so changes can be made faster.
 
-The live V1 Librarian Monitor is [`librarian.html`](librarian.html). It is admin-only, reads [`PROJECT_KNOWLEDGE.json`](PROJECT_KNOWLEDGE.json), searches known project areas, shows local recent queries, and displays simple knowledge/monitoring stats. It does not need OpenAI, WebSocket, or a backend yet.
+The live V1 Librarian Monitor is [`librarian.html`](librarian.html). It is admin-only, reads [`PROJECT_KNOWLEDGE.json`](PROJECT_KNOWLEDGE.json), searches known project areas, shows local recent queries, displays simple knowledge/monitoring stats, and generates a 24-hour Evolution Report from admin usage.
+
+The Evolution Report checks:
+
+- repeated questions,
+- weak or missing knowledge matches,
+- risky admin topics such as delete, RLS, policies, keys, and permissions,
+- average local lookup time,
+- recommended improvements for the next build.
+
+V1 does not need OpenAI, WebSocket, or a backend. The report is generated from local browser history. Automatic 24-hour delivery requires V2 with a backend or Supabase Edge Function, a reports table, and a scheduled job.
 
 ## AI Brain Plan
 
@@ -42,7 +52,7 @@ The optional AI Brain plan is documented in [`AI_BRAIN_GUIDE.md`](AI_BRAIN_GUIDE
 
 Key rule: keep AI provider keys and service-role database keys in a backend or Supabase Edge Function, never in `index.html` or browser JavaScript.
 
-AI Assistant, Insights, Predictions, and Anomalies are admin-dashboard features only. Staff and white users should not see those pages or call those backend routes.
+AI Assistant, Insights, Predictions, Anomalies, and Librarian reports are admin-dashboard features only. Staff and white users should not see those pages or call those backend routes.
 
 ## Main Features
 
