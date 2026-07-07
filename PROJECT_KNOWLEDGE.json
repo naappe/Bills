@@ -1,0 +1,198 @@
+{
+  "project": {
+    "name": "White Saffron Bills Tracker",
+    "repository": "naappe/Bills",
+    "live_url": "https://naappe.github.io/Bills/",
+    "hosting": "GitHub Pages",
+    "frontend": "single static index.html",
+    "database": "Supabase public.bills",
+    "supabase_project_id": "tmupbruwmwlrmewhoodn",
+    "purpose": "Bill entry, viewing, export, dashboard analysis, and future AI librarian support."
+  },
+  "read_first": [
+    "AI_LIBRARIAN.md",
+    "README.md",
+    "index.html",
+    "AI_BRAIN_GUIDE.md only for backend AI work"
+  ],
+  "files": {
+    "index.html": {
+      "type": "live_app",
+      "description": "Complete deployed app: HTML, CSS, JavaScript, Supabase client, auth, bills, dashboard, admin AI view.",
+      "deployment_impact": "Any change affects the live GitHub Pages app after cache refresh."
+    },
+    "README.md": {
+      "type": "human_docs",
+      "description": "Project structure, features, Supabase columns, deployment notes."
+    },
+    "AI_LIBRARIAN.md": {
+      "type": "ai_docs",
+      "description": "Read-first project map for future AI/code assistants."
+    },
+    "AI_BRAIN_GUIDE.md": {
+      "type": "future_ai_architecture",
+      "description": "Plan for real backend AI chat, insights, predictions, and anomalies."
+    },
+    "PROJECT_KNOWLEDGE.json": {
+      "type": "machine_readable_index",
+      "description": "Structured index for an admin Librarian search/chat dashboard."
+    }
+  },
+  "roles": {
+    "admin": {
+      "aliases": ["admin", "naappe", "naappe@gmail.com"],
+      "access": ["dashboard", "bills", "admin_ai", "edit_all_ui", "delete_all_ui"]
+    },
+    "staff": {
+      "aliases": ["white", "staff", "whitesafrron2025@gmail.com"],
+      "access": ["dashboard", "bills", "own_new_entry_edit_delete_24h_ui"],
+      "blocked": ["admin_ai"]
+    }
+  },
+  "supabase": {
+    "table": "public.bills",
+    "row_count_context": {
+      "total_seen": 2474,
+      "this_year_seen": 2315,
+      "source": "latest user screenshots and app status text"
+    },
+    "columns": {
+      "bill_date": ["Bill Date", "bill_date"],
+      "vendor": ["Vendor", "vendor"],
+      "amount": ["Amount", "amount"],
+      "bill_no": ["Bill No", "bill_no"],
+      "location": ["Location", "location"],
+      "tin": ["TIN", "tin"],
+      "category": ["Category", "category"],
+      "status": ["payment_status", "Payment Status", "status", "Status"],
+      "payment_method": ["payment_method", "Payment Method", "method", "Method"],
+      "notes": ["notes", "Notes"],
+      "user_id": ["user_id", "User ID"],
+      "created_by": ["created_by", "Created By"],
+      "created_at": ["created_at", "createdAt"]
+    },
+    "rls_warning": "Do not use auth.uid() = user_id as the only SELECT policy if imported shared bills without user_id must remain visible."
+  },
+  "current_behavior": {
+    "default_login_view": "Bills",
+    "default_date_filter": "This year",
+    "batch_loading": "Loads Supabase rows in 1000-row ranges until complete.",
+    "pagination": "12 bill cards per page.",
+    "status_logic": "Blank imported bills dated up to today display as Paid. New bills default to Pending.",
+    "mobile_priority": "Vendor name is prominent; amount is smaller on the right.",
+    "admin_ai": "Admin-only smart insight view. It hides bill actions, stats, and filters before showing insight cards."
+  },
+  "code_map": {
+    "SUPABASE_URL": "Supabase project connection.",
+    "SUPABASE_KEY": "Publishable frontend key only. Never replace with service role key.",
+    "TABLE_NAME": "Supabase table name.",
+    "LOGIN_ALIASES": "Username shortcut map.",
+    "ADMIN_EMAILS": "Admin allowlist.",
+    "roleFor": "Determines admin vs staff after login.",
+    "isAdmin": "Admin helper used for UI permissions.",
+    "keys": "Column compatibility map for CSV-style and app-style names.",
+    "parseDate": "Handles imported d/m/yyyy dates and normal Date parsing.",
+    "inDateScope": "Date filter logic.",
+    "normStatus": "Paid, Pending, Cancelled display logic.",
+    "category": "Automatic category guess from category/vendor/bill number text.",
+    "canEdit": "UI edit/delete rule, including staff 24-hour window.",
+    "applyFilters": "Search, status, and date filtering.",
+    "renderStats": "Top stats and admin record text.",
+    "renderInsights": "Current smart AI insight cards.",
+    "renderRows": "Bill card rendering and pagination.",
+    "switchView": "Dashboard, Bills, and AI view switching.",
+    "loadBills": "Supabase batch loading.",
+    "buildPayload": "Add/edit payload construction.",
+    "openDialog": "Add/edit modal values.",
+    "saveBill": "Insert/update Supabase row.",
+    "deleteBill": "Delete Supabase row.",
+    "exportCsv": "CSV export columns and filename."
+  },
+  "common_requests": {
+    "change_bill_filter": {
+      "edit": ["filter-card HTML", "inDateScope", "applyFilters", "renderStats"],
+      "warning": "Keep this-year default unless user asks otherwise."
+    },
+    "change_mobile_bill_card": {
+      "edit": ["CSS media queries", "renderRows"],
+      "warning": "Vendor should stay easy to identify; amount should not dominate mobile."
+    },
+    "hide_from_staff": {
+      "edit": [".admin-only CSS", "body.admin CSS", "switchView guard", "roleFor/ADMIN_EMAILS if role changes"],
+      "warning": "Frontend hiding is not full security."
+    },
+    "change_ai_tab": {
+      "edit": ["analysisView", "renderInsights", "switchView", "body.ai-view CSS"],
+      "warning": "Current AI tab is smart analysis only, not hosted chat AI."
+    },
+    "add_real_ai_chat": {
+      "edit": ["AI_BRAIN_GUIDE.md", "new backend or Supabase Edge Function", "admin-only frontend client"],
+      "warning": "Never put OPENAI_API_KEY or service role key in index.html."
+    },
+    "change_export": {
+      "edit": ["exportCsv"],
+      "warning": "Keep useful CSV headers for bill records."
+    },
+    "add_bill_field": {
+      "edit": ["bill modal HTML", "keys", "buildPayload", "openDialog", "renderRows", "exportCsv"],
+      "warning": "Database column must exist or Supabase insert/update will fail."
+    }
+  },
+  "librarian_dashboard_v1": {
+    "goal": "Admin-only project help page that answers where to edit without calling backend AI.",
+    "data_source": "PROJECT_KNOWLEDGE.json",
+    "features": [
+      "search feature names and code areas",
+      "show exact edit targets",
+      "show warnings before risky changes",
+      "record recent local searches in browser localStorage",
+      "show simple stats like knowledge files, functions indexed, and recent searches"
+    ],
+    "does_not_need": ["OpenAI key", "backend", "WebSocket", "database changes"]
+  },
+  "librarian_dashboard_v2": {
+    "goal": "Real hosted AI librarian with chat and monitoring.",
+    "requires": [
+      "backend service or Supabase Edge Function",
+      "server-only AI provider key",
+      "admin session verification",
+      "project knowledge ingestion",
+      "logs table or server memory for query events",
+      "optional WebSocket or polling for live dashboard"
+    ],
+    "monitoring_metrics": [
+      "total_queries",
+      "response_time_ms",
+      "knowledge_items",
+      "recent_questions",
+      "unmatched_questions",
+      "suspicious_queries",
+      "admin_usage_only"
+    ]
+  },
+  "do_not_break": [
+    "Do not expose service role keys or AI provider keys in browser code.",
+    "Do not remove CSV-style column compatibility unless the database is migrated.",
+    "Do not make staff see admin AI.",
+    "Do not remove pagination.",
+    "Do not load only 1000 records; keep batch loading.",
+    "Do not assume every imported bill has user_id.",
+    "Do not convert to React/Vite/Node unless the user explicitly asks."
+  ],
+  "debug_checklists": {
+    "bills_not_loading": [
+      "Check browser console error.",
+      "Check Supabase RLS policies for public.bills.",
+      "Check Data API grants for anon and authenticated roles.",
+      "Confirm table is still named bills.",
+      "Confirm columns still match keys map.",
+      "Confirm publishable key is valid."
+    ],
+    "ai_tab_missing": [
+      "Confirm logged in as admin/naappe.",
+      "Confirm ADMIN_EMAILS contains admin email.",
+      "Confirm body gets class admin after login.",
+      "Confirm AI nav button has admin-only class."
+    ]
+  }
+}
