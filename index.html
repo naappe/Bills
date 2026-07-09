@@ -33,7 +33,7 @@
     <div class="login-card">
       <div class="brand-mark"></div>
       <h1>White Saffron Bills</h1>
-      <p class="muted">Use username <strong>white</strong> or the full email. Admin can use <strong>admin</strong> or <strong>naappe</strong>.</p>
+      <p class="muted">Use username <strong>whitesaffron2025@gmail.com</strong>. Admin can use <strong>admin</strong> or <strong>naappe</strong>.</p>
       <form id="loginForm" novalidate>
         <input class="field" id="emailInput" type="text" placeholder="Username or email" autocomplete="username" required>
         <input class="field" id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required>
@@ -73,10 +73,10 @@
           <input class="field" id="searchInput" placeholder="Search ID, vendor, bill no, description, location, category, TIN">
           <select class="field" id="statusFilter"><option value="">All status</option><option>Pending</option><option>Paid</option><option>Cancelled</option></select>
           <select class="field" id="dateFilter">
-            <option value="year" selected>This year</option>
+            <option value="year">This year</option>
             <option value="today">Today</option>
             <option value="week">This week</option>
-            <option value="month">This month</option>
+            <option value="month" selected>This month</option>
             <option value="lastMonth">Last month</option>
             <option value="range">Date range</option>
             <option value="lastAdded">Last added</option>
@@ -122,7 +122,7 @@
     const EDIT_WINDOW_HOURS=24;
     const PAGE_SIZE=1000;
     const BILLS_PER_PAGE=12;
-    const LOGIN_ALIASES={white:'whitesafrron2025@gmail.com',staff:'whitesafrron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
+    const LOGIN_ALIASES={staff:'whitesaffron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
     const ADMIN_EMAILS=['naappe@gmail.com'];
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     const state={user:null,role:'staff',rows:[],yearRows:[],filtered:[],page:1,view:'bills'};
@@ -135,7 +135,7 @@
     function canSet(k){return state.rows.length===0||hasCol(k)}
     function col(k){return(state.rows[0]&&keys[k].find(n=>Object.prototype.hasOwnProperty.call(state.rows[0],n)))||keys[k][0]}
     function set(p,k,v){p[col(k)]=v}
-    function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c))}
+    function esc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c))}
     function amount(v){const m=String(v||'').replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);return m?Number(m[0]):0}
     function money(v){return amount(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
     function loginName(v){const k=String(v||'').trim().toLowerCase();return LOGIN_ALIASES[k]||k}
@@ -161,7 +161,7 @@
       return isThisYear(r);
     }
     function activeRows(){const rows=state.rows.filter(inDateScope);if(els.date.value==='lastAdded')return [...rows].sort((a,b)=>{const at=parseDate(get(a,'createdAt'))?.getTime()||0,bt=parseDate(get(b,'createdAt'))?.getTime()||0;return bt-at||((Number(b.id)||0)-(Number(a.id)||0))});return rows}
-    function activeScope(){return({year:'this year',today:'today',week:'this week',month:'this month',lastMonth:'last month',range:'date range',lastAdded:'last added',all:'all records'}[els.date.value]||'this year')}
+    function activeScope(){return({year:'this year',today:'today',week:'this week',month:'this month',lastMonth:'last month',range:'date range',lastAdded:'last added',all:'all records'}[els.date.value]||'this month')}
     function titleCase(s){return s.charAt(0).toUpperCase()+s.slice(1)}
     function formatDate(v){const d=parseDate(v);return d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):String(v||'-')}
     function formatCreated(v){const d=parseDate(v);return d?d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'-'}
