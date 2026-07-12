@@ -26,24 +26,24 @@ jobs:
           html = path.read_text(encoding='utf-8')
 
           new_dashboard = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Bills analytics dashboard">
-        <article class="analytics-card panel pad">
-          <div class="analytics-head"><div><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p></div></div>
-          <div id="topVendors" class="analytics-body"></div>
-        </article>
-        <article class="analytics-card panel pad">
-          <div class="analytics-head"><div><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p></div></div>
-          <div id="categoryDashboard" class="analytics-body"></div>
-        </article>
-        <article class="analytics-card panel pad">
-          <div class="analytics-head"><div><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p></div></div>
-          <div id="paymentDashboard" class="analytics-body"></div>
-        </article>
-        <article class="analytics-card panel pad">
-          <div class="analytics-head"><div><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p></div></div>
-          <div id="statusSummary" class="analytics-body"></div>
-        </article>
-      </section>
-'''
+            <article class="analytics-card panel pad">
+              <div class="analytics-head"><div><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p></div></div>
+              <div id="topVendors" class="analytics-body"></div>
+            </article>
+            <article class="analytics-card panel pad">
+              <div class="analytics-head"><div><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p></div></div>
+              <div id="categoryDashboard" class="analytics-body"></div>
+            </article>
+            <article class="analytics-card panel pad">
+              <div class="analytics-head"><div><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p></div></div>
+              <div id="paymentDashboard" class="analytics-body"></div>
+            </article>
+            <article class="analytics-card panel pad">
+              <div class="analytics-head"><div><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p></div></div>
+              <div id="statusSummary" class="analytics-body"></div>
+            </article>
+          </section>
+          '''
 
           pattern = r'<section class="executive-dashboard hidden" id="dashboardView".*?</section>\s*(?=<section class="panel" id="billsView">)'
           html, count = re.subn(pattern, new_dashboard, html, count=1, flags=re.S)
@@ -51,37 +51,37 @@ jobs:
               raise SystemExit('Dashboard section boundary was not found; source unchanged.')
 
           css = '''
-    /* Standard aligned analytics dashboard */
-    .main{width:100%;max-width:none;margin:0;padding:24px}
-    .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:18px}
-    .stat{min-height:116px;display:flex;flex-direction:column;justify-content:center}
-    .filter-card{margin-bottom:18px}
-    .toolbar{grid-template-columns:minmax(360px,1fr) 170px 180px 150px 150px;align-items:center}
-    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch;margin:0}
-    .executive-dashboard.hidden{display:none!important}
-    .analytics-card{min-width:0;min-height:320px;display:flex;flex-direction:column;margin:0}
-    .analytics-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .analytics-head h2{margin:0 0 4px;font-size:17px}
-    .analytics-head .muted{margin:0}
-    .analytics-body{min-width:0;flex:1}
-    .analytics-card .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:11px 0;padding:4px 2px}
-    .analytics-card .bar-meta{white-space:nowrap;text-align:right}
-    .analytics-card .bar{height:9px}
-    #billsView{width:100%;margin:0}
-    @media(max-width:1180px){
-      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .toolbar{grid-template-columns:1fr 1fr}
-      .executive-dashboard{grid-template-columns:1fr}
-      .analytics-card{min-height:auto}
-    }
-    @media(max-width:700px){
-      .main{padding:14px}
-      .stats{grid-template-columns:1fr}
-      .toolbar{grid-template-columns:1fr}
-      .executive-dashboard{gap:14px}
-      .analytics-card{padding:16px}
-    }
-'''
+        /* Standard aligned analytics dashboard */
+        .main{width:100%;max-width:none;margin:0;padding:24px}
+        .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:18px}
+        .stat{min-height:116px;display:flex;flex-direction:column;justify-content:center}
+        .filter-card{margin-bottom:18px}
+        .toolbar{grid-template-columns:minmax(360px,1fr) 170px 180px 150px 150px;align-items:center}
+        .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch;margin:0}
+        .executive-dashboard.hidden{display:none!important}
+        .analytics-card{min-width:0;min-height:320px;display:flex;flex-direction:column;margin:0}
+        .analytics-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+        .analytics-head h2{margin:0 0 4px;font-size:17px}
+        .analytics-head .muted{margin:0}
+        .analytics-body{min-width:0;flex:1}
+        .analytics-card .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:11px 0;padding:4px 2px}
+        .analytics-card .bar-meta{white-space:nowrap;text-align:right}
+        .analytics-card .bar{height:9px}
+        #billsView{width:100%;margin:0}
+        @media(max-width:1180px){
+          .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+          .toolbar{grid-template-columns:1fr 1fr}
+          .executive-dashboard{grid-template-columns:1fr}
+          .analytics-card{min-height:auto}
+        }
+        @media(max-width:700px){
+          .main{padding:14px}
+          .stats{grid-template-columns:1fr}
+          .toolbar{grid-template-columns:1fr}
+          .executive-dashboard{gap:14px}
+          .analytics-card{padding:16px}
+        }
+      '''
           if '/* Standard aligned analytics dashboard */' not in html:
               html = html.replace('</style>', css + '  </style>', 1)
 
