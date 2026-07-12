@@ -88,7 +88,12 @@
 
 
       <div class="notice" id="notice"></div>
-      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard"><div class="dashboard-primary"></div><div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div></div><aside class="dashboard-secondary"><div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div><div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div><div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div></aside></section>
+      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
+        <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
+        <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
+        <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
+        <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
+      </section>
       <section class="panel" id="billsView"><div class="panel-head"><div><h2>Bill Records</h2><span id="billCountRow" class="hidden"></span></div><button class="btn small" id="addBillTopBtn">Add Bill</button></div><div class="list-wrap"><div class="bill-list" id="billRows"></div><div class="empty" id="emptyState">Loading bills...</div><div class="pager" id="listPager"></div></div></section>
 </main>
   </section>
