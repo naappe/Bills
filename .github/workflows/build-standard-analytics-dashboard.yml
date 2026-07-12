@@ -63,7 +63,7 @@ jobs:
           assert 'dashboard-secondary' not in html
 
           path.write_text(html, encoding='utf-8')
-          PY
+PY
 
       - name: Check JavaScript syntax
         shell: bash
@@ -74,7 +74,7 @@ jobs:
           html = Path('index.html').read_text(encoding='utf-8')
           scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
           Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
-          PY
+PY
           node --check /tmp/bills-app.js
 
       - name: Commit dashboard fix
