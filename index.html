@@ -123,7 +123,7 @@
           <input class="field" id="searchInput" placeholder="Search ID, vendor, bill no, description, location, category, TIN">
           <select class="field" id="statusFilter"><option value="">All status</option><option>Pending</option><option>Paid</option><option>Cancelled</option></select>
           <select class="field" id="dateFilter">
-            <option value="lastAdded">Last added</option>
+            <option value="lastAdded">Last 20 added</option>
             <option value="week">This week</option>
             <option value="month" selected>This month</option>
             <option value="lastMonth">Last month</option>
@@ -231,8 +231,8 @@
       if(mode==='range'){const from=parseInputDate(els.dateFrom.value),to=parseInputDate(els.dateTo.value);return(!from||billDate>=startOfDay(from))&&(!to||billDate<=endOfDay(to))}
       return isThisYear(r);
     }
-    function activeRows(){const rows=state.rows.filter(inDateScope);if(els.date.value==='lastAdded')return [...rows].sort((a,b)=>{const at=parseDate(get(a,'createdAt'))?.getTime()||0,bt=parseDate(get(b,'createdAt'))?.getTime()||0;return bt-at||((Number(b.id)||0)-(Number(a.id)||0))});return rows}
-    function activeScope(){return({year:'this year',today:'today',week:'this week',month:'this month',lastMonth:'last month',range:'date range',lastAdded:'last added',all:'all records'}[els.date.value]||'this month')}
+    function activeRows(){const rows=state.rows.filter(inDateScope);if(els.date.value==='lastAdded')return [...rows].sort((a,b)=>{const at=parseDate(get(a,'createdAt'))?.getTime()||0,bt=parseDate(get(b,'createdAt'))?.getTime()||0;return bt-at||((Number(b.id)||0)-(Number(a.id)||0))}).slice(0,20);return rows}
+    function activeScope(){return({year:'this year',today:'today',week:'this week',month:'this month',lastMonth:'last month',range:'date range',lastAdded:'last 20 added',all:'all records'}[els.date.value]||'this month')}
     function titleCase(s){return s.charAt(0).toUpperCase()+s.slice(1)}
     function formatDate(v){const d=parseDate(v);return d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):String(v||'-')}
     function formatCreated(v){const d=parseDate(v);return d?`${d.toLocaleString('en-GB',{timeZone:MALDIVES_TIME_ZONE,day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})} MVT`:'-'}
