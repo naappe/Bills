@@ -18,11 +18,7 @@ https://naappe.github.io/Bills/stock.html
 
 ## File Structure
 
-```text
-Bills/
-├── index.html               # Full bills application: HTML, CSS, JavaScript, Supabase client
-├── stock.html               # Stock sheet photo upload and multi-line stock entry page
-```
+See the complete linked map in [Code and Function Registry](#code-and-function-registry).
 
 The app is intentionally kept as static HTML files so GitHub Pages can host it without build tools, Node, or a server.
 
@@ -131,6 +127,95 @@ For stock setup, run:
 ```text
 SUPABASE_STOCK_SETUP.sql
 ```
+
+## Code and Function Registry
+
+The main Bills application is self-contained in [`index.html`](index.html): interface, styling, Supabase connection, authentication, filters, dashboard, vendor logic and bill operations.
+
+### File Connections
+
+| File | Purpose | Connected functionality |
+| --- | --- | --- |
+| [`index.html`](index.html) | Main Bills application | Login, Dashboard, Bills, KPI cards, filters, vendors, CRUD and export |
+| [`stock.html`](stock.html) | Stock application | Photos, OCR review and stock-line entry |
+| [`setup-stock.html`](setup-stock.html) | Setup helper | Displays stock setup SQL |
+| [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) | Backend schema | Stock tables, storage, grants and RLS |
+| [`README.md`](README.md) | Documentation | Architecture, features and function registry |
+| [`SHAS.md`](SHAS.md) | Section standards | Canonical names and selectors |
+| [`BRANDING.md`](BRANDING.md) | Brand standards | Colors, layout and responsive rules |
+
+### Application Flow
+
+```text
+Supabase Auth → startSession() → loadBills()
+Filters → applyFilters() → renderStats() + renderRows()
+Dashboard → totals() → renderBars()
+Add/Edit → buildPayload() → saveBill() → public.bills
+```
+
+### index.html Function Map
+
+| Function | Responsibility | Source |
+| --- | --- | --- |
+| `get()` | Read a supported database field. | [index.html line 131](index.html#L131) |
+| `hasCol()` | Check whether a column exists. | [index.html line 132](index.html#L132) |
+| `canSet()` | Check whether a field can be written. | [index.html line 133](index.html#L133) |
+| `col()` | Resolve a logical field to its database column. | [index.html line 134](index.html#L134) |
+| `set()` | Write a field into a Supabase payload. | [index.html line 135](index.html#L135) |
+| `esc()` | Escape text for safe HTML. | [index.html line 136](index.html#L136) |
+| `amount()` | Convert stored amounts to numbers. | [index.html line 137](index.html#L137) |
+| `money()` | Format MVR amounts. | [index.html line 138](index.html#L138) |
+| `loginName()` | Convert login aliases to email. | [index.html line 139](index.html#L139) |
+| `roleFor()` | Assign role from authenticated UID. | [index.html line 140](index.html#L140) |
+| `isAdmin()` | Check administrator status. | [index.html line 141](index.html#L141) |
+| `maldivesNow()` | Get Maldives wall-clock time. | [index.html line 142](index.html#L142) |
+| `maldivesDateStamp()` | Create a Maldives date stamp. | [index.html line 143](index.html#L143) |
+| `parseDate()` | Parse bill dates and timestamps. | [index.html line 144](index.html#L144) |
+| `parseInputDate()` | Parse an HTML date value. | [index.html line 145](index.html#L145) |
+| `startOfDay()` | Get a date’s start boundary. | [index.html line 146](index.html#L146) |
+| `endOfDay()` | Get a date’s end boundary. | [index.html line 147](index.html#L147) |
+| `endToday()` | Get today’s Maldives end boundary. | [index.html line 148](index.html#L148) |
+| `weekStart()` | Get the current week start. | [index.html line 149](index.html#L149) |
+| `isThisYear()` | Check current Maldives year. | [index.html line 150](index.html#L150) |
+| `updateDateRange()` | Control custom date fields. | [index.html line 151](index.html#L151) |
+| `inDateScope()` | Test the selected date filter. | [index.html line 152](index.html#L152) |
+| `activeRows()` | Return date-filtered or Last Added rows. | [index.html line 163](index.html#L163) |
+| `activeScope()` | Return the active filter label. | [index.html line 164](index.html#L164) |
+| `titleCase()` | Format labels in title case. | [index.html line 165](index.html#L165) |
+| `formatDate()` | Format bill dates. | [index.html line 166](index.html#L166) |
+| `formatCreated()` | Format Added timestamps in MVT. | [index.html line 167](index.html#L167) |
+| `normStatus()` | Normalize bill status. | [index.html line 168](index.html#L168) |
+| `statusClass()` | Select status styling. | [index.html line 169](index.html#L169) |
+| `cleanVendorName()` | Remove extra vendor spaces. | [index.html line 170](index.html#L170) |
+| `hasLegalSuffix()` | Detect PVT LTD suffixes. | [index.html line 171](index.html#L171) |
+| `vendorKey()` | Build the vendor comparison key. | [index.html line 172](index.html#L172) |
+| `rebuildVendorCanonicals()` | Cache canonical vendor names. | [index.html line 173](index.html#L173) |
+| `canonicalVendor()` | Resolve a vendor variation. | [index.html line 174](index.html#L174) |
+| `renderVendorOptions()` | Populate the Vendor selector A–Z. | [index.html line 175](index.html#L175) |
+| `toggleNewVendorField()` | Show or hide New Vendor. | [index.html line 176](index.html#L176) |
+| `formVendor()` | Read selected or new vendor. | [index.html line 177](index.html#L177) |
+| `category()` | Return or infer bill category. | [index.html line 178](index.html#L178) |
+| `canEdit()` | Check bill edit permission. | [index.html line 179](index.html#L179) |
+| `notice()` | Show success or error feedback. | [index.html line 180](index.html#L180) |
+| `applyFilters()` | Apply all bill filters. | [index.html line 182](index.html#L182) |
+| `totals()` | Group rows and calculate totals. | [index.html line 183](index.html#L183) |
+| `renderBars()` | Render clickable dashboard bars. | [index.html line 184](index.html#L184) |
+| `renderStats()` | Update KPI Summary Cards. | [index.html line 186](index.html#L186) |
+| `renderRows()` | Render paginated bill cards. | [index.html line 187](index.html#L187) |
+| `render()` | Refresh page components. | [index.html line 188](index.html#L188) |
+| `viewFromHash()` | Read the active URL view. | [index.html line 189](index.html#L189) |
+| `switchView()` | Switch Dashboard or Bills view. | [index.html line 190](index.html#L190) |
+| `loadBills()` | Load all Supabase bills in batches. | [index.html line 191](index.html#L191) |
+| `buildPayload()` | Build insert/update data. | [index.html line 192](index.html#L192) |
+| `openDialog()` | Open and fill Add/Edit Bill. | [index.html line 193](index.html#L193) |
+| `normalizedBillNo()` | Normalize Bill No. | [index.html line 194](index.html#L194) |
+| `findDuplicateBillNo()` | Find repeated Bill No. | [index.html line 195](index.html#L195) |
+| `saveBill()` | Validate and save a bill. | [index.html line 196](index.html#L196) |
+| `deleteBill()` | Validate and delete a bill. | [index.html line 197](index.html#L197) |
+| `exportCsv()` | Export filtered bills. | [index.html line 198](index.html#L198) |
+| `signIn()` | Authenticate login. | [index.html line 199](index.html#L199) |
+| `startSession()` | Initialize an authenticated session. | [index.html line 200](index.html#L200) |
+| `logout()` | Sign out and clear state. | [index.html line 201](index.html#L201) |
 
 ## Brand and UX Direction
 
