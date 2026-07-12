@@ -345,3 +345,91 @@ The cleanup removed the obsolete rules and literal escape, restored the visible 
 ### Data safety
 
 These fixes changed frontend HTML, CSS, JavaScript and workflow validation only. No Supabase schema or bill records were changed.
+
+
+## Preventing Repeated GitHub Actions Failures
+
+### What happened
+
+Four obsolete one-time repair workflows remained in `.github/workflows/`:
+
+- `fix-dashboard-mobile-layout.yml`
+- `fix-vendor-picker.yml`
+- `fix-dashboard-spacing.yml`
+- `full-site-audit-fix.yml`
+
+These workflows contained old search-and-replace scripts for previous versions of `index.html`. After the dashboard and documentation changed, their expected HTML patterns no longer existed. The jobs then stopped with errors such as “pattern not found,” “Dashboard hero not found,” or “Vendor logic block not found.”
+
+The workflows also had `contents: write` permission and included `git commit` and `git push`. This made them unsafe as permanent validation workflows because they could create additional commits or conflict with current site code.
+
+GitHub Pages deployment was separate and continued working. The red workflow results were caused by obsolete repair automation, not by the live website or Supabase.
+
+### How it was fixed
+
+All four obsolete repair workflow files were removed:
+
+| Removed workflow | Removal SHA |
+| --- | --- |
+| `fix-dashboard-mobile-layout.yml` | [`ac39db9`](https://github.com/naappe/Bills/commit/ac39db9ab19b1426e231cf4457eba90691ee1e81) |
+| `fix-vendor-picker.yml` | [`d1ea5f0`](https://github.com/naappe/Bills/commit/d1ea5f0cffa7be6bdd242344830f0bf0d5f83058) |
+| `fix-dashboard-spacing.yml` | [`c619b31`](https://github.com/naappe/Bills/commit/c619b313391f5644cda769fad7c5c5918ab6b452) |
+| `full-site-audit-fix.yml` | [`22c80b8`](https://github.com/naappe/Bills/commit/22c80b82ad97c48ea4152d35adb500e6530ddae3) |
+
+The remaining `Validate Bills dashboard` workflow is read-only. It validates dashboard IDs and inline JavaScript but does not edit files, create commits or push changes.
+
+### Permanent prevention rules
+
+1. Apply normal website fixes directly to the relevant HTML, CSS or JavaScript file.
+2. Do not create permanent workflows named `fix-*.yml` for one-time code repairs.
+3. Validation workflows must use:
+
+   ```yaml
+   permissions:
+     contents: read
+   ```
+
+4. Validation workflows must never contain:
+
+   ```bash
+   git commit
+   git push
+   ```
+
+5. A workflow must not modify a file that can trigger the same workflow again.
+6. Use `workflow_dispatch` for a necessary one-time maintenance workflow.
+7. Delete a one-time maintenance workflow immediately after its successful run.
+8. Keep `push.paths` restricted to files genuinely requiring validation.
+9. Before adding a workflow, confirm that GitHub Pages or the existing read-only validator cannot already handle the requirement.
+10. Historical red runs may remain visible in GitHub Actions, but removed workflows cannot create new runs.
+
+### Safe workflow template
+
+Use this template for future validation:
+
+```yaml
+name: Validate site
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'index.html'
+      - '.github/workflows/validate-site.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check JavaScript
+        run: node --check /tmp/app.js
+```
+
+The validation job may read and test repository files. It must not rewrite the site or push generated commits.
+
+### Data safety
+
+Removing the obsolete workflows did not change Supabase, bill records, authentication or GitHub Pages configuration.
