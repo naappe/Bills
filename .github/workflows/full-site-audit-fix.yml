@@ -1,0 +1,114 @@
+name: Full site audit and fixes
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/full-site-audit-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  audit-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Audit and patch static pages
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          findings=[]
+
+          def replace(path, old, new, label, required=True):
+              p=Path(path)
+              text=p.read_text(encoding='utf-8')
+              if old in text:
+                  p.write_text(text.replace(old,new,1),encoding='utf-8')
+                  findings.append(f'FIXED: {label}')
+                  return True
+              if required:
+                  findings.append(f'REVIEW: pattern not found for {label}')
+              return False
+
+          # INDEX.HTML
+          replace('index.html',
+            "const LOGIN_ALIASES={staff:'whitesaffron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};",
+            "const LOGIN_ALIASES={white:'whitesaffron2025@gmail.com',staff:'whitesaffron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};",
+            'restored white login alias')
+
+          replace('index.html',
+            "function parseDate(v){const raw=String(v||'').trim(),m=raw.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/);if(m)return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));const d=new Date(raw);return Number.isNaN(d.getTime())?null:d}",
+            "function parseDate(v){const raw=String(v||'').trim(),dmy=raw.match(/^(\\d{1,2})[\\/-](\\d{1,2})[\\/-](\\d{4})$/),iso=raw.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})$/);if(dmy){const d=new Date(Number(dmy[3]),Number(dmy[2])-1,Number(dmy[1]));return d.getFullYear()===Number(dmy[3])&&d.getMonth()===Number(dmy[2])-1&&d.getDate()===Number(dmy[1])?d:null}if(iso){const d=new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3]));return d.getFullYear()===Number(iso[1])&&d.getMonth()===Number(iso[2])-1&&d.getDate()===Number(iso[3])?d:null}const d=new Date(raw);return Number.isNaN(d.getTime())?null:d}",
+            'made bill date parsing timezone-safe and validated')
+
+          marker="    function formVendor(form){return form.get('vendor')==='__new__'?cleanVendorName(form.get('new_vendor')):canonicalVendor(form.get('vendor'))}\n"
+          addition="""    function formVendor(form){return form.get('vendor')==='__new__'?cleanVendorName(form.get('new_vendor')):canonicalVendor(form.get('vendor'))}
+    function editDistance(a,b){a=vendorKey(a);b=vendorKey(b);const dp=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=dp[0];dp[0]=i;for(let j=1;j<=b.length;j++){const old=dp[j];dp[j]=a[i-1]===b[j-1]?prev:Math.min(prev+1,dp[j]+1,dp[j-1]+1);prev=old}}return dp[b.length]}
+    function vendorSimilarity(a,b){const x=vendorKey(a),y=vendorKey(b);if(!x||!y)return 0;if(x===y)return 1;const charScore=1-editDistance(x,y)/Math.max(x.length,y.length,1),xt=new Set(x.split(' ')),yt=new Set(y.split(' ')),common=[...xt].filter(t=>yt.has(t)).length,tokenScore=common/Math.max(xt.size,yt.size,1);return Math.max(charScore,charScore*.72+tokenScore*.28)}
+    function findSimilarVendor(value){const entered=cleanVendorName(value),names=[...new Set(state.rows.map(r=>canonicalVendor(get(r,'vendor'))).filter(Boolean))],ranked=names.map(name=>({name,score:vendorSimilarity(entered,name)})).sort((a,b)=>b.score-a.score);return ranked[0]&&ranked[0].score>=.74?ranked[0]:null}
+"""
+          replace('index.html',marker,addition,'added continuous duplicate analysis for new vendors')
+
+          old="if(creatingVendor&&!enteredVendor){els.newVendorInput.reportValidity();return}if(creatingVendor&&!confirm(`\"${enteredVendor}\" is a new vendor. Create this vendor and save the bill?`)){els.newVendorInput.focus();return}"
+          new="if(creatingVendor&&!enteredVendor){els.newVendorInput.reportValidity();return}if(creatingVendor){const similar=findSimilarVendor(enteredVendor);if(similar){const pct=Math.round(similar.score*100);if(similar.score>=.9||confirm(`A similar vendor already exists: \"${similar.name}\" (${pct}% match). Use the existing vendor instead?`)){els.vendorSelect.value=similar.name;toggleNewVendorField();return saveBill(e)}}if(!confirm(`No confirmed existing match was selected. Create new vendor \"${enteredVendor}\" and save this bill?`)){els.newVendorInput.focus();return}}"
+          replace('index.html',old,new,'prevented accidental duplicate vendor creation')
+
+          # MASTER.HTML
+          replace('master.html','Select two or more vendor names from the left.','Select one vendor to rename, or select multiple duplicate vendors to merge.','clarified rename and merge workflow')
+          replace('master.html',"$('mergeBtn').disabled=names.length<2||!$('mergeTarget').value.trim()","$('mergeBtn').disabled=names.length<1||!$('mergeTarget').value.trim()",'allowed a single vendor rename')
+          replace('master.html',"if(!target||selected.length<2)return;","if(!target||selected.length<1)return;",'allowed one selected vendor to be renamed')
+
+          marker="const vendorOf=r=>String(get(r,'vendor','Vendor')||'').trim();\n"
+          addition="const vendorOf=r=>String(get(r,'vendor','Vendor')||'').trim();\nconst vendorColumn=()=>state.rows.some(r=>Object.prototype.hasOwnProperty.call(r,'vendor'))?'vendor':'Vendor';\n"
+          replace('master.html',marker,addition,'added vendor column compatibility')
+          replace('master.html',".update({vendor:target}).in('id',batch)",".update({[vendorColumn()]:target}).in('id',batch)",'made vendor merge work with lowercase or imported Vendor column')
+
+          # STOCK.HTML
+          replace('stock.html',"const LOGIN_ALIASES={white:'whitesafrron2025@gmail.com',staff:'whitesafrron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};","const LOGIN_ALIASES={white:'whitesaffron2025@gmail.com',staff:'whitesaffron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};",'fixed stock staff email typo')
+
+          old="async function loadRows(){notice('','');els.empty.textContent='Loading stock records...';const{data,error}=await db.from(TABLE).select('*').order('created_at',{ascending:false}).limit(500);if(error){showSetup(error);return}state.rows=data||[];for(const r of state.rows.slice(0,120))if(r.photo_path)await signedUrl(r.photo_path);applyFilters()}"
+          new="async function loadRows(){notice('','');els.empty.textContent='Loading stock records...';let all=[],from=0;for(;;){const{data,error}=await db.from(TABLE).select('*').order('created_at',{ascending:false}).range(from,from+999);if(error){showSetup(error);return}const batch=data||[];all=all.concat(batch);if(batch.length<1000)break;from+=1000}state.rows=all;for(const r of state.rows.slice(0,120))if(r.photo_path)await signedUrl(r.photo_path);applyFilters()}"
+          replace('stock.html',old,new,'removed 500-row stock truncation')
+
+          old="els.photo.addEventListener('change',e=>{state.selectedFile=e.target.files?.[0]||null;if(state.selectedFile){els.preview.src=URL.createObjectURL(state.selectedFile);els.preview.classList.remove('hidden')}});"
+          new="els.photo.addEventListener('change',e=>{const file=e.target.files?.[0]||null;if(file&&file.size>10*1024*1024){notice('error','Photo is larger than 10MB. Choose a smaller file.');e.target.value='';state.selectedFile=null;els.preview.classList.add('hidden');els.preview.removeAttribute('src');return}state.selectedFile=file;if(state.selectedFile){if(els.preview.dataset.objectUrl)URL.revokeObjectURL(els.preview.dataset.objectUrl);const url=URL.createObjectURL(state.selectedFile);els.preview.dataset.objectUrl=url;els.preview.src=url;els.preview.classList.remove('hidden')}});"
+          replace('stock.html',old,new,'enforced stock photo size and prevented preview memory leaks')
+
+          # Basic static validation
+          for name in ['index.html','master.html','stock.html']:
+              text=Path(name).read_text(encoding='utf-8')
+              for required in ['<!doctype html>','</html>','<script','</script>']:
+                  if required not in text:
+                      raise SystemExit(f'{name}: missing {required}')
+              if text.count('<script')!=text.count('</script>'):
+                  raise SystemExit(f'{name}: script tag count mismatch')
+              if text.count('<dialog')!=text.count('</dialog>'):
+                  raise SystemExit(f'{name}: dialog tag count mismatch')
+
+          report='# Bills Website Audit\n\n'
+          report+=f'Generated: {datetime.now(timezone.utc).isoformat()}\n\n'
+          report+='## Pages audited\n\n- `index.html` — login, filters, dates, vendor picker, create/edit/delete, dashboard, CSV export\n- `master.html` — admin access, bill editing, vendor rename and merge\n- `stock.html` — login, upload, OCR/manual rows, storage upload, filters and deletion\n\n'
+          report+='## Results\n\n'+'\n'.join(f'- {x}' for x in findings)+'\n\n'
+          report+='## Data safety\n\nNo database rows were deleted or migrated by this audit. The fixes only change frontend validation, selection, merging behavior, date handling, login aliases, and complete row loading.\n'
+          Path('AUDIT_REPORT.md').write_text(report,encoding='utf-8')
+          PY
+
+      - name: Show changed files
+        run: git diff --check && git diff --stat
+
+      - name: Commit audited fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html master.html stock.html AUDIT_REPORT.md
+          if git diff --cached --quiet; then
+            echo "No changes required"
+          else
+            git commit -m "Fix audited website and script errors"
+            git push
+          fi
