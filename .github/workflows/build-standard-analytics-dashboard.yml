@@ -1,0 +1,145 @@
+name: Build standard aligned analytics dashboard
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-standard-analytics-dashboard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild dashboard source
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          html = path.read_text(encoding='utf-8')
+
+          old = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard"><div class="dashboard-primary"></div><div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div></div><aside class="dashboard-secondary"><div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div><div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div><div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div></aside></section>'''
+
+          new = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Bills analytics dashboard">
+        <article class="analytics-card panel pad">
+          <div class="analytics-head"><div><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p></div></div>
+          <div id="topVendors" class="analytics-body"></div>
+        </article>
+        <article class="analytics-card panel pad">
+          <div class="analytics-head"><div><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p></div></div>
+          <div id="categoryDashboard" class="analytics-body"></div>
+        </article>
+        <article class="analytics-card panel pad">
+          <div class="analytics-head"><div><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p></div></div>
+          <div id="paymentDashboard" class="analytics-body"></div>
+        </article>
+        <article class="analytics-card panel pad">
+          <div class="analytics-head"><div><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p></div></div>
+          <div id="statusSummary" class="analytics-body"></div>
+        </article>
+      </section>'''
+
+          if old not in html:
+              raise SystemExit('Expected malformed dashboard block was not found; source was not changed.')
+
+          html = html.replace(old, new, 1)
+
+          css = '''
+    /* Standard aligned analytics dashboard */
+    .main{width:100%;max-width:none;margin:0;padding:24px}
+    .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:18px}
+    .stat{min-height:116px;display:flex;flex-direction:column;justify-content:center}
+    .filter-card{margin-bottom:18px}
+    .toolbar{grid-template-columns:minmax(360px,1fr) 170px 180px 150px 150px;align-items:center}
+    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch;margin:0}
+    .executive-dashboard.hidden{display:none!important}
+    .analytics-card{min-width:0;min-height:360px;display:flex;flex-direction:column;margin:0}
+    .analytics-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .analytics-head h2{margin:0 0 4px;font-size:17px}
+    .analytics-head .muted{margin:0}
+    .analytics-body{min-width:0;flex:1}
+    .analytics-card .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:11px 0;padding:4px 2px}
+    .analytics-card .bar-meta{white-space:nowrap;text-align:right}
+    .analytics-card .bar{height:9px}
+    #billsView{width:100%;margin:0}
+    @media(max-width:1180px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .toolbar{grid-template-columns:1fr 1fr}
+      .executive-dashboard{grid-template-columns:1fr}
+      .analytics-card{min-height:auto}
+    }
+    @media(max-width:700px){
+      .main{padding:14px}
+      .stats{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr}
+      .executive-dashboard{gap:14px}
+      .analytics-card{padding:16px}
+    }
+'''
+          if '/* Standard aligned analytics dashboard */' not in html:
+              html = html.replace('</style>', css + '  </style>', 1)
+
+          path.write_text(html, encoding='utf-8')
+          PY
+
+      - name: Verify dashboard and JavaScript
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          assert html.count('id="dashboardView"') == 1
+          assert html.count('id="topVendors"') == 1
+          assert html.count('id="categoryDashboard"') == 1
+          assert html.count('id="paymentDashboard"') == 1
+          assert html.count('id="statusSummary"') == 1
+          assert 'dashboard-primary' not in html
+          assert 'dashboard-secondary' not in html
+          assert '<aside class="dashboard-secondary">' not in html
+          scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
+          Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
+          PY
+          node --check /tmp/bills-app.js
+
+      - name: Update documentation
+        shell: bash
+        run: |
+          cat >> README.md <<'EOF'
+
+## Standard analytics dashboard — 2026-07-12
+
+- Rebuilt the dashboard with four aligned analytics panels.
+- Desktop uses two equal columns; tablet and mobile use one column.
+- Removed malformed nested dashboard markup and the large empty area.
+- Standardized KPI, filter, panel, and chart-row spacing.
+- No Supabase records or database schema were changed.
+EOF
+          cat >> CHANGELOG.md <<'EOF'
+
+## 2026-07-12 — Standard analytics dashboard
+
+### Fixed
+- Removed the malformed dashboard column that created large blank areas.
+- Rebuilt Top Vendors, Category Breakdown, Payment Methods, and Status Summary as equal responsive cards.
+- Standardized dashboard spacing across desktop, tablet, and mobile.
+
+### Data safety
+- No Supabase data or schema changes.
+EOF
+
+      - name: Commit source changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html README.md CHANGELOG.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Build standard aligned analytics dashboard"
+          git push
