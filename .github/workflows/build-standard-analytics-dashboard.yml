@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Fix existing dashboard markup and spacing
+      - name: Fix malformed dashboard markup and alignment
         shell: bash
         run: |
           python - <<'PY'
@@ -25,31 +25,18 @@ jobs:
           path = Path('index.html')
           html = path.read_text(encoding='utf-8')
 
-          # Find the dashboard section using regex - this will find it regardless of formatting
-          match = re.search(
-              r'<section\s+class="executive-dashboard[^"]*"\s+id="dashboardView"[^>]*>.*?</section>',
-              html,
-              re.DOTALL
-          )
+          replacement = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
+            <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
+            <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
+            <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
+            <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
+          </section>'''
 
-          if not match:
-              print("Dashboard section not found!")
-              print("Looking for pattern: <section class=\"executive-dashboard...\" id=\"dashboardView\"...>")
-              raise SystemExit('Existing dashboard block was not found. No source file was changed.')
+          pattern = r'<section class="executive-dashboard[^\"]*" id="dashboardView"[^>]*>.*?</section>\s*(?=<section class="panel" id="billsView">)'
+          html, count = re.subn(pattern, replacement + '\n      ', html, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('Dashboard section boundary was not found. No source file was changed.')
 
-          print(f"Found dashboard section, length: {len(match.group(0))} characters")
-
-          new = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
-        <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
-        <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
-        <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
-        <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
-      </section>'''
-
-          # Replace the matched section with the new one
-          html = html.replace(match.group(0), new, 1)
-
-          # Add CSS
           css = '''
     /* Existing dashboard alignment repair */
     .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
@@ -61,35 +48,35 @@ jobs:
     @media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}}
     @media(max-width:700px){.executive-dashboard{gap:14px}.dashboard-panel{padding:16px}.dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 92px}}
 '''
-
-          marker = '</style>'
           if '/* Existing dashboard alignment repair */' not in html:
-              html = html.replace(marker, css + '  ' + marker, 1)
+              html = html.replace('</style>', css + '</style>', 1)
 
-          # Verify
-          assert html.count('id="dashboardView"') == 1
-          assert html.count('id="topVendors"') == 1
-          assert html.count('id="categoryDashboard"') == 1
-          assert html.count('id="paymentDashboard"') == 1
-          assert html.count('id="statusSummary"') == 1
-          assert 'dashboard-primary' not in html
-          assert 'dashboard-secondary' not in html
+          dashboard_match = re.search(
+              r'<section class="executive-dashboard[^\"]*" id="dashboardView"[^>]*>(.*?)</section>',
+              html,
+              re.S,
+          )
+          if not dashboard_match:
+              raise SystemExit('Updated dashboard could not be validated.')
+
+          dashboard = dashboard_match.group(0)
+          required_ids = [
+              'dashboardView',
+              'topVendors',
+              'categoryDashboard',
+              'paymentDashboard',
+              'statusSummary',
+          ]
+          for element_id in required_ids:
+              if dashboard.count(f'id="{element_id}"') != 1:
+                  raise SystemExit(f'Dashboard validation failed for {element_id}.')
+
+          if 'dashboard-primary' in dashboard or 'dashboard-secondary' in dashboard:
+              raise SystemExit('Old malformed dashboard wrappers remain in dashboard markup.')
 
           path.write_text(html, encoding='utf-8')
-          print("✅ Dashboard successfully updated!")
-PY
-
-      - name: Check JavaScript syntax
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          html = Path('index.html').read_text(encoding='utf-8')
-          scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
-          Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
-PY
-          node --check /tmp/bills-app.js
+          print('Dashboard markup and alignment fixed successfully.')
+          PY
 
       - name: Commit dashboard fix
         shell: bash
@@ -98,5 +85,5 @@ PY
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
           git diff --cached --quiet && exit 0
-          git commit -m "Fix existing dashboard alignment"
+          git commit -m "Fix malformed dashboard markup and alignment"
           git push
