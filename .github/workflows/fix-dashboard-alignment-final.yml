@@ -1,0 +1,148 @@
+name: Fix dashboard alignment final
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-dashboard-alignment-final.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebuild dashboard layout and alignment
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Replace the entire dashboard section with a clean, balanced grid.
+          pattern = r'<section class="executive-dashboard hidden" id="dashboardView".*?</section>\s*<section class="panel" id="billsView">'
+          replacement = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Bills Dashboard">
+        <div class="dashboard-card panel pad">
+          <h2>Top Vendors</h2>
+          <p class="muted">Highest vendor totals under the active filter</p>
+          <div id="topVendors"></div>
+        </div>
+        <div class="dashboard-card panel pad">
+          <h2>Category Breakdown</h2>
+          <p class="muted">Spending grouped by bill category</p>
+          <div id="categoryDashboard"></div>
+        </div>
+        <div class="dashboard-card panel pad">
+          <h2>Payment Methods</h2>
+          <p class="muted">Cash, transfer, card and other methods</p>
+          <div id="paymentDashboard"></div>
+        </div>
+        <div class="dashboard-card panel pad">
+          <h2>Status Summary</h2>
+          <p class="muted">Paid, pending and cancelled totals</p>
+          <div id="statusSummary"></div>
+        </div>
+      </section>
+      <section class="panel" id="billsView">'''
+
+          s2, n = re.subn(pattern, replacement, s, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit('Could not locate the dashboard and bills boundary')
+          s = s2
+
+          # Add final layout overrides at the end of the existing style block.
+          css = '''
+    /* Final dashboard alignment */
+    .main{max-width:1600px;width:100%;margin:0 auto;padding:24px}
+    .topbar{align-items:center;margin-bottom:18px}
+    .stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+    .stat{min-height:118px;display:flex;flex-direction:column;justify-content:center;padding:18px 20px}
+    .filter-card{padding:14px 16px;margin-bottom:18px}
+    .toolbar{grid-template-columns:minmax(320px,1fr) 170px 180px 150px 150px;align-items:center}
+    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;margin:0}
+    .executive-dashboard.hidden{display:none!important}
+    .dashboard-card{width:100%;min-width:0;min-height:0;margin:0}
+    .dashboard-card h2{margin:0 0 4px}
+    .dashboard-card .muted{margin:0 0 14px}
+    .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:10px 0}
+    .bar-meta{white-space:nowrap}
+    #billsView{width:100%;margin:0}
+    @media(max-width:1100px){
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .executive-dashboard{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:700px){
+      .main{padding:14px}
+      .stats{grid-template-columns:1fr}
+      .toolbar{grid-template-columns:1fr}
+      .executive-dashboard{gap:14px}
+      .dashboard-card{padding:16px}
+    }
+'''
+          if '/* Final dashboard alignment */' not in s:
+              s = s.replace('</style>', css + '\n  </style>', 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Verify HTML and JavaScript
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          assert s.count('id="dashboardView"') == 1
+          assert s.count('id="topVendors"') == 1
+          assert s.count('id="categoryDashboard"') == 1
+          assert s.count('id="paymentDashboard"') == 1
+          assert s.count('id="statusSummary"') == 1
+          assert 'dashboard-primary' not in s
+          assert 'dashboard-secondary' not in s
+          scripts=re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>',s,re.S)
+          inline='\n'.join(x for x in scripts if x.strip())
+          Path('/tmp/app.js').write_text(inline,encoding='utf-8')
+          PY
+          node --check /tmp/app.js
+
+      - name: Update documentation
+        shell: bash
+        run: |
+          cat >> README.md <<'EOF'
+
+## Dashboard alignment fix — 2026-07-12
+
+- Rebuilt the dashboard as a balanced two-column grid on desktop.
+- Removed the malformed nested layout that caused large blank areas.
+- Standardized KPI, filter, and dashboard card spacing.
+- Added tablet and mobile responsive breakpoints.
+- No bill data or database schema was changed.
+EOF
+          cat >> CHANGELOG.md <<'EOF'
+
+## 2026-07-12 — Dashboard alignment fix
+
+### Fixed
+- Rebuilt malformed dashboard HTML.
+- Aligned all dashboard cards and removed large blank areas.
+- Standardized spacing for desktop, tablet, and mobile.
+
+### Data safety
+- No Supabase data changes.
+EOF
+
+      - name: Commit source changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html README.md CHANGELOG.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix dashboard alignment and responsive grid"
+          git push
