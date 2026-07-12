@@ -433,3 +433,18 @@ The validation job may read and test repository files. It must not rewrite the s
 ### Data safety
 
 Removing the obsolete workflows did not change Supabase, bill records, authentication or GitHub Pages configuration.
+
+
+## Dashboard Reporting Upgrade — 2026-07-12
+
+Commit: [`7aaefde`](https://github.com/naappe/Bills/commit/7aaefde480c414ca1f3e6ffd4eb2cdfa3847ae51)
+
+- Bills KPI Summary Cards now use turquoise, purple, orange and green dashboard accents.
+- Sidebar text symbols were replaced with accessible SVG Dashboard and Bills icons.
+- Mobile Dashboard includes a compact This Month versus Last Month chart summary.
+- The top action bar displays the most recent successful Supabase refresh time in Maldives Time.
+- Print / PDF opens the browser print dialog with an A4 landscape dashboard report layout.
+- Expense value and bill-count indicators compare the current month with the previous month.
+- Higher expense or bill count is shown as attention; lower values are shown as an improvement.
+- All comparisons are calculated locally from loaded Supabase rows.
+- No database schema or bill records were modified.
