@@ -73,6 +73,28 @@
 @media(max-width:860px){.shell{grid-template-columns:1fr}.sidebar{position:sticky;top:0;z-index:20;padding:10px 12px;gap:8px;border-right:0;border-bottom:1px solid #e5eaf0}.side-brand,.sidebar-summary,.user-chip,.nav-label{display:none}.side-nav{display:flex;overflow:auto}.side-nav a{white-space:nowrap}.side-nav a.active{box-shadow:inset 0 -3px #12b5cb}.main{padding:16px}.topbar{display:block}.topbar .actions{margin-top:12px}}
 </style><style>
 @media print{.sidebar,.topbar .actions,#notice,.invoice-head .btn,.remove-line,#bulkForm>button,.budget,.toolbar,.row-edit,.row-delete{display:none!important}.shell{display:block!important}.main{padding:0;background:#fff}.topbar{margin-bottom:12px}.bulk-panel,.price-dashboard,.grid>section.panel{box-shadow:none!important;break-inside:avoid}.invoice-row .field{appearance:none;border:0}.invoice-lines{overflow:visible}@page{size:A4 landscape;margin:10mm}}
+</style><style>
+/* Final typography and spacing refinement */
+body{font-size:14px;line-height:1.5;color:#172033}
+.main{padding:26px 28px 36px}
+.topbar{align-items:center;margin-bottom:20px}.topbar h1{font-size:25px;letter-spacing:-.025em}.topbar p{font-size:12px}
+.actions{align-items:center}.actions .btn{min-height:42px;padding:0 15px;border-radius:11px}
+.panel{border-color:#e3e9f0;box-shadow:0 3px 14px rgba(15,23,42,.045)}
+.bulk-panel{padding:24px}.invoice-head h3,.price-dashboard h3{font-size:18px;letter-spacing:-.015em}.bulk-help{margin:6px 0 0}
+#bulkForm{gap:14px;margin-top:2px}#bulkForm label{font-size:11px;letter-spacing:.01em}
+.field{border-color:#d9e1ea;background:#fff}.field:focus{border-color:#12b5cb;box-shadow:0 0 0 3px rgba(18,181,203,.12)}
+.invoice-lines{margin-top:2px;border-color:#cbd6e2;box-shadow:inset 0 1px 2px rgba(15,23,42,.025)}
+.invoice-line-head{font-size:10px;letter-spacing:.035em;text-transform:uppercase}
+.invoice-row .field{font-size:13px}.line-number,.line-total{font-variant-numeric:tabular-nums}
+.bulk-preview{margin-top:2px;border-radius:10px;background:linear-gradient(90deg,#eefbfc,#f7f6ff);color:#087f91}
+#bulkForm>button.full{min-height:44px;border-radius:11px}
+.price-dashboard{padding:22px}.price-kpis>div{background:#fbfcfd}.price-kpis strong{font-variant-numeric:tabular-nums}
+.price-alert{box-shadow:0 1px 4px rgba(15,23,42,.025)}
+.grid>section.panel:not(.price-dashboard){padding:18px 20px}.toolbar .field{min-height:44px}
+table{font-variant-numeric:tabular-nums}th{padding:11px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.04em}td{padding:12px 10px}
+.btn{transition:transform .15s ease,box-shadow .15s ease,background .15s ease}.btn:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(15,23,42,.09)}
+@media(max-width:860px){.main{padding:16px}.bulk-panel,.price-dashboard{padding:16px}.topbar h1{font-size:22px}.actions .btn{min-height:40px;padding:0 12px}}
+@media(max-width:520px){.main{padding:12px}.panel{border-radius:12px}.bulk-panel{padding:13px}.actions{display:grid;grid-template-columns:1fr 1fr}.last-updated{grid-column:1/-1}.logout-action{grid-column:1/-1}}
 </style></head>
 <body><section class="login" id="login"><form class="card" id="loginForm" action="javascript:void(0)" novalidate><div class="brand"><div class="logo">WS</div><div><h2>Supply Rates</h2><small>Supply User workspace</small></div></div><p>Use username <b>supply</b> and the password set in Supabase.</p><input class="field" id="email" value="supply" placeholder="Username"><br><br><input class="field" id="password" type="password" placeholder="Password" required><br><br><button class="btn" type="submit">Sign in</button><div id="loginNotice"></div></form></section>
 <section class="shell hidden" id="app"><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart supply control</strong><p>Track prices, GST and purchasing changes.</p></div><div class="user-chip"><div class="avatar">SU</div><div><strong>SUPPLY USER</strong><span>Authorized workspace</span></div></div></aside><main class="main"><header class="topbar"><div><h1>Supply Rates</h1><p>Vendor price history, GST and budgeting</p></div><div class="actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary" id="refresh">Refresh</button><button class="btn secondary" id="printSupply">Print / PDF</button><button class="btn secondary" id="exportSupply">Export CSV</button><button class="btn secondary logout-action" id="logout">Logout</button></div></header><div id="notice"></div>
