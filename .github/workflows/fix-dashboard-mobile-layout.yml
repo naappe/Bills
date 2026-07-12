@@ -1,0 +1,80 @@
+name: Fix dashboard mobile layout
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-dashboard-mobile-layout.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch index layout
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          filter_block = '''      <section class="filter-card">
+        <div class="toolbar">
+          <input class="field" id="searchInput" placeholder="Search ID, vendor, bill no, description, location, category, TIN">
+          <select class="field" id="statusFilter"><option value="">All status</option><option>Pending</option><option>Paid</option><option>Cancelled</option></select>
+          <select class="field" id="dateFilter">
+            <option value="lastAdded">Last added</option>
+            <option value="week">This week</option>
+            <option value="month" selected>This month</option>
+            <option value="lastMonth">Last month</option>
+            <option value="year">This year</option>
+            <option value="range">Date range</option>
+            <option value="all">All records</option>
+          </select>
+          <input class="field date-range hidden" id="dateFrom" type="date" aria-label="Date from">
+          <input class="field date-range hidden" id="dateTo" type="date" aria-label="Date to">
+        </div>
+        <div class="filter-summary hidden" id="filterSummary"></div>
+      </section>
+
+'''
+
+          if filter_block not in s:
+              raise SystemExit('Filter block not found')
+          s = s.replace(filter_block, '', 1)
+
+          stats_end = '''      </section>
+
+      <div class="notice" id="notice"></div>'''
+          replacement = '''      </section>
+
+''' + filter_block + '''      <div class="notice" id="notice"></div>'''
+          if stats_end not in s:
+              raise SystemExit('Stats insertion point not found')
+          s = s.replace(stats_end, replacement, 1)
+
+          hero = '''<div class="panel pad dashboard-hero"><p class="eyebrow">EXECUTIVE OVERVIEW</p><h2>Spending at a glance</h2><p class="muted">All figures follow the active search, status, and date filters above.</p><div class="dashboard-note">Use the KPI Summary Cards for totals. The panels below explain where the spending goes.</div></div>'''
+          if hero not in s:
+              raise SystemExit('Dashboard hero not found')
+          s = s.replace(hero, '', 1)
+
+          old_success = "if(isAdmin())notice('ok',`Loaded ${state.rows.length.toLocaleString()} total bill record(s). Viewing ${activeScope()}: ${activeRows().length.toLocaleString()} bills.`)"
+          if old_success in s:
+              s = s.replace(old_success, "notice('','')", 1)
+
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Remove dashboard hero and move filters below KPI cards"
+          git push
