@@ -1,81 +1,57 @@
-name: Fix existing dashboard layout
+name: Validate Bills dashboard
 
 on:
   workflow_dispatch:
   push:
     paths:
+      - 'index.html'
       - '.github/workflows/build-standard-analytics-dashboard.yml'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  fix-dashboard:
+  validate-dashboard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - name: Fix malformed dashboard markup and alignment
+      - name: Validate dashboard markup
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
 
-          path = Path('index.html')
-          html = path.read_text(encoding='utf-8')
-
-          replacement = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
-            <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
-            <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
-            <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
-            <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
-          </section>'''
-
-          pattern = r'<section class="executive-dashboard[^\"]*" id="dashboardView"[^>]*>.*?</section>\s*(?=<section class="panel" id="billsView">)'
-          html, count = re.subn(pattern, replacement + '\n      ', html, count=1, flags=re.S)
-          if count != 1:
-              raise SystemExit('Dashboard section boundary was not found. No source file was changed.')
-
-          css = '''
-    /* Existing dashboard alignment repair */
-    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
-    .executive-dashboard.hidden{display:none!important}
-    .dashboard-panel{min-width:0;margin:0;min-height:0}
-    .dashboard-panel h2{margin:0 0 4px}
-    .dashboard-panel>.muted{margin:0 0 14px}
-    .dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:10px 0}
-    @media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}}
-    @media(max-width:700px){.executive-dashboard{gap:14px}.dashboard-panel{padding:16px}.dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 92px}}
-'''
-          if '/* Existing dashboard alignment repair */' not in html:
-              html = html.replace('</style>', css + '</style>', 1)
-
-          dashboard_match = re.search(
-              r'<section class="executive-dashboard[^\"]*" id="dashboardView"[^>]*>(.*?)</section>',
+          html = Path('index.html').read_text(encoding='utf-8')
+          matches = re.findall(
+              r'<section class="executive-dashboard[^"]*" id="dashboardView"[^>]*>(.*?)</section>',
               html,
               re.S,
           )
-          if not dashboard_match:
-              raise SystemExit('Updated dashboard could not be validated.')
+          if len(matches) != 1:
+              raise SystemExit(f'Expected one dashboardView section; found {len(matches)}.')
 
-          dashboard = dashboard_match.group(0)
+          dashboard = matches[0]
           required_ids = [
-              'dashboardView',
               'topVendors',
               'categoryDashboard',
               'paymentDashboard',
               'statusSummary',
+              'averageBill',
+              'paidDashboardAmount',
+              'paymentRate',
+              'largestBill',
+              'dashboardInsight',
           ]
-          for element_id in required_ids:
-              if dashboard.count(f'id="{element_id}"') != 1:
-                  raise SystemExit(f'Dashboard validation failed for {element_id}.')
+          missing = [element_id for element_id in required_ids if html.count(f'id="{element_id}"') != 1]
+          if missing:
+              raise SystemExit(f'Dashboard IDs missing or duplicated: {", ".join(missing)}')
 
-          if 'dashboard-primary' in dashboard or 'dashboard-secondary' in dashboard:
-              raise SystemExit('Old malformed dashboard wrappers remain in dashboard markup.')
+          if html.count('id="dashboardView"') != 1:
+              raise SystemExit('dashboardView must occur exactly once.')
 
-          path.write_text(html, encoding='utf-8')
-          print('Dashboard markup and alignment fixed successfully.')
+          print('Dashboard markup validation passed.')
           PY
 
       - name: Check JavaScript syntax
@@ -84,24 +60,15 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
+
           html = Path('index.html').read_text(encoding='utf-8')
           scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
-          # strip whitespace and ignore empty script blocks
-          scripts = [s.strip() for s in scripts if s.strip()]
+          scripts = [script.strip() for script in scripts if script.strip()]
           Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
+          print(f'Found {len(scripts)} inline script(s).')
           PY
           if [ -s /tmp/bills-app.js ]; then
             node --check /tmp/bills-app.js
           else
             echo "No inline scripts found to check."
           fi
-
-      - name: Commit dashboard fix
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git diff --cached --quiet && exit 0
-          git commit -m "Fix malformed dashboard markup and alignment"
-          git push
