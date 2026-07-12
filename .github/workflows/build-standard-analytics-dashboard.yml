@@ -15,35 +15,51 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install HTML parser
-        run: python -m pip install --disable-pip-version-check beautifulsoup4==4.13.4
-
       - name: Fix malformed dashboard markup and alignment
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          from bs4 import BeautifulSoup
+          import re
 
           path = Path('index.html')
           html = path.read_text(encoding='utf-8')
-          soup = BeautifulSoup(html, 'html.parser')
 
-          dashboards = soup.select('section#dashboardView.executive-dashboard')
-          if len(dashboards) != 1:
-              context_at = html.find('executive-dashboard')
-              context = html[max(0, context_at - 200):context_at + 400] if context_at >= 0 else 'not found'
-              raise SystemExit(
-                  f'Expected exactly one dashboardView; found {len(dashboards)}. Context: {context!r}'
-              )
-
-          replacement_html = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
+          replacement = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
             <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
             <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
             <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
             <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
           </section>'''
 
+          pattern = r'<section class="executive-dashboard[^\"]*" id="dashboardView"[^>]*>.*?</section>\s*(?=<section class="panel" id="billsView">)'
+          html, count = re.subn(pattern, replacement + '\n      ', html, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('Dashboard section boundary was not found. No source file was changed.')
+
+          css = '''
+    /* Existing dashboard alignment repair */
+    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
+    .executive-dashboard.hidden{display:none!important}
+    .dashboard-panel{min-width:0;margin:0;min-height:0}
+    .dashboard-panel h2{margin:0 0 4px}
+    .dashboard-panel>.muted{margin:0 0 14px}
+    .dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:10px 0}
+    @media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}}
+    @media(max-width:700px){.executive-dashboard{gap:14px}.dashboard-panel{padding:16px}.dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 92px}}
+'''
+          if '/* Existing dashboard alignment repair */' not in html:
+              html = html.replace('</style>', css + '</style>', 1)
+
+          dashboard_match = re.search(
+              r'<section class="executive-dashboard[^\"]*" id="dashboardView"[^>]*>(.*?)</section>',
+              html,
+              re.S,
+          )
+          if not dashboard_match:
+              raise SystemExit('Updated dashboard could not be validated.')
+
+          dashboard = dashboard_match.group(0)
           required_ids = [
               'dashboardView',
               'topVendors',
@@ -51,56 +67,14 @@ jobs:
               'paymentDashboard',
               'statusSummary',
           ]
-
-          dashboard = dashboards[0]
-          dashboard_is_valid = (
-              all(len(dashboard.select(f'#{element_id}')) == 1 for element_id in required_ids)
-              and len(dashboard.select(':scope > .dashboard-panel')) == 4
-              and not dashboard.select('.dashboard-primary, .dashboard-secondary')
-          )
-
-          if not dashboard_is_valid:
-              replacement = BeautifulSoup(replacement_html, 'html.parser').section
-              dashboard.replace_with(replacement)
-              dashboard = replacement
-
-              # Remove orphaned copies left behind by previously malformed closing tags.
-              for element_id in required_ids[1:]:
-                  matches = soup.select(f'#{element_id}')
-                  for duplicate in matches[1:]:
-                      panel = duplicate.find_parent(class_='panel')
-                      if panel and panel is not dashboard:
-                          panel.decompose()
-                      else:
-                          duplicate.decompose()
-
-          css = '''
-          .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
-          .executive-dashboard.hidden{display:none!important}
-          .dashboard-panel{min-width:0;margin:0;min-height:0}
-          .dashboard-panel h2{margin:0 0 4px}
-          .dashboard-panel>.muted{margin:0 0 14px}
-          .dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:10px 0}
-          @media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}}
-          @media(max-width:700px){.executive-dashboard{gap:14px}.dashboard-panel{padding:16px}.dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 92px}}
-          '''
-          style = soup.find('style', id='dashboard-alignment')
-          if style is None:
-              if soup.head is None:
-                  raise SystemExit('Document head was not found; alignment CSS was not inserted.')
-              style = soup.new_tag('style', id='dashboard-alignment')
-              soup.head.append(style)
-          style.string = css
-
-          dashboard = soup.select_one('section#dashboardView.executive-dashboard')
           for element_id in required_ids:
-              if len(dashboard.select(f'#{element_id}')) != 1:
+              if dashboard.count(f'id="{element_id}"') != 1:
                   raise SystemExit(f'Dashboard validation failed for {element_id}.')
 
-          if dashboard.select('.dashboard-primary, .dashboard-secondary'):
+          if 'dashboard-primary' in dashboard or 'dashboard-secondary' in dashboard:
               raise SystemExit('Old malformed dashboard wrappers remain in dashboard markup.')
 
-          path.write_text(str(soup), encoding='utf-8')
+          path.write_text(html, encoding='utf-8')
           print('Dashboard markup and alignment fixed successfully.')
           PY
 
@@ -112,6 +86,8 @@ jobs:
           import re
           html = Path('index.html').read_text(encoding='utf-8')
           scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
+          # strip whitespace and ignore empty script blocks
+          scripts = [s.strip() for s in scripts if s.strip()]
           Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
           PY
           if [ -s /tmp/bills-app.js ]; then
