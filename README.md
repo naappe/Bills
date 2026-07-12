@@ -448,3 +448,68 @@ Commit: [`7aaefde`](https://github.com/naappe/Bills/commit/7aaefde480c414ca1f3e6
 - Higher expense or bill count is shown as attention; lower values are shown as an improvement.
 - All comparisons are calculated locally from loaded Supabase rows.
 - No database schema or bill records were modified.
+
+
+## Supply Rates Workspace — 2026-07-12
+
+Live page after setup:
+
+```text
+https://naappe.github.io/Bills/supply-rates.html
+```
+
+### Authorized Supply User
+
+- Display name: **Supply User**
+- Login alias: `supply`
+- Supabase email: `whitesaffron20255@gmail.com`
+- Authorized UID: `79c4c15e-87b7-415a-82f0-825054458e59`
+- Password: the password configured for this user in Supabase Authentication; it is never stored in this repository.
+
+The Supply User is redirected from the normal Bills login to `supply-rates.html`. The admin UID also has Supply Rates access.
+
+### Required database setup
+
+Run [`SUPABASE_SUPPLY_RATES_SETUP.sql`](SUPABASE_SUPPLY_RATES_SETUP.sql) once in the SQL Editor of Supabase project `tmupbruwmwlrmewhoodn`.
+
+The connected Supabase management tool did not expose this project, so the schema could not be applied automatically.
+
+### Supply rate mathematics
+
+The page supports the three invoice models:
+
+1. **Add GST to rate**: entered unit rate excludes GST.
+   - Net = quantity × unit rate
+   - GST = net × GST percentage
+   - Final = net + GST
+2. **GST included in rate**: entered unit rate already includes GST.
+   - Final = quantity × unit rate
+   - Net = final ÷ (1 + GST percentage)
+   - GST = final - net
+3. **No GST**:
+   - Net = final = quantity × unit rate
+   - GST = 0
+
+The sample Happy Market tax invoice uses 8% GST and shows line-level quantity, unit rate, net amount and GST. For example, 574.07 net plus 45.93 GST equals 620.00 inclusive.
+
+### Features
+
+- Reuses canonical vendor names through vendor suggestions.
+- Saves item code, item name, UOM, quantity, unit rate and GST treatment.
+- Stores invoice number and invoice date.
+- Automatically calculates net, GST and final amount in PostgreSQL generated columns.
+- Maintains price history rather than overwriting the old rate.
+- Shows price movement between supplier entries.
+- Includes a GST-inclusive budget calculator for planned quantities.
+- Supply User can read, add and update supply rates.
+- Only admin can delete supply-rate history.
+- RLS restricts the table to the Supply User and admin UIDs.
+
+### Files
+
+- [`supply-rates.html`](supply-rates.html) - Supply Rates interface.
+- [`SUPABASE_SUPPLY_RATES_SETUP.sql`](SUPABASE_SUPPLY_RATES_SETUP.sql) - table, indexes, grants and RLS policies.
+
+### Data separation
+
+`public.supply_rates` is separate from `public.bills`. Supply rates are item-level history used for purchasing and budgeting. Bills remain invoice-level financial records.
