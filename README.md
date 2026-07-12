@@ -16,24 +16,12 @@ Stock Sheet Photo Entry:
 https://naappe.github.io/Bills/stock.html
 ```
 
-Admin AI Librarian Monitor:
-
-```text
-https://naappe.github.io/Bills/librarian.html
-```
-
 ## File Structure
 
 ```text
 Bills/
 ├── index.html               # Full bills application: HTML, CSS, JavaScript, Supabase client
 ├── stock.html               # Stock sheet photo upload and multi-line stock entry page
-├── librarian.html           # Admin-only AI Librarian Monitor V1
-├── SUPABASE_STOCK_SETUP.sql # SQL for stock_entries table and stock-photos storage bucket
-├── PROJECT_KNOWLEDGE.json   # Machine-readable project knowledge index
-├── README.md                # Project structure and operating notes
-├── AI_LIBRARIAN.md          # Read-first project map for future AI/code changes
-└── AI_BRAIN_GUIDE.md        # Optional AI assistant/backend hosting plan
 ```
 
 The app is intentionally kept as static HTML files so GitHub Pages can host it without build tools, Node, or a server.
@@ -57,31 +45,7 @@ Features:
 
 Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) in the Supabase SQL Editor. The Supabase connector did not have permission to apply the schema automatically from this workspace.
 
-AI photo extraction is the next phase. Later, a Supabase Edge Function or hosted backend can read the saved photo and generate the line items automatically. Do not put AI provider keys in browser code.
 
-## AI Librarian
-
-Future AI/code assistants should read [`AI_LIBRARIAN.md`](AI_LIBRARIAN.md) first. It explains the project structure, important functions, Supabase columns, roles, admin-only AI behavior, and common edit locations so changes can be made faster.
-
-The live V1 Librarian Monitor is [`librarian.html`](librarian.html). It is admin-only, reads [`PROJECT_KNOWLEDGE.json`](PROJECT_KNOWLEDGE.json), searches known project areas, shows local recent queries, displays simple knowledge/monitoring stats, and generates a 24-hour Evolution Report from admin usage.
-
-The Evolution Report checks:
-
-- repeated questions,
-- weak or missing knowledge matches,
-- risky admin topics such as delete, RLS, policies, keys, and permissions,
-- average local lookup time,
-- recommended improvements for the next build.
-
-V1 does not need OpenAI, WebSocket, or a backend. The report is generated from local browser history. Automatic 24-hour delivery requires V2 with a backend or Supabase Edge Function, a reports table, and a scheduled job.
-
-## AI Brain Plan
-
-The optional AI Brain plan is documented in [`AI_BRAIN_GUIDE.md`](AI_BRAIN_GUIDE.md).
-
-Key rule: keep AI provider keys and service-role database keys in a backend or Supabase Edge Function, never in `index.html` or browser JavaScript.
-
-AI Assistant, Insights, Predictions, Anomalies, and Librarian reports are admin-dashboard features only. Staff and white users should not see those pages or call those backend routes.
 
 ## Main Features
 
@@ -96,7 +60,6 @@ AI Assistant, Insights, Predictions, Anomalies, and Librarian reports are admin-
 - Existing imported bills with no payment status are displayed as `Paid` when dated up to today.
 - Staff edit/delete is limited to own new entries within 24 hours in the app UI.
 - Dashboard uses the same filtered data as the bills list.
-- Analysis and future AI Brain views are admin-only.
 - Bills list uses paged navigation instead of rendering every bill at once.
 - Stock page uploads sheet images to Supabase Storage and saves multiple stock line records.
 
