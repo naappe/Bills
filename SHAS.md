@@ -2,6 +2,13 @@
 
 This file is the canonical naming registry for the White Saffron Bills repository. Use these names in requests, commits, code comments, IDs, documentation, and future maintenance.
 
+## Official Brand Vibe
+
+- Primary direction: **Minimalist + Mobile-first**
+- Reporting support: **Data-heavy**
+- AI-powered features: **Not included**
+- Data safety: visual or branding changes must not modify Supabase tables or records.
+
 ## Global Naming Standard
 
 - Complete highlighted totals row: **KPI Summary Cards**
