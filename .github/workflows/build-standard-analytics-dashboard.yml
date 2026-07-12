@@ -13,60 +13,78 @@ jobs:
   fix-dashboard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
 
       - name: Fix existing dashboard markup and spacing
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('index.html')
           html = path.read_text(encoding='utf-8')
 
-          replacement = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
-            <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
-            <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
-            <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
-            <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
-          </section>'''
+          old = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
+          <div class="dashboard-primary"></div>
+          <div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
+        </div>
+        <aside class="dashboard-secondary">
+          <div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
+          <div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
+          <div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
+        </aside>
+        </section>'''
 
-          pattern = r'<section class="executive-dashboard hidden" id="dashboardView".*?</section>'
-          html, count = re.subn(pattern, replacement, html, count=1, flags=re.S)
-          if count != 1:
-              raise SystemExit('Dashboard section was not found. No source file was changed.')
+          new = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
+        <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
+        <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
+        <div class="panel pad dashboard-panel"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
+        <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
+      </section>'''
+
+          if old not in html:
+              raise SystemExit('Existing dashboard block was not found. No source file was changed.')
+
+          html = html.replace(old, new, 1)
 
           css = '''
-          /* Existing dashboard alignment repair */
-          .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
-          .executive-dashboard.hidden{display:none!important}
-          .dashboard-panel{min-width:0;margin:0;min-height:0}
-          .dashboard-panel h2{margin:0 0 4px}
-          .dashboard-panel>.muted{margin:0 0 14px}
-          .dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:10px 0}
-          @media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}}
-          @media(max-width:700px){.executive-dashboard{gap:14px}.dashboard-panel{padding:16px}.dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 92px}}
-          '''
+    /* Existing dashboard alignment repair */
+    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
+    .executive-dashboard.hidden{display:none!important}
+    .dashboard-panel{min-width:0;margin:0;min-height:0}
+    .dashboard-panel h2{margin:0 0 4px}
+    .dashboard-panel>.muted{margin:0 0 14px}
+    .dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 120px;width:100%;margin:10px 0}
+    @media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}}
+    @media(max-width:700px){.executive-dashboard{gap:14px}.dashboard-panel{padding:16px}.dashboard-panel .bar-row{grid-template-columns:minmax(0,1fr) 92px}}
+'''
 
+          marker = '</style>'
           if '/* Existing dashboard alignment repair */' not in html:
-              html = html.replace('</style>', css + '</style>', 1)
+              html = html.replace(marker, css + '  ' + marker, 1)
 
-          checks = {
-              'dashboardView': html.count('id="dashboardView"') == 1,
-              'topVendors': html.count('id="topVendors"') == 1,
-              'categoryDashboard': html.count('id="categoryDashboard"') == 1,
-              'paymentDashboard': html.count('id="paymentDashboard"') == 1,
-              'statusSummary': html.count('id="statusSummary"') == 1,
-              'empty dashboard column removed': 'dashboard-primary' not in html,
-              'old secondary wrapper removed': 'dashboard-secondary' not in html,
-          }
-          failed = [name for name, ok in checks.items() if not ok]
-          if failed:
-              raise SystemExit('Dashboard validation failed: ' + ', '.join(failed))
+          assert html.count('id="dashboardView"') == 1
+          assert html.count('id="topVendors"') == 1
+          assert html.count('id="categoryDashboard"') == 1
+          assert html.count('id="paymentDashboard"') == 1
+          assert html.count('id="statusSummary"') == 1
+          assert 'dashboard-primary' not in html
+          assert 'dashboard-secondary' not in html
 
           path.write_text(html, encoding='utf-8')
-          PY
+PY
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text(encoding='utf-8')
+          scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
+          Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
+PY
+          node --check /tmp/bills-app.js
 
       - name: Commit dashboard fix
         shell: bash
