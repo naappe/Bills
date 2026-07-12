@@ -25,10 +25,20 @@ jobs:
           path = Path('index.html')
           html = path.read_text(encoding='utf-8')
 
-          # Use regex to find the dashboard section regardless of formatting
-          old_pattern = r'<section class="executive-dashboard[^"]*" id="dashboardView"[^>]*>.*?</section>'
-          
-          # The new dashboard HTML
+          # Find the dashboard section using regex - this will find it regardless of formatting
+          match = re.search(
+              r'<section\s+class="executive-dashboard[^"]*"\s+id="dashboardView"[^>]*>.*?</section>',
+              html,
+              re.DOTALL
+          )
+
+          if not match:
+              print("Dashboard section not found!")
+              print("Looking for pattern: <section class=\"executive-dashboard...\" id=\"dashboardView\"...>")
+              raise SystemExit('Existing dashboard block was not found. No source file was changed.')
+
+          print(f"Found dashboard section, length: {len(match.group(0))} characters")
+
           new = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
         <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
         <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
@@ -36,12 +46,7 @@ jobs:
         <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
       </section>'''
 
-          # Find the dashboard section
-          match = re.search(old_pattern, html, re.DOTALL)
-          if not match:
-              raise SystemExit('Existing dashboard block was not found. No source file was changed.')
-
-          # Replace it
+          # Replace the matched section with the new one
           html = html.replace(match.group(0), new, 1)
 
           # Add CSS
@@ -61,14 +66,14 @@ jobs:
           if '/* Existing dashboard alignment repair */' not in html:
               html = html.replace(marker, css + '  ' + marker, 1)
 
-          # Verify the replacement worked
-          assert html.count('id="dashboardView"') == 1, "dashboardView count is not 1"
-          assert html.count('id="topVendors"') == 1, "topVendors count is not 1"
-          assert html.count('id="categoryDashboard"') == 1, "categoryDashboard count is not 1"
-          assert html.count('id="paymentDashboard"') == 1, "paymentDashboard count is not 1"
-          assert html.count('id="statusSummary"') == 1, "statusSummary count is not 1"
-          assert 'dashboard-primary' not in html, "dashboard-primary still exists"
-          assert 'dashboard-secondary' not in html, "dashboard-secondary still exists"
+          # Verify
+          assert html.count('id="dashboardView"') == 1
+          assert html.count('id="topVendors"') == 1
+          assert html.count('id="categoryDashboard"') == 1
+          assert html.count('id="paymentDashboard"') == 1
+          assert html.count('id="statusSummary"') == 1
+          assert 'dashboard-primary' not in html
+          assert 'dashboard-secondary' not in html
 
           path.write_text(html, encoding='utf-8')
           print("✅ Dashboard successfully updated!")
