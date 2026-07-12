@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>White Saffron Bills</title>
+  <title>Cafe' White Saffron Bills</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
@@ -33,7 +33,7 @@
   <section class="login-page" id="loginView">
     <div class="login-card">
       <div class="brand-mark"></div>
-      <h1>White Saffron Bills</h1>
+      <h1>Cafe' White Saffron Bills</h1>
       <p class="muted">Use username <strong>whitesaffron2025@gmail.com</strong>. Admin can use <strong>admin</strong> or <strong>naappe</strong>.</p>
       <form id="loginForm" novalidate>
         <input class="field" id="emailInput" type="text" placeholder="Username or email" autocomplete="username" required>
@@ -46,7 +46,7 @@
 
   <section class="shell hidden" id="appView">
     <aside class="sidebar">
-      <div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>White Saffron</strong><span>Bill control</span></div></div>
+      <div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Bill control</span></div></div>
       <nav class="nav">
         <button data-view="dashboard"><span class="nav-icon">[]</span>Dashboard</button>
         <button class="active" data-view="bills"><span class="nav-icon">=</span>Bills</button>
@@ -56,8 +56,8 @@
 
     <main class="main">
       <header class="topbar">
-        <div class="title-block"><h1 id="pageTitle">Bills</h1><p class="muted">Maldives time · Date filter active · <span id="recordStatus">Loading...</span></p></div>
-        <div class="actions"><button class="btn secondary" id="refreshBtn">Refresh</button><button class="btn secondary" id="exportBtn">Export</button><button class="btn" id="addBtn">Add Bill</button><button class="btn ghost" id="logoutBtn">Logout</button></div>
+        <div class="title-block"><h1 id="pageTitle">Bills</h1><span id="recordStatus" class="hidden"></span></div>
+        <div class="actions"><button class="btn secondary" id="refreshBtn">Refresh</button><button class="btn secondary" id="exportBtn">Export</button><button class="btn ghost" id="logoutBtn">Logout</button></div>
       </header>
 
       <!-- KPI SUMMARY CARDS: canonical name for the five highlighted bill totals -->
@@ -83,13 +83,13 @@
           <input class="field date-range hidden" id="dateFrom" type="date" aria-label="Date from">
           <input class="field date-range hidden" id="dateTo" type="date" aria-label="Date to">
         </div>
-        <div class="filter-summary hidden" id="filterSummary"></div>
+        <div class="filter-summary hidden" id="filterSummary" aria-hidden="true"></div>
       </section>
 
 
       <div class="notice" id="notice"></div>
       <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard"><div class="dashboard-primary"></div><div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div></div><aside class="dashboard-secondary"><div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div><div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div><div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div></aside></section>
-      <section class="panel" id="billsView"><div class="panel-head"><div><h2>Bill Records</h2><span class="muted">Search, status, and date filter</span><div class="bill-count-row" id="billCountRow">0 bills</div></div><button class="btn small" id="addBillTopBtn">Add Bill</button></div><div class="list-wrap"><div class="bill-list" id="billRows"></div><div class="empty" id="emptyState">Loading bills...</div><div class="pager" id="listPager"></div></div></section>
+      <section class="panel" id="billsView"><div class="panel-head"><div><h2>Bill Records</h2><span id="billCountRow" class="hidden"></span></div><button class="btn small" id="addBillTopBtn">Add Bill</button></div><div class="list-wrap"><div class="bill-list" id="billRows"></div><div class="empty" id="emptyState">Loading bills...</div><div class="pager" id="listPager"></div></div></section>
 </main>
   </section>
 
@@ -189,7 +189,7 @@
     function totals(rows,getter){const map=new Map();rows.forEach(r=>{const k=getter(r)||'Unknown';map.set(k,(map.get(k)||0)+amount(get(r,'amount')))});return[...map.entries()].sort((a,b)=>b[1]-a[1])}
     function renderBars(target,list,type){const max=Math.max(...list.map(i=>i[1]),1);target.innerHTML=list.slice(0,8).map(([n,t])=>`<button class="bar-row dashboard-drilldown" type="button" data-filter-type="${type}" data-filter-value="${encodeURIComponent(n)}" title="Show ${esc(n)} bills"><div><strong>${esc(n)}</strong><div class="bar"><span style="width:${Math.max(4,t/max*100)}%"></span></div></div><div class="bar-meta">${money(t)} MVR</div></button>`).join('')||'<p class="muted">No data yet.</p>'}
     // KPI SUMMARY CARDS: updates Showing Records, Total MVR, Pending, and This Month.
-    function renderStats(){const scopeRows=activeRows(),scope=activeScope(),total=state.filtered.reduce((s,r)=>s+amount(get(r,'amount')),0),pending=state.filtered.filter(r=>normStatus(r)==='Pending').reduce((s,r)=>s+amount(get(r,'amount')),0),now=maldivesNow(),month=state.filtered.filter(r=>{const d=parseDate(get(r,'date'));return d&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).reduce((s,r)=>s+amount(get(r,'amount')),0);els.totalCount.textContent=state.filtered.length.toLocaleString();els.totalAmount.textContent=money(total);els.pendingAmount.textContent=money(pending);els.monthAmount.textContent=money(month);els.recordStatus.textContent=isAdmin()?`${state.filtered.length.toLocaleString()} showing - ${scopeRows.length.toLocaleString()} ${scope} - ${state.rows.length.toLocaleString()} total loaded`:`${titleCase(scope)} view`;els.filterSummary.classList.toggle('hidden',!isAdmin());els.filterSummary.textContent=isAdmin()?`Showing ${state.filtered.length.toLocaleString()} of ${scopeRows.length.toLocaleString()} ${scope} records. This year: ${state.yearRows.length.toLocaleString()}. Total loaded from Supabase: ${state.rows.length.toLocaleString()}.`:''}
+    function renderStats(){const scopeRows=activeRows(),scope=activeScope(),total=state.filtered.reduce((s,r)=>s+amount(get(r,'amount')),0),pending=state.filtered.filter(r=>normStatus(r)==='Pending').reduce((s,r)=>s+amount(get(r,'amount')),0),now=maldivesNow(),month=state.filtered.filter(r=>{const d=parseDate(get(r,'date'));return d&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).reduce((s,r)=>s+amount(get(r,'amount')),0);els.totalCount.textContent=state.filtered.length.toLocaleString();els.totalAmount.textContent=money(total);els.pendingAmount.textContent=money(pending);els.monthAmount.textContent=money(month);els.recordStatus.textContent=isAdmin()?`${state.filtered.length.toLocaleString()} showing - ${scopeRows.length.toLocaleString()} ${scope} - ${state.rows.length.toLocaleString()} total loaded`:`${titleCase(scope)} view`;els.filterSummary.classList.add('hidden');els.filterSummary.textContent=`Showing ${state.filtered.length.toLocaleString()} of ${scopeRows.length.toLocaleString()} ${scope} records. This year: ${state.yearRows.length.toLocaleString()}. Total loaded from Supabase: ${state.rows.length.toLocaleString()}.`:''}
     function renderRows(){const totalPages=Math.max(1,Math.ceil(state.filtered.length/BILLS_PER_PAGE));state.page=Math.min(Math.max(1,state.page),totalPages);const start=(state.page-1)*BILLS_PER_PAGE,visible=state.filtered.slice(start,start+BILLS_PER_PAGE),end=Math.min(start+visible.length,state.filtered.length);els.billCountRow.textContent=state.filtered.length?`Showing ${start+1}-${end} of ${state.filtered.length.toLocaleString()} bills · ${activeScope()}`:`0 bills · ${activeScope()}`;els.rows.innerHTML=visible.map(r=>{const editable=canEdit(r),st=normStatus(r),id=esc(r.id??'-'),vendor=esc(get(r,'vendor')||'Unknown vendor'),tin=esc(get(r,'tin')),date=esc(formatDate(get(r,'date'))),billNo=esc(get(r,'billNo')||'-'),method=esc(get(r,'method')||'-'),methodHtml=method&&method!=='-'?`<span>Method <strong>${method}</strong></span>`:'',cat=esc(category(r)),created=esc(formatCreated(get(r,'createdAt'))),desc=esc(String(get(r,'notes')||'').trim()),descHtml=desc?`<div class="description-line"><span>Description</span><strong>${desc}</strong></div>`:'',amt=money(get(r,'amount'));return`<article class="bill-card"><div><div class="vendor">${vendor}</div><div class="tin">${tin||'No TIN'}</div><div class="meta-line id-line"><span>ID <strong>#${id}</strong></span><span>Added <strong>${created}</strong></span></div></div><div><div class="bill-meta"><span class="status-pill ${statusClass(st)}"><span class="dot"></span>${esc(st)}</span><span class="tag">${cat}</span></div><div class="meta-line"><span>Bill date <strong>${date}</strong></span><span>Bill no <strong>${billNo}</strong></span>${methodHtml}</div>${descHtml}</div><div class="amount">${amt} MVR</div><div class="row-actions"><button class="btn secondary small" data-action="edit" data-id="${id}" ${editable?'':'disabled'}>Edit</button><button class="btn danger small" data-action="delete" data-id="${id}" ${editable?'':'disabled'}>Delete</button></div></article>`}).join('');els.empty.style.display=state.filtered.length?'none':'block';els.empty.textContent=activeRows().length?'No bills match this filter.':'No bills found for this filter.';els.pager.innerHTML=state.filtered.length?`<button class="btn secondary small" data-page="prev" type="button" ${state.page<=1?'disabled':''}>Previous</button><span class="page-label">Page ${state.page.toLocaleString()} of ${totalPages.toLocaleString()}</span><button class="btn secondary small" data-page="next" type="button" ${state.page>=totalPages?'disabled':''}>Next</button>`:''}
     function render(){renderStats();renderRows();renderBars(els.topVendors,totals(state.filtered,r=>canonicalVendor(get(r,'vendor'))),'vendor');renderBars(els.categoryDashboard,totals(state.filtered,category),'category');renderBars(els.paymentDashboard,totals(state.filtered,r=>get(r,'method')||'Not set'),'method');renderBars(els.statusSummary,totals(state.filtered,normStatus),'status')}
     function viewFromHash(){return location.hash.toLowerCase()==='#dashboard'?'dashboard':'bills'}
@@ -209,7 +209,7 @@
     els.loginForm.addEventListener('submit',signIn);
     $('refreshBtn').addEventListener('click',()=>loadBills());
     $('exportBtn').addEventListener('click',exportCsv);
-    $('addBtn').addEventListener('click',()=>openDialog());
+    $('addBtn')?.addEventListener('click',()=>openDialog());
     $('addBillTopBtn').addEventListener('click',()=>openDialog());
     $('logoutBtn').addEventListener('click',logout);
     $('closeDialog').addEventListener('click',()=>els.dialog.close());

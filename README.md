@@ -1,4 +1,4 @@
-# White Saffron Bills Tracker
+# Cafe' White Saffron Bills Tracker
 
 A single-page bill management app for White Saffron, hosted on GitHub Pages and connected to Supabase.
 
@@ -284,3 +284,11 @@ On mobile, close and reopen the browser tab if the old version is cached.
 - Removed the large Executive Overview / Spending at a glance dashboard block.
 - Removed the successful-load banner from normal page display; error notices remain active.
 - No Supabase bill records or stock records were modified by this interface update.
+
+## Header cleanup — 2026-07-12
+
+- Updated the application name to **Cafe' White Saffron**.
+- Removed the status text below the Bills page title.
+- Removed the duplicate top Add Bill button; the Bill Records Add Bill button remains.
+- Removed the visible filter summary and bill-count helper text.
+- No Supabase data or database schema was changed.
