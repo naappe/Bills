@@ -1,0 +1,95 @@
+name: Fix dashboard spacing
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/fix-dashboard-spacing.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Repair dashboard layout
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          from datetime import date
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          clean_dashboard = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Bills Dashboard">
+        <div class="panel pad dashboard-top-vendors">
+          <h2>Top Vendors</h2>
+          <p class="muted">Highest vendor totals under the active filter</p>
+          <div id="topVendors"></div>
+        </div>
+        <div class="dashboard-secondary">
+          <div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
+          <div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
+          <div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
+        </div>
+      </section>'''
+
+          s, n = re.subn(r'<section class="executive-dashboard hidden" id="dashboardView".*?</section>', clean_dashboard, s, count=1, flags=re.S)
+          if n != 1:
+              raise SystemExit('dashboard section not found')
+
+          old_css = re.search(r'\.executive-dashboard\{.*?@media\(max-width:700px\)\{.*?\}\}', s, flags=re.S)
+          new_css = '''.executive-dashboard{display:grid;grid-template-columns:minmax(360px,.9fr) minmax(0,1.6fr);gap:18px;align-items:start}.dashboard-top-vendors{min-width:0}.dashboard-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.dashboard-secondary .panel:last-child{grid-column:1/-1}@media(max-width:1050px){.executive-dashboard{grid-template-columns:1fr}.dashboard-secondary{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:700px){.dashboard-secondary{grid-template-columns:1fr}.dashboard-secondary .panel:last-child{grid-column:auto}}'''
+          if old_css:
+              s = s[:old_css.start()] + new_css + s[old_css.end():]
+          else:
+              s = s.replace('</style>', new_css + '\n  </style>', 1)
+
+          s = s.replace('.main{min-width:0;padding:28px}', '.main{min-width:0;padding:24px 28px}')
+          s = s.replace('.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:24px}', '.topbar{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:18px}')
+          s = s.replace('.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:24px}', '.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}')
+          s = s.replace('.filter-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:24px;', '.filter-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:18px;')
+
+          p.write_text(s, encoding='utf-8')
+
+          stamp = date.today().isoformat()
+          for name, heading in [('README.md','Dashboard layout update'),('CHANGELOG.md','Dashboard layout update')]:
+              f=Path(name)
+              text=f.read_text(encoding='utf-8') if f.exists() else ('# Changelog\n' if name=='CHANGELOG.md' else '# Cafe\' White Saffron Bills\n')
+              note=f'''\n## {heading} — {stamp}\n\n- Removed the large empty dashboard gap caused by malformed dashboard markup.\n- Rebuilt Top Vendors, Category Breakdown, Payment Methods, and Status Summary into a responsive grid.\n- Tightened desktop, tablet, and mobile spacing.\n- No Supabase records or database schema were changed.\n'''
+              if note.strip() not in text:
+                  text=text.rstrip()+'\n'+note
+              f.write_text(text,encoding='utf-8')
+          PY
+
+      - name: Validate JavaScript and structure
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s=Path('index.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:[^>]*)>(.*?)</script>',s,re.S)
+          inline='\n'.join(x for x in scripts if x.strip())
+          Path('/tmp/app.js').write_text(inline,encoding='utf-8')
+          assert s.count('id="dashboardView"') == 1
+          assert s.count('id="topVendors"') == 1
+          assert s.count('id="categoryDashboard"') == 1
+          assert s.count('id="paymentDashboard"') == 1
+          assert s.count('id="statusSummary"') == 1
+          PY
+          node --check /tmp/app.js
+
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html README.md CHANGELOG.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix dashboard spacing and responsive card layout"
+          git push
