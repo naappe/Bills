@@ -26,7 +26,7 @@ This file is the canonical naming registry for the White Saffron Bills repositor
 | 4 | Top Action Bar | `.topbar` | Refresh, Export, Add Bill, Logout |
 | 5 | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` | Showing Records, Total MVR, Pending, This Month |
 | 6 | Filter Bar | `.filter-card` | Search, status, and date filters |
-| 7 | Dashboard Summary | `#dashboardView` | Vendor and status summaries |
+| 7 | Advanced Finance Dashboard | `#dashboardView` | Financial overview, six-month trend and analytical breakdowns |
 | 8 | Bill Records Section | `#billsView` | Filtered bill list and pagination |
 | 9 | Bill Entry Dialog | `#billDialog` | Add and edit bill form |
 
@@ -55,3 +55,57 @@ This file is the canonical naming registry for the White Saffron Bills repositor
 3. Use **KPI Summary Cards** in comments and documentation.
 4. Use **KPI Card** only when referring to one card.
 5. Update both this file and `README.md` when adding, removing, or renaming a major section.
+
+
+## Advanced Finance Dashboard Hierarchy
+
+| Order | Canonical name | Selector / identifier | Purpose |
+| --- | --- | --- | --- |
+| 1 | Dashboard Financial Overview | `.dashboard-overview` | Calculated insight and four finance indicators |
+| 2 | Average Bill Indicator | `#averageBill` | Filtered total divided by filtered record count |
+| 3 | Paid Value Indicator | `#paidDashboardAmount` | Paid value under the active filters |
+| 4 | Payment Rate Indicator | `#paymentRate` | Paid value as a percentage of filtered total |
+| 5 | Largest Bill Indicator | `#largestBill` | Highest bill value under active filters |
+| 6 | Expense Trend Panel | `#monthlyTrend` | Latest six calendar months |
+| 7 | Top Vendors Panel | `#topVendors` | Vendor totals and bill-list drill-down |
+| 8 | Category Breakdown Panel | `#categoryDashboard` | Category totals and bill-list drill-down |
+| 9 | Payment Methods Panel | `#paymentDashboard` | Payment method totals and drill-down |
+| 10 | Status Summary Panel | `#statusSummary` | Paid, pending and cancelled totals |
+
+## Filter Mathematics Standard
+
+- **Last 20 added** sorts by `created_at` descending, falls back to numeric ID descending, and returns only 20 records.
+- **Showing Records**, **Total MVR**, and **Pending** follow the active filter and search.
+- **This Month** always totals every current-month bill loaded from Supabase, independent of the Last 20 filter.
+- Dashboard breakdowns use `state.filtered`.
+- Dashboard drill-down selections must also update the Bill Records list.
+
+## Workflow Standard
+
+The dashboard workflow is validation-only.
+
+- Workflow file: `.github/workflows/build-standard-analytics-dashboard.yml`
+- Permission: `contents: read`
+- It must not edit, commit or push `index.html`.
+- It validates required dashboard IDs.
+- It extracts non-empty inline scripts and runs `node --check`.
+
+## Repair SHA Registry
+
+| SHA | Change |
+| --- | --- |
+| `5893d50` | Replaced the self-editing workflow with read-only validation |
+| `5098e54` | Applied the bright finance analytics dashboard theme |
+| `1c0e408` | Limited Last added to the latest 20 bills |
+| `8b4c913` | Removed stale CSS, restored bill count and corrected monthly KPI scope |
+| `7f8b941` | Updated README incident and repair documentation |
+
+## Known Incident Causes
+
+1. The former workflow could trigger from its own changes and push generated commits.
+2. The former dashboard repair depended on brittle HTML regular-expression boundaries.
+3. Last added sorted all rows but did not limit the resulting array.
+4. Old dashboard CSS remained after the new dashboard replaced its wrappers.
+5. A literal `\\n` remained in the CSS source.
+
+These causes are resolved in the SHA registry above.
