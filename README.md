@@ -132,6 +132,18 @@ For stock setup, run:
 SUPABASE_STOCK_SETUP.sql
 ```
 
+## Brand and UX Direction
+
+The official Bills interface direction is **Minimalist + Mobile-first**, supported by light **Data-heavy** reporting.
+
+- Minimalist: clean hierarchy, restrained colors, clear actions, and low visual noise.
+- Mobile-first: touch-friendly controls, compact bill cards, responsive filters, and single-column phone layouts.
+- Data-heavy support: KPI Summary Cards, filtered totals, vendor/status summaries, pagination, and CSV export.
+- No AI-powered interface is included.
+- Branding and layout changes must never alter or delete Supabase bill records.
+
+The primary interface palette uses deep teal/blue for actions, green for Paid, amber for Pending, light gray for the page background, and white cards.
+
 ## Canonical Section Names
 
 Use these exact names when requesting or coding changes. The highlighted totals area is always called **KPI Summary Cards**.
