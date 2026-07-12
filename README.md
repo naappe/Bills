@@ -277,3 +277,10 @@ Ctrl + F5
 ```
 
 On mobile, close and reopen the browser tab if the old version is cached.
+
+## Latest UI Update — 2026-07-12
+
+- KPI summary cards now appear before search and filters on mobile, tablet, and desktop.
+- Removed the large Executive Overview / Spending at a glance dashboard block.
+- Removed the successful-load banner from normal page display; error notices remain active.
+- No Supabase bill records or stock records were modified by this interface update.
