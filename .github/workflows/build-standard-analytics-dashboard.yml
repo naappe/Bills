@@ -20,13 +20,12 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('index.html')
           html = path.read_text(encoding='utf-8')
 
-          old = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard"><div class="dashboard-primary"></div><div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div></div><aside class="dashboard-secondary"><div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div><div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div><div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div></aside></section>'''
-
-          new = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Bills analytics dashboard">
+          new_dashboard = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Bills analytics dashboard">
         <article class="analytics-card panel pad">
           <div class="analytics-head"><div><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p></div></div>
           <div id="topVendors" class="analytics-body"></div>
@@ -43,12 +42,13 @@ jobs:
           <div class="analytics-head"><div><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p></div></div>
           <div id="statusSummary" class="analytics-body"></div>
         </article>
-      </section>'''
+      </section>
+'''
 
-          if old not in html:
-              raise SystemExit('Expected malformed dashboard block was not found; source was not changed.')
-
-          html = html.replace(old, new, 1)
+          pattern = r'<section class="executive-dashboard hidden" id="dashboardView".*?</section>\s*(?=<section class="panel" id="billsView">)'
+          html, count = re.subn(pattern, new_dashboard, html, count=1, flags=re.S)
+          if count != 1:
+              raise SystemExit('Dashboard section boundary was not found; source unchanged.')
 
           css = '''
     /* Standard aligned analytics dashboard */
@@ -59,7 +59,7 @@ jobs:
     .toolbar{grid-template-columns:minmax(360px,1fr) 170px 180px 150px 150px;align-items:center}
     .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch;margin:0}
     .executive-dashboard.hidden{display:none!important}
-    .analytics-card{min-width:0;min-height:360px;display:flex;flex-direction:column;margin:0}
+    .analytics-card{min-width:0;min-height:320px;display:flex;flex-direction:column;margin:0}
     .analytics-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
     .analytics-head h2{margin:0 0 4px;font-size:17px}
     .analytics-head .muted{margin:0}
@@ -103,7 +103,6 @@ jobs:
           assert html.count('id="statusSummary"') == 1
           assert 'dashboard-primary' not in html
           assert 'dashboard-secondary' not in html
-          assert '<aside class="dashboard-secondary">' not in html
           scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
           Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
           PY
@@ -112,28 +111,21 @@ jobs:
       - name: Update documentation
         shell: bash
         run: |
-          cat >> README.md <<'EOF'
+          python - <<'PY'
+          from pathlib import Path
 
-## Standard analytics dashboard — 2026-07-12
+          readme = Path('README.md')
+          readme_text = readme.read_text(encoding='utf-8')
+          readme_note = '''\n## Standard analytics dashboard — 2026-07-12\n\n- Rebuilt the dashboard with four aligned analytics panels.\n- Desktop uses two equal columns; tablet and mobile use one column.\n- Removed malformed nested dashboard markup and the large empty area.\n- Standardized KPI, filter, panel, and chart-row spacing.\n- No Supabase records or database schema were changed.\n'''
+          if '## Standard analytics dashboard — 2026-07-12' not in readme_text:
+              readme.write_text(readme_text.rstrip() + '\n' + readme_note, encoding='utf-8')
 
-- Rebuilt the dashboard with four aligned analytics panels.
-- Desktop uses two equal columns; tablet and mobile use one column.
-- Removed malformed nested dashboard markup and the large empty area.
-- Standardized KPI, filter, panel, and chart-row spacing.
-- No Supabase records or database schema were changed.
-EOF
-          cat >> CHANGELOG.md <<'EOF'
-
-## 2026-07-12 — Standard analytics dashboard
-
-### Fixed
-- Removed the malformed dashboard column that created large blank areas.
-- Rebuilt Top Vendors, Category Breakdown, Payment Methods, and Status Summary as equal responsive cards.
-- Standardized dashboard spacing across desktop, tablet, and mobile.
-
-### Data safety
-- No Supabase data or schema changes.
-EOF
+          changelog = Path('CHANGELOG.md')
+          change_text = changelog.read_text(encoding='utf-8')
+          change_note = '''\n## 2026-07-12 — Standard analytics dashboard\n\n### Fixed\n- Removed the malformed dashboard column that created large blank areas.\n- Rebuilt Top Vendors, Category Breakdown, Payment Methods, and Status Summary as equal responsive cards.\n- Standardized dashboard spacing across desktop, tablet, and mobile.\n\n### Data safety\n- No Supabase data or schema changes.\n'''
+          if '## 2026-07-12 — Standard analytics dashboard' not in change_text:
+              changelog.write_text(change_text.rstrip() + '\n' + change_note, encoding='utf-8')
+          PY
 
       - name: Commit source changes
         run: |
