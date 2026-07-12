@@ -49,13 +49,13 @@ Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.
 - Username aliases:
   - `white` or `staff` maps to `whitesafrron2025@gmail.com`
   - `admin` or `naappe` maps to `naappe@gmail.com`
-- Date filter for this year, this week, this month, last month, date range, last added, and all records.
+- Date filter for this year, this week, this month, last month, date range, latest 20 added bills, and all records.
 - Loads all Supabase rows in 1,000-record batches.
 - Add, edit, delete, refresh, and export bills.
 - New bills default to `Pending`.
 - Existing imported bills with no payment status are displayed as `Paid` when dated up to today.
 - Staff edit/delete is limited to own new entries within 24 hours in the app UI.
-- Dashboard uses the same filtered data as the bills list.
+- Advanced finance dashboard uses the active bill filters for KPIs, vendor/category/payment/status breakdowns, and the six-month expense trend.
 - Bills list uses paged navigation instead of rendering every bill at once.
 - Stock page uploads sheet images to Supabase Storage and saves multiple stock line records.
 
@@ -149,7 +149,7 @@ The main Bills application is self-contained in [`index.html`](index.html): inte
 ```text
 Supabase Auth → startSession() → loadBills()
 Filters → applyFilters() → renderStats() + renderRows()
-Dashboard → totals() → renderBars()
+Dashboard → renderAdvancedDashboard() + renderMonthlyTrend() + totals() + renderBars()
 Add/Edit → buildPayload() → saveBill() → public.bills
 ```
 
@@ -224,7 +224,7 @@ The official Bills interface direction is **Minimalist + Mobile-first**, support
 - Minimalist: clean hierarchy, restrained colors, clear actions, and low visual noise.
 - Mobile-first: touch-friendly controls, compact bill cards, responsive filters, and single-column phone layouts.
 - Data-heavy support: KPI Summary Cards, filtered totals, vendor/status summaries, pagination, and CSV export.
-- No AI-powered interface is included.
+- Dashboard insights are calculated locally from loaded bill records; no external AI service is used.
 - Branding and layout changes must never alter or delete Supabase bill records.
 
 The primary interface palette uses deep teal/blue for actions, green for Paid, amber for Pending, light gray for the page background, and white cards.
@@ -241,7 +241,7 @@ Use these exact names when requesting or coding changes. The highlighted totals 
 | Bills | Top Action Bar | `.topbar` |
 | Bills | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` |
 | Bills | Filter Bar | `.filter-card` |
-| Bills | Dashboard Summary | `#dashboardView` |
+| Bills | Advanced Finance Dashboard | `#dashboardView` |
 | Bills | Bill Records Section | `#billsView` |
 | Bills | Bill Entry Dialog | `#billDialog` |
 | Stock | Login Section | `#loginView` |
@@ -292,3 +292,56 @@ On mobile, close and reopen the browser tab if the old version is cached.
 - Removed the duplicate top Add Bill button; the Bill Records Add Bill button remains.
 - Removed the visible filter summary and bill-count helper text.
 - No Supabase data or database schema was changed.
+
+
+## Dashboard and Workflow Incident Notes — 2026-07-12
+
+### Why the workflow failed
+
+The original GitHub Actions workflow edited `index.html`, committed the generated change, and pushed it back to the same branch. Changes to the workflow file also triggered the workflow. Repeated revisions introduced brittle HTML regular expressions, and concurrent or self-generated commits could leave failed runs even while GitHub Pages continued serving a working site.
+
+The Node 20 annotation was informational. GitHub Actions executed the JavaScript action on Node 24; it was not the dashboard failure.
+
+### How the workflow was fixed
+
+- Replaced the self-editing repair action with a read-only validation workflow.
+- Changed repository permission from `contents: write` to `contents: read`.
+- Removed automatic commits and `git push` from the workflow.
+- Kept dashboard markup validation.
+- Restored inline JavaScript extraction and `node --check`.
+- Workflow fix commit: [`5893d50`](https://github.com/naappe/Bills/commit/5893d50fbe8b342d01e0eaf07c3876af5ddedd75).
+
+### Why “Last added” showed 2,660 bills and 959,935.04 MVR
+
+The `activeRows()` function sorted every loaded record by `created_at`, but it never limited the sorted array. Therefore, “Last added” was effectively “All records sorted newest first,” and Total MVR summed the entire dataset.
+
+### How the filter and totals were fixed
+
+- Limited “Last added” to `.slice(0, 20)`.
+- Renamed the option to **Last 20 added**.
+- Total MVR and Pending now use those 20 filtered records.
+- This Month remains the full current-month total from all loaded bills.
+- Filter fix commit: [`1c0e408`](https://github.com/naappe/Bills/commit/1c0e4089bd8bfedf266c47c445c7e8c5efbeb05a).
+
+### Dashboard styling error and cleanup
+
+An obsolete dashboard CSS block remained beside the new finance theme. It referenced removed wrappers and contained a literal `\\n` before the vendor-picker selector. The stale block could conflict with the new responsive grid and interfere with CSS parsing.
+
+The cleanup removed the obsolete rules and literal escape, restored the visible bill-count row, checked static IDs, and revalidated JavaScript syntax.
+
+- Finance theme commit: [`5098e54`](https://github.com/naappe/Bills/commit/5098e54689f179627da40a03c9020894ec76ebec).
+- Audit and cleanup commit: [`8b4c913`](https://github.com/naappe/Bills/commit/8b4c913d57d5327ca27dbda8c71d6aefbbaaf21b).
+
+### Current dashboard features
+
+- Filter-aware record count, Total MVR and Pending value.
+- Full current-month total.
+- Average bill, paid value, payment rate and largest bill.
+- Six-month expense trend.
+- Top vendors, category breakdown, payment methods and status summary.
+- Clickable dashboard breakdowns that open the matching bill list.
+- Desktop, tablet and mobile layouts.
+
+### Data safety
+
+These fixes changed frontend HTML, CSS, JavaScript and workflow validation only. No Supabase schema or bill records were changed.
