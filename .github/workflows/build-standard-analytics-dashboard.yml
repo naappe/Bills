@@ -13,28 +13,22 @@ jobs:
   fix-dashboard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Fix existing dashboard markup and spacing
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('index.html')
           html = path.read_text(encoding='utf-8')
 
-          old = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
-          <div class="dashboard-primary"></div>
-          <div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
-        </div>
-        <aside class="dashboard-secondary">
-          <div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
-          <div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
-          <div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
-        </aside>
-        </section>'''
-
+          # Use regex to find the dashboard section regardless of formatting
+          old_pattern = r'<section class="executive-dashboard[^"]*" id="dashboardView"[^>]*>.*?</section>'
+          
+          # The new dashboard HTML
           new = '''<section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
         <div class="panel pad dashboard-panel"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
         <div class="panel pad dashboard-panel"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
@@ -42,11 +36,15 @@ jobs:
         <div class="panel pad dashboard-panel"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
       </section>'''
 
-          if old not in html:
+          # Find the dashboard section
+          match = re.search(old_pattern, html, re.DOTALL)
+          if not match:
               raise SystemExit('Existing dashboard block was not found. No source file was changed.')
 
-          html = html.replace(old, new, 1)
+          # Replace it
+          html = html.replace(match.group(0), new, 1)
 
+          # Add CSS
           css = '''
     /* Existing dashboard alignment repair */
     .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%;margin:0}
@@ -63,15 +61,17 @@ jobs:
           if '/* Existing dashboard alignment repair */' not in html:
               html = html.replace(marker, css + '  ' + marker, 1)
 
-          assert html.count('id="dashboardView"') == 1
-          assert html.count('id="topVendors"') == 1
-          assert html.count('id="categoryDashboard"') == 1
-          assert html.count('id="paymentDashboard"') == 1
-          assert html.count('id="statusSummary"') == 1
-          assert 'dashboard-primary' not in html
-          assert 'dashboard-secondary' not in html
+          # Verify the replacement worked
+          assert html.count('id="dashboardView"') == 1, "dashboardView count is not 1"
+          assert html.count('id="topVendors"') == 1, "topVendors count is not 1"
+          assert html.count('id="categoryDashboard"') == 1, "categoryDashboard count is not 1"
+          assert html.count('id="paymentDashboard"') == 1, "paymentDashboard count is not 1"
+          assert html.count('id="statusSummary"') == 1, "statusSummary count is not 1"
+          assert 'dashboard-primary' not in html, "dashboard-primary still exists"
+          assert 'dashboard-secondary' not in html, "dashboard-secondary still exists"
 
           path.write_text(html, encoding='utf-8')
+          print("✅ Dashboard successfully updated!")
 PY
 
       - name: Check JavaScript syntax
