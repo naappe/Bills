@@ -121,7 +121,7 @@
     const PAGE_SIZE=1000;
     const BILLS_PER_PAGE=12;
     const LOGIN_ALIASES={staff:'whitesaffron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
-    const ADMIN_EMAILS=['naappe@gmail.com'];
+    const ADMIN_USER_IDS=['5c0d47f8-68c1-4a60-a1b8-c80885c385da'];
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     const state={user:null,role:'staff',rows:[],yearRows:[],filtered:[],page:1,view:'bills'};
     const $=id=>document.getElementById(id);
@@ -137,7 +137,7 @@
     function amount(v){const m=String(v||'').replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);return m?Number(m[0]):0}
     function money(v){return amount(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
     function loginName(v){const k=String(v||'').trim().toLowerCase();return LOGIN_ALIASES[k]||k}
-    function roleFor(u){const e=String(u?.email||'').toLowerCase(),m=u?.app_metadata?.role||u?.user_metadata?.role;return ADMIN_EMAILS.includes(e)||String(m).toLowerCase()==='admin'?'admin':'staff'}
+    function roleFor(u){return ADMIN_USER_IDS.includes(String(u?.id||''))?'admin':'staff'}
     function isAdmin(){return state.role==='admin'}
     function parseDate(v){const raw=String(v||'').trim(),m=raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));const d=new Date(raw);return Number.isNaN(d.getTime())?null:d}
     function parseInputDate(v){if(!v)return null;const p=v.split('-').map(Number);return p.length===3?new Date(p[0],p[1]-1,p[2]):null}
