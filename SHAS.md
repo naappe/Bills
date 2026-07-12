@@ -17,7 +17,7 @@ This file is the canonical naming registry for the White Saffron Bills repositor
 | 2 | Application Shell | `#appView` | Sidebar and main application |
 | 3 | Sidebar Navigation | `.sidebar .nav` | Dashboard and Bills navigation |
 | 4 | Top Action Bar | `.topbar` | Refresh, Export, Add Bill, Logout |
-| 5 | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` | Showing Records, Total MVR, Paid, Pending, This Month |
+| 5 | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` | Showing Records, Total MVR, Pending, This Month |
 | 6 | Filter Bar | `.filter-card` | Search, status, and date filters |
 | 7 | Dashboard Summary | `#dashboardView` | Vendor and status summaries |
 | 8 | Bill Records Section | `#billsView` | Filtered bill list and pagination |
