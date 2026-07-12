@@ -53,7 +53,7 @@ Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.
 - Username aliases:
   - `white` or `staff` maps to `whitesafrron2025@gmail.com`
   - `admin` or `naappe` maps to `naappe@gmail.com`
-- Date filter for this year, today, this week, this month, last month, date range, and all years.
+- Date filter for this year, this week, this month, last month, date range, last added, and all records.
 - Loads all Supabase rows in 1,000-record batches.
 - Add, edit, delete, refresh, and export bills.
 - New bills default to `Pending`.
