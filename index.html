@@ -80,7 +80,7 @@
     @media(max-width:760px){#dashboardView{padding:8px;grid-template-columns:1fr}.dashboard-trend-panel{grid-column:auto}.trend-chart{height:190px}}
 
     /* Dashboard usability upgrades */
-    .nav-icon svg{width:19px;height:19px;display:block;fill:currentColor}
+    .nav-icon svg{width:19px;height:19px;display:block;fill:currentColor}.supply-nav-link{min-height:44px;border-radius:10px;color:#657083;padding:0 12px;font-size:13px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:10px}.supply-nav-link:hover{background:#f3f7f9;color:#087f91}
     .last-updated{align-self:center;color:var(--muted);font-size:11px;font-weight:700;white-space:nowrap}
     #billsKpiSummaryCards .stat{position:relative;overflow:hidden;border-top:4px solid transparent}
     #billsKpiSummaryCards .stat:after{content:'';position:absolute;width:74px;height:74px;border-radius:50%;right:-28px;top:-30px;background:currentColor;opacity:.055}
@@ -136,6 +136,7 @@
       <nav class="nav">
         <button data-view="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</button>
         <button class="active" data-view="bills"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</button>
+      <a class="supply-nav-link" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a>
       </nav>
       <div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart bill control</strong><p>Track, review and understand every expense.</p></div>
       <div class="user-chip"><div class="avatar" id="userAvatar">U</div><div><strong id="userRole">STAFF</strong><span id="userEmail">Signed in</span></div></div>
@@ -228,8 +229,9 @@
     const MALDIVES_TIME_ZONE='Indian/Maldives';
     const PAGE_SIZE=1000;
     const BILLS_PER_PAGE=12;
-    const LOGIN_ALIASES={staff:'whitesaffron2025@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
+    const LOGIN_ALIASES={staff:'whitesaffron2025@gmail.com',supply:'whitesaffron20255@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
     const ADMIN_USER_IDS=['5c0d47f8-68c1-4a60-a1b8-c80885c385da'];
+    const SUPPLY_USER_IDS=['79c4c15e-87b7-415a-82f0-825054458e59'];
     const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     const state={user:null,role:'staff',rows:[],yearRows:[],filtered:[],page:1,view:'bills',drilldown:null,vendorCanonicals:new Map()};
     const $=id=>document.getElementById(id);
@@ -313,7 +315,7 @@
     function printDashboard(){const previous=state.view;switchView('dashboard');document.body.classList.add('print-dashboard');setTimeout(()=>{window.print();document.body.classList.remove('print-dashboard');if(previous!=='dashboard')switchView(previous)},120)}
     function exportCsv(){const headers=['Unique ID','Bill Date','Added Date','Vendor','Amount','Bill No','Location','TIN','Category','Status','Payment Method','Description'];const rows=state.filtered.map(r=>[r.id,get(r,'date'),formatCreated(get(r,'createdAt')),get(r,'vendor'),amount(get(r,'amount')).toFixed(2),get(r,'billNo'),get(r,'location'),get(r,'tin'),category(r),normStatus(r),get(r,'method'),get(r,'notes')].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(','));const scope=activeScope().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const blob=new Blob([[headers.join(','),...rows].join('\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`bills-${scope}-${maldivesDateStamp()}.csv`;a.click();URL.revokeObjectURL(url)}
     async function signIn(e){e.preventDefault();notice('', '', els.loginNotice);const email=loginName($('emailInput').value),password=$('passwordInput').value;if(!email||!password){notice('error','Enter username/email and password.',els.loginNotice);return}const{data,error}=await db.auth.signInWithPassword({email,password});if(error){notice('error',error.message,els.loginNotice);return}await startSession(data.session)}
-    async function startSession(session){state.user=session?.user||null;if(!state.user){document.body.classList.remove('admin');els.loginView.classList.remove('hidden');els.appView.classList.add('hidden');return}state.role=roleFor(state.user);document.body.classList.toggle('admin',isAdmin());const initials=(state.user.email||'U').slice(0,2).toUpperCase();els.userAvatar.textContent=initials;els.userRole.textContent=state.role.toUpperCase();els.userEmail.textContent=state.user.email;els.loginView.classList.add('hidden');els.appView.classList.remove('hidden');switchView(viewFromHash(),false);await loadBills()}
+    async function startSession(session){state.user=session?.user||null;if(state.user&&SUPPLY_USER_IDS.includes(String(state.user.id||''))){location.href='supply-rates.html';return}if(!state.user){document.body.classList.remove('admin');els.loginView.classList.remove('hidden');els.appView.classList.add('hidden');return}state.role=roleFor(state.user);document.body.classList.toggle('admin',isAdmin());const initials=(state.user.email||'U').slice(0,2).toUpperCase();els.userAvatar.textContent=initials;els.userRole.textContent=state.role.toUpperCase();els.userEmail.textContent=state.user.email;els.loginView.classList.add('hidden');els.appView.classList.remove('hidden');switchView(viewFromHash(),false);await loadBills()}
     async function logout(){await db.auth.signOut();document.body.classList.remove('admin');state.user=null;state.rows=[];state.yearRows=[];state.filtered=[];els.loginView.classList.remove('hidden');els.appView.classList.add('hidden')}
 
     els.loginForm.addEventListener('submit',signIn);
