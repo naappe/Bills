@@ -1,0 +1,86 @@
+name: Apply dashboard alignment fix
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-dashboard-alignment-fix.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix dashboard markup and alignment
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          broken = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard"><div class="dashboard-primary"></div><div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div></div><aside class="dashboard-secondary"><div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div><div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div><div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div></aside></section>'''
+
+          fixed = '''      <section class="executive-dashboard hidden" id="dashboardView" aria-label="Executive Bills Dashboard">
+        <div class="panel pad"><h2>Top Vendors</h2><p class="muted">Highest vendor totals under the active filter</p><div id="topVendors"></div></div>
+        <div class="panel pad"><h2>Category Breakdown</h2><p class="muted">Spending grouped by bill category</p><div id="categoryDashboard"></div></div>
+        <div class="panel pad"><h2>Payment Methods</h2><p class="muted">Cash, transfer, card and other methods</p><div id="paymentDashboard"></div></div>
+        <div class="panel pad"><h2>Status Summary</h2><p class="muted">Paid, pending and cancelled totals</p><div id="statusSummary"></div></div>
+      </section>'''
+
+          if broken not in text:
+              raise SystemExit('Expected broken dashboard markup was not found')
+          text = text.replace(broken, fixed, 1)
+
+          css = '''
+    /* Dashboard alignment fix */
+    .executive-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start;width:100%}
+    .executive-dashboard>.panel{min-width:0;height:100%;margin:0}
+    .executive-dashboard .bar-row{grid-template-columns:minmax(0,1fr) 118px}
+    .filter-card,.stats,.executive-dashboard,#billsView{width:100%}
+    @media(max-width:980px){.executive-dashboard{grid-template-columns:1fr}}
+    @media(max-width:860px){.main{padding:16px}.executive-dashboard{gap:14px}.executive-dashboard>.panel{padding:16px}}
+'''
+
+          marker = '  </style>'
+          if marker not in text:
+              raise SystemExit('Style closing tag not found')
+          text = text.replace(marker, css + marker, 1)
+
+          assert text.count('id="topVendors"') == 1
+          assert text.count('id="categoryDashboard"') == 1
+          assert text.count('id="paymentDashboard"') == 1
+          assert text.count('id="statusSummary"') == 1
+          assert '<div class="dashboard-primary"></div>' not in text
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Update documentation
+        run: |
+          cat >> CHANGELOG.md <<'EOF'
+
+## 2026-07-12 — Dashboard alignment repair
+
+- Repaired malformed dashboard HTML that created the large blank area.
+- Standardized the dashboard to a two-column desktop grid and one-column mobile grid.
+- No bill records or database schema were changed.
+EOF
+          cat >> README.md <<'EOF'
+
+## Dashboard alignment repair — 2026-07-12
+
+The malformed dashboard wrapper was replaced with four aligned cards. Desktop uses two equal columns; tablet and mobile use one column. This is a frontend-only change and does not modify Supabase data.
+EOF
+
+      - name: Commit source fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html README.md CHANGELOG.md
+          git commit -m "Fix dashboard alignment in source"
+          git push
