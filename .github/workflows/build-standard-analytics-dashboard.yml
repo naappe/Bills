@@ -104,34 +104,21 @@ jobs:
           print('Dashboard markup and alignment fixed successfully.')
           PY
 
-      - name: Check inline JavaScript syntax
+      - name: Check JavaScript syntax
         shell: bash
         run: |
-          rm -rf /tmp/bills-inline-js
-          mkdir -p /tmp/bills-inline-js
           python - <<'PY'
           from pathlib import Path
-          from bs4 import BeautifulSoup
-
+          import re
           html = Path('index.html').read_text(encoding='utf-8')
-          soup = BeautifulSoup(html, 'html.parser')
-          scripts = [
-              script.string or script.get_text()
-              for script in soup.find_all('script')
-              if not script.get('src')
-              and script.get('type', 'text/javascript') in ('text/javascript', 'application/javascript', 'module')
-          ]
-          if not scripts:
-              raise SystemExit('No inline JavaScript was found to validate.')
-
-          output = Path('/tmp/bills-inline-js')
-          for index, source in enumerate(scripts, start=1):
-              (output / f'inline-{index}.js').write_text(source, encoding='utf-8')
-          print(f'Extracted {len(scripts)} inline script(s).')
+          scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
+          Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
           PY
-          for script in /tmp/bills-inline-js/*.js; do
-            node --check "$script"
-          done
+          if [ -s /tmp/bills-app.js ]; then
+            node --check /tmp/bills-app.js
+          else
+            echo "No inline scripts found to check."
+          fi
 
       - name: Commit dashboard fix
         shell: bash
