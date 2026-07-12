@@ -132,6 +132,30 @@ For stock setup, run:
 SUPABASE_STOCK_SETUP.sql
 ```
 
+## Canonical Section Names
+
+Use these exact names when requesting or coding changes. The highlighted totals area is always called **KPI Summary Cards**.
+
+| Page | Canonical section name | Code selector |
+| --- | --- | --- |
+| Bills | Login Section | `#loginView` |
+| Bills | Application Shell | `#appView` |
+| Bills | Sidebar Navigation | `.sidebar .nav` |
+| Bills | Top Action Bar | `.topbar` |
+| Bills | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` |
+| Bills | Filter Bar | `.filter-card` |
+| Bills | Dashboard Summary | `#dashboardView` |
+| Bills | Bill Records Section | `#billsView` |
+| Bills | Bill Entry Dialog | `#billDialog` |
+| Stock | Login Section | `#loginView` |
+| Stock | Top Action Bar | `.topbar` |
+| Stock | Stock KPI Summary Cards | `#stockKpiSummaryCards.stats` |
+| Stock | Upload Stock Sheet Section | `.grid .panel:first-child` |
+| Stock | Stock Lines Section | `.grid .panel:last-child` |
+| Stock Setup | Stock Setup Card | `.card` |
+
+Naming rule: use **KPI Summary Cards** for the complete row and **KPI Card** for one individual total card. Do not call it “highlight area,” “boxes,” or “AI cards” in code or documentation.
+
 ## Design System
 
 The app uses a modern dashboard style:
