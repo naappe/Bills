@@ -1,0 +1,96 @@
+name: Clean Bills header and branding
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/clean-bills-header-brand.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update frontend and documentation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          from datetime import date
+
+          index = Path('index.html')
+          s = index.read_text(encoding='utf-8')
+
+          # Branding.
+          s = s.replace('<title>White Saffron Bills</title>', "<title>Cafe' White Saffron Bills</title>")
+          s = s.replace('<strong>White Saffron</strong><span>Bill control</span>', "<strong>Cafe' White Saffron</strong><span>Bill control</span>")
+          s = s.replace('<h1>White Saffron Bills</h1>', "<h1>Cafe' White Saffron Bills</h1>")
+
+          # Remove the top status/subtitle line below Bills.
+          s = re.sub(
+              r'<div class="title-block"><h1 id="pageTitle">Bills</h1><p class="muted">.*?<span id="recordStatus">Loading\.\.\.</span></p></div>',
+              '<div class="title-block"><h1 id="pageTitle">Bills</h1><span id="recordStatus" class="hidden"></span></div>',
+              s,
+              count=1,
+              flags=re.S,
+          )
+
+          # Remove duplicate Add Bill button from the top action bar; keep the button beside Bill Records.
+          s = s.replace('<button class="btn" id="addBtn">Add Bill</button>', '')
+
+          # Remove visible filter summary text but keep the element for script compatibility.
+          s = s.replace('<div class="filter-summary hidden" id="filterSummary"></div>', '<div class="filter-summary hidden" id="filterSummary" aria-hidden="true"></div>')
+
+          # Simplify Bill Records heading: remove helper line and count chip.
+          old_head = '<div><h2>Bill Records</h2><span class="muted">Search, status, and date filter</span><div class="bill-count-row" id="billCountRow">0 bills</div></div>'
+          new_head = '<div><h2>Bill Records</h2><span id="billCountRow" class="hidden"></span></div>'
+          if old_head not in s:
+              raise SystemExit('Bill Records header block not found')
+          s = s.replace(old_head, new_head, 1)
+
+          # Ensure scripts do not reveal the removed admin filter summary.
+          s = s.replace("els.filterSummary.classList.toggle('hidden',!isAdmin());els.filterSummary.textContent=isAdmin()?", "els.filterSummary.classList.add('hidden');els.filterSummary.textContent=")
+
+          # The removed top Add Bill button may still have an event listener. Guard it.
+          s = s.replace("$('addBtn').addEventListener('click',()=>openDialog());", "$('addBtn')?.addEventListener('click',()=>openDialog());")
+
+          # Static checks.
+          assert "Cafe' White Saffron" in s
+          assert '<button class="btn" id="addBtn">Add Bill</button>' not in s
+          assert 'Search, status, and date filter' not in s
+          assert s.count('id="addBillTopBtn"') == 1
+          assert s.count('<script') == s.count('</script>')
+          assert s.count('<dialog') == s.count('</dialog>')
+
+          index.write_text(s, encoding='utf-8')
+
+          stamp = date.today().isoformat()
+          readme = Path('README.md')
+          r = readme.read_text(encoding='utf-8') if readme.exists() else "# Cafe' White Saffron Bills\n"
+          r = r.replace('# White Saffron Bills', "# Cafe' White Saffron Bills")
+          note = f'''\n## Header cleanup — {stamp}\n\n- Updated the application name to **Cafe' White Saffron**.\n- Removed the status text below the Bills page title.\n- Removed the duplicate top Add Bill button; the Bill Records Add Bill button remains.\n- Removed the visible filter summary and bill-count helper text.\n- No Supabase data or database schema was changed.\n'''
+          if f'## Header cleanup — {stamp}' not in r:
+              r = r.rstrip() + '\n' + note
+          readme.write_text(r, encoding='utf-8')
+
+          changelog = Path('CHANGELOG.md')
+          c = changelog.read_text(encoding='utf-8') if changelog.exists() else '# Changelog\n'
+          entry = f'''\n## {stamp} — Header cleanup and branding\n\n### Changed\n- Renamed frontend branding to Cafe' White Saffron.\n- Removed duplicate and nonessential header/status text.\n- Kept one Add Bill action in the Bill Records section.\n\n### Data safety\n- No bill records were deleted or modified.\n'''
+          if 'Header cleanup and branding' not in c:
+              c = c.rstrip() + '\n' + entry
+          changelog.write_text(c, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html README.md CHANGELOG.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Clean Bills header and update Cafe White Saffron branding"
+          git push
