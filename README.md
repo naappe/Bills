@@ -668,3 +668,16 @@ Measured contrast ratios:
 - Dark primary text: 17.56:1
 - Dark muted text: 9.66:1
 - Dark action button: 7.01:1
+
+
+## Final White Saffron Brand Selection
+
+This selection supersedes earlier experimental palettes:
+
+- Warm cream canvas and ivory cards
+- Charcoal/cream reading text
+- Saffron-gold logo and active navigation underline
+- Deep teal primary buttons and selected filters
+- Red only for destructive actions
+
+Gold is not used for small text. Dark-mode teal buttons use dark text for accessible contrast.
