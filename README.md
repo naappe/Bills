@@ -608,3 +608,14 @@ The Supply Records Dashboard reads `public.supply_rates` and provides:
 “High stock” on this dashboard means the highest **recorded supplied quantity/value**. It is not a live on-hand balance unless stock consumption and adjustments are also recorded in an inventory ledger.
 
 All authenticated Bills users need read-only access to see these records. Run [`SUPABASE_SUPPLY_DASHBOARD_READ.sql`](SUPABASE_SUPPLY_DASHBOARD_READ.sql) once in the Supabase SQL Editor. Supply and admin write permissions remain restricted by the existing insert, update and delete policies.
+
+
+## Modern Supply Dashboard Graphs
+
+The Supply Records Dashboard includes three responsive, dependency-free visualizations calculated from read-only `public.supply_rates` data:
+
+- **Monthly Supply Value** — area/line graph for the latest six calendar months.
+- **Vendor Share** — donut graph for the five highest-value vendors plus all remaining vendors.
+- **Highest-Value Items** — horizontal bar graph for the seven highest recorded item values.
+
+The graphs automatically refresh with the Dashboard and do not modify Supply or Bills records.
