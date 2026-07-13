@@ -313,3 +313,17 @@ Orange is reserved for active navigation, primary controls and focus. Lime is re
 - Inactive Dark navigation: `#e4ded6` on `#0c0c0b` — 14.65:1.
 - Active Dark navigation: `#17110d` on `#f0803f` — 7.01:1.
 - Navigation contrast rules must use the full `.sidebar .nav`, `.sidebar .side-nav`, and `.topnav .links` selectors so legacy rules cannot override them.
+
+
+## Final White Saffron Brand Selection
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Canvas | `#fbf8f2` | `#0d100e` |
+| Surface | `#fffdf9` | `#181c19` |
+| Reading text | `#1b1d1a` | `#f5f2eb` |
+| Muted text | `#59635d` | `#b9c1bb` |
+| Saffron identity | `#c79200` | `#f0bd36` |
+| Teal action | `#0f766e` | `#20a596` |
+
+Saffron is limited to the brand mark, focus ring and active navigation underline. Teal is limited to actions, selected filters and active navigation text. This section supersedes earlier experimental palette sections.
