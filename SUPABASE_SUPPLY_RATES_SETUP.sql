@@ -37,12 +37,13 @@ grant select, insert, update, delete on table public.supply_rates to authenticat
 grant usage, select on sequence public.supply_rates_id_seq to authenticated;
 
 drop policy if exists "Supply rates authorized read" on public.supply_rates;
+drop policy if exists "Supply rates authenticated read" on public.supply_rates;
 drop policy if exists "Supply rates authorized insert" on public.supply_rates;
 drop policy if exists "Supply rates authorized update" on public.supply_rates;
 drop policy if exists "Supply rates authorized delete" on public.supply_rates;
 
-create policy "Supply rates authorized read" on public.supply_rates for select to authenticated
-using ((select auth.uid()) in ('79c4c15e-87b7-415a-82f0-825054458e59'::uuid,'5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid));
+create policy "Supply rates authenticated read" on public.supply_rates for select to authenticated
+using (true);
 create policy "Supply rates authorized insert" on public.supply_rates for insert to authenticated
 with check ((select auth.uid()) in ('79c4c15e-87b7-415a-82f0-825054458e59'::uuid,'5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid) and created_by=(select auth.uid()));
 create policy "Supply rates authorized update" on public.supply_rates for update to authenticated
