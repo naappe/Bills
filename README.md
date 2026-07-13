@@ -649,3 +649,8 @@ The public Prices search was repaired by renaming the Supabase project URL varia
 Dashboard, Bills, Supply Rates, Prices and Settings use a horizontal sticky top navigation. The brand stays left and page links plus the colour-mode control align right. The former desktop left sidebar is no longer part of the canonical layout.
 
 The **Dark / Light** toggle stores the selected mode in browser `localStorage` under `ws-theme`, so the preference remains after refresh and across main pages.
+
+
+## Accessible White Saffron Colour System
+
+The final theme layer loads last to prevent older sidebar/theme CSS from overriding it. White Saffron uses saffron for identity and active navigation, teal for primary actions, warm ivory surfaces in Light mode and charcoal surfaces in Dark mode. Text, rows, cards, inputs, tables, dialogs and destructive actions have explicit high-contrast colours in both modes.
