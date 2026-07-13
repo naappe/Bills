@@ -101,7 +101,44 @@ table{font-variant-numeric:tabular-nums}th{padding:11px 10px;font-size:10px;text
 </style>
 <style>
 .invoice-total-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:12px!important}.invoice-total-summary span{display:grid;gap:3px;padding:8px 12px;border-right:1px solid #c8e6ea}.invoice-total-summary span:last-child{border-right:0}.invoice-total-summary small{color:#64748b;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.invoice-total-summary strong{font-size:15px;color:#172033}.invoice-total-summary .final-total{background:#dff7fa;border-radius:9px;border-right:0}.invoice-total-summary .final-total strong{color:#087f91;font-size:17px}.saved-summary{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.saved-summary strong{padding:6px 10px;border-radius:999px;background:#e8f9fc;color:#07899e;font-size:11px}@media(max-width:650px){.invoice-total-summary{grid-template-columns:1fr 1fr}.invoice-total-summary span{border-right:0;border-bottom:1px solid #c8e6ea}.invoice-total-summary span:nth-last-child(-n+2){border-bottom:0}.saved-summary{justify-content:flex-start}}
-</style></head>
+</style><style>
+/* Canonical mobile shell — aligned with Dashboard and Bills */
+@media(max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{position:sticky!important;top:0;z-index:30;height:auto!important;padding:10px 12px!important;gap:8px!important;border-right:0!important;border-bottom:1px solid #1e293b!important}
+  .side-brand,.nav-label,.sidebar-summary,.user-chip{display:none!important}
+  .side-nav{display:flex!important;grid-template-columns:none!important;gap:6px!important;overflow-x:auto!important;scrollbar-width:none}
+  .side-nav::-webkit-scrollbar{display:none}
+  .side-nav a{flex:0 0 auto;justify-content:center;min-height:44px;padding:0 12px!important;font-size:12px!important;white-space:nowrap}
+  .side-nav a.active{box-shadow:inset 0 -3px #d4a72c!important}
+  .main{padding:16px!important}
+  .topbar{display:block!important;margin-bottom:18px!important}
+  .topbar h1{font-size:24px!important;line-height:1.2}
+  .topbar p{margin-top:6px!important}
+  .topbar .actions{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px!important}
+  .topbar .actions .last-updated{grid-column:1/-1;width:100%;text-align:left}
+  .topbar .actions .logout-action{grid-column:1/-1}
+  .topbar .actions .btn{width:100%;min-height:44px!important}
+  .panel{border-radius:14px!important}
+  .bulk-panel,.price-dashboard,.history-panel{padding:16px!important}
+  .invoice-head{display:grid!important;gap:12px}
+  .invoice-head .btn{width:100%;min-height:44px}
+  .invoice-lines{max-width:100%;overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+  .bulk-preview{position:static!important;bottom:auto!important}
+  .invoice-total-summary{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:520px){
+  .main{padding:14px 12px 28px!important}
+  .topbar h1{font-size:24px!important}
+  #bulkForm{grid-template-columns:1fr!important}
+  .invoice-total-summary{gap:6px!important;padding:8px!important}
+  .invoice-total-summary span{padding:8px!important;border-right:0!important}
+  .price-kpis{grid-template-columns:1fr 1fr!important}
+  .history-head{align-items:flex-start!important}
+  .saved-summary{justify-content:flex-start!important}
+}
+</style>
+</head>
 <body><section class="login" id="login"><form class="card" id="loginForm" action="javascript:void(0)" novalidate><div class="brand"><div class="logo">WS</div><div><h2>Supply Rates</h2><small>Supply User workspace</small></div></div><p>Use username <b>supply</b> and the password set in Supabase.</p><input class="field" id="email" value="supply" placeholder="Username"><br><br><input class="field" id="password" type="password" placeholder="Password" required><br><br><button class="btn" type="submit">Sign in</button><div id="loginNotice"></div></form></section>
 <section class="shell hidden" id="app"><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a><a class="admin-only-nav" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart supply control</strong><p>Track prices, GST and purchasing changes.</p></div><div class="user-chip"><div class="avatar">SU</div><div><strong>SUPPLY USER</strong><span>Authorized workspace</span></div></div></aside><main class="main"><header class="topbar"><div><h1>Supply Rates</h1><p>Vendor price history, GST and budgeting</p></div><div class="actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary" id="refresh">Refresh</button><button class="btn secondary" id="printSupply">Print / PDF</button><button class="btn secondary" id="exportSupply">Export CSV</button><button class="btn secondary logout-action" id="logout">Logout</button></div></header><div id="notice"></div>
 <div class="grid"><div><section class="panel single-entry-panel"><div class="example-head"><h3 id="rateFormTitle">Add supply rate</h3><button class="btn secondary example-btn" id="loadExample" type="button">Load invoice example</button></div><form class="form" id="rateForm"><input type="hidden" name="id"><label class="full">Vendor<select class="field vendor-select" name="vendor" required><option value="">Select existing vendor...</option></select></label><label>Item code<input class="field" name="item_code" placeholder="Auto-generated if blank"></label><label>Item name<input class="field" name="item_name" required></label><label>Unit<select class="field" name="uom" required><option>BOX</option><option>CSE</option><option selected>PCS</option><option>DOZEN</option><option>ML</option><option>L</option><option>G</option><option>KG</option></select></label><label>Quantity<input class="field calc" name="quantity" type="number" step=".001" min=".001" value="1" required></label><label>Unit rate<input class="field calc" name="unit_rate" type="number" step=".0001" min="0" required></label><label>GST treatment<select class="field calc" name="gst_mode"><option value="exclusive">GST Excluded — add 8%</option><option value="inclusive">GST Included</option></select></label><label>GST %<input class="field fixed-field" name="gst_rate" type="number" value="8" readonly aria-readonly="true"></label><label>Unique invoice code<input class="field fixed-field" name="invoice_no" id="invoiceCode" readonly required></label><label>Invoice date<input class="field" name="invoice_date" type="date"></label><label class="full">Notes<input class="field" name="notes"></label><div class="full preview"><div class="metric"><span>Net</span><strong id="net">0.00</strong></div><div class="metric"><span>GST</span><strong id="gst">0.00</strong></div><div class="metric"><span>Final</span><strong id="final">0.00</strong></div></div><button class="btn full" id="rateSubmitButton" type="submit">Save rate</button></form></section>
