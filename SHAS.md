@@ -135,3 +135,46 @@ These causes are resolved in the SHA registry above.
 - Brand Teal: `#155e75`
 - Active Teal: `#0f766e`
 - Navigation Text: `#cbd5e1`
+
+
+## Database Write Confirmation Standard
+
+All user-facing Supabase mutations follow this sequence:
+
+1. Validate the form and permissions.
+2. Send the insert, update or delete request.
+3. Request affected identifiers with `.select('id')`.
+4. Confirm the returned row count matches the expected operation.
+5. Show success only after confirmation.
+6. Reload the relevant page data.
+
+| Operation | Required confirmation |
+| --- | --- |
+| Single insert | One returned row ID |
+| Bulk insert | Returned ID count equals submitted item count |
+| Update | At least one returned row ID |
+| Delete | At least one returned row ID |
+| Vendor merge | Every selected bill ID is returned with the canonical vendor |
+
+A zero-row response is treated as a permission or persistence failure, not success.
+
+## Responsive Application Shell Standard
+
+At widths up to `860px`:
+
+- Navigation remains one horizontally scrollable row.
+- Do not change navigation into a 2×2 grid.
+- Active navigation uses the bottom saffron accent.
+- Page titles use a compact 24px mobile scale.
+- Action buttons use a two-column grid where space permits.
+- Main content uses consistent 12–16px side padding.
+- Sticky summaries must not cover editable form fields.
+
+Dashboard/Bills in `index.html` are the canonical visual reference. Supply Rates and Settings must follow the same shell while retaining their page-specific functions.
+
+## Current Stability Status — 13 July 2026
+
+- JavaScript syntax: verified on `index.html`, `supply-rates.html`, `master.html`, and `stock.html`.
+- Duplicate HTML IDs: none detected on the four core pages.
+- Supabase write confirmation: enabled for core add, edit and delete operations.
+- Data safety: no existing records were changed during the layout and documentation audit.
