@@ -49,7 +49,7 @@ Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.
 | --- | --- | --- |
 | Dashboard and Bills | [`index.html`](index.html) | KPIs, filters, bill entry, bill editing, vendor selection and reporting |
 | Supply Rates | [`supply-rates.html`](supply-rates.html) | Invoice item entry, per-row GST, saved rate modification and price history |
-| Settings | [`master.html`](master.html) | Admin-only vendor merging and master bill management |
+| Settings | [`master.html`](master.html) | Admin-only vendor merging, inventory thresholds, low-supply alerts and master bill management |
 | Stock | [`stock.html`](stock.html) | Stock-sheet photo and line entry |
 
 ### Shared Navigation and Permissions
@@ -166,6 +166,7 @@ The main Bills application is self-contained in [`index.html`](index.html): inte
 | [`stock.html`](stock.html) | Stock application | Photos, OCR review and stock-line entry |
 | [`setup-stock.html`](setup-stock.html) | Setup helper | Displays stock setup SQL |
 | [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) | Backend schema | Stock tables, storage, grants and RLS |
+| [`SUPABASE_INVENTORY_ALERTS.sql`](SUPABASE_INVENTORY_ALERTS.sql) | Backend schema | Admin inventory levels, minimum thresholds and low-supply alert settings |
 | [`README.md`](README.md) | Documentation | Architecture, features and function registry |
 | [`SHAS.md`](SHAS.md) | Section standards | Canonical names and selectors |
 | [`BRANDING.md`](BRANDING.md) | Brand standards | Colors, layout and responsive rules |
