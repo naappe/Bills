@@ -578,3 +578,13 @@ If Row Level Security blocks an operation, the page displays an error instead of
 ### Inventory Alert Setup
 
 Admin inventory thresholds use `public.inventory_items`. Run [`SUPABASE_INVENTORY_ALERTS.sql`](SUPABASE_INVENTORY_ALERTS.sql) once in the Supabase SQL Editor before using **Settings → Inventory & Alerts**.
+
+
+## Supply GST and Vendor Item Memory
+
+New Supply entries use two explicit GST choices:
+
+- **No GST** — final amount is `quantity × unit rate`; nothing is added or deducted.
+- **Add GST +8%** — final amount is `quantity × unit rate × 1.08`.
+
+After a vendor is selected, item suggestions are restricted to that vendor's previous Supply records. Selecting an exact saved item reuses its latest unit, unit rate and GST choice. A new item remains available for manual entry and becomes part of that vendor's future item history after saving.
