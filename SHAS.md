@@ -255,3 +255,14 @@ Navigation order is Dashboard, Bills, Supply Rates, Prices, Settings (admin only
 - Apply `SUPABASE_PUBLIC_PRICES_READ.sql` once.
 - Never expose Bills, Auth users, notes, invoice numbers or `created_by` through the public page.
 - The page remains read-only.
+
+
+## Shared Editorial Theme Standard
+
+- Background: cream `#f7f6f2`.
+- Surfaces: white `#ffffff` with warm-grey borders `#e4e2da`.
+- Primary actions: deep green `#0f766e`.
+- Accent: green `#16a36f`; navigation highlight may use saffron `#d4a72c`.
+- Page headings: Georgia/editorial serif; operational text remains sans-serif.
+- Apply consistently to Dashboard, Bills, Supply Rates, Prices, Settings and stock utilities.
+- Do not alter calculations, permissions or stored records when changing theme CSS.
