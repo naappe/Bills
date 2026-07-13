@@ -327,3 +327,20 @@ Orange is reserved for active navigation, primary controls and focus. Lime is re
 | Teal action | `#0f766e` | `#20a596` |
 
 Saffron is limited to the brand mark, focus ring and active navigation underline. Teal is limited to actions, selected filters and active navigation text. This section supersedes earlier experimental palette sections.
+
+
+## Industrial Dashboard Dark Mode
+
+| Role | Colour |
+| --- | --- |
+| Canvas | `#111c26` |
+| Navigation | `#182532` |
+| Card surface | `#1b2935` |
+| Raised/input surface | `#223441` / `#14212b` |
+| Primary text | `#f2f7fa` |
+| Secondary text | `#a7b5c0` |
+| Active/action | `#25c96a` |
+| Information/chart | `#56d4e8` |
+| Warning/chart | `#f2c84b` |
+
+Dark-mode contrast: primary 15.98:1, secondary 8.22:1, navigation 9.70:1, active controls 8.59:1.
