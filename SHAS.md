@@ -344,3 +344,13 @@ Saffron is limited to the brand mark, focus ring and active navigation underline
 | Warning/chart | `#f2c84b` |
 
 Dark-mode contrast: primary 15.98:1, secondary 8.22:1, navigation 9.70:1, active controls 8.59:1.
+
+
+## Appearance Switch Standard
+
+- Identifier: `#themeToggle`.
+- Always show both **Light** and **Dark** labels.
+- Move the switch knob to indicate Dark mode.
+- Use the device `prefers-color-scheme` only when no saved preference exists.
+- Save manual selection in `localStorage.ws-theme`.
+- Update `aria-pressed` and the action-oriented `aria-label` on every change.
