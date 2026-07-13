@@ -619,3 +619,15 @@ The Supply Records Dashboard includes three responsive, dependency-free visualiz
 - **Highest-Value Items** — horizontal bar graph for the seven highest recorded item values.
 
 The graphs automatically refresh with the Dashboard and do not modify Supply or Bills records.
+
+
+## Current Prices Page
+
+Live page: [`prices.html`](prices.html)
+
+- Shows the newest Supply record for each vendor/item pair.
+- Search by item, vendor or item code.
+- Filter by vendor, GST treatment or changed prices.
+- Sort alphabetically, newest, highest/lowest price or biggest change.
+- Displays exact two-decimal MVR unit prices and vendor-specific previous-price differences.
+- Read-only: the page does not modify Supabase records.
