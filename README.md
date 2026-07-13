@@ -588,3 +588,10 @@ New Supply entries use two explicit GST choices:
 - **Add GST +8%** — final amount is `quantity × unit rate × 1.08`.
 
 After a vendor is selected, item suggestions are restricted to that vendor's previous Supply records. Selecting an exact saved item reuses its latest unit, unit rate and GST choice. A new item remains available for manual entry and becomes part of that vendor's future item history after saving.
+
+
+## Supply-Only Dashboard
+
+The visible Dashboard is reserved for Supply records. It shows saved Supply items, vendor count, recorded value, latest record and recent Supply entries. Bills KPIs, filters and records remain on the Bills page and are hidden while Dashboard is active.
+
+The legacy Bills analytical elements remain hidden in `index.html` only to preserve existing JavaScript compatibility; they are not part of the visible Dashboard.
