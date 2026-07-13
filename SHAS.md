@@ -290,3 +290,17 @@ Navigation order is Dashboard, Bills, Supply Rates, Prices, Settings (admin only
 | Brand accent | `#d4a72c` | `#f0bd36` |
 
 The final brand stylesheet must be the last style element in `head`. Every surface, row, form control, table, dialog and button must define readable foreground and background colours in both modes.
+
+
+## Reference-Matched Palette Standard
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Canvas | `#faf8f4` | `#0c0c0b` |
+| Surface | `#ffffff` | `#1b1917` |
+| Primary text | `#191714` | `#f7f2ea` |
+| Muted text | `#68635d` | `#bdb5ac` |
+| Action accent | `#b84308` | `#f0803f` |
+| Brand mark | `#70c94f` | `#8cdf68` |
+
+Orange is reserved for active navigation, primary controls and focus. Lime is reserved for the White Saffron mark and positive brand detail. Do not reintroduce mixed teal/navy primary navigation colours.
