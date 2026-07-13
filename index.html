@@ -341,7 +341,7 @@
     async function logout(){await db.auth.signOut();document.body.classList.remove('admin');state.user=null;state.rows=[];state.yearRows=[];state.filtered=[];els.loginView.classList.remove('hidden');els.appView.classList.add('hidden')}
 
     els.loginForm.addEventListener('submit',signIn);
-    $('refreshBtn').addEventListener('click',()=>loadBills());
+    $('refreshBtn').addEventListener('click',()=>state.view==='dashboard'?loadSupplyDashboard():loadBills());
     $('printDashboardBtn').addEventListener('click',printDashboard);
     $('exportBtn').addEventListener('click',exportCsv);
     $('addBtn')?.addEventListener('click',()=>openDialog());
