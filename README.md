@@ -654,3 +654,17 @@ The **Dark / Light** toggle stores the selected mode in browser `localStorage` u
 ## Accessible White Saffron Colour System
 
 The final theme layer loads last to prevent older sidebar/theme CSS from overriding it. White Saffron uses saffron for identity and active navigation, teal for primary actions, warm ivory surfaces in Light mode and charcoal surfaces in Dark mode. Text, rows, cards, inputs, tables, dialogs and destructive actions have explicit high-contrast colours in both modes.
+
+
+## Reference-Matched Contrast Palette
+
+The application now follows the supplied AguMagu visual logic: warm neutral Light mode, near-black Dark mode, orange for interaction, and lime only for the brand mark. Legacy teal/navy colours are overridden by the final stylesheet.
+
+Measured contrast ratios:
+
+- Light primary text: 16.86:1
+- Light muted text: 5.61:1
+- Light action button: 5.46:1
+- Dark primary text: 17.56:1
+- Dark muted text: 9.66:1
+- Dark action button: 7.01:1
