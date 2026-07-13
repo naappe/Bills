@@ -389,3 +389,21 @@ Dark-mode contrast: primary 15.98:1, secondary 8.22:1, navigation 9.70:1, active
 | 6 | Continuous Improvement | `assets/core-values/continuous-improvement.svg` |
 
 Core-value icons must remain unique, tightly cropped to their SVG view boxes, scalable, accessible with a title, and visually consistent. Teal is the primary stroke; saffron is the accent. Do not add decorative empty canvas around an icon.
+
+
+## Progressive Web App Standard
+
+| Component | Canonical file | Rule |
+| --- | --- | --- |
+| Web App Manifest | `manifest.webmanifest` | Defines app identity, standalone display, start URL, theme colours, icons and shortcuts |
+| Service Worker | `service-worker.js` | Caches only same-origin application-shell resources |
+| Installation Controller | `pwa-install.js` | Registers the worker and shows Install App only when supported |
+| Offline State | `offline.html` | Explains that Supabase live records require connectivity |
+| PWA Icons | `assets/pwa/standard and maskable SVG files` | Preserve the WS identity and safe maskable area |
+
+- PWA scope is the complete `/Bills/` application.
+- Light remains the default theme and the manifest theme colour is White Saffron teal.
+- Never cache, synthesize or queue Supabase authentication or mutation requests.
+- Offline mode may display cached application pages, but it must not claim that live records were saved.
+- Increment `CACHE_NAME` whenever an application-shell release must invalidate older cached files.
+- Every primary HTML page must link the manifest and load `pwa-install.js` once.
