@@ -181,6 +181,111 @@ h1,h2,h3,h4,strong,.value,.amount,.price,.vendor-row .vendor-name,.vendor-row .c
 @media(max-width:860px){html body .sidebar,html body .topnav{background:var(--brand-bg)!important}.nav,.side-nav,.links{scrollbar-width:none}.nav::-webkit-scrollbar,.side-nav::-webkit-scrollbar,.links::-webkit-scrollbar{display:none}}
 </style>
 
+
+<style id="wsDarkModeDashboard">
+/* Industrial dashboard dark mode — layered navy surfaces and green controls */
+html[data-theme="dark"]{--brand-bg:#111c26;--brand-surface:#1b2935;--brand-soft:#223441;--brand-text:#f2f7fa;--brand-muted:#a7b5c0;--brand-border:#304554;--brand-saffron:#f2c84b;--brand-teal:#25c96a;--brand-teal-hover:#35dd7b;--brand-danger:#ff8d88;--brand-danger-bg:#3b2425}
+html[data-theme="dark"] body,
+html[data-theme="dark"] .main,
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] main{background:#111c26!important;color:#f2f7fa!important}
+html[data-theme="dark"] body .sidebar,
+html[data-theme="dark"] body .topnav{background:#182532!important;color:#f2f7fa!important;border-color:#304554!important;box-shadow:0 2px 12px rgba(0,0,0,.22)!important}
+html[data-theme="dark"] body .side-logo,
+html[data-theme="dark"] body .brand-icon,
+html[data-theme="dark"] body .mark{background:linear-gradient(135deg,#25c96a,#13984b)!important;color:#07150d!important}
+html[data-theme="dark"] body .side-title strong,
+html[data-theme="dark"] body .topnav .brand{color:#f2f7fa!important}
+html[data-theme="dark"] body .sidebar .nav button,
+html[data-theme="dark"] body .sidebar .supply-nav-link,
+html[data-theme="dark"] body .sidebar .side-nav a,
+html[data-theme="dark"] body .topnav .links a,
+html[data-theme="dark"] body .topnav .links button{color:#c2ced6!important}
+html[data-theme="dark"] body .sidebar .nav button:hover,
+html[data-theme="dark"] body .sidebar .supply-nav-link:hover,
+html[data-theme="dark"] body .sidebar .side-nav a:hover,
+html[data-theme="dark"] body .topnav .links a:hover,
+html[data-theme="dark"] body .topnav .links button:hover{background:#223441!important;color:#fff!important}
+html[data-theme="dark"] body .sidebar .nav button.active,
+html[data-theme="dark"] body .sidebar .supply-nav-link.active,
+html[data-theme="dark"] body .sidebar .side-nav a.active,
+html[data-theme="dark"] body .topnav .links a.active{background:#25c96a!important;color:#07150d!important;box-shadow:none!important}
+html[data-theme="dark"] body .theme-toggle{background:#223441!important;color:#f2f7fa!important;border-color:#40596a!important}
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .stat,
+html[data-theme="dark"] .filter-card,
+html[data-theme="dark"] .bill-card,
+html[data-theme="dark"] .login-card,
+html[data-theme="dark"] dialog,
+html[data-theme="dark"] .vendor-picker-sheet,
+html[data-theme="dark"] .price-card,
+html[data-theme="dark"] .right-box,
+html[data-theme="dark"] .selected-chip,
+html[data-theme="dark"] .inventory-item,
+html[data-theme="dark"] .supply-chart-card,
+html[data-theme="dark"] .supply-dashboard-kpis>div,
+html[data-theme="dark"] .invoice-total-summary,
+html[data-theme="dark"] .tabs,
+html[data-theme="dark"] .vendor-row,
+html[data-theme="dark"] .panel-head,
+html[data-theme="dark"] .supply-recent-row,
+html[data-theme="dark"] .supply-rank-row,
+html[data-theme="dark"] .supply-change-row{background:#1b2935!important;color:#f2f7fa!important;border-color:#304554!important;box-shadow:0 7px 18px rgba(0,0,0,.13)!important}
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .history-panel th{background:#223441!important;color:#f2f7fa!important}
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] .history-panel td{background:#1b2935!important;color:#e5edf2!important;border-color:#304554!important}
+html[data-theme="dark"] .field,
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .cell-input{background:#14212b!important;color:#f2f7fa!important;border-color:#40596a!important}
+html[data-theme="dark"] .field::placeholder,
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder{color:#8fa1ae!important}
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] strong,
+html[data-theme="dark"] .value,
+html[data-theme="dark"] .amount,
+html[data-theme="dark"] .price,
+html[data-theme="dark"] .vendor-name{color:#f2f7fa!important}
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .vendor-row small,
+html[data-theme="dark"] .card-foot,
+html[data-theme="dark"] .vendor,
+html[data-theme="dark"] .top p,
+html[data-theme="dark"] .topbar p,
+html[data-theme="dark"] .bulk-help,
+html[data-theme="dark"] .stat span,
+html[data-theme="dark"] label{color:#a7b5c0!important}
+html[data-theme="dark"] .btn,
+html[data-theme="dark"] button.primary,
+html[data-theme="dark"] .tab.active,
+html[data-theme="dark"] .chip.active{background:#25c96a!important;color:#07150d!important;border-color:#25c96a!important;box-shadow:none!important}
+html[data-theme="dark"] .btn:hover,
+html[data-theme="dark"] button.primary:hover,
+html[data-theme="dark"] .tab.active:hover,
+html[data-theme="dark"] .chip.active:hover{background:#35dd7b!important;color:#07150d!important}
+html[data-theme="dark"] .btn.secondary,
+html[data-theme="dark"] .tab:not(.active),
+html[data-theme="dark"] .chip{background:#223441!important;color:#e5edf2!important;border-color:#40596a!important}
+html[data-theme="dark"] .btn.danger,
+html[data-theme="dark"] [id*="logout" i]{background:#3b2425!important;color:#ffaaa5!important;border-color:#a84b49!important}
+html[data-theme="dark"] .dashboard-overview,
+html[data-theme="dark"] .supply-dashboard-hero{background:linear-gradient(135deg,#1b2935,#20394a)!important;color:#f2f7fa!important;border-color:#40596a!important}
+html[data-theme="dark"] .dashboard-badge,
+html[data-theme="dark"] .sheet-kicker,
+html[data-theme="dark"] .eyebrow,
+html[data-theme="dark"] .dashboard-kicker{color:#56d4e8!important}
+html[data-theme="dark"] .bar{background:#2b3d49!important}html[data-theme="dark"] .bar span{background:#25c96a!important}
+html[data-theme="dark"] .supply-trend-line{stroke:#56d4e8!important}html[data-theme="dark"] .supply-trend-dot{stroke:#56d4e8!important;fill:#1b2935!important}html[data-theme="dark"] .supply-chart-gridline{stroke:#304554!important}html[data-theme="dark"] .supply-chart-axis,html[data-theme="dark"] .supply-chart-value{fill:#b7c4cc!important}
+html[data-theme="dark"] .status-paid{background:#193d2b!important;color:#79e6a4!important}html[data-theme="dark"] .status-pending{background:#3b321b!important;color:#f2c84b!important}
+html[data-theme="dark"] *:focus-visible{outline-color:#56d4e8!important}
+</style>
+
 </head>
 <body><section class="login" id="login"><form class="card" id="loginForm" action="javascript:void(0)" novalidate><div class="brand"><div class="logo">WS</div><div><h2>Supply Rates</h2><small>Supply User workspace</small></div></div><p>Use username <b>supply</b> and the password set in Supabase.</p><input class="field" id="email" value="supply" placeholder="Username"><br><br><input class="field" id="password" type="password" placeholder="Password" required><br><br><button class="btn" type="submit">Sign in</button><div id="loginNotice"></div></form></section>
 <section class="shell hidden" id="app"><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a><a href="prices.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20.6 13.1 11 22.7 1.3 13V3.3H11l9.6 9.8ZM6.5 8A1.5 1.5 0 1 0 6.5 5a1.5 1.5 0 0 0 0 3Z"/></svg></span>Prices</a><a class="admin-only-nav" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a><button class="theme-toggle" id="themeToggle" type="button" aria-label="Change colour theme" aria-pressed="false">☾ Dark</button></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart supply control</strong><p>Track prices, GST and purchasing changes.</p></div><div class="user-chip"><div class="avatar">SU</div><div><strong>SUPPLY USER</strong><span>Authorized workspace</span></div></div></aside><main class="main"><header class="topbar"><div><h1>Supply Rates</h1><p>Vendor price history, GST and budgeting</p></div><div class="actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary" id="refresh">Refresh</button><button class="btn secondary" id="printSupply">Print / PDF</button><button class="btn secondary" id="exportSupply">Export CSV</button><button class="btn secondary logout-action" id="logout">Logout</button></div></header><div id="notice"></div>
