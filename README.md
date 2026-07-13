@@ -691,3 +691,8 @@ Dark mode uses a layered machine-dashboard palette: navy canvas, lighter navy ca
 ## Appearance Switch
 
 The top navigation uses a two-state Light/Dark switch with visible labels and a moving knob. On first visit it follows `prefers-color-scheme`; a manual selection is saved in `localStorage.ws-theme` and reused across the main pages.
+
+
+## Shared Brand Stylesheet
+
+All application pages load [`brand-system.css`](brand-system.css) last. It is the single source for navigation, buttons, cards, forms, Light mode, Dark mode and the appearance switch. Earlier experimental theme blocks were removed from the page cascade to prevent specificity conflicts.
