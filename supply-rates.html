@@ -153,82 +153,32 @@ table{font-variant-numeric:tabular-nums}th{padding:11px 10px;font-size:10px;text
 </style>
 
 
-<style id="wsAccessibleBrandTheme">
-/* Reference-led high-contrast theme: neutral canvas, orange action, lime brand */
-:root{--ws-bg:#faf8f4;--ws-surface:#ffffff;--ws-surface-2:#f2eee8;--ws-ink:#191714;--ws-muted:#68635d;--ws-border:#d8d2c8;--ws-accent:#b84308;--ws-accent-hover:#943606;--ws-accent-soft:#f8e8df;--ws-lime:#70c94f;--ws-danger:#b42318;--ws-danger-bg:#fff0ed}
-html[data-theme="dark"]{--ws-bg:#0c0c0b;--ws-surface:#1b1917;--ws-surface-2:#24211e;--ws-ink:#f7f2ea;--ws-muted:#bdb5ac;--ws-border:#3d3832;--ws-accent:#f0803f;--ws-accent-hover:#ff965c;--ws-accent-soft:#342018;--ws-lime:#8cdf68;--ws-danger:#ff8b82;--ws-danger-bg:#371b18}
-body,.main,.main-content,main{background:var(--ws-bg)!important;color:var(--ws-ink)!important}
-.sidebar,.topnav{background:var(--ws-bg)!important;color:var(--ws-ink)!important;border-color:var(--ws-border)!important;box-shadow:0 1px 0 var(--ws-border)!important}
-.side-logo,.brand-icon,.mark{background:linear-gradient(135deg,var(--ws-lime),#3a9e32)!important;color:#10200d!important;box-shadow:none!important}
-.side-title strong,.brand,.brand strong{color:var(--ws-ink)!important}.side-title span{color:var(--ws-muted)!important}
-.nav button,.side-nav a,.supply-nav-link,.links a,.links button{background:transparent!important;color:var(--ws-muted)!important;border:1px solid transparent!important}
-.nav button:hover,.side-nav a:hover,.supply-nav-link:hover,.links a:hover,.links button:hover{background:var(--ws-surface-2)!important;color:var(--ws-ink)!important}
-.nav button.active,.side-nav a.active,.supply-nav-link.active,.links a.active{background:var(--ws-accent-soft)!important;color:var(--ws-accent)!important;border-color:transparent!important;box-shadow:inset 0 -3px var(--ws-accent)!important}
-.theme-toggle{background:var(--ws-surface)!important;color:var(--ws-ink)!important;border:1px solid var(--ws-border)!important;box-shadow:none!important}
-.panel,.stat,.filter-card,.bill-card,.login-card,dialog,.vendor-picker-sheet,.price-card,.right-box,.selected-chip,.inventory-item,.supply-chart-card,.supply-dashboard-kpis>div,.invoice-total-summary,.tabs{background:var(--ws-surface)!important;color:var(--ws-ink)!important;border-color:var(--ws-border)!important;box-shadow:none!important}
-.panel-head,.table th,.dashboard-panel,.supply-recent-row,.supply-rank-row,.supply-change-row,.vendor-row{background:var(--ws-surface)!important;color:var(--ws-ink)!important;border-color:var(--ws-border)!important}
-.vendor-row strong,.vendor-row .vendor-name,.vendor-row .count,.vendor-row .amount,.stat strong,.price,.value,.amount{color:var(--ws-ink)!important}
-.table td,.table th,.history-panel td,.history-panel th{color:var(--ws-ink)!important;border-color:var(--ws-border)!important}.table th,.history-panel th{background:var(--ws-surface-2)!important}
-.field,input,select,textarea,.cell-input{background:var(--ws-surface)!important;color:var(--ws-ink)!important;border-color:var(--ws-border)!important}.field::placeholder,input::placeholder,textarea::placeholder{color:var(--ws-muted)!important;opacity:1!important}
-.muted,.vendor-row small,.card-foot,.vendor,.top p,.topbar p,.bulk-help,.supply-chart-axis,.stat span,label{color:var(--ws-muted)!important}
-h1,h2,h3,h4,strong{color:var(--ws-ink)}
-.btn,button.primary,.tab.active{background:var(--ws-accent)!important;color:#fff!important;border-color:var(--ws-accent)!important}.btn:hover,button.primary:hover,.tab.active:hover{background:var(--ws-accent-hover)!important;color:#fff!important}
-html[data-theme="dark"] .btn,html[data-theme="dark"] button.primary,html[data-theme="dark"] .tab.active{color:#17110d!important}
-.btn.secondary,.tab:not(.active){background:var(--ws-surface)!important;color:var(--ws-ink)!important;border-color:var(--ws-border)!important}
-.btn.danger,[id*="logout" i]{background:var(--ws-danger-bg)!important;color:var(--ws-danger)!important;border:1px solid var(--ws-danger)!important}
-.dashboard-badge,.sheet-kicker,.eyebrow{color:var(--ws-accent)!important}.chip{background:var(--ws-surface-2)!important;color:var(--ws-ink)!important}.chip.active{background:var(--ws-accent)!important;color:#fff!important}
-html[data-theme="dark"] .chip.active{color:#17110d!important}
-.notice.ok{background:color-mix(in srgb,var(--ws-lime) 16%,var(--ws-surface))!important;color:var(--ws-ink)!important;border-color:var(--ws-lime)!important}.notice.error,.danger-note{color:var(--ws-danger)!important}
-.dashboard-overview,.supply-dashboard-hero{background:var(--ws-surface)!important;color:var(--ws-ink)!important;border:1px solid var(--ws-border)!important}
-.dashboard-overview h2,.dashboard-overview strong,.supply-dashboard-hero h2{color:var(--ws-ink)!important}.dashboard-kicker{color:var(--ws-accent)!important}
-html[data-theme="dark"] .inventory-item.low{background:#302619!important;color:#ffe2a8!important}html[data-theme="dark"] .inventory-item.critical{background:#351b18!important;color:#ffd3cf!important}
-.status-paid{background:color-mix(in srgb,var(--ws-lime) 18%,var(--ws-surface))!important;color:color-mix(in srgb,#147a20 82%,var(--ws-ink))!important}.status-pending{background:#fff0cf!important;color:#795000!important}html[data-theme="dark"] .status-pending{background:#3a2c12!important;color:#ffd77a!important}
-*:focus-visible{outline:3px solid var(--ws-accent)!important;outline-offset:2px!important}
-@media(max-width:860px){.sidebar,.topnav{background:var(--ws-bg)!important}.nav,.side-nav,.links{scrollbar-width:none}.nav::-webkit-scrollbar,.side-nav::-webkit-scrollbar,.links::-webkit-scrollbar{display:none}}
-</style>
 
-
-<style id="wsNavContrastFix">
-/* Highest-specificity navigation contrast repair */
-html body .sidebar .nav button,
-html body .sidebar .supply-nav-link,
-html body .sidebar .side-nav a,
-html body .topnav .links a,
-html body .topnav .links button{color:#332f2b!important;opacity:1!important;font-size:14px!important;font-weight:750!important;text-shadow:none!important}
-html body .sidebar .nav-icon,
-html body .sidebar .nav-icon svg,
-html body .topnav .links svg{color:inherit!important;fill:currentColor!important;opacity:1!important}
-html body .sidebar .nav button:hover,
-html body .sidebar .supply-nav-link:hover,
-html body .sidebar .side-nav a:hover,
-html body .topnav .links a:hover,
-html body .topnav .links button:hover{background:#f2eee8!important;color:#191714!important}
-html body .sidebar .nav button.active,
-html body .sidebar .supply-nav-link.active,
-html body .sidebar .side-nav a.active,
-html body .topnav .links a.active{background:#b84308!important;color:#fff!important;border-color:#b84308!important;box-shadow:none!important}
-html body .sidebar .theme-toggle,
-html body .topnav .theme-toggle{background:#fff!important;color:#191714!important;border:1px solid #b9b2a8!important;opacity:1!important;font-weight:800!important}
-html body .sidebar .side-title strong,
-html body .topnav .brand{color:#191714!important;opacity:1!important}
-html[data-theme="dark"] body .sidebar .nav button,
-html[data-theme="dark"] body .sidebar .supply-nav-link,
-html[data-theme="dark"] body .sidebar .side-nav a,
-html[data-theme="dark"] body .topnav .links a,
-html[data-theme="dark"] body .topnav .links button{color:#e4ded6!important}
-html[data-theme="dark"] body .sidebar .nav button:hover,
-html[data-theme="dark"] body .sidebar .supply-nav-link:hover,
-html[data-theme="dark"] body .sidebar .side-nav a:hover,
-html[data-theme="dark"] body .topnav .links a:hover,
-html[data-theme="dark"] body .topnav .links button:hover{background:#24211e!important;color:#fff!important}
-html[data-theme="dark"] body .sidebar .nav button.active,
-html[data-theme="dark"] body .sidebar .supply-nav-link.active,
-html[data-theme="dark"] body .sidebar .side-nav a.active,
-html[data-theme="dark"] body .topnav .links a.active{background:#f0803f!important;color:#17110d!important;border-color:#f0803f!important}
-html[data-theme="dark"] body .sidebar .theme-toggle,
-html[data-theme="dark"] body .topnav .theme-toggle{background:#1b1917!important;color:#f7f2ea!important;border-color:#5a534b!important}
-html[data-theme="dark"] body .sidebar .side-title strong,
-html[data-theme="dark"] body .topnav .brand{color:#f7f2ea!important}
+<style id="wsFinalBrandSystem">
+/* White Saffron final brand: cream + charcoal + saffron accent + teal actions */
+:root{--brand-bg:#fbf8f2;--brand-surface:#fffdf9;--brand-soft:#f1ede5;--brand-text:#1b1d1a;--brand-muted:#59635d;--brand-border:#d8d2c8;--brand-saffron:#c79200;--brand-teal:#0f766e;--brand-teal-hover:#0a5f58;--brand-danger:#b42318;--brand-danger-bg:#fff0ed}
+html[data-theme="dark"]{--brand-bg:#0d100e;--brand-surface:#181c19;--brand-soft:#222722;--brand-text:#f5f2eb;--brand-muted:#b9c1bb;--brand-border:#394039;--brand-saffron:#f0bd36;--brand-teal:#20a596;--brand-teal-hover:#33bdad;--brand-danger:#ff9188;--brand-danger-bg:#371b18}
+body,.main,.main-content,main{background:var(--brand-bg)!important;color:var(--brand-text)!important}
+html body .sidebar,html body .topnav{background:var(--brand-bg)!important;color:var(--brand-text)!important;border-color:var(--brand-border)!important;box-shadow:0 1px 0 var(--brand-border)!important}
+html body .side-logo,html body .brand-icon,html body .mark{background:linear-gradient(135deg,var(--brand-saffron),#9a6b00)!important;color:#fff!important;box-shadow:none!important}
+html body .side-title strong,html body .topnav .brand{color:var(--brand-text)!important}.side-title span{color:var(--brand-muted)!important}
+html body .sidebar .nav button,html body .sidebar .supply-nav-link,html body .sidebar .side-nav a,html body .topnav .links a,html body .topnav .links button{background:transparent!important;color:var(--brand-muted)!important;border:0!important;border-radius:10px!important;box-shadow:none!important;opacity:1!important;font-size:14px!important;font-weight:750!important}
+html body .sidebar .nav button:hover,html body .sidebar .supply-nav-link:hover,html body .sidebar .side-nav a:hover,html body .topnav .links a:hover,html body .topnav .links button:hover{background:var(--brand-soft)!important;color:var(--brand-text)!important}
+html body .sidebar .nav button.active,html body .sidebar .supply-nav-link.active,html body .sidebar .side-nav a.active,html body .topnav .links a.active{background:var(--brand-surface)!important;color:var(--brand-teal)!important;box-shadow:inset 0 -3px var(--brand-saffron)!important}
+html body .sidebar .nav-icon,html body .sidebar .nav-icon svg{color:inherit!important;fill:currentColor!important;opacity:1!important}
+html body .theme-toggle{background:var(--brand-surface)!important;color:var(--brand-text)!important;border:1px solid var(--brand-border)!important;font-weight:800!important;opacity:1!important}
+.panel,.stat,.filter-card,.bill-card,.login-card,dialog,.vendor-picker-sheet,.price-card,.right-box,.selected-chip,.inventory-item,.supply-chart-card,.supply-dashboard-kpis>div,.invoice-total-summary,.tabs,.vendor-row,.panel-head,.supply-recent-row,.supply-rank-row,.supply-change-row{background:var(--brand-surface)!important;color:var(--brand-text)!important;border-color:var(--brand-border)!important;box-shadow:none!important}
+.table td,.table th,.history-panel td,.history-panel th{color:var(--brand-text)!important;border-color:var(--brand-border)!important}.table th,.history-panel th{background:var(--brand-soft)!important}
+.field,input,select,textarea,.cell-input{background:var(--brand-surface)!important;color:var(--brand-text)!important;border-color:var(--brand-border)!important}.field::placeholder,input::placeholder,textarea::placeholder{color:var(--brand-muted)!important;opacity:1!important}
+.muted,.vendor-row small,.card-foot,.vendor,.top p,.topbar p,.bulk-help,.stat span,label{color:var(--brand-muted)!important}
+h1,h2,h3,h4,strong,.value,.amount,.price,.vendor-row .vendor-name,.vendor-row .count,.vendor-row .amount{color:var(--brand-text)!important}
+.btn,button.primary,.tab.active,.chip.active{background:var(--brand-teal)!important;color:#fff!important;border-color:var(--brand-teal)!important}.btn:hover,button.primary:hover,.tab.active:hover,.chip.active:hover{background:var(--brand-teal-hover)!important;color:#fff!important}
+.btn.secondary,.tab:not(.active),.chip{background:var(--brand-surface)!important;color:var(--brand-text)!important;border-color:var(--brand-border)!important}.btn.danger,[id*="logout" i]{background:var(--brand-danger-bg)!important;color:var(--brand-danger)!important;border:1px solid var(--brand-danger)!important}
+.dashboard-badge,.sheet-kicker,.eyebrow,.dashboard-kicker{color:var(--brand-teal)!important}
+.dashboard-overview,.supply-dashboard-hero{background:var(--brand-surface)!important;color:var(--brand-text)!important;border:1px solid var(--brand-border)!important}.dashboard-overview h2,.dashboard-overview strong,.supply-dashboard-hero h2{color:var(--brand-text)!important}
+.status-paid{background:color-mix(in srgb,#3fb950 16%,var(--brand-surface))!important;color:#126322!important}.status-pending{background:#fff0cf!important;color:#795000!important}html[data-theme="dark"] .status-paid{color:#8ee49a!important}html[data-theme="dark"] .status-pending{background:#3a2c12!important;color:#ffd77a!important}
+*:focus-visible{outline:3px solid var(--brand-saffron)!important;outline-offset:2px!important}
+@media(max-width:860px){html body .sidebar,html body .topnav{background:var(--brand-bg)!important}.nav,.side-nav,.links{scrollbar-width:none}.nav::-webkit-scrollbar,.side-nav::-webkit-scrollbar,.links::-webkit-scrollbar{display:none}}
 </style>
 
 </head>
