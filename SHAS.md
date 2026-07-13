@@ -407,3 +407,14 @@ Core-value icons must remain unique, tightly cropped to their SVG view boxes, sc
 - Offline mode may display cached application pages, but it must not claim that live records were saved.
 - Increment `CACHE_NAME` whenever an application-shell release must invalidate older cached files.
 - Every primary HTML page must link the manifest and load `pwa-install.js` once.
+
+
+## Parallel Bill Loading Standard
+
+- `loadBills()` loads ordered Supabase ranges in concurrent waves.
+- Batch size remains `PAGE_SIZE`; concurrency is limited to five requests.
+- Results are concatenated in range order so descending bill ID order is preserved.
+- A short batch terminates pagination; additional waves run only when all five ranges are full.
+- Any failed range fails the complete load visibly instead of presenting partial totals as complete.
+- KPI calculations, filters and vendor canonicalization run only after the complete dataset is assembled.
+- PWA cache version must be incremented when this application-shell logic changes.
