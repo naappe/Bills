@@ -351,7 +351,7 @@ Dark-mode contrast: primary 15.98:1, secondary 8.22:1, navigation 9.70:1, active
 - Identifier: `#themeToggle`.
 - Always show both **Light** and **Dark** labels.
 - Move the switch knob to indicate Dark mode.
-- Use the device `prefers-color-scheme` only when no saved preference exists.
+- Use Light when no saved preference exists.
 - Save manual selection in `localStorage.ws-theme`.
 - Update `aria-pressed` and the action-oriented `aria-label` on every change.
 
