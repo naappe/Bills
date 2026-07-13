@@ -635,3 +635,10 @@ Live page: [`prices.html`](prices.html)
 ### Public access
 
 The Prices page opens without authentication. Run [`SUPABASE_PUBLIC_PRICES_READ.sql`](SUPABASE_PUBLIC_PRICES_READ.sql) once in Supabase. The policy grants anonymous read access only to approved price catalogue columns; it does not expose Bills, Auth users, notes, invoice numbers or creator IDs.
+
+
+## Shared Editorial Theme
+
+Dashboard, Bills, Supply Rates, Prices, Settings, Stock and Stock Setup use the same cream background, white cards, deep-green actions, muted-grey text and editorial serif page headings. Prices remains the public visual reference.
+
+The public Prices search was repaired by renaming the Supabase project URL variable to avoid a browser `URL` global-name conflict.
