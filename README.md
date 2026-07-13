@@ -43,6 +43,32 @@ Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.
 
 
 
+## Current Application Pages
+
+| Page | File | Main responsibility |
+| --- | --- | --- |
+| Dashboard and Bills | [`index.html`](index.html) | KPIs, filters, bill entry, bill editing, vendor selection and reporting |
+| Supply Rates | [`supply-rates.html`](supply-rates.html) | Invoice item entry, per-row GST, saved rate modification and price history |
+| Settings | [`master.html`](master.html) | Admin-only vendor merging and master bill management |
+| Stock | [`stock.html`](stock.html) | Stock-sheet photo and line entry |
+
+### Shared Navigation and Permissions
+
+All primary application pages use the same **Application Sidebar** template. Dashboard, Bills and Supply Rates are operational pages. Settings is visible only for the authenticated Admin UID. The Admin account can modify and delete records across the application; regular users keep page-specific restrictions.
+
+### White Saffron Sidebar Theme
+
+| Token | Value | Use |
+| --- | --- | --- |
+| Brand Navy | `#0f172a` | Sidebar foundation |
+| Brand Saffron | `#d4a72c` | Logo and active-navigation accent |
+| Brand Teal | `#155e75` | Active navigation and primary actions |
+| Active Teal | `#0f766e` | Active gradient and secondary emphasis |
+| Navigation Text | `#cbd5e1` | Sidebar labels |
+| Content Background | `#f8fafc` | Main workspace |
+
+The sidebar theme is presentation-only and does not change Supabase data.
+
 ## Main Features
 
 - Login with Supabase Auth.
