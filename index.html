@@ -345,5 +345,12 @@
     els.rows.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const r=state.rows.find(x=>String(x.id)===String(b.dataset.id));if(b.dataset.action==='edit')openDialog(r);if(b.dataset.action==='delete')deleteBill(b.dataset.id)});
     db.auth.getSession().then(({data})=>startSession(data.session));
   </script>
+<style>
+#idleLogoutPrompt{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.58);display:grid;place-items:center;padding:18px}#idleLogoutPrompt.hidden{display:none!important}.idle-card{width:min(430px,100%);background:#fff;border-radius:16px;padding:22px;box-shadow:0 24px 80px rgba(15,23,42,.32);color:#172033}.idle-card h2{margin:0 0 8px;font-size:21px}.idle-card p{margin:0 0 16px;color:#64748b;line-height:1.5}.idle-card button{width:100%;min-height:44px;border:0;border-radius:10px;background:#0f8fa4;color:#fff;font-weight:800;cursor:pointer}
+</style>
+<div class="hidden" id="idleLogoutPrompt" role="dialog" aria-modal="true" aria-labelledby="idleLogoutTitle"><div class="idle-card"><h2 id="idleLogoutTitle">Are you still using the site?</h2><p>For security, you will be signed out in <strong id="idleLogoutSeconds">60</strong> seconds.</p><button id="staySignedIn" type="button">Stay signed in</button></div></div>
+<script>
+(function(){const IDLE_MS=14*60*1000,GRACE_SECONDS=60;let idleTimer,logoutTimer,countdownTimer,remaining=GRACE_SECONDS,warning=false;const prompt=document.getElementById('idleLogoutPrompt'),seconds=document.getElementById('idleLogoutSeconds');function hide(){warning=false;prompt.classList.add('hidden');clearTimeout(logoutTimer);clearInterval(countdownTimer)}function reset(){if(warning)return;clearTimeout(idleTimer);idleTimer=setTimeout(showWarning,IDLE_MS)}async function showWarning(){const{data}=await db.auth.getSession();if(!data.session){reset();return}warning=true;remaining=GRACE_SECONDS;seconds.textContent=remaining;prompt.classList.remove('hidden');document.getElementById('staySignedIn').focus();countdownTimer=setInterval(()=>{remaining--;seconds.textContent=Math.max(0,remaining)},1000);logoutTimer=setTimeout(logout,GRACE_SECONDS*1000)}async function logout(){clearInterval(countdownTimer);await db.auth.signOut();location.reload()}document.getElementById('staySignedIn').addEventListener('click',()=>{hide();reset()});['pointerdown','keydown','touchstart','scroll'].forEach(event=>document.addEventListener(event,reset,{passive:true}));document.addEventListener('visibilitychange',()=>{if(!document.hidden)reset()});reset()})();
+</script>
 </body>
 </html>
