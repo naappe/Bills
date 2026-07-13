@@ -129,7 +129,15 @@
     @media(max-width:860px){.supply-chart-grid{grid-template-columns:1fr}.supply-chart-card.wide{grid-column:auto}.supply-donut-wrap{grid-template-columns:140px minmax(0,1fr)}.supply-donut{width:140px}.supply-chart{min-height:210px}}
     @media(max-width:520px){.supply-donut-wrap{grid-template-columns:1fr;justify-items:center}.supply-chart-legend{width:100%}.supply-chart-axis{font-size:10px}.supply-chart-value{display:none}}
 
-  </style>
+  
+    /* Shared editorial cream and green theme */
+    :root{--bg:#f7f6f2;--panel:#fff;--soft:#efede7;--ink:#17211c;--muted:#6b746e;--line:#e4e2da;--primary:#0f766e;--primary-hover:#0b5f59;--accent:#16a36f;--shadow:0 2px 10px rgba(23,33,28,.04);--shadow-hover:0 14px 36px rgba(23,33,28,.09)}
+    body,.main{background:var(--bg)}h1,.title-block h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.02em}
+    .sidebar{background:#f7f6f2;color:var(--ink);border-right:1px solid var(--line)}.side-brand{border-bottom-color:var(--line)}.side-title strong{color:var(--ink)}.side-title span{color:var(--muted)}.nav button,.supply-nav-link{color:#5f6963}.nav button.active,.nav button:hover,.supply-nav-link:hover{background:#fff;color:var(--primary);box-shadow:0 4px 14px rgba(23,33,28,.05)}.user-chip{border-color:var(--line);background:#fff}.user-chip strong{color:var(--ink)}.user-chip span{color:var(--muted)}
+    .stat,.panel,.filter-card,.bill-card,.login-card{border-color:var(--line);border-radius:18px;background:#fff}.btn{background:var(--primary)}.btn:hover{background:var(--primary-hover)}.btn.secondary{background:#fff;border-color:var(--line)}.field{border-color:var(--line);background:#fff}.dashboard-overview,.supply-dashboard-hero{background:linear-gradient(135deg,#173c36,#0f766e)!important}.supply-dashboard-kpis>div{border-radius:18px!important}
+    @media(max-width:860px){.sidebar{border-right:0;border-bottom:1px solid var(--line)}.nav button.active,.supply-nav-link.active{box-shadow:inset 0 -3px 0 #d4a72c}}
+
+</style>
 <style>
 /* White Saffron canonical sidebar theme */
 .sidebar{background:#0f172a!important;border-color:#1e293b!important;color:#e2e8f0}.side-brand{border-color:#273449!important}.side-logo{background:linear-gradient(135deg,#d4a72c,#a16207)!important;color:#fff!important;box-shadow:0 8px 20px rgba(212,167,44,.22)!important}.side-title strong{color:#fff!important}.side-title span,.nav-label{color:#94a3b8!important}.sidebar .nav button,.sidebar .side-nav a,.sidebar .supply-nav-link{color:#cbd5e1!important}.sidebar .nav button:hover,.sidebar .side-nav a:hover,.sidebar .supply-nav-link:hover{background:#172f3b!important;color:#67e8f9!important}.sidebar .nav button.active,.sidebar .side-nav a.active{background:linear-gradient(90deg,#155e75,#0f766e)!important;color:#fff!important;box-shadow:inset 4px 0 #d4a72c!important}.sidebar-summary{background:linear-gradient(145deg,#172033,#163746)!important;border-color:#294a58!important}.sidebar-summary span{color:#f4c95d!important}.sidebar-summary strong{color:#fff!important}.sidebar-summary p{color:#a8b4c5!important}.user-chip{background:#172033!important;border-color:#2b3b50!important}.user-chip strong{color:#fff!important}.user-chip span{color:#94a3b8!important}
