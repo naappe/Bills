@@ -276,3 +276,17 @@ Navigation order is Dashboard, Bills, Supply Rates, Prices, Settings (admin only
 4. `#themeToggle` switches between Light and Dark modes.
 5. Persist the choice in `localStorage.ws-theme`.
 6. Both modes must preserve readable cards, fields, tables, dialogs and navigation states.
+
+
+## Accessible Brand Contrast Standard
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Page background | `#fbf8f2` | `#0d100e` |
+| Surface | `#fffdf8` | `#171b18` |
+| Primary text | `#1c201d` | `#f7f3ea` |
+| Muted text | `#5f6862` | `#b8c0ba` |
+| Primary action | `#0f766e` | `#20a596` |
+| Brand accent | `#d4a72c` | `#f0bd36` |
+
+The final brand stylesheet must be the last style element in `head`. Every surface, row, form control, table, dialog and button must define readable foreground and background colours in both modes.
