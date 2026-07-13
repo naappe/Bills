@@ -13,6 +13,12 @@ body{background:#f7f6f2!important;color:#17211c}h1{font-family:Georgia,"Times Ne
 
 </style>
   <link rel="stylesheet" href="brand-system.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="application-name" content="White Saffron">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="White Saffron">
+  <link rel="icon" href="./assets/pwa/icon-192.svg" type="image/svg+xml">
 </head>
 <body>
   <main class="wrap">
@@ -41,5 +47,6 @@ body{background:#f7f6f2!important;color:#17211c}h1{font-family:Georgia,"Times Ne
     copyBtn.addEventListener('click',async()=>{try{box.select();box.setSelectionRange(0,box.value.length);await navigator.clipboard.writeText(box.value);show('ok','Copied. Now paste it into Supabase SQL Editor and press Run.')}catch(e){document.execCommand('copy');show('ok','Selected SQL. If copy did not work, long-press inside the box and choose Copy.')}});
     load();
   </script>
+  <script src="./pwa-install.js" defer></script>
 </body>
 </html>
