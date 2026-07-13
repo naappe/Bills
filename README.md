@@ -642,3 +642,10 @@ The Prices page opens without authentication. Run [`SUPABASE_PUBLIC_PRICES_READ.
 Dashboard, Bills, Supply Rates, Prices, Settings, Stock and Stock Setup use the same cream background, white cards, deep-green actions, muted-grey text and editorial serif page headings. Prices remains the public visual reference.
 
 The public Prices search was repaired by renaming the Supabase project URL variable to avoid a browser `URL` global-name conflict.
+
+
+## Unified Top Navigation and Colour Mode
+
+Dashboard, Bills, Supply Rates, Prices and Settings use a horizontal sticky top navigation. The brand stays left and page links plus the colour-mode control align right. The former desktop left sidebar is no longer part of the canonical layout.
+
+The **Dark / Light** toggle stores the selected mode in browser `localStorage` under `ws-theme`, so the preference remains after refresh and across main pages.
