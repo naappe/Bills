@@ -266,3 +266,13 @@ Navigation order is Dashboard, Bills, Supply Rates, Prices, Settings (admin only
 - Page headings: Georgia/editorial serif; operational text remains sans-serif.
 - Apply consistently to Dashboard, Bills, Supply Rates, Prices, Settings and stock utilities.
 - Do not alter calculations, permissions or stored records when changing theme CSS.
+
+
+## Top Navigation and Colour Mode Standard
+
+1. Main navigation is a sticky horizontal bar, not a desktop side menu.
+2. Brand identity is left aligned; Dashboard, Bills, Supply Rates, Prices, Settings and theme control align right.
+3. Mobile navigation remains horizontally scrollable.
+4. `#themeToggle` switches between Light and Dark modes.
+5. Persist the choice in `localStorage.ws-theme`.
+6. Both modes must preserve readable cards, fields, tables, dialogs and navigation states.
