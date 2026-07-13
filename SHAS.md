@@ -235,3 +235,14 @@ Bills KPI Summary Cards, Bills filters and Bill Records must appear only in the 
 | Highest-Value Items | `#supplyItemChart` | Top seven item values as horizontal bars |
 
 Graphs must remain responsive, read-only, accessible with an SVG label, and dependency-free. They use the same loaded Supply rows as the KPI and analysis panels.
+
+
+## Current Prices Page Standard
+
+| Section | Identifier | Purpose |
+| --- | --- | --- |
+| Price Summary | `.stats` | Item, vendor and record counts |
+| Price Filters | `.filters`, `.chips` | Search, vendor, sort, GST and change filters |
+| Price Cards | `#cards` | Latest vendor/item prices and previous-price comparison |
+
+Navigation order is Dashboard, Bills, Supply Rates, Prices, Settings (admin only). Prices are always formatted to two decimal places and the page is read-only.
