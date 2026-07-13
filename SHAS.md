@@ -178,3 +178,22 @@ Dashboard/Bills in `index.html` are the canonical visual reference. Supply Rates
 - Duplicate HTML IDs: none detected on the four core pages.
 - Supabase write confirmation: enabled for core add, edit and delete operations.
 - Data safety: no existing records were changed during the layout and documentation audit.
+
+
+## Supply GST Calculation Standard
+
+| Choice | Net | GST | Final |
+| --- | --- | --- | --- |
+| No GST | `quantity × rate` | `0` | `net` |
+| Add GST +8% | `quantity × rate` | `net × 0.08` | `net + GST` |
+
+Do not label new entry choices as Included/Excluded. Use exactly **No GST** and **Add GST +8%**.
+
+## Vendor Item Memory Standard
+
+1. Select the vendor first.
+2. Show item suggestions only from that vendor's saved Supply history.
+3. Match item names case-insensitively.
+4. Use the newest saved record when the same vendor/item has multiple rates.
+5. Reuse unit, unit rate and GST choice after exact selection.
+6. Never reuse an item rate from a different vendor.
