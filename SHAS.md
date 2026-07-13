@@ -224,3 +224,14 @@ Bills KPI Summary Cards, Bills filters and Bill Records must appear only in the 
 - A price difference is vendor-specific; prices from different vendors must never be compared as the same history.
 - “High stock” means high recorded supplied quantity/value, not calculated on-hand inventory.
 - Run `SUPABASE_SUPPLY_DASHBOARD_READ.sql` once so authenticated Bills users can select Supply rows. Write access remains restricted.
+
+
+## Modern Supply Graph Standard
+
+| Graph | Identifier | Purpose |
+| --- | --- | --- |
+| Monthly Supply Value | `#supplyMonthlyTrendChart` | Latest six-month recorded-value trend |
+| Vendor Share | `#supplyVendorDonut` | Leading vendor value distribution |
+| Highest-Value Items | `#supplyItemChart` | Top seven item values as horizontal bars |
+
+Graphs must remain responsive, read-only, accessible with an SVG label, and dependency-free. They use the same loaded Supply rows as the KPI and analysis panels.
