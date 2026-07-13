@@ -745,3 +745,12 @@ White Saffron can be installed from a supported browser as a standalone applicat
 4. Launch White Saffron from the desktop, Start menu or home screen.
 
 The service worker caches only same-origin frontend files. Supabase authentication, database reads and database writes are not cached or queued. Users must be online to load or save live records safely.
+
+
+## Parallel Bill Loading — 13 July 2026
+
+The Bills loader now requests five ordered 1,000-row Supabase ranges concurrently per wave. Previously, each range waited for the preceding range, producing a visible loading delay while KPI cards displayed temporary zeros. The new loader preserves complete-history totals, descending ID order, filters, vendor rebuilding and duplicate-bill validation while reducing network wait time. PWA cache version `white-saffron-pwa-v2` distributes the update to installed users.
+
+- Performance-only frontend change.
+- No bill rows, Supabase policies or database schema were modified.
+- Inline scripts and the service worker passed JavaScript syntax validation.
