@@ -16,7 +16,9 @@
 
 | Role | Color | Use |
 | --- | --- | --- |
-| Primary | Deep teal `#155e75` | Main buttons and key emphasis |
+| Brand navy | `#0f172a` | Shared sidebar foundation |
+| Brand saffron | `#d4a72c` | White Saffron logo and active accent |
+| Primary | Deep teal `#155e75` | Main buttons and active navigation |
 | Primary hover | Dark teal `#164e63` | Button hover state |
 | Accent | Teal `#0f766e` | Brand gradients and secondary emphasis |
 | Success | Green `#16a34a` | Paid status |
@@ -41,3 +43,8 @@
 ## Data Safety Boundary
 
 Branding must not change the Supabase URL, table name, authentication, row-loading, add/edit/delete behavior, filters, export logic, or stored bill records.
+
+
+## Shared Sidebar Standard
+
+Bills, Supply Rates and Settings use the same sidebar structure and navigation order. Use navy as the stable background, saffron only as a restrained brand accent, and teal for the active destination. Settings must remain admin-only. Do not introduce a different sidebar palette on individual pages.
