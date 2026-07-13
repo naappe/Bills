@@ -112,7 +112,7 @@
     .user-chip{margin-top:0;padding:11px;border:1px solid #e5eaf0;border-radius:11px;background:#fafbfc;color:#172033}.user-chip strong{color:#344054}.user-chip span{color:#8a94a5}
     .avatar{background:#e8f9fc;color:#07899e}
     @media(max-width:860px){.shell{grid-template-columns:1fr}.sidebar{background:#fff;border-right:0;border-bottom:1px solid #e5eaf0;box-shadow:0 4px 16px rgba(15,23,42,.05);padding:10px 12px;gap:8px}.nav-label,.sidebar-summary{display:none}.nav button.active{box-shadow:inset 0 -3px #12b5cb}.nav button:hover{transform:none}}
-</style>
+.admin-only-nav{display:none!important}body.admin .admin-only-nav{display:flex!important}</style>
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
@@ -137,7 +137,7 @@
         <button data-view="dashboard"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</button>
         <button class="active" data-view="bills"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</button>
       <a class="supply-nav-link" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a>
-      <a class="supply-nav-link" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a>
+      <a class="supply-nav-link admin-only-nav" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a>
       </nav>
       <div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart bill control</strong><p>Track, review and understand every expense.</p></div>
       <div class="user-chip"><div class="avatar" id="userAvatar">U</div><div><strong id="userRole">STAFF</strong><span id="userEmail">Signed in</span></div></div>
