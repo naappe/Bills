@@ -210,3 +210,17 @@ The canonical visible Dashboard is **Supply Records Dashboard**.
 | Latest Supply Records | `#supplyRecentRecords` | Eight newest saved Supply records |
 
 Bills KPI Summary Cards, Bills filters and Bill Records must appear only in the Bills view. Do not show Bills financial analytics in the visible Dashboard.
+
+
+## Supply Dashboard Analysis Standard
+
+| Section | Identifier | Calculation |
+| --- | --- | --- |
+| Top Items | `#supplyTopItems` | Sum quantity and final value by normalized item name; rank by recorded value |
+| Top Vendors | `#supplyTopVendors` | Sum final value by normalized vendor name; show unique item count |
+| Monthly Price Changes | `#supplyPriceChanges` | Compare the latest vendor/item unit rate in the newest two recorded months |
+
+- Supply Dashboard queries are read-only and may load up to 5,000 newest Supply rows.
+- A price difference is vendor-specific; prices from different vendors must never be compared as the same history.
+- “High stock” means high recorded supplied quantity/value, not calculated on-hand inventory.
+- Run `SUPABASE_SUPPLY_DASHBOARD_READ.sql` once so authenticated Bills users can select Supply rows. Write access remains restricted.
