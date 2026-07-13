@@ -354,3 +354,12 @@ Dark-mode contrast: primary 15.98:1, secondary 8.22:1, navigation 9.70:1, active
 - Use the device `prefers-color-scheme` only when no saved preference exists.
 - Save manual selection in `localStorage.ws-theme`.
 - Update `aria-pressed` and the action-oriented `aria-label` on every change.
+
+
+## Shared Brand Stylesheet Standard
+
+- Canonical file: `brand-system.css`.
+- Load it once as the final stylesheet in every page `head`.
+- Do not add new page-level brand colour overrides.
+- Page CSS may define layout and page-specific components only.
+- Global navigation, surfaces, typography colours, buttons, states and appearance modes belong in `brand-system.css`.
