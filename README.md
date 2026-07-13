@@ -696,3 +696,30 @@ The top navigation uses a two-state Light/Dark switch with visible labels and a 
 ## Shared Brand Stylesheet
 
 All application pages load [`brand-system.css`](brand-system.css) last. It is the single source for navigation, buttons, cards, forms, Light mode, Dark mode and the appearance switch. Earlier experimental theme blocks were removed from the page cascade to prevent specificity conflicts.
+
+
+## Typography and Core Values
+
+### Typography
+
+White Saffron uses no more than two Google Font families and three weights per family:
+
+| Role | Family | Weights | Use |
+| --- | --- | --- | --- |
+| Editorial | **Fraunces** | 400, 600, 700 | Page headings, feature titles and prominent figures |
+| Operational | **Inter** | 400, 500, 700 | Navigation, buttons, forms, tables and body copy |
+
+Inter remains the required font for small interface text because it preserves readability in Light and Dark modes. Use system fallbacks when Google Fonts cannot load.
+
+### Core Values
+
+| Value | Commitment | SVG asset |
+| --- | --- | --- |
+| Accuracy | We record every bill, price, and calculation carefully so decisions are based on reliable information. | [accuracy.svg](assets/core-values/accuracy.svg) |
+| Transparency | We keep financial and supply information clear, traceable, and easy to understand. | [transparency.svg](assets/core-values/transparency.svg) |
+| Accountability | We take ownership of every entry, correction, approval, and outcome. | [accountability.svg](assets/core-values/accountability.svg) |
+| Efficiency | We simplify daily work and reduce unnecessary steps without sacrificing quality. | [efficiency.svg](assets/core-values/efficiency.svg) |
+| Consistency | We apply the same dependable standards across vendors, bills, stock, and reporting. | [consistency.svg](assets/core-values/consistency.svg) |
+| Continuous Improvement | We learn from records and price changes to make purchasing and operations better over time. | [continuous-improvement.svg](assets/core-values/continuous-improvement.svg) |
+
+The icons use tightly cropped SVG view boxes, consistent rounded strokes, White Saffron teal and saffron accents. They are accessible, scalable and suitable for Light or Dark surfaces.
