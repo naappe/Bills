@@ -681,3 +681,8 @@ This selection supersedes earlier experimental palettes:
 - Red only for destructive actions
 
 Gold is not used for small text. Dark-mode teal buttons use dark text for accessible contrast.
+
+
+## Industrial Dashboard Dark Mode
+
+Dark mode uses a layered machine-dashboard palette: navy canvas, lighter navy cards, white headings, blue-grey supporting text, green active controls, cyan information accents and yellow warning states. Light mode retains the final White Saffron cream/saffron/teal system.
