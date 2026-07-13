@@ -24,7 +24,7 @@ This file is the canonical naming registry for the White Saffron Bills repositor
 | 2 | Application Shell | `#appView` | Sidebar and main application |
 | 3 | Sidebar Navigation | `.sidebar .nav` | Dashboard and Bills navigation |
 | 4 | Top Action Bar | `.topbar` | Refresh, Export, Add Bill, Logout |
-| 5 | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` | Showing Records, Total MVR, Pending, This Month |
+| 5 | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` | Showing Records, Total MVR, This Month |
 | 6 | Filter Bar | `.filter-card` | Search, status, and date filters |
 | 7 | Advanced Finance Dashboard | `#dashboardView` | Financial overview, six-month trend and analytical breakdowns |
 | 8 | Bill Records Section | `#billsView` | Filtered bill list and pagination |
@@ -61,7 +61,7 @@ This file is the canonical naming registry for the White Saffron Bills repositor
 
 | Order | Canonical name | Selector / identifier | Purpose |
 | --- | --- | --- | --- |
-| 1 | Dashboard Financial Overview | `.dashboard-overview` | Calculated insight and four finance indicators |
+| 1 | Dashboard Financial Overview | `.dashboard-overview` | Calculated insight and three finance indicators |
 | 2 | Average Bill Indicator | `#averageBill` | Filtered total divided by filtered record count |
 | 3 | Paid Value Indicator | `#paidDashboardAmount` | Paid value under the active filters |
 | 4 | Payment Rate Indicator | `#paymentRate` | Paid value as a percentage of filtered total |
