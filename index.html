@@ -190,6 +190,50 @@ html[data-theme="dark"] .inventory-item.low{background:#302619!important;color:#
 @media(max-width:860px){.sidebar,.topnav{background:var(--ws-bg)!important}.nav,.side-nav,.links{scrollbar-width:none}.nav::-webkit-scrollbar,.side-nav::-webkit-scrollbar,.links::-webkit-scrollbar{display:none}}
 </style>
 
+
+<style id="wsNavContrastFix">
+/* Highest-specificity navigation contrast repair */
+html body .sidebar .nav button,
+html body .sidebar .supply-nav-link,
+html body .sidebar .side-nav a,
+html body .topnav .links a,
+html body .topnav .links button{color:#332f2b!important;opacity:1!important;font-size:14px!important;font-weight:750!important;text-shadow:none!important}
+html body .sidebar .nav-icon,
+html body .sidebar .nav-icon svg,
+html body .topnav .links svg{color:inherit!important;fill:currentColor!important;opacity:1!important}
+html body .sidebar .nav button:hover,
+html body .sidebar .supply-nav-link:hover,
+html body .sidebar .side-nav a:hover,
+html body .topnav .links a:hover,
+html body .topnav .links button:hover{background:#f2eee8!important;color:#191714!important}
+html body .sidebar .nav button.active,
+html body .sidebar .supply-nav-link.active,
+html body .sidebar .side-nav a.active,
+html body .topnav .links a.active{background:#b84308!important;color:#fff!important;border-color:#b84308!important;box-shadow:none!important}
+html body .sidebar .theme-toggle,
+html body .topnav .theme-toggle{background:#fff!important;color:#191714!important;border:1px solid #b9b2a8!important;opacity:1!important;font-weight:800!important}
+html body .sidebar .side-title strong,
+html body .topnav .brand{color:#191714!important;opacity:1!important}
+html[data-theme="dark"] body .sidebar .nav button,
+html[data-theme="dark"] body .sidebar .supply-nav-link,
+html[data-theme="dark"] body .sidebar .side-nav a,
+html[data-theme="dark"] body .topnav .links a,
+html[data-theme="dark"] body .topnav .links button{color:#e4ded6!important}
+html[data-theme="dark"] body .sidebar .nav button:hover,
+html[data-theme="dark"] body .sidebar .supply-nav-link:hover,
+html[data-theme="dark"] body .sidebar .side-nav a:hover,
+html[data-theme="dark"] body .topnav .links a:hover,
+html[data-theme="dark"] body .topnav .links button:hover{background:#24211e!important;color:#fff!important}
+html[data-theme="dark"] body .sidebar .nav button.active,
+html[data-theme="dark"] body .sidebar .supply-nav-link.active,
+html[data-theme="dark"] body .sidebar .side-nav a.active,
+html[data-theme="dark"] body .topnav .links a.active{background:#f0803f!important;color:#17110d!important;border-color:#f0803f!important}
+html[data-theme="dark"] body .sidebar .theme-toggle,
+html[data-theme="dark"] body .topnav .theme-toggle{background:#1b1917!important;color:#f7f2ea!important;border-color:#5a534b!important}
+html[data-theme="dark"] body .sidebar .side-title strong,
+html[data-theme="dark"] body .topnav .brand{color:#f7f2ea!important}
+</style>
+
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
