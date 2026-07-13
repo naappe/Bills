@@ -197,3 +197,16 @@ Do not label new entry choices as Included/Excluded. Use exactly **No GST** and 
 4. Use the newest saved record when the same vendor/item has multiple rates.
 5. Reuse unit, unit rate and GST choice after exact selection.
 6. Never reuse an item rate from a different vendor.
+
+
+## Visible Dashboard Standard
+
+The canonical visible Dashboard is **Supply Records Dashboard**.
+
+| Section | Identifier | Purpose |
+| --- | --- | --- |
+| Supply Dashboard Hero | `.supply-dashboard-hero` | Supply overview and link to Supply Rates |
+| Supply Dashboard KPIs | `.supply-dashboard-kpis` | Saved items, vendors, recorded value and latest record |
+| Latest Supply Records | `#supplyRecentRecords` | Eight newest saved Supply records |
+
+Bills KPI Summary Cards, Bills filters and Bill Records must appear only in the Bills view. Do not show Bills financial analytics in the visible Dashboard.
