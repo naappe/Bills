@@ -595,3 +595,16 @@ After a vendor is selected, item suggestions are restricted to that vendor's pre
 The visible Dashboard is reserved for Supply records. It shows saved Supply items, vendor count, recorded value, latest record and recent Supply entries. Bills KPIs, filters and records remain on the Bills page and are hidden while Dashboard is active.
 
 The legacy Bills analytical elements remain hidden in `index.html` only to preserve existing JavaScript compatibility; they are not part of the visible Dashboard.
+
+
+## Supply Dashboard Analysis and Read Access
+
+The Supply Records Dashboard reads `public.supply_rates` and provides:
+
+- **Top Items** — highest recorded supply quantities and values.
+- **Top Vendors** — vendors ranked by recorded supply value and unique item count.
+- **Monthly Price Changes** — each vendor/item's newest recorded month compared with its previous recorded month, including the MVR and percentage difference.
+
+“High stock” on this dashboard means the highest **recorded supplied quantity/value**. It is not a live on-hand balance unless stock consumption and adjustments are also recorded in an inventory ledger.
+
+All authenticated Bills users need read-only access to see these records. Run [`SUPABASE_SUPPLY_DASHBOARD_READ.sql`](SUPABASE_SUPPLY_DASHBOARD_READ.sql) once in the Supabase SQL Editor. Supply and admin write permissions remain restricted by the existing insert, update and delete policies.
