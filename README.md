@@ -686,3 +686,8 @@ Gold is not used for small text. Dark-mode teal buttons use dark text for access
 ## Industrial Dashboard Dark Mode
 
 Dark mode uses a layered machine-dashboard palette: navy canvas, lighter navy cards, white headings, blue-grey supporting text, green active controls, cyan information accents and yellow warning states. Light mode retains the final White Saffron cream/saffron/teal system.
+
+
+## Appearance Switch
+
+The top navigation uses a two-state Light/Dark switch with visible labels and a moving knob. On first visit it follows `prefers-color-scheme`; a manual selection is saved in `localStorage.ws-theme` and reused across the main pages.
