@@ -15,6 +15,12 @@ body{background:#f7f6f2!important;color:#17211c}h1{font-family:Georgia,"Times Ne
 
 </style>
   <link rel="stylesheet" href="brand-system.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="application-name" content="White Saffron">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="White Saffron">
+  <link rel="icon" href="./assets/pwa/icon-192.svg" type="image/svg+xml">
 </head>
 <body>
   <section class="login" id="loginView"><div class="card"><h1>Stock Sheets</h1><p class="muted">Sign in with admin, naappe, white, or full email.</p><form id="loginForm" style="display:grid;gap:12px;margin-top:18px"><input class="field" id="emailInput" type="text" placeholder="Username or email" autocomplete="username" required><input class="field" id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required><button class="btn" type="submit">Sign In</button><div class="notice" id="loginNotice"></div></form></div></section>
@@ -62,5 +68,6 @@ body{background:#f7f6f2!important;color:#17211c}h1{font-family:Georgia,"Times Ne
     async function deleteRow(id){if(!confirm('Delete this stock line?'))return;const{data:deleted,error}=await db.from(TABLE).delete().eq('id',id).select('id');if(error){notice('error',error.message);return}if(!(deleted||[]).length){notice('error','Delete was blocked by database permissions.');return}notice('ok','Stock line deleted.');await loadRows()}
     els.loginForm.addEventListener('submit',signIn);$('logoutBtn').addEventListener('click',logout);$('refreshBtn').addEventListener('click',loadRows);$('clearBtn').addEventListener('click',clearForm);$('addLineBtn').addEventListener('click',()=>addLine());$('parseBtn').addEventListener('click',parseLines);els.ocr.addEventListener('click',autoRead);els.form.addEventListener('submit',saveSheet);els.photo.addEventListener('change',e=>{state.selectedFile=e.target.files?.[0]||null;if(state.selectedFile){els.preview.src=URL.createObjectURL(state.selectedFile);els.preview.classList.remove('hidden')}});els.lineBody.addEventListener('input',e=>{const el=e.target.closest('[data-i]');if(!el)return;state.lines[Number(el.dataset.i)][el.dataset.k]=el.value});els.lineBody.addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;state.lines.splice(Number(b.dataset.remove),1);if(!state.lines.length)addLine();else renderLines()});[els.search,els.status].forEach(el=>el.addEventListener(el.tagName==='INPUT'?'input':'change',applyFilters));els.rows.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;if(b.dataset.action==='delete')deleteRow(b.dataset.id)});db.auth.getSession().then(({data})=>start(data.session));
   </script>
+  <script src="./pwa-install.js" defer></script>
 </body>
 </html>
