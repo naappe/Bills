@@ -109,3 +109,29 @@ The dashboard workflow is validation-only.
 5. A literal `\\n` remained in the CSS source.
 
 These causes are resolved in the SHA registry above.
+
+
+## Shared Application Sidebar
+
+| Canonical name | Selector | Rule |
+| --- | --- | --- |
+| Application Sidebar | `.sidebar` | Shared navigation shell on Bills, Supply Rates and Settings |
+| Brand Block | `.side-brand` | White Saffron identity and workspace label |
+| Sidebar Navigation | `.nav`, `.side-nav` | Dashboard, Bills, Supply Rates and Settings links |
+| Admin Settings Link | `.admin-only-nav` | Hidden unless the authenticated role is Admin |
+| Sidebar Summary | `.sidebar-summary` | Short page-purpose description |
+
+### Navigation Order
+
+1. Dashboard
+2. Bills
+3. Supply Rates
+4. Settings — Admin only
+
+### Canonical Sidebar Colors
+
+- Brand Navy: `#0f172a`
+- Brand Saffron: `#d4a72c`
+- Brand Teal: `#155e75`
+- Active Teal: `#0f766e`
+- Navigation Text: `#cbd5e1`
