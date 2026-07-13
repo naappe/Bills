@@ -540,3 +540,41 @@ The sample Happy Market tax invoice uses 8% GST and shows line-level quantity, u
 ### Data separation
 
 `public.supply_rates` is separate from `public.bills`. Supply rates are item-level history used for purchasing and budgeting. Bills remain invoice-level financial records.
+
+
+## Stability Audit — 13 July 2026
+
+The core application pages were checked after the shared mobile-layout cleanup:
+
+- `index.html` — Dashboard and Bills
+- `supply-rates.html` — Supply invoices and rate history
+- `master.html` — Admin Settings, vendor management and inventory alerts
+- `stock.html` — Stock-sheet entry
+
+### Verified Results
+
+- No JavaScript syntax errors were found.
+- No duplicate HTML IDs were found.
+- Dashboard, Bills, Supply Rates and Settings use the same canonical responsive navigation pattern.
+- Settings navigation remains visible only to the authenticated Admin UID.
+- The 15-minute inactivity logout applies to the primary authenticated pages.
+- Existing Supabase records are not modified by visual or documentation updates.
+
+### Confirmed-Write Standard
+
+Create, update and delete operations must request the affected row IDs from Supabase using `.select('id')`. The interface may report success only when Supabase returns the expected affected rows.
+
+This rule currently covers:
+
+- Bill add, edit and delete
+- Supply rate add, modify and delete
+- Complete supply-invoice item saves
+- Admin bill edits and deletes
+- Inventory alert upserts and deletes
+- Stock-line inserts and deletes
+
+If Row Level Security blocks an operation, the page displays an error instead of reporting a false success.
+
+### Inventory Alert Setup
+
+Admin inventory thresholds use `public.inventory_items`. Run [`SUPABASE_INVENTORY_ALERTS.sql`](SUPABASE_INVENTORY_ALERTS.sql) once in the Supabase SQL Editor before using **Settings → Inventory & Alerts**.
