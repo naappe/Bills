@@ -246,3 +246,12 @@ Graphs must remain responsive, read-only, accessible with an SVG label, and depe
 | Price Cards | `#cards` | Latest vendor/item prices and previous-price comparison |
 
 Navigation order is Dashboard, Bills, Supply Rates, Prices, Settings (admin only). Prices are always formatted to two decimal places and the page is read-only.
+
+
+## Public Prices Access Standard
+
+- `prices.html` must open without a password.
+- Anonymous queries select only approved Supply price fields.
+- Apply `SUPABASE_PUBLIC_PRICES_READ.sql` once.
+- Never expose Bills, Auth users, notes, invoice numbers or `created_by` through the public page.
+- The page remains read-only.
