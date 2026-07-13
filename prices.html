@@ -36,6 +36,12 @@ html[data-theme="dark"] body,html[data-theme="dark"] .topnav{background:#101713;
 
 
   <link rel="stylesheet" href="brand-system.css">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="application-name" content="White Saffron">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="White Saffron">
+  <link rel="icon" href="./assets/pwa/icon-192.svg" type="image/svg+xml">
 </head>
 <body>
 <section id="app">
@@ -58,4 +64,5 @@ $('search').oninput=render;$('vendorFilter').onchange=render;$('sort').onchange=
 <script>
 (function(){const root=document.documentElement,key='ws-theme';function apply(value){const mode=value==='dark'?'dark':'light';root.dataset.theme=mode;const button=document.getElementById('themeToggle');if(button){button.dataset.mode=mode;button.setAttribute('aria-pressed',String(mode==='dark'));button.setAttribute('aria-label',mode==='dark'?'Switch to light appearance':'Switch to dark appearance')}}const saved=localStorage.getItem(key);apply(saved||'light');document.addEventListener('click',event=>{if(!event.target.closest('#themeToggle'))return;const next=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem(key,next);apply(next)})})();
 </script>
+  <script src="./pwa-install.js" defer></script>
 </body></html>
