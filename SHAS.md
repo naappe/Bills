@@ -363,3 +363,29 @@ Dark-mode contrast: primary 15.98:1, secondary 8.22:1, navigation 9.70:1, active
 - Do not add new page-level brand colour overrides.
 - Page CSS may define layout and page-specific components only.
 - Global navigation, surfaces, typography colours, buttons, states and appearance modes belong in `brand-system.css`.
+
+
+## Typography Standard
+
+| Role | Google Font | Allowed weights | Application |
+| --- | --- | --- | --- |
+| Editorial | **Fraunces** | 400, 600, 700 | Page titles, feature headings and prominent figures |
+| Operational | **Inter** | 400, 500, 700 | Navigation, controls, tables, cards and body text |
+
+- Use a maximum of these two font families.
+- Do not introduce additional font weights.
+- Small interface labels must use Inter.
+- Define resilient system-font fallbacks for offline or blocked Google Fonts.
+
+## Core Values Standard
+
+| Order | Core value | Icon asset |
+| --- | --- | --- |
+| 1 | Accuracy | `assets/core-values/accuracy.svg` |
+| 2 | Transparency | `assets/core-values/transparency.svg` |
+| 3 | Accountability | `assets/core-values/accountability.svg` |
+| 4 | Efficiency | `assets/core-values/efficiency.svg` |
+| 5 | Consistency | `assets/core-values/consistency.svg` |
+| 6 | Continuous Improvement | `assets/core-values/continuous-improvement.svg` |
+
+Core-value icons must remain unique, tightly cropped to their SVG view boxes, scalable, accessible with a title, and visually consistent. Teal is the primary stroke; saffron is the accent. Do not add decorative empty canvas around an icon.
