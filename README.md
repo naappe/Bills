@@ -723,3 +723,25 @@ Inter remains the required font for small interface text because it preserves re
 | Continuous Improvement | We learn from records and price changes to make purchasing and operations better over time. | [continuous-improvement.svg](assets/core-values/continuous-improvement.svg) |
 
 The icons use tightly cropped SVG view boxes, consistent rounded strokes, White Saffron teal and saffron accents. They are accessible, scalable and suitable for Light or Dark surfaces.
+
+
+## Installable Progressive Web App
+
+White Saffron can be installed from a supported browser as a standalone application. The PWA keeps the application shell available after it has been opened once, while authentication and live records continue to use Supabase.
+
+| File | Responsibility |
+| --- | --- |
+| [`manifest.webmanifest`](manifest.webmanifest) | Application name, launch URL, colours, icons and shortcuts |
+| [`service-worker.js`](service-worker.js) | Same-origin application-shell cache and offline navigation fallback |
+| [`pwa-install.js`](pwa-install.js) | Service-worker registration and contextual Install App button |
+| [`offline.html`](offline.html) | Clear offline state when live content cannot be reached |
+| [`assets/pwa/`](assets/pwa/) | Standard and maskable White Saffron application icons |
+
+### Installation
+
+1. Open `https://naappe.github.io/Bills/` in Chrome or Microsoft Edge.
+2. Wait for the site to finish loading.
+3. Select **Install App** when shown, or use the browser menu and choose **Install White Saffron** / **Add to Home screen**.
+4. Launch White Saffron from the desktop, Start menu or home screen.
+
+The service worker caches only same-origin frontend files. Supabase authentication, database reads and database writes are not cached or queued. Users must be online to load or save live records safely.
