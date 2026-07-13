@@ -631,3 +631,7 @@ Live page: [`prices.html`](prices.html)
 - Sort alphabetically, newest, highest/lowest price or biggest change.
 - Displays exact two-decimal MVR unit prices and vendor-specific previous-price differences.
 - Read-only: the page does not modify Supabase records.
+
+### Public access
+
+The Prices page opens without authentication. Run [`SUPABASE_PUBLIC_PRICES_READ.sql`](SUPABASE_PUBLIC_PRICES_READ.sql) once in Supabase. The policy grants anonymous read access only to approved price catalogue columns; it does not expose Bills, Auth users, notes, invoice numbers or creator IDs.
