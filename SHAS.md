@@ -304,3 +304,12 @@ The final brand stylesheet must be the last style element in `head`. Every surfa
 | Brand mark | `#70c94f` | `#8cdf68` |
 
 Orange is reserved for active navigation, primary controls and focus. Lime is reserved for the White Saffron mark and positive brand detail. Do not reintroduce mixed teal/navy primary navigation colours.
+
+
+## Top Navigation Contrast Rule
+
+- Inactive Light navigation: `#332f2b` on `#faf8f4` — 12.51:1.
+- Active Light navigation: white on `#b84308` — 5.46:1.
+- Inactive Dark navigation: `#e4ded6` on `#0c0c0b` — 14.65:1.
+- Active Dark navigation: `#17110d` on `#f0803f` — 7.01:1.
+- Navigation contrast rules must use the full `.sidebar .nav`, `.sidebar .side-nav`, and `.topnav .links` selectors so legacy rules cannot override them.
