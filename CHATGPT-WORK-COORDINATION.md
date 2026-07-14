@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Repair Bills loading by replacing fragile concurrent pagination | `index.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -59,9 +59,16 @@ After committing:
 
 | `40c185b` | Monitoring ChatGPT | Fix Supply Rates dark-theme login contrast | Selector scope inspected; contrast calculated; all inline JavaScript parses | PASS | Login card 15.10:1 heading contrast and 7.62:1 helper-text contrast. |
 
+| `32843b0` | Monitoring ChatGPT | Make Bills loading resilient | Sequential pagination verified; old rows preserved on refresh failure; all inline JavaScript parses | PASS | Removes five-request concurrent wave that could blank the Bills list after one failed request. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Replaced fragile five-request Bills pagination with sequential 1,000-row pagination.
+- PASS: A temporary Supabase/network error now shows a retry message and preserves already loaded records.
+- PASS: Bills inline JavaScript parses successfully.
+- WARNING: GitHub reports no automated deployment/check status for this commit; live authenticated data loading requires user verification.
 
 - PASS: Fixed the screenshot-reported Supply Rates login contrast regression caused by an incorrectly scoped comma selector.
 - PASS: Dark login card contrast is 15.10:1 for primary text and 7.62:1 for helper text.
