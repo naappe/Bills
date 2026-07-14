@@ -123,3 +123,38 @@ html[data-theme="dark"] .theme-switch-track{background:#25c96a!important}html[da
 .session-warning{position:fixed;z-index:1000;right:18px;bottom:18px;width:min(360px,calc(100% - 36px));display:grid;gap:7px;padding:16px;background:var(--brand-surface);color:var(--brand-text);border:2px solid var(--brand-saffron);border-radius:var(--brand-radius);box-shadow:0 18px 50px rgba(0,0,0,.22)}
 .session-warning span{color:var(--brand-muted)}.session-warning button{min-height:40px;border:0;border-radius:10px;background:var(--brand-teal);color:#fff;font-weight:700}
 .connectivity-status{position:fixed;z-index:999;left:14px;bottom:14px;padding:8px 12px;border-radius:999px;background:#8a2c22;color:#fff;font:700 12px Inter,sans-serif;box-shadow:var(--brand-shadow)}
+
+
+/* Accessibility and financial hierarchy */
+:root{
+  --brand-muted:#46534c;
+  --brand-border:#c7c1b7;
+}
+html[data-theme="dark"]{
+  --brand-muted:#bdc8cf;
+  --brand-border:#415867;
+}
+body{font-size:15px!important;line-height:1.6!important}
+.muted,.meta-line,.tin,.description-line,.filter-summary,.page-label,.bulk-help,.card-foot,.vendor,small,label{
+  color:var(--brand-muted)!important;
+}
+.field,input,select,textarea{font-size:14px!important;min-height:44px!important}
+.field::placeholder,input::placeholder,textarea::placeholder{color:#536058!important;opacity:1!important}
+html[data-theme="dark"] .field::placeholder,html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder{color:#b5c1c9!important}
+.btn,button,.row-actions a{min-height:44px!important;min-width:44px!important;font-size:14px!important}
+.row-actions .btn.small{padding:0 14px!important;border-radius:10px!important}
+.bill-card{padding:18px 20px!important;gap:18px!important}
+.bill-card .vendor{font-size:16px!important}
+.bill-card .amount{color:var(--brand-teal)!important;font-size:21px!important;font-weight:850!important}
+#billsKpiSummaryCards #totalAmount{color:var(--brand-teal)!important;font-size:34px!important;font-weight:850!important}
+.status-pill,.tag{min-height:32px!important;font-size:13px!important;padding:0 11px!important}
+dialog{max-height:min(760px,calc(100vh - 32px))!important;overflow:hidden!important}
+dialog::backdrop{background:rgba(9,18,22,.76)!important;backdrop-filter:blur(3px)}
+.modal-body{max-height:calc(100vh - 190px)!important;overflow-y:auto!important;padding:18px 20px!important}
+.modal-foot{position:sticky!important;bottom:0!important;background:var(--brand-surface)!important}
+@media(max-width:600px){
+  .bill-card{padding:16px!important}
+  .bill-card .amount{font-size:20px!important;text-align:left!important}
+  dialog{width:calc(100% - 16px)!important;max-height:calc(100vh - 16px)!important}
+  .modal-body{grid-template-columns:1fr!important;max-height:calc(100vh - 160px)!important}
+}
