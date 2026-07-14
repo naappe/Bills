@@ -1,6 +1,6 @@
--- White Saffron Stock Sheet Photo Entry setup
+-- White Saffron manual Stock Entry setup
 -- Run this in Supabase SQL Editor for project tmupbruwmwlrmewhoodn.
--- It creates a private stock photo bucket and stock_entries rows for notebook-style sheets:
+-- It creates stock_entries rows for manual notebook-style entry:
 -- Qty | Item Name | Date | Name | Sign
 
 create table if not exists public.stock_entries (
@@ -95,57 +95,8 @@ create index if not exists stock_entries_sheet_id_idx on public.stock_entries(sh
 create index if not exists stock_entries_photo_path_idx on public.stock_entries(photo_path);
 create index if not exists stock_entries_created_at_idx on public.stock_entries(created_at desc);
 
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values (
-  'stock-photos',
-  'stock-photos',
-  false,
-  10485760,
-  array['image/jpeg','image/png','image/webp','image/heic','image/heif']
-)
-on conflict (id) do update set
-  public = excluded.public,
-  file_size_limit = excluded.file_size_limit,
-  allowed_mime_types = excluded.allowed_mime_types;
-
+-- Stock photos are no longer used by stock.html.
+-- Remove legacy access policies but preserve any existing private bucket and files.
 drop policy if exists "stock photos insert own folder" on storage.objects;
-create policy "stock photos insert own folder"
-on storage.objects
-for insert
-to authenticated
-with check (
-  bucket_id = 'stock-photos'
-  and (storage.foldername(name))[1] = (select auth.uid())::text
-);
-
 drop policy if exists "stock photos select own or admin" on storage.objects;
-create policy "stock photos select own or admin"
-on storage.objects
-for select
-to authenticated
-using (
-  bucket_id = 'stock-photos'
-  and (
-    (storage.foldername(name))[1] = (select auth.uid())::text
-    or (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
-  )
-);
-
 drop policy if exists "stock photos delete admin" on storage.objects;
-create policy "stock photos delete admin"
-on storage.objects
-for delete
-to authenticated
-using (
-  bucket_id = 'stock-photos'
-  and (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
-);
-
-
--- Keep updated_at accurate automatically.
-create or replace function public.white_saffron_set_updated_at()
-returns trigger language plpgsql set search_path=public as $$
-begin new.updated_at=now(); return new; end;
-$$;
-drop trigger if exists stock_entries_set_updated_at on public.stock_entries;
-create trigger stock_entries_set_updated_at before update on public.stock_entries for each row execute function public.white_saffron_set_updated_at();
