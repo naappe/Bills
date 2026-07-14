@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Create and apply shared page spacing, cards, headers, filters and info bars | `brand-system.css`, `index.html`, `supply-rates.html`, `prices.html`, `master.html`, `stock.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -67,9 +67,17 @@ After committing:
 
 | `b1175f3` | Monitoring ChatGPT | Restructure Supply Dashboard narrative and remove duplicates | DOM order verified; removed IDs absent; latest table present; JavaScript parses | PASS | Compact KPI → monthly hero → vendor/top items → latest table; redundant analytics removed. |
 
+| `dfd1d64`, `24b642d`, `40a2222`, `ee9cc25`, `c94a7f8`, `5f31543` | Monitoring ChatGPT | Shared layout system across all application pages | Variables/utilities verified; wrappers/classes present; all inline JavaScript parses | PASS | Unified page padding, 24px gaps, card treatment, 44px actions, filters and Bills info bar. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Added shared layout variables and reusable page-container, header-action, page-card, dashboard-grid, bills-list, search-bar, filter-group and info-bar classes.
+- PASS: Applied the system to Dashboard/Bills, Supply Rates/Price Watch, Prices, Settings and Stock.
+- PASS: Desktop uses 24px page/gap rhythm; tablet/mobile use the shared 16px responsive rhythm.
+- PASS: Header actions are 44px with 14px text and card padding is 18px across pages.
+- PASS: Dark mode inherits shared brand surfaces/borders; all changed-page inline JavaScript parses.
 
 - PASS: Supply Dashboard now reads compact KPI strip → monthly hero chart → vendor share/top items → latest-records table.
 - PASS: Removed duplicate Top Items, Top Vendors/vendor share and Monthly Price Changes sections from markup and JavaScript.
