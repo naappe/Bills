@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Stop stale mockup/theme caching and verify real functional app is served | `service-worker.js`, `manifest.webmanifest` | 2026-07-14 |
 
 ## Review Queue
 
