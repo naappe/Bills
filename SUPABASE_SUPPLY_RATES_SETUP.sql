@@ -23,10 +23,13 @@ create table if not exists public.supply_rates (
   invoice_no text,
   invoice_date date,
   notes text,
+  invoice_photo_path text,
   created_by uuid not null default auth.uid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.supply_rates add column if not exists invoice_photo_path text;
 
 create index if not exists supply_rates_vendor_item_idx on public.supply_rates (vendor, item_name, created_at desc);
 create index if not exists supply_rates_created_by_idx on public.supply_rates (created_by, created_at desc);
@@ -60,3 +63,21 @@ begin new.updated_at=now(); return new; end;
 $$;
 drop trigger if exists supply_rates_set_updated_at on public.supply_rates;
 create trigger supply_rates_set_updated_at before update on public.supply_rates for each row execute function public.white_saffron_set_updated_at();
+
+
+-- Optional private invoice photos used by supply-rates.html.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('supply-invoice-photos','supply-invoice-photos',false,10485760,array['image/jpeg','image/png','image/webp','image/heic','image/heif'])
+on conflict (id) do update set public=excluded.public,file_size_limit=excluded.file_size_limit,allowed_mime_types=excluded.allowed_mime_types;
+
+drop policy if exists "supply invoice photos insert own folder" on storage.objects;
+create policy "supply invoice photos insert own folder" on storage.objects for insert to authenticated
+with check (bucket_id='supply-invoice-photos' and (storage.foldername(name))[1]=(select auth.uid())::text and (select auth.uid()) in ('79c4c15e-87b7-415a-82f0-825054458e59'::uuid,'5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid));
+
+drop policy if exists "supply invoice photos authorized read" on storage.objects;
+create policy "supply invoice photos authorized read" on storage.objects for select to authenticated
+using (bucket_id='supply-invoice-photos' and (select auth.uid()) in ('79c4c15e-87b7-415a-82f0-825054458e59'::uuid,'5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid));
+
+drop policy if exists "supply invoice photos delete owner or admin" on storage.objects;
+create policy "supply invoice photos delete owner or admin" on storage.objects for delete to authenticated
+using (bucket_id='supply-invoice-photos' and ((storage.foldername(name))[1]=(select auth.uid())::text or (select auth.uid())='5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid));
