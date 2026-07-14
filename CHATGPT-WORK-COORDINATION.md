@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Fix Dashboard KPI visibility, donut clarity and action targets | `index.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -61,9 +61,17 @@ After committing:
 
 | `32843b0` | Monitoring ChatGPT | Make Bills loading resilient | Sequential pagination verified; old rows preserved on refresh failure; all inline JavaScript parses | PASS | Removes five-request concurrent wave that could blank the Bills list after one failed request. |
 
+| `c49cc59` | Monitoring ChatGPT | Dashboard KPI, donut and action accessibility finishing pass | DOM assignments verified; dark selector scoped; 44px/14px actions verified; JavaScript parses | PASS | Vendors shows visible 0/value, single vendor shows 100%, dark donut center strengthened. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Dashboard Vendors KPI always renders a visible numeric value in light and dark themes.
+- PASS: Single-vendor doughnut center shows `100%` and the vendor name; dark center/track contrast strengthened.
+- PASS: Refresh, Print/PDF, Export and Logout actions are explicitly 44px high with 14px text.
+- PASS: Corrected the Dashboard dark-theme comma-selector scoping bug and revalidated all inline JavaScript.
+- WARNING: GitHub reports no automated deployment/check status for this commit.
 
 - PASS: Replaced fragile five-request Bills pagination with sequential 1,000-row pagination.
 - PASS: A temporary Supabase/network error now shows a retry message and preserves already loaded records.
