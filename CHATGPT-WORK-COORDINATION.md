@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Repair Supply Rates dark-mode contrast across Price Watch, Budget and forms | `supply-rates.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -63,9 +63,17 @@ After committing:
 
 | `c49cc59` | Monitoring ChatGPT | Dashboard KPI, donut and action accessibility finishing pass | DOM assignments verified; dark selector scoped; 44px/14px actions verified; JavaScript parses | PASS | Vendors shows visible 0/value, single vendor shows 100%, dark donut center strengthened. |
 
+| `c32e88d` | Monitoring ChatGPT | Repair Supply Rates dark-mode contrast | Final cascade order verified; WCAG ratios calculated; JavaScript parses | PASS | Price Watch, Budget, invoice, summary and history text now use 7.62:1–16.07:1 contrast. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Added a final dark-theme cascade layer after all Supply Rates component CSS.
+- PASS: Price Watch KPIs, helper text, Budget Calculator, invoice labels/totals, table headings and alerts now have explicit dark-mode colors.
+- PASS: Verified contrast ratios: muted 7.62:1, primary 15.10:1, KPI 16.07:1 and teal accent 11.17:1.
+- PASS: Supply Rates inline JavaScript parses successfully.
+- WARNING: GitHub reports no automated deployment/check status for this commit.
 
 - PASS: Dashboard Vendors KPI always renders a visible numeric value in light and dark themes.
 - PASS: Single-vendor doughnut center shows `100%` and the vendor name; dark center/track contrast strengthened.
