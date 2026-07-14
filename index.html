@@ -304,6 +304,102 @@ html[data-theme="dark"] #dashboardView .supply-donut:after{background:#262626!im
 }
 </style>
 
+
+<style>
+/* Compact analytics dashboard v2 — live render targets and functions unchanged */
+#dashboardView.supply-dashboard-view{
+  grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)!important;
+  gap:20px!important;
+  align-items:start!important;
+}
+#dashboardView .supply-dashboard-kpis{
+  grid-column:1/-1!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+}
+#dashboardView .supply-dashboard-kpis>div{
+  min-height:104px!important;
+  padding:16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  text-align:left!important;
+  border-radius:12px!important;
+  border-top:3px solid #d97706!important;
+}
+#dashboardView .supply-dashboard-kpis span{font-size:11px!important}
+#dashboardView .supply-dashboard-kpis strong{
+  margin-top:8px!important;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-size:clamp(21px,2vw,28px)!important;
+}
+#dashboardView .supply-chart-grid{display:contents!important}
+#dashboardView .supply-chart-card.supply-chart-hero{grid-column:1/-1!important}
+#dashboardView .supply-chart-card,
+#dashboardView .supply-recent-panel{min-height:0!important}
+#dashboardView .supply-chart-card.supply-chart-hero .supply-chart{min-height:250px!important}
+#dashboardView .supply-chart-card:not(.supply-chart-hero) .supply-chart{min-height:220px!important}
+#dashboardView .supply-recent-panel{grid-column:1/-1!important}
+#dashboardView .dashboard-panel-head{
+  display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;
+}
+#dashboardView .dashboard-panel-head h2{
+  font-size:20px!important;line-height:1.2!important;margin:0 0 4px!important;
+}
+#dashboardView .dashboard-badge{
+  flex:0 0 auto!important;padding:6px 10px!important;border-radius:999px!important;
+  background:#fff7ed!important;color:#b45309!important;font-size:11px!important;font-weight:800!important;
+}
+#dashboardView .supply-donut-wrap{
+  grid-template-columns:140px minmax(0,1fr)!important;gap:18px!important;
+}
+#dashboardView .supply-donut{width:140px!important}
+#dashboardView .supply-donut:after{inset:25px!important}
+#dashboardView .supply-recent-table th{position:static!important}
+html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!important;color:#fcd34d!important}
+@media(max-width:1024px){
+  #dashboardView.supply-dashboard-view{grid-template-columns:1fr 1fr!important}
+  #dashboardView .supply-chart-card.supply-chart-hero,
+  #dashboardView .supply-recent-panel{grid-column:1/-1!important}
+}
+@media(max-width:700px){
+  #dashboardView.supply-dashboard-view{
+    grid-template-columns:1fr!important;gap:14px!important;
+  }
+  #dashboardView .supply-dashboard-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  #dashboardView .supply-dashboard-kpis>div{
+    min-height:92px!important;padding:13px!important;
+  }
+  #dashboardView .supply-dashboard-kpis strong{
+    margin-top:5px!important;font-size:20px!important;line-height:1.15!important;
+  }
+  #dashboardView .supply-chart-card,
+  #dashboardView .supply-recent-panel{
+    grid-column:1!important;padding:16px!important;border-radius:12px!important;
+  }
+  #dashboardView .dashboard-panel-head h2{font-size:18px!important}
+  #dashboardView .supply-chart-card.supply-chart-hero .supply-chart{min-height:180px!important}
+  #dashboardView .supply-chart-card:not(.supply-chart-hero) .supply-chart{min-height:180px!important}
+  #dashboardView .supply-chart svg{max-height:190px!important}
+  #dashboardView .supply-donut-wrap{
+    grid-template-columns:110px minmax(0,1fr)!important;gap:14px!important;
+  }
+  #dashboardView .supply-donut{width:110px!important}
+  #dashboardView .supply-donut:after{inset:20px!important}
+  #dashboardView .supply-donut-center strong{font-size:18px!important}
+  #dashboardView .supply-chart-legend{gap:7px!important}
+}
+@media(max-width:390px){
+  #dashboardView .supply-dashboard-kpis{grid-template-columns:1fr!important}
+  #dashboardView .supply-dashboard-kpis>div{min-height:76px!important}
+  #dashboardView .supply-donut-wrap{grid-template-columns:1fr!important;justify-items:center!important}
+}
+</style>
+
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
