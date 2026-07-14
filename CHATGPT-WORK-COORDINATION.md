@@ -28,7 +28,7 @@ After committing:
 
 - Correct White login email: `whitesaffron2025@gmail.com`.
 - Stock entry is manual and must not upload, fetch or display photos.
-- Invoice photo upload belongs only to Supply Rates.
+- Product photos belong to supply items (for example, Carrot), are managed in Settings, and appear on Rates/Prices pages. Invoice photos are not used.
 - Preserve existing Supabase records and RLS protections.
 - Do not expose service-role keys or passwords.
 - Keep GitHub Pages compatibility: static HTML, CSS and JavaScript.
@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Replace invoice photos with item photos managed in Settings | `master.html`, `supply-rates.html`, `prices.html`, `SUPABASE_ITEM_PHOTO_SETUP.sql` | 2026-07-14 |
 
 ## Review Queue
 
