@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Strengthen native bill modal backdrop and verify viewport coverage | `index.html` | 2026-07-14 |
 
 ## Review Queue
 
