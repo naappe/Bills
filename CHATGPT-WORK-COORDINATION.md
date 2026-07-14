@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Migrate full application theme from teal/slate to amber/charcoal | `brand-system.css`, `index.html`, `supply-rates.html`, `prices.html`, `master.html`, `stock.html` | 2026-07-14 |
 
 ## Review Queue
 
