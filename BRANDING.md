@@ -1,50 +1,62 @@
-# White Saffron Bills — Brand Standard
+# White Saffron Application Brand Standard
 
-## Official Direction
+This is the canonical visual standard for every application page. Earlier experimental sidebar and palette directions are retired.
 
-**Minimalist + Mobile-first Finance Dashboard**, with light data-heavy reporting.
+## Brand Direction
 
-## Experience Principles
+**Minimalist, mobile-first finance workspace** with clear operational data and an editorial White Saffron identity.
 
-1. Keep daily bill entry fast and obvious.
-2. Show only useful financial totals and filters.
-3. Make every primary control comfortable to use on phones and tablets.
-4. Use consistent names from SHAS.md.
-5. Keep all branding work frontend-only unless a database change is separately approved.
+## Canonical Tokens
 
-## Palette
-
-| Role | Color | Use |
+| Role | Light | Dark |
 | --- | --- | --- |
-| Brand navy | `#0f172a` | Shared sidebar foundation |
-| Brand saffron | `#d4a72c` | White Saffron logo and active accent |
-| Primary | Deep teal `#155e75` | Main buttons and active navigation |
-| Primary hover | Dark teal `#164e63` | Button hover state |
-| Accent | Teal `#0f766e` | Brand gradients and secondary emphasis |
-| Success | Green `#16a34a` | Paid status |
-| Warning | Amber `#a16207` | Pending status |
-| Background | Light gray `#f8fafc` | Page background |
-| Cards | White `#ffffff` | Panels, KPI cards, and bill cards |
+| Canvas | `#fbf8f2` | `#111c26` |
+| Surface | `#fffdf9` | `#1b2935` |
+| Main text | `#1b1d1a` | `#f2f7fa` |
+| Muted text | `#59635d` | `#a7b5c0` |
+| Border | `#d8d2c8` | `#304554` |
+| Saffron identity | `#c79200` | `#f2c84b` |
+| Primary action | `#0f766e` | `#25c96a` |
+| Danger | `#b42318` | `#ffaaa5` |
 
-## Current Page Hierarchy
+Saffron is for the brand mark, focus and selected-navigation detail. Teal/green is for primary actions and selected controls. Red is reserved for destructive actions and errors.
 
-1. Top Action Bar
-2. Filter Bar
-3. Bills KPI Summary Cards
-4. Bill Records Section
-5. Pagination
+## Typography
 
-## Responsive Rules
+| Purpose | Font | Weights |
+| --- | --- | --- |
+| Page and feature headings | Fraunces | 400, 600, 700 |
+| Navigation, controls, cards and tables | Inter | 400, 500, 700 |
 
-- Desktop: four KPI cards in one row.
-- Tablet: two KPI cards per row; filters wrap cleanly.
-- Mobile: one KPI card per row; compact bill cards; touch targets remain at least 44px.
+System fallbacks must remain so cached pages stay readable when web fonts are unavailable.
 
-## Data Safety Boundary
+## Navigation
 
-Branding must not change the Supabase URL, table name, authentication, row-loading, add/edit/delete behavior, filters, export logic, or stored bill records.
+- Use the same sticky horizontal navigation on Dashboard, Bills, Supply Rates, Prices and Settings.
+- Order: Dashboard, Bills, Supply Rates, Prices, Settings.
+- Settings is visible only to the admin UID.
+- Mobile navigation scrolls horizontally and keeps a minimum 44px touch target.
+- Light is the default appearance. The Light/Dark switch saves `localStorage.ws-theme`.
 
+## Components
 
-## Shared Sidebar Standard
+- Cards and fields use the shared surface, border and radius tokens from `brand-system.css`.
+- Primary buttons use the primary action token; secondary buttons use the surface token.
+- Text and controls must remain readable in both appearances.
+- The Bills page has three KPI cards: Showing Records, Total MVR and This Month.
+- Pending is a status/filter value, not a KPI card.
+- Amounts always show two decimal places and MVR where space permits.
 
-Bills, Supply Rates and Settings use the same sidebar structure and navigation order. Use navy as the stable background, saffron only as a restrained brand accent, and teal for the active destination. Settings must remain admin-only. Do not introduce a different sidebar palette on individual pages.
+## Responsive Standard
+
+- Desktop content width is constrained and aligned beneath navigation.
+- Tablet layouts wrap without horizontal page overflow.
+- Mobile forms become one column; tables use a deliberate scroll or card layout.
+- Dialogs fit the viewport and keep their action buttons reachable.
+
+## Accessibility and Safety
+
+- Visible focus, explicit labels, semantic buttons and adequate contrast are required.
+- Visual changes must not alter calculations, permissions or stored data.
+- Authentication and database mutations are never cached by the service worker.
+- Use `SHAS.md` for canonical section/function names.
