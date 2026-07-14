@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Restructure Supply Dashboard reading order and remove duplicate analytics | `index.html` | 2026-07-14 |
 
 ## Review Queue
 
