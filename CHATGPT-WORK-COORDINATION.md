@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Create and apply shared page spacing, cards, headers, filters and info bars | `brand-system.css`, `index.html`, `supply-rates.html`, `prices.html`, `master.html`, `stock.html` | 2026-07-14 |
 
 ## Review Queue
 
