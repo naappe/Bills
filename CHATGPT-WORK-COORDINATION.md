@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Fix Supply Rates dark-theme login contrast shown in live screenshot | `supply-rates.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -57,9 +57,15 @@ After committing:
 
 | `c421ecc` | Monitoring ChatGPT | Strengthen full-viewport native bill modal backdrop | Native dialog/top-layer verified; no inline or utility override; all inline JavaScript parses | PASS | Backdrop is 72% dark with 6px blur and WebKit fallback. |
 
+| `40c185b` | Monitoring ChatGPT | Fix Supply Rates dark-theme login contrast | Selector scope inspected; contrast calculated; all inline JavaScript parses | PASS | Login card 15.10:1 heading contrast and 7.62:1 helper-text contrast. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Fixed the screenshot-reported Supply Rates login contrast regression caused by an incorrectly scoped comma selector.
+- PASS: Dark login card contrast is 15.10:1 for primary text and 7.62:1 for helper text.
+- PASS: Supply Rates inline JavaScript parses successfully after the CSS-only fix.
 
 - PASS: Bill form uses native `showModal()`, so `dialog::backdrop` covers the viewport in the browser top layer.
 - PASS: No inline dialog style or Tailwind-style backdrop class overrides the rule.
