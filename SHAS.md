@@ -1,5 +1,9 @@
 # SHAS — Site Hierarchy and Section Standards
 
+## Canonical Standard Notice — 14 July 2026
+
+Current navigation is horizontal, the shared visual source is `brand-system.css`, Light is the default appearance, and `BRANDING.md` is the only active palette standard. Older experimental palette/sidebar sections below are retained as implementation history and are not current requirements.
+
 This file is the canonical naming registry for the White Saffron Bills repository. Use these names in requests, commits, code comments, IDs, documentation, and future maintenance.
 
 ## Official Brand Vibe
@@ -22,7 +26,7 @@ This file is the canonical naming registry for the White Saffron Bills repositor
 | --- | --- | --- | --- |
 | 1 | Login Section | `#loginView` | User authentication |
 | 2 | Application Shell | `#appView` | Sidebar and main application |
-| 3 | Sidebar Navigation | `.sidebar .nav` | Dashboard and Bills navigation |
+| 3 | Global Top Navigation | `.sidebar .nav`, `.topnav .links` | Shared horizontal application navigation |
 | 4 | Top Action Bar | `.topbar` | Refresh, Export, Add Bill, Logout |
 | 5 | Bills KPI Summary Cards | `#billsKpiSummaryCards.stats` | Showing Records, Total MVR, This Month |
 | 6 | Filter Bar | `.filter-card` | Search, status, and date filters |
