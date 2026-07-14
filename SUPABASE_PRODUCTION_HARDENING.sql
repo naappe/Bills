@@ -14,7 +14,7 @@ begin
 end;
 $$;
 
-do $
+do $hardening$
 declare
   v_table_name text;
 begin
@@ -35,7 +35,7 @@ begin
       );
     end if;
   end loop;
-end $;
+end $hardening$;
 
 create or replace function public.white_saffron_prevent_duplicate_bill_no()
 returns trigger
