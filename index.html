@@ -213,6 +213,97 @@ html[data-theme="dark"] .bill-card{background:#262626!important;border-color:#40
 @media(max-width:860px){.page-header{align-items:flex-start!important;flex-direction:column!important}.header-actions{justify-content:flex-start!important}.search-input{max-width:none!important}.bill-body{align-items:flex-start}.bill-amount{width:100%;justify-content:space-between;margin-left:0}}
 @media(max-width:520px){.header-meta{align-items:flex-start;flex-direction:column;gap:1px}.meta-divider{display:none}.header-actions{width:100%}.header-actions .last-updated{width:100%}.header-action{flex:1 1 calc(50% - 4px)!important}.bill-header{flex-direction:column}.bill-meta-top{text-align:left}.bill-amount{align-items:flex-start;flex-direction:column}.bill-actions{width:100%}.action-btn{flex:1}}
 </style>
+
+<style>
+/* Visual-only Dashboard alignment with Bills — functions and render targets unchanged */
+#dashboardView.supply-dashboard-view{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:24px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+}
+#dashboardView.hidden{display:none!important}
+#dashboardView .supply-dashboard-hero{display:none!important}
+#dashboardView .supply-dashboard-kpis{
+  grid-column:1/-1;
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:24px!important;
+}
+#dashboardView .supply-dashboard-kpis>div{
+  min-width:0;
+  padding:16px 20px!important;
+  text-align:center;
+  background:var(--brand-surface,#fff)!important;
+  border:1px solid var(--brand-border,#e5e0d6)!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+#dashboardView .supply-dashboard-kpis span{
+  display:block;
+  color:var(--brand-muted,#4a4a4a)!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+#dashboardView .supply-dashboard-kpis strong{
+  display:block;
+  margin-top:4px;
+  color:var(--brand-text,#1a1a1a)!important;
+  font-size:clamp(20px,2vw,28px)!important;
+  font-weight:700!important;
+  line-height:1.2;
+  overflow-wrap:anywhere;
+}
+#dashboardView .supply-chart-grid{display:contents!important}
+#dashboardView .supply-chart-card,
+#dashboardView .supply-recent-panel{
+  grid-column:auto!important;
+  min-width:0;
+  padding:20px!important;
+  background:var(--brand-surface,#fff)!important;
+  border:1px solid var(--brand-border,#e5e0d6)!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+}
+#dashboardView .supply-chart-card:hover,
+#dashboardView .supply-recent-panel:hover{border-color:#d97706!important}
+#dashboardView .dashboard-panel-head{margin-bottom:14px!important}
+#dashboardView .dashboard-panel-head h2{font-size:16px!important;font-weight:600!important}
+#dashboardView .dashboard-panel-head .muted{font-size:13px!important}
+#dashboardView .supply-chart{min-height:220px!important}
+#dashboardView .supply-recent-table-wrap{overflow-x:auto}
+#dashboardView .supply-recent-table{min-width:620px}
+#dashboardView .supply-recent-table th,
+#dashboardView .supply-recent-table td{padding:11px 12px!important}
+html[data-theme="dark"] #dashboardView .supply-dashboard-kpis>div,
+html[data-theme="dark"] #dashboardView .supply-chart-card,
+html[data-theme="dark"] #dashboardView .supply-recent-panel{
+  background:#262626!important;border-color:#404040!important;color:#fafafa!important;
+}
+html[data-theme="dark"] #dashboardView .supply-dashboard-kpis span,
+html[data-theme="dark"] #dashboardView .dashboard-panel-head .muted{color:#d4d4d4!important}
+html[data-theme="dark"] #dashboardView .supply-dashboard-kpis strong,
+html[data-theme="dark"] #dashboardView .dashboard-panel-head h2,
+html[data-theme="dark"] #dashboardView .supply-recent-table{color:#fafafa!important}
+html[data-theme="dark"] #dashboardView .supply-chart-gridline{stroke:#404040!important}
+html[data-theme="dark"] #dashboardView .supply-chart-axis{fill:#d4d4d4!important}
+html[data-theme="dark"] #dashboardView .supply-chart-value{fill:#fafafa!important}
+html[data-theme="dark"] #dashboardView .supply-donut:after{background:#262626!important;box-shadow:0 0 0 1px #404040!important}
+@media(max-width:1024px){
+  #dashboardView.supply-dashboard-view{grid-template-columns:1fr!important}
+  #dashboardView .supply-dashboard-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:480px){
+  #dashboardView .supply-dashboard-kpis{grid-template-columns:1fr!important;gap:16px!important}
+  #dashboardView.supply-dashboard-view{gap:16px!important}
+}
+</style>
+
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
