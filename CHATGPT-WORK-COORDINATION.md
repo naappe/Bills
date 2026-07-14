@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Rebuild Bills header, filters, info bar and card reading structure | `index.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -75,9 +75,18 @@ After committing:
 
 | `17f1acf` | Monitoring ChatGPT | Correct Amber migration to color-only and restore semantic statuses | Refinement layer removed; palette/focus/modal/status rules verified; CSS balanced | PASS | Existing card/layout structure untouched; Paid green, Pending yellow, Cancelled red. |
 
+| `eb1f6d2`, `7b8a3cc` | Monitoring ChatGPT | Rebuild Bills visual structure | Unique IDs, DOM classes, spacing, view toggle and JavaScript verified | PASS | Integrated header metrics, aligned filters/info bar, structured 20px cards and 44px actions. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Bills record count and Total MVR are integrated beneath the page title and hidden on Dashboard view.
+- PASS: Header actions are grouped, 44px high, 14px text and 0 14px padding.
+- PASS: Search is capped at 400px; filters share a 12px aligned group; info bar has counter/action separation.
+- PASS: Bill cards now use vendor/ID header, details row, and amount/actions grouping with 20px padding, 24px gaps and 10px radius.
+- PASS: Required DOM IDs are unique and all inline JavaScript parses.
+- WARNING: GitHub reports no automated deployment/check status for these commits.
 
 - PASS: Removed the overreaching professional-refinement CSS layer from `58671d4`.
 - PASS: Theme migration is color-only: teal→amber and slate→charcoal variables, focus, charts and modal colors.
