@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Fix Supply Rates dark-theme login contrast shown in live screenshot | `supply-rates.html` | 2026-07-14 |
 
 ## Review Queue
 
