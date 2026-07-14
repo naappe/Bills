@@ -21,6 +21,7 @@ body{background:#f7f6f2!important;color:#17211c}h1{font-family:Georgia,"Times Ne
   <link rel="icon" href="./assets/pwa/icon-192.svg" type="image/svg+xml">
 </head>
 <body>
+  <header class="topnav"><div class="nav-inner"><div class="brand"><span class="brand-icon">WS</span>White Saffron</div><nav class="links" aria-label="Main navigation"><a href="index.html#dashboard">Dashboard</a><a href="index.html#bills">Bills</a><a href="supply-rates.html">Supply Rates</a><a href="prices.html">Prices</a><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark appearance" aria-pressed="false" data-mode="light"><span class="theme-label theme-light-label">Light</span><span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span><span class="theme-label theme-dark-label">Dark</span></button></nav></div></header>
   <main class="wrap">
     <section class="card">
       <h1>Stock Setup SQL</h1>
@@ -46,6 +47,9 @@ body{background:#f7f6f2!important;color:#17211c}h1{font-family:Georgia,"Times Ne
     async function load(){try{const res=await fetch('SUPABASE_STOCK_SETUP.sql',{cache:'no-store'});if(!res.ok)throw new Error('Could not load SQL file');box.value=await res.text()}catch(e){box.value='Could not load SQL. Open SUPABASE_STOCK_SETUP.sql from GitHub.';show('error',e.message)}}
     copyBtn.addEventListener('click',async()=>{try{box.select();box.setSelectionRange(0,box.value.length);await navigator.clipboard.writeText(box.value);show('ok','Copied. Now paste it into Supabase SQL Editor and press Run.')}catch(e){document.execCommand('copy');show('ok','Selected SQL. If copy did not work, long-press inside the box and choose Copy.')}});
     load();
+  </script>
+  <script>
+  (function(){const root=document.documentElement,key='ws-theme';function apply(value){const mode=value==='dark'?'dark':'light';root.dataset.theme=mode;const button=document.getElementById('themeToggle');if(button){button.dataset.mode=mode;button.setAttribute('aria-pressed',String(mode==='dark'));button.setAttribute('aria-label',mode==='dark'?'Switch to light appearance':'Switch to dark appearance')}}apply(localStorage.getItem(key)||'light');document.addEventListener('click',event=>{if(!event.target.closest('#themeToggle'))return;const next=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem(key,next);apply(next)})})();
   </script>
   <script src="./pwa-install.js" defer></script>
 </body>
