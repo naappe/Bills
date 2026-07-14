@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Repair Supply Rates dark-mode contrast across Price Watch, Budget and forms | `supply-rates.html` | 2026-07-14 |
 
 ## Review Queue
 
