@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Migrate full application theme from teal/slate to amber/charcoal | `brand-system.css`, `index.html`, `supply-rates.html`, `prices.html`, `master.html`, `stock.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -69,9 +69,17 @@ After committing:
 
 | `dfd1d64`, `24b642d`, `40a2222`, `ee9cc25`, `c94a7f8`, `5f31543` | Monitoring ChatGPT | Shared layout system across all application pages | Variables/utilities verified; wrappers/classes present; all inline JavaScript parses | PASS | Unified page padding, 24px gaps, card treatment, 44px actions, filters and Bills info bar. |
 
+| `e6b0af0`, `dcb11ff`, `3caabea`, `c6b0878`, `3acfbe8`, `affaf12` | Monitoring ChatGPT | Migrate application to Amber and Charcoal | Palette tokens and active pages scanned; contrast calculated; all JavaScript parses | PASS | No targeted teal tokens remain; heading 16.67:1, secondary 11.74:1, muted 6.90:1. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Global palette migrated to amber `#d97706` / `#f59e0b` / `#fcd34d` and charcoal `#1a1a1a` / `#262626` / `#404040`.
+- PASS: Buttons, active navigation, badges, charts, focus states, statuses and modal backdrop use the Amber and Charcoal theme.
+- PASS: Removed targeted teal tokens from the shared stylesheet and all active pages.
+- PASS: Dark contrast calculated at 16.67:1 headings, 11.74:1 secondary text and 6.90:1 muted text.
+- PASS: Dashboard/Bills, Supply Rates/Price Watch, Prices, Settings and Stock JavaScript parses successfully.
 
 - PASS: Added shared layout variables and reusable page-container, header-action, page-card, dashboard-grid, bills-list, search-bar, filter-group and info-bar classes.
 - PASS: Applied the system to Dashboard/Bills, Supply Rates/Price Watch, Prices, Settings and Stock.
