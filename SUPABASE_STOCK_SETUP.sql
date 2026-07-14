@@ -57,7 +57,7 @@ for select
 to authenticated
 using (
   user_id = (select auth.uid())
-  or (select auth.jwt() ->> 'email') = 'naappe@gmail.com'
+  or (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
 );
 
 drop policy if exists "stock insert own" on public.stock_entries;
@@ -74,11 +74,11 @@ for update
 to authenticated
 using (
   user_id = (select auth.uid())
-  or (select auth.jwt() ->> 'email') = 'naappe@gmail.com'
+  or (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
 )
 with check (
   user_id = (select auth.uid())
-  or (select auth.jwt() ->> 'email') = 'naappe@gmail.com'
+  or (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
 );
 
 drop policy if exists "stock delete admin" on public.stock_entries;
@@ -86,7 +86,7 @@ create policy "stock delete admin"
 on public.stock_entries
 for delete
 to authenticated
-using ((select auth.jwt() ->> 'email') = 'naappe@gmail.com');
+using ((select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid);
 
 grant select, insert, update, delete on public.stock_entries to authenticated;
 grant usage, select on sequence public.stock_entries_id_seq to authenticated;
@@ -127,7 +127,7 @@ using (
   bucket_id = 'stock-photos'
   and (
     (storage.foldername(name))[1] = (select auth.uid())::text
-    or (select auth.jwt() ->> 'email') = 'naappe@gmail.com'
+    or (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
   )
 );
 
@@ -138,5 +138,14 @@ for delete
 to authenticated
 using (
   bucket_id = 'stock-photos'
-  and (select auth.jwt() ->> 'email') = 'naappe@gmail.com'
+  and (select auth.uid()) = '5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid
 );
+
+
+-- Keep updated_at accurate automatically.
+create or replace function public.white_saffron_set_updated_at()
+returns trigger language plpgsql set search_path=public as $$
+begin new.updated_at=now(); return new; end;
+$$;
+drop trigger if exists stock_entries_set_updated_at on public.stock_entries;
+create trigger stock_entries_set_updated_at before update on public.stock_entries for each row execute function public.white_saffron_set_updated_at();
