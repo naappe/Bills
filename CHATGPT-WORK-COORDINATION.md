@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Strengthen native bill modal backdrop and verify viewport coverage | `index.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -55,9 +55,16 @@ After committing:
 
 | `5ddaae6`, `fa01c64`, `614a006`, `f8aaa9a`, `a755e79`, `69140c0` | Monitoring ChatGPT | Item photos managed in Settings and shown on Rates/Prices; invoice photos removed | All inline JavaScript parses; zero invoice-photo references in working pages; RLS SQL inspected | WARNING | Code passed. Live Supabase setup is pending because this session lacks database mutation permission. |
 
+| `c421ecc` | Monitoring ChatGPT | Strengthen full-viewport native bill modal backdrop | Native dialog/top-layer verified; no inline or utility override; all inline JavaScript parses | PASS | Backdrop is 72% dark with 6px blur and WebKit fallback. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Bill form uses native `showModal()`, so `dialog::backdrop` covers the viewport in the browser top layer.
+- PASS: No inline dialog style or Tailwind-style backdrop class overrides the rule.
+- PASS: Backdrop strengthened to `rgba(15,23,42,.72)` plus `blur(6px)` and WebKit fallback.
+- PASS: All inline JavaScript still parses successfully.
 
 - PASS: Settings now uploads/replaces/removes one photo per supply item.
 - PASS: Supply Rates and Prices display item photos by normalized item name.
