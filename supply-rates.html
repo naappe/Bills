@@ -256,6 +256,63 @@ html[data-theme="dark"] .price-kpis strong{color:#fafafa!important}
 }
 </style>
 
+
+<style>
+/* Compact mobile Supply Rates header and invoice analytics */
+@media(max-width:700px){
+  .topbar{gap:16px!important;margin-bottom:18px!important}
+  .topbar>div:first-child h1{font-size:34px!important;line-height:1.05!important}
+  .topbar>div:first-child p{font-size:16px!important;line-height:1.4!important}
+  .topbar .actions{
+    width:100%!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  .topbar .last-updated{
+    grid-column:1/-1!important;
+    display:block!important;
+    margin:0 0 2px!important;
+    font-size:12px!important;
+  }
+  .topbar .header-action{
+    width:100%!important;min-width:0!important;min-height:44px!important;
+    padding:6px!important;font-size:12px!important;line-height:1.15!important;
+    white-space:normal!important;text-align:center!important;
+  }
+  .notice{margin:12px 0 18px!important}
+  .grid{display:block!important}
+  .bulk-panel{margin-top:0!important}
+  .invoice-head{gap:14px!important}
+  .invoice-head .btn{width:100%!important}
+  .invoice-total-summary{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+  }
+  .invoice-total-summary>span{
+    min-height:104px!important;padding:16px!important;
+    border-bottom:1px solid var(--brand-border)!important;
+  }
+  .invoice-total-summary>span:nth-child(odd){border-right:1px solid var(--brand-border)!important}
+  .invoice-total-summary>span:nth-last-child(-n+2){border-bottom:0!important}
+  .invoice-total-summary .final-total{
+    background:#fffbeb!important;color:#92400e!important;border-radius:0!important;
+  }
+  html[data-theme="dark"] .invoice-total-summary .final-total{
+    background:#3b2a16!important;color:#fcd34d!important;
+  }
+}
+@media(max-width:390px){
+  .topbar .actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .invoice-total-summary{grid-template-columns:1fr!important}
+  .invoice-total-summary>span{border-right:0!important;border-bottom:1px solid var(--brand-border)!important}
+  .invoice-total-summary>span:last-child{border-bottom:0!important}
+}
+</style>
+
 </head>
 <body><section class="login" id="login"><form class="card" id="loginForm" action="javascript:void(0)" novalidate><div class="brand"><div class="logo">WS</div><div><h2>Supply Rates</h2><small>Supply User workspace</small></div></div><p>Use username <b>supply</b> and the password set in Supabase.</p><input class="field" id="email" value="supply" placeholder="Username"><br><br><input class="field" id="password" type="password" placeholder="Password" required><br><br><button class="btn" type="submit">Sign in</button><div id="loginNotice"></div></form></section>
 <section class="shell hidden" id="app"><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a><a href="prices.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20.6 13.1 11 22.7 1.3 13V3.3H11l9.6 9.8ZM6.5 8A1.5 1.5 0 1 0 6.5 5a1.5 1.5 0 0 0 0 3Z"/></svg></span>Prices</a><a class="admin-only-nav" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark appearance" aria-pressed="false" data-mode="light"><span class="theme-label theme-light-label">Light</span><span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span><span class="theme-label theme-dark-label">Dark</span></button></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart supply control</strong><p>Track prices, GST and purchasing changes.</p></div><div class="user-chip"><div class="avatar">SU</div><div><strong>SUPPLY USER</strong><span>Authorized workspace</span></div></div></aside><main class="main page-container"><header class="topbar"><div><h1>Supply Rates</h1><p>Vendor price history, GST and budgeting</p></div><div class="actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary header-action" id="refresh">Refresh</button><button class="btn secondary header-action" id="printSupply">Print / PDF</button><button class="btn secondary header-action" id="exportSupply">Export CSV</button><button class="btn secondary logout-action header-action" id="logout">Logout</button></div></header><div id="notice"></div>
