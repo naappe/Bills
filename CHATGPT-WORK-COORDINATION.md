@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Fix Dashboard KPI visibility, donut clarity and action targets | `index.html` | 2026-07-14 |
 
 ## Review Queue
 
