@@ -6,7 +6,7 @@ A single-page bill management app for White Saffron, hosted on GitHub Pages and 
 
 - Correct White login email: `whitesaffron2025@gmail.com`.
 - Browser dependencies are pinned; Supply Rates, Settings and Stock load complete paged datasets.
-- Stock photo URL preparation runs in bounded parallel batches.
+- Stock entry is manual; invoice photos are uploaded only from Supply Rates.
 - Stock admin authorization uses the immutable admin UID, not an email string.
 - The PWA displays a clear offline state and uses cache release `white-saffron-pwa-v3`.
 - GitHub Actions validates every HTML page, local link, manifest reference and JavaScript source.
@@ -22,7 +22,7 @@ GitHub Pages:
 https://naappe.github.io/Bills/
 ```
 
-Stock Sheet Photo Entry:
+Stock Entry:
 
 ```text
 https://naappe.github.io/Bills/stock.html
@@ -34,25 +34,19 @@ See the complete linked map in [Code and Function Registry](#code-and-function-r
 
 The app is intentionally kept as static HTML files so GitHub Pages can host it without build tools, Node, or a server.
 
-## Stock Sheet Photo Entry
+## Manual Stock Entry
 
-The live Stock page is [`stock.html`](stock.html). V1 works without a host and matches notebook sheets like:
+The live Stock page is [`stock.html`](stock.html). It stores manual notebook-style rows:
 
 ```text
 Qty | Item Name | Date | Name | Sign
 ```
 
-Features:
-
-- Upload one stock sheet photo to the private Supabase Storage bucket `stock-photos`.
-- Save many stock line items from one photo.
-- Store quantity text such as `3kg`, `8 pkt`, `1 case`, or `05 pc`.
-- Store item name, entry date, received-by name, and sign/note.
-- Use status values `Needs Review`, `Reviewed`, and `Saved`.
-- Admin can review all records; staff can work with their own records when the RLS setup is applied.
-
-Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) in the Supabase SQL Editor. The Supabase connector did not have permission to apply the schema automatically from this workspace.
-
+- Stock does not upload or fetch photos.
+- Supply invoice photos belong only to [`supply-rates.html`](supply-rates.html).
+- Stock supports quantity text, received-by, sign/note and review status.
+- Run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) once for the Stock table and RLS.
+- Run [`SUPABASE_SUPPLY_PHOTO_SETUP.sql`](SUPABASE_SUPPLY_PHOTO_SETUP.sql) once for private Supply invoice photos.
 
 
 ## Current Application Pages
@@ -62,7 +56,7 @@ Before using Stock Entry, run [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.
 | Dashboard and Bills | [`index.html`](index.html) | KPIs, filters, bill entry, bill editing, vendor selection and reporting |
 | Supply Rates | [`supply-rates.html`](supply-rates.html) | Invoice item entry, per-row GST, saved rate modification and price history |
 | Settings | [`master.html`](master.html) | Admin-only vendor merging, inventory thresholds, low-supply alerts and master bill management |
-| Stock | [`stock.html`](stock.html) | Stock-sheet photo and line entry |
+| Stock | [`stock.html`](stock.html) | Manual stock-line entry |
 
 ### Shared Navigation and Permissions
 
@@ -175,9 +169,10 @@ The main Bills application is self-contained in [`index.html`](index.html): inte
 | File | Purpose | Connected functionality |
 | --- | --- | --- |
 | [`index.html`](index.html) | Main Bills application | Login, Dashboard, Bills, KPI cards, filters, vendors, CRUD and export |
-| [`stock.html`](stock.html) | Stock application | Photos, OCR review and stock-line entry |
+| [`stock.html`](stock.html) | Stock application | Manual stock-line entry and review |
 | [`setup-stock.html`](setup-stock.html) | Setup helper | Displays stock setup SQL |
-| [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) | Backend schema | Stock tables, storage, grants and RLS |
+| [`SUPABASE_STOCK_SETUP.sql`](SUPABASE_STOCK_SETUP.sql) | Backend schema | Stock table, grants and RLS |
+| [`SUPABASE_SUPPLY_PHOTO_SETUP.sql`](SUPABASE_SUPPLY_PHOTO_SETUP.sql) | Backend schema | Optional private Supply invoice photos |
 | [`SUPABASE_INVENTORY_ALERTS.sql`](SUPABASE_INVENTORY_ALERTS.sql) | Backend schema | Admin inventory levels, minimum thresholds and low-supply alert settings |
 | [`README.md`](README.md) | Documentation | Architecture, features and function registry |
 | [`SHAS.md`](SHAS.md) | Section standards | Canonical names and selectors |
