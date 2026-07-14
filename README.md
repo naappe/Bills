@@ -2,6 +2,18 @@
 
 A single-page bill management app for White Saffron, hosted on GitHub Pages and connected to Supabase.
 
+## Production Hardening — 14 July 2026
+
+- Correct White login email: `whitesaffron2025@gmail.com`.
+- Browser dependencies are pinned; Supply Rates, Settings and Stock load complete paged datasets.
+- Stock photo URL preparation runs in bounded parallel batches.
+- Stock admin authorization uses the immutable admin UID, not an email string.
+- The PWA displays a clear offline state and uses cache release `white-saffron-pwa-v3`.
+- GitHub Actions validates every HTML page, local link, manifest reference and JavaScript source.
+- Run [`SUPABASE_PRODUCTION_HARDENING.sql`](SUPABASE_PRODUCTION_HARDENING.sql) once in Supabase SQL Editor. It adds automatic timestamps, backend duplicate Bill No protection and UID-based Stock policies without deleting records.
+
+> The repository repair is complete. Database hardening is pending until the SQL file is run because the connected Supabase account does not have permission to modify project `tmupbruwmwlrmewhoodn`.
+
 ## Live App
 
 GitHub Pages:
