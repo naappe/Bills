@@ -51,3 +51,12 @@ using ((select auth.uid()) in ('79c4c15e-87b7-415a-82f0-825054458e59'::uuid,'5c0
 with check ((select auth.uid()) in ('79c4c15e-87b7-415a-82f0-825054458e59'::uuid,'5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid));
 create policy "Supply rates authorized delete" on public.supply_rates for delete to authenticated
 using ((select auth.uid())='5c0d47f8-68c1-4a60-a1b8-c80885c385da'::uuid);
+
+
+-- Keep updated_at accurate automatically.
+create or replace function public.white_saffron_set_updated_at()
+returns trigger language plpgsql set search_path=public as $$
+begin new.updated_at=now(); return new; end;
+$$;
+drop trigger if exists supply_rates_set_updated_at on public.supply_rates;
+create trigger supply_rates_set_updated_at before update on public.supply_rates for each row execute function public.white_saffron_set_updated_at();
