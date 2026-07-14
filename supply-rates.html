@@ -202,6 +202,60 @@ html[data-theme="dark"] .price-alert.decrease{background:#112b21!important;borde
 html[data-theme="dark"] .price-alert.increase .change{color:#fca5a5!important}
 html[data-theme="dark"] .price-alert.decrease .change{color:#6ee7b7!important}
 </style>
+
+<style>
+/* Visual-only Supply Rates and Price Watch alignment — existing functions unchanged */
+.page-container{padding:24px!important;max-width:1440px!important;width:100%!important}
+.topbar{display:flex!important;justify-content:space-between!important;align-items:center!important;gap:24px!important;margin-bottom:24px!important}
+.topbar h1{margin:0!important;font-size:28px!important}
+.topbar .actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;flex-wrap:wrap}
+.header-action{min-height:44px!important;padding:0 14px!important;font-size:14px!important;border-radius:6px!important}
+.grid{gap:24px!important}
+.page-card{padding:20px!important;border-radius:10px!important;box-shadow:none!important}
+.page-card:hover{border-color:#d97706!important}
+.budget{margin-top:24px!important;background:var(--brand-surface,#fff)!important;border-color:var(--brand-border,#e5e0d6)!important}
+.budget h3,.price-dashboard h3,.history-panel h3{color:var(--brand-text,#1a1a1a)!important}
+.budget label,.budget p,
+.price-dashboard-head>div>p:not(.sheet-kicker),
+.empty-alert{color:var(--brand-muted,#4a4a4a)!important;font-size:14px!important;line-height:1.55!important}
+.price-dashboard{margin-top:24px!important;background:var(--brand-surface,#fff)!important;border-color:var(--brand-border,#e5e0d6)!important}
+.price-dashboard-head{display:flex!important;justify-content:space-between!important;align-items:flex-start!important;gap:24px!important}
+.price-kpis{display:grid!important;grid-template-columns:repeat(3,minmax(100px,1fr))!important;gap:12px!important}
+.price-kpis>div{
+  min-height:88px!important;padding:14px!important;border-radius:10px!important;
+  background:var(--brand-soft,#f5f3ed)!important;border:1px solid var(--brand-border,#e5e0d6)!important;
+}
+.price-kpis span{display:block;color:var(--brand-muted,#4a4a4a)!important;font-size:12px!important}
+.price-kpis strong{display:block;margin-top:6px;color:var(--brand-text,#1a1a1a)!important;font-size:22px!important}
+.price-alert-list{margin-top:16px!important}
+.history-panel{margin-top:24px!important}
+html[data-theme="dark"] .budget,
+html[data-theme="dark"] .price-dashboard,
+html[data-theme="dark"] .history-panel{background:#262626!important;border-color:#404040!important;color:#fafafa!important}
+html[data-theme="dark"] .budget h3,
+html[data-theme="dark"] .price-dashboard h3,
+html[data-theme="dark"] .history-panel h3{color:#fafafa!important}
+html[data-theme="dark"] .budget label,
+html[data-theme="dark"] .budget p,
+html[data-theme="dark"] .price-dashboard-head>div>p:not(.sheet-kicker),
+html[data-theme="dark"] .empty-alert{color:#d4d4d4!important}
+html[data-theme="dark"] .price-kpis>div{background:#1a1a1a!important;border-color:#404040!important}
+html[data-theme="dark"] .price-kpis span{color:#d4d4d4!important}
+html[data-theme="dark"] .price-kpis strong{color:#fafafa!important}
+@media(max-width:900px){
+  .page-container{padding:16px!important}
+  .topbar{align-items:flex-start!important;flex-direction:column!important}
+  .topbar .actions{justify-content:flex-start!important}
+  .price-dashboard-head{flex-direction:column!important}
+  .price-kpis{width:100%!important}
+}
+@media(max-width:520px){
+  .price-kpis{grid-template-columns:1fr!important}
+  .grid{gap:16px!important}
+  .page-card{padding:16px!important}
+}
+</style>
+
 </head>
 <body><section class="login" id="login"><form class="card" id="loginForm" action="javascript:void(0)" novalidate><div class="brand"><div class="logo">WS</div><div><h2>Supply Rates</h2><small>Supply User workspace</small></div></div><p>Use username <b>supply</b> and the password set in Supabase.</p><input class="field" id="email" value="supply" placeholder="Username"><br><br><input class="field" id="password" type="password" placeholder="Password" required><br><br><button class="btn" type="submit">Sign in</button><div id="loginNotice"></div></form></section>
 <section class="shell hidden" id="app"><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a><a href="prices.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20.6 13.1 11 22.7 1.3 13V3.3H11l9.6 9.8ZM6.5 8A1.5 1.5 0 1 0 6.5 5a1.5 1.5 0 0 0 0 3Z"/></svg></span>Prices</a><a class="admin-only-nav" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark appearance" aria-pressed="false" data-mode="light"><span class="theme-label theme-light-label">Light</span><span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span><span class="theme-label theme-dark-label">Dark</span></button></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart supply control</strong><p>Track prices, GST and purchasing changes.</p></div><div class="user-chip"><div class="avatar">SU</div><div><strong>SUPPLY USER</strong><span>Authorized workspace</span></div></div></aside><main class="main page-container"><header class="topbar"><div><h1>Supply Rates</h1><p>Vendor price history, GST and budgeting</p></div><div class="actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary header-action" id="refresh">Refresh</button><button class="btn secondary header-action" id="printSupply">Print / PDF</button><button class="btn secondary header-action" id="exportSupply">Export CSV</button><button class="btn secondary logout-action header-action" id="logout">Logout</button></div></header><div id="notice"></div>
