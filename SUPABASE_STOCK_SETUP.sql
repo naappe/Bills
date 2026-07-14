@@ -100,3 +100,20 @@ create index if not exists stock_entries_created_at_idx on public.stock_entries(
 drop policy if exists "stock photos insert own folder" on storage.objects;
 drop policy if exists "stock photos select own or admin" on storage.objects;
 drop policy if exists "stock photos delete admin" on storage.objects;
+
+-- Keep updated_at accurate automatically.
+create or replace function public.white_saffron_set_updated_at()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists stock_entries_set_updated_at on public.stock_entries;
+create trigger stock_entries_set_updated_at
+before update on public.stock_entries
+for each row execute function public.white_saffron_set_updated_at();
