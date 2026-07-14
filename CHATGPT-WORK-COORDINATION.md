@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Rebuild Bills header, filters, info bar and card reading structure | `index.html` | 2026-07-14 |
 
 ## Review Queue
 
