@@ -1,74 +1,101 @@
-name: Validate Bills dashboard
+name: Validate White Saffron application
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'index.html'
+      - '**.html'
+      - '**.css'
+      - '**.js'
+      - '**.sql'
+      - '**.webmanifest'
       - '.github/workflows/build-standard-analytics-dashboard.yml'
 
 permissions:
   contents: read
 
 jobs:
-  validate-dashboard:
+  validate-site:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
-      - name: Validate dashboard markup
+      - name: Validate files, links, manifest and application standards
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
+          from html.parser import HTMLParser
+          import json, sys
 
-          html = Path('index.html').read_text(encoding='utf-8')
-          matches = re.findall(
-              r'<section class="executive-dashboard[^"]*" id="dashboardView"[^>]*>(.*?)</section>',
-              html,
-              re.S,
-          )
-          if len(matches) != 1:
-              raise SystemExit(f'Expected one dashboardView section; found {len(matches)}.')
-
-          dashboard = matches[0]
-          required_ids = [
-              'topVendors',
-              'categoryDashboard',
-              'paymentDashboard',
-              'statusSummary',
-              'averageBill',
-              'paidDashboardAmount',
-              'paymentRate',
-              'largestBill',
-              'dashboardInsight',
-          ]
-          missing = [element_id for element_id in required_ids if html.count(f'id="{element_id}"') != 1]
+          pages = sorted(Path('.').glob('*.html'))
+          required = {'index.html', 'supply-rates.html', 'prices.html', 'master.html', 'stock.html', 'setup-stock.html', 'offline.html'}
+          missing = sorted(required - {p.name for p in pages})
           if missing:
-              raise SystemExit(f'Dashboard IDs missing or duplicated: {", ".join(missing)}')
+              raise SystemExit('Missing application pages: ' + ', '.join(missing))
 
-          if html.count('id="dashboardView"') != 1:
-              raise SystemExit('dashboardView must occur exactly once.')
+          failures = []
+          class Scan(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.ids=[]; self.refs=[]
+              def handle_starttag(self, tag, attrs):
+                  a=dict(attrs)
+                  if 'id' in a and '$'+'{' not in a['id'] and '{{' not in a['id']:
+                      self.ids.append(a['id'])
+                  for key in ('href','src'):
+                      value=a.get(key,'')
+                      if value and not value.startswith(('#','http:','https:','mailto:','tel:','data:','blob:')):
+                          self.refs.append(value.split('#')[0].split('?')[0])
 
-          print('Dashboard markup validation passed.')
+          for page in pages:
+              text=page.read_text(encoding='utf-8')
+              scan=Scan(); scan.feed(text)
+              dup=sorted({x for x in scan.ids if scan.ids.count(x)>1})
+              if dup: failures.append(f'{page}: duplicate IDs: {", ".join(dup)}')
+              for ref in scan.refs:
+                  if not (page.parent/ref).resolve().exists(): failures.append(f'{page}: missing local reference {ref}')
+              if '@supabase/supabase-js@2"' in text: failures.append(f'{page}: Supabase dependency is not pinned')
+              if 'whitesafrron2025@gmail.com' in text: failures.append(f'{page}: misspelled White user email')
+              if page.name != 'offline.html' and 'manifest.webmanifest' not in text: failures.append(f'{page}: PWA manifest missing')
+
+          manifest=json.loads(Path('manifest.webmanifest').read_text(encoding='utf-8'))
+          for icon in manifest.get('icons',[]):
+              if not Path(icon['src']).exists(): failures.append('manifest: missing '+icon['src'])
+          sw=Path('service-worker.js').read_text(encoding='utf-8')
+          for asset in ('index.html','offline.html','brand-system.css','pwa-install.js'):
+              if asset not in sw: failures.append('service worker: missing '+asset)
+
+          if failures:
+              print('\n'.join(failures), file=sys.stderr)
+              raise SystemExit(1)
+          print(f'Validated {len(pages)} HTML pages and the PWA shell.')
           PY
 
-      - name: Check JavaScript syntax
+      - name: Check every JavaScript source
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in *.js; do node --check "$file"; done
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess, tempfile
+          for page in sorted(Path('.').glob('*.html')):
+              scripts=[s.strip() for s in re.findall(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',page.read_text(encoding='utf-8'),re.S) if s.strip()]
+              if not scripts: continue
+              with tempfile.NamedTemporaryFile('w',suffix='.js',delete=False,encoding='utf-8') as f:
+                  f.write('\n'.join(scripts)); name=f.name
+              subprocess.run(['node','--check',name],check=True)
+              print('JavaScript OK:',page)
+          PY
+
+      - name: Validate dashboard contract
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
-
-          html = Path('index.html').read_text(encoding='utf-8')
-          scripts = re.findall(r'<script(?![^>]*src=)[^>]*>(.*?)</script>', html, re.S)
-          scripts = [script.strip() for script in scripts if script.strip()]
-          Path('/tmp/bills-app.js').write_text('\n'.join(scripts), encoding='utf-8')
-          print(f'Found {len(scripts)} inline script(s).')
+          html=Path('index.html').read_text(encoding='utf-8')
+          required=['dashboardView','topVendors','categoryDashboard','paymentDashboard','statusSummary']
+          bad=[x for x in required if html.count(f'id="{x}"') != 1]
+          if bad: raise SystemExit('Missing or duplicated dashboard IDs: '+', '.join(bad))
+          print('Dashboard contract passed.')
           PY
-          if [ -s /tmp/bills-app.js ]; then
-            node --check /tmp/bills-app.js
-          else
-            echo "No inline scripts found to check."
-          fi
