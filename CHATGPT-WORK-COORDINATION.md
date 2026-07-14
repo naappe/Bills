@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Replace invoice photos with item photos managed in Settings | `master.html`, `supply-rates.html`, `prices.html`, `SUPABASE_ITEM_PHOTO_SETUP.sql` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -53,9 +53,17 @@ After committing:
 | `1717d9b` | Monitoring ChatGPT | Contrast, touch targets and financial hierarchy | Shared CSS inspected | PASS | Improves muted-text contrast, CTA visibility and modal focus. |
 | `defd570` | Monitoring ChatGPT | Keep Stock manual; photos only in Supply Rates | No forbidden Stock photo/OCR references; syntax passed | PASS | Existing database rows were not deleted. |
 
+| `5ddaae6`, `fa01c64`, `614a006`, `f8aaa9a`, `a755e79`, `69140c0` | Monitoring ChatGPT | Item photos managed in Settings and shown on Rates/Prices; invoice photos removed | All inline JavaScript parses; zero invoice-photo references in working pages; RLS SQL inspected | WARNING | Code passed. Live Supabase setup is pending because this session lacks database mutation permission. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Settings now uploads/replaces/removes one photo per supply item.
+- PASS: Supply Rates and Prices display item photos by normalized item name.
+- PASS: Invoice-photo UI, JavaScript, bucket references and obsolete setup file are removed.
+- PASS: All inline JavaScript in the three changed pages parses successfully.
+- WARNING: Run `SUPABASE_ITEM_PHOTO_SETUP.sql` once in Supabase before uploads can work; the connected database tool denied mutation access.
 
 - PASS: Stock has no photo upload, OCR, thumbnail or photo fetching.
 - PASS: Supply Rates and its SQL use the same private bucket: `supply-invoice-photos`.
