@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| None | IDLE | No active change registered | — | — |
+| Monitoring ChatGPT | IN PROGRESS | Remove overreaching visual refinements; keep migration color-only and restore semantic statuses | `brand-system.css` | 2026-07-14 |
 
 ## Review Queue
 
