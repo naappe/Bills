@@ -1,4 +1,4 @@
-const CACHE_NAME = "white-saffron-pwa-v2";
+const CACHE_NAME = "white-saffron-pwa-v3";
 const OFFLINE_URL = "./offline.html";
 const APP_SHELL = [
   "./",
@@ -10,6 +10,7 @@ const APP_SHELL = [
   "./setup-stock.html",
   "./brand-system.css",
   "./pwa-install.js",
+  "./session-timeout.js",
   "./manifest.webmanifest",
   OFFLINE_URL,
   "./assets/pwa/icon-192.svg",
