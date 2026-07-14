@@ -158,3 +158,75 @@ dialog::backdrop{background:rgba(9,18,22,.76)!important;backdrop-filter:blur(3px
   dialog{width:calc(100% - 16px)!important;max-height:calc(100vh - 16px)!important}
   .modal-body{grid-template-columns:1fr!important;max-height:calc(100vh - 160px)!important}
 }
+
+
+/* Shared application layout system */
+:root{
+  --page-padding:24px;
+  --card-gap:24px;
+  --card-padding:18px;
+  --header-height:44px;
+  --header-font:14px;
+  --layout-card-radius:8px;
+  --card-bg:var(--brand-surface);
+  --border-color:var(--brand-border);
+}
+.page-container{
+  width:100%;
+  max-width:100%;
+  padding:var(--page-padding)!important;
+}
+.header-action{
+  min-height:var(--header-height)!important;
+  min-width:44px!important;
+  padding:8px 12px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:var(--header-font)!important;
+  line-height:1.2!important;
+}
+.page-card{
+  background:var(--card-bg)!important;
+  color:var(--brand-text)!important;
+  padding:var(--card-padding)!important;
+  border:1px solid var(--border-color)!important;
+  border-radius:var(--layout-card-radius)!important;
+  box-shadow:0 1px 3px rgba(0,0,0,.1)!important;
+}
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--card-gap);
+}
+.bills-list,.bill-list{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:var(--card-gap)!important;
+}
+.search-bar{width:100%!important;max-width:400px!important}
+.filter-group{display:flex!important;gap:12px!important;align-items:center!important;flex-wrap:wrap}
+.info-bar{
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:12px 0!important;
+  border-bottom:1px solid var(--border-color)!important;
+}
+.page-container .panel,.page-container .stat,.page-container .filter-card,.page-container .bill-card,.page-container .price-card,.page-container .supply-chart-card{
+  border-radius:var(--layout-card-radius)!important;
+}
+.page-container .grid,.page-container .stats,.page-container .supply-chart-grid,.page-container .cards{
+  gap:var(--card-gap)!important;
+}
+@media(max-width:860px){
+  :root{--page-padding:16px;--card-gap:16px;--card-padding:16px}
+  .page-container{padding:var(--page-padding)!important}
+  .dashboard-grid{grid-template-columns:1fr}
+  .info-bar{align-items:flex-start!important}
+}
+@media(max-width:520px){
+  .filter-group{align-items:stretch!important}
+  .filter-group>*{max-width:none!important;flex:1 1 100%!important}
+}
