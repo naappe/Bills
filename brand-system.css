@@ -426,3 +426,145 @@ dialog::backdrop,.modal-backdrop,.overlay{
   .topbar,.page-header{align-items:flex-start!important;flex-direction:column!important}
   .actions,.header-actions{justify-content:flex-start!important;width:100%!important}
 }
+
+
+/* Correct application frame: vertical navigation + separate page actions */
+html body .shell{
+  display:grid!important;
+  grid-template-columns:272px minmax(0,1fr)!important;
+  min-height:100vh!important;
+}
+html body .sidebar{
+  position:sticky!important;
+  top:0!important;
+  z-index:40!important;
+  width:272px!important;
+  height:100vh!important;
+  min-height:100vh!important;
+  padding:24px 18px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:24px!important;
+  overflow-y:auto!important;
+  background:#111713!important;
+  color:#fafafa!important;
+  border:0!important;
+  border-right:1px solid #404040!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+}
+html body .sidebar .side-brand{
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:0 0 18px!important;
+  border:0!important;
+  border-bottom:1px solid #404040!important;
+}
+html body .sidebar .side-logo{
+  width:42px!important;height:42px!important;flex:0 0 42px!important;
+  border-radius:12px!important;background:#d97706!important;color:#fff!important;
+}
+html body .sidebar .side-title strong{color:#fafafa!important;font-size:16px!important}
+html body .sidebar .side-title span{color:#a3a3a3!important;font-size:11px!important;text-transform:uppercase!important;letter-spacing:.05em!important}
+html body .sidebar .nav-label{
+  display:block!important;color:#a3a3a3!important;font-size:11px!important;
+  font-weight:700!important;letter-spacing:.08em!important;text-transform:uppercase!important;
+}
+html body .sidebar .nav,
+html body .sidebar .side-nav{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  align-items:stretch!important;
+  gap:8px!important;
+  margin:0!important;
+  width:100%!important;
+  overflow:visible!important;
+}
+html body .sidebar .nav button,
+html body .sidebar .supply-nav-link,
+html body .sidebar .side-nav a,
+html body .sidebar .side-nav button{
+  width:100%!important;
+  min-height:46px!important;
+  padding:0 14px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:10px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:transparent!important;
+  color:#d4d4d4!important;
+  font-size:14px!important;
+  font-weight:650!important;
+  text-align:left!important;
+  text-decoration:none!important;
+  white-space:normal!important;
+  box-shadow:none!important;
+}
+html body .sidebar .nav button:hover,
+html body .sidebar .nav button.active,
+html body .sidebar .supply-nav-link:hover,
+html body .sidebar .supply-nav-link.active,
+html body .sidebar .side-nav a:hover,
+html body .sidebar .side-nav a.active{
+  background:#262626!important;color:#fcd34d!important;box-shadow:inset 3px 0 0 #d97706!important;
+}
+html body .sidebar .theme-toggle{
+  width:100%!important;min-height:46px!important;margin:0!important;padding:0 14px!important;
+  justify-content:flex-start!important;border:1px solid #404040!important;border-radius:10px!important;
+  background:#1a1a1a!important;color:#fafafa!important;
+}
+html body .sidebar .sidebar-summary{display:block!important;margin-top:auto!important;color:#d4d4d4!important}
+html body .sidebar .user-chip{
+  display:flex!important;margin-top:0!important;padding:14px!important;
+  border:1px solid #404040!important;border-radius:10px!important;background:#1a1a1a!important;
+}
+html body .main{
+  min-width:0!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:28px!important;
+}
+.filter-card.page-card{
+  padding:0!important;margin:0 0 24px!important;background:transparent!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+.filter-card.page-card:hover{border-color:transparent!important}
+.search-filter-bar{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  gap:12px!important;padding:16px 0!important;border-bottom:1px solid var(--brand-border)!important;
+}
+.search-filter-bar .search-input{width:min(400px,100%)!important;flex:0 1 400px!important}
+.search-filter-bar .filter-select{width:auto!important;min-width:115px!important;flex:0 0 auto!important}
+.bill-count-row,.info-counter{
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;color:var(--brand-muted)!important;font-size:14px!important;font-weight:500!important;
+}
+#billsView.page-card{padding:0!important;background:transparent!important;border:0!important;border-radius:0!important}
+#billsView.page-card:hover{border-color:transparent!important}
+@media(max-width:900px){
+  html body .shell{display:block!important}
+  html body .sidebar{
+    position:sticky!important;width:100%!important;height:auto!important;min-height:0!important;
+    padding:10px 12px!important;display:block!important;border-right:0!important;border-bottom:1px solid #404040!important;
+  }
+  html body .sidebar .side-brand,
+  html body .sidebar .nav-label,
+  html body .sidebar .sidebar-summary,
+  html body .sidebar .user-chip{display:none!important}
+  html body .sidebar .nav,html body .sidebar .side-nav{
+    display:flex!important;flex-direction:row!important;gap:4px!important;overflow-x:auto!important;
+  }
+  html body .sidebar .nav button,html body .sidebar .supply-nav-link,
+  html body .sidebar .side-nav a,html body .sidebar .side-nav button,html body .sidebar .theme-toggle{
+    width:auto!important;flex:0 0 auto!important;white-space:nowrap!important;box-shadow:none!important;
+  }
+  html body .main{padding:16px!important}
+  .search-filter-bar{align-items:stretch!important;flex-direction:column!important}
+  .search-filter-bar .search-input,.search-filter-bar .filter-select{width:100%!important;max-width:none!important;flex:0 0 auto!important}
+}
