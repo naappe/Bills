@@ -1,4 +1,14 @@
 (() => {
+  const updateConnectivity = () => {
+    let badge = document.getElementById("connectivityStatus");
+    if (navigator.onLine) { badge?.remove(); return; }
+    if (!badge) { badge = document.createElement("div"); badge.id = "connectivityStatus"; badge.className = "connectivity-status"; badge.setAttribute("role","status"); document.body.appendChild(badge); }
+    badge.textContent = "Offline — live records unavailable";
+  };
+  addEventListener("online", updateConnectivity);
+  addEventListener("offline", updateConnectivity);
+  addEventListener("DOMContentLoaded", updateConnectivity);
+
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker.register("./service-worker.js").catch(error => {
