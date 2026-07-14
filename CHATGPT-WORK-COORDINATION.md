@@ -1,0 +1,70 @@
+# ChatGPT Work Coordination
+
+This file is the shared handover board for every ChatGPT window working on `naappe/Bills`.
+
+## Required workflow
+
+Before changing code:
+
+1. Read this file and the newest repository commits.
+2. Do not edit a file currently listed as `IN PROGRESS` by another worker.
+3. Add or update the Active Work entry with the exact scope and files.
+4. Make one logical fix per commit.
+5. Never claim completion until a monitor records `PASS`.
+6. Never include passwords, private keys, tokens, or customer data in this file.
+
+After committing:
+
+1. Record the commit SHA, changed files, purpose and validation performed.
+2. Set the result to `AWAITING REVIEW`.
+3. The monitoring ChatGPT independently inspects the diff.
+4. The monitor records:
+   - `PASS` — correct and validated.
+   - `WARNING` — improvement needed but not immediately dangerous.
+   - `BLOCKED` — regression, unsafe database change, syntax error or broken requirement.
+5. If the result is `WARNING` or `BLOCKED`, the worker must create a separate corrective commit and return it to `AWAITING REVIEW`.
+
+## Permanent requirements
+
+- Correct White login email: `whitesaffron2025@gmail.com`.
+- Stock entry is manual and must not upload, fetch or display photos.
+- Invoice photo upload belongs only to Supply Rates.
+- Preserve existing Supabase records and RLS protections.
+- Do not expose service-role keys or passwords.
+- Keep GitHub Pages compatibility: static HTML, CSS and JavaScript.
+- Maintain usable desktop, tablet and mobile layouts.
+- Minimum interactive target: 44 × 44 px.
+- Minimum normal text: 14 px with accessible contrast.
+- Filtered exports must match the visible filtered records.
+- One logical fix per commit.
+
+## Active Work
+
+| Worker | Status | Scope | Files | Started |
+| --- | --- | --- | --- | --- |
+| None | IDLE | No active change registered | — | — |
+
+## Review Queue
+
+| Commit | Worker | Purpose | Validation claimed | Monitor result | Monitor notes |
+| --- | --- | --- | --- | --- | --- |
+| `960f52f` | Monitoring ChatGPT | Restore Stock updated-at trigger | SQL structure inspected | PASS | Trigger restored; Stock photo policies remain removed. |
+| `c43a867` | Monitoring ChatGPT | Supply invoice sizing and eight-column alignment | Inline JavaScript syntax passed | PASS | Eight visible invoice fields now match eight CSS grid columns. |
+| `1717d9b` | Monitoring ChatGPT | Contrast, touch targets and financial hierarchy | Shared CSS inspected | PASS | Improves muted-text contrast, CTA visibility and modal focus. |
+| `defd570` | Monitoring ChatGPT | Keep Stock manual; photos only in Supply Rates | No forbidden Stock photo/OCR references; syntax passed | PASS | Existing database rows were not deleted. |
+
+## Monitor log
+
+### 2026-07-14
+
+- PASS: Stock has no photo upload, OCR, thumbnail or photo fetching.
+- PASS: Supply Rates and its SQL use the same private bucket: `supply-invoice-photos`.
+- PASS: Accessibility and Supply Invoice layout fixes are committed.
+- WARNING: GitHub connector reports no automated validation status for the latest commits.
+- FIXED: Stock setup accidentally lost its `updated_at` trigger; restored in `960f52f`.
+
+## Handover message
+
+Give every ChatGPT window this instruction:
+
+> Read `CHATGPT-WORK-COORDINATION.md` before changing `naappe/Bills`. Register your work under Active Work, make one logical commit, record it in Review Queue as AWAITING REVIEW, and do not claim completion until the monitoring ChatGPT changes it to PASS.
