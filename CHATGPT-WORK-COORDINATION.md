@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Restructure Supply Dashboard reading order and remove duplicate analytics | `index.html` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -65,9 +65,17 @@ After committing:
 
 | `c32e88d` | Monitoring ChatGPT | Repair Supply Rates dark-mode contrast | Final cascade order verified; WCAG ratios calculated; JavaScript parses | PASS | Price Watch, Budget, invoice, summary and history text now use 7.62:1–16.07:1 contrast. |
 
+| `b1175f3` | Monitoring ChatGPT | Restructure Supply Dashboard narrative and remove duplicates | DOM order verified; removed IDs absent; latest table present; JavaScript parses | PASS | Compact KPI → monthly hero → vendor/top items → latest table; redundant analytics removed. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Supply Dashboard now reads compact KPI strip → monthly hero chart → vendor share/top items → latest-records table.
+- PASS: Removed duplicate Top Items, Top Vendors/vendor share and Monthly Price Changes sections from markup and JavaScript.
+- PASS: Latest records now use Vendor, Item, Unit Rate, Final and Date columns.
+- PASS: Desktop, tablet and mobile grid rules are present; all inline JavaScript parses.
+- WARNING: GitHub reports no automated deployment/check status for this commit.
 
 - PASS: Added a final dark-theme cascade layer after all Supply Rates component CSS.
 - PASS: Price Watch KPIs, helper text, Budget Calculator, invoice labels/totals, table headings and alerts now have explicit dark-mode colors.
