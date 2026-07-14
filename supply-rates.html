@@ -158,6 +158,50 @@ table{font-variant-numeric:tabular-nums}th{padding:11px 10px;font-size:10px;text
 <style>
 .rate-item-cell{display:flex;align-items:center;gap:10px;min-width:180px}.rate-item-photo{width:52px;height:52px;border-radius:10px;object-fit:cover;background:#eef2f3;flex:0 0 auto}
 </style>
+<style>
+/* Final dark-theme contrast layer: keep this after all Supply Rates component styles */
+html[data-theme="dark"] .price-dashboard-head p:not(.sheet-kicker),
+html[data-theme="dark"] .empty-alert,
+html[data-theme="dark"] .bulk-help,
+html[data-theme="dark"] .budget label,
+html[data-theme="dark"] .form label,
+html[data-theme="dark"] #bulkForm label,
+html[data-theme="dark"] .price-kpis span,
+html[data-theme="dark"] .price-alert small,
+html[data-theme="dark"] .invoice-line-head,
+html[data-theme="dark"] .invoice-total-summary small,
+html[data-theme="dark"] .saved-summary,
+html[data-theme="dark"] .last-updated{color:#aab2ad!important}
+html[data-theme="dark"] .price-dashboard h3,
+html[data-theme="dark"] .budget h3,
+html[data-theme="dark"] .invoice-head h3,
+html[data-theme="dark"] .history-head h3,
+html[data-theme="dark"] .price-kpis strong,
+html[data-theme="dark"] .budget p,
+html[data-theme="dark"] .invoice-total-summary strong{color:#f4f5f2!important}
+html[data-theme="dark"] .price-kpis>div,
+html[data-theme="dark"] .price-alert,
+html[data-theme="dark"] .metric,
+html[data-theme="dark"] .invoice-total-summary,
+html[data-theme="dark"] .invoice-lines,
+html[data-theme="dark"] .saved-summary strong{background:#121b16!important;border-color:#303a34!important;color:#f4f5f2!important}
+html[data-theme="dark"] .invoice-line-head,
+html[data-theme="dark"] .line-number,
+html[data-theme="dark"] .line-total,
+html[data-theme="dark"] th{background:#222d27!important;color:#d8ddd9!important;border-color:#303a34!important}
+html[data-theme="dark"] td,
+html[data-theme="dark"] .invoice-row{border-color:#303a34!important}
+html[data-theme="dark"] .fixed-field{background:#222d27!important;color:#d8ddd9!important}
+html[data-theme="dark"] .remove-line{background:#351d1d!important;color:#fca5a5!important;border-color:#7f1d1d!important}
+html[data-theme="dark"] .invoice-total-summary .final-total{background:#123c36!important}
+html[data-theme="dark"] .invoice-total-summary .final-total strong,
+html[data-theme="dark"] .sheet-kicker,
+html[data-theme="dark"] .line-total{color:#5eead4!important}
+html[data-theme="dark"] .price-alert.increase{background:#2b1919!important;border-left-color:#f87171!important}
+html[data-theme="dark"] .price-alert.decrease{background:#112b21!important;border-left-color:#34d399!important}
+html[data-theme="dark"] .price-alert.increase .change{color:#fca5a5!important}
+html[data-theme="dark"] .price-alert.decrease .change{color:#6ee7b7!important}
+</style>
 </head>
 <body><section class="login" id="login"><form class="card" id="loginForm" action="javascript:void(0)" novalidate><div class="brand"><div class="logo">WS</div><div><h2>Supply Rates</h2><small>Supply User workspace</small></div></div><p>Use username <b>supply</b> and the password set in Supabase.</p><input class="field" id="email" value="supply" placeholder="Username"><br><br><input class="field" id="password" type="password" placeholder="Password" required><br><br><button class="btn" type="submit">Sign in</button><div id="loginNotice"></div></form></section>
 <section class="shell hidden" id="app"><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="supply-rates.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 6h13v10H3V6Zm13 4h3l2 3v3h-5v-6ZM6 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/></svg></span>Supply Rates</a><a href="prices.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20.6 13.1 11 22.7 1.3 13V3.3H11l9.6 9.8ZM6.5 8A1.5 1.5 0 1 0 6.5 5a1.5 1.5 0 0 0 0 3Z"/></svg></span>Prices</a><a class="admin-only-nav" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark appearance" aria-pressed="false" data-mode="light"><span class="theme-label theme-light-label">Light</span><span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span><span class="theme-label theme-dark-label">Dark</span></button></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>Smart supply control</strong><p>Track prices, GST and purchasing changes.</p></div><div class="user-chip"><div class="avatar">SU</div><div><strong>SUPPLY USER</strong><span>Authorized workspace</span></div></div></aside><main class="main"><header class="topbar"><div><h1>Supply Rates</h1><p>Vendor price history, GST and budgeting</p></div><div class="actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary" id="refresh">Refresh</button><button class="btn secondary" id="printSupply">Print / PDF</button><button class="btn secondary" id="exportSupply">Export CSV</button><button class="btn secondary logout-action" id="logout">Logout</button></div></header><div id="notice"></div>
