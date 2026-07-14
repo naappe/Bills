@@ -1,4 +1,4 @@
-const CACHE_NAME = "white-saffron-pwa-v3";
+const CACHE_NAME = "white-saffron-pwa-v4";
 const OFFLINE_URL = "./offline.html";
 const APP_SHELL = [
   "./",
@@ -38,15 +38,24 @@ self.addEventListener("fetch", event => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (request.mode === "navigate") {
+  const isLiveAppAsset =
+    request.mode === "navigate" ||
+    /\.(?:html|css|js|json|webmanifest)$/.test(url.pathname);
+
+  if (isLiveAppAsset) {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: "no-store" })
         .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          }
           return response;
         })
-        .catch(async () => (await caches.match(request)) || (await caches.match(OFFLINE_URL)))
+        .catch(async () =>
+          (await caches.match(request)) ||
+          (request.mode === "navigate" ? await caches.match(OFFLINE_URL) : Response.error())
+        )
     );
     return;
   }
