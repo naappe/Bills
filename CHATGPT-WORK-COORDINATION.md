@@ -42,7 +42,7 @@ After committing:
 
 | Worker | Status | Scope | Files | Started |
 | --- | --- | --- | --- | --- |
-| Monitoring ChatGPT | IN PROGRESS | Remove overreaching visual refinements; keep migration color-only and restore semantic statuses | `brand-system.css` | 2026-07-14 |
+| None | IDLE | No active change registered | — | — |
 
 ## Review Queue
 
@@ -73,9 +73,17 @@ After committing:
 
 | `58671d4` | Monitoring ChatGPT | Refine Amber and Charcoal into a balanced professional hierarchy | Palette preserved; CSS structure checked; contrast calculated | PASS | Amber reserved for emphasis; neutral secondary controls; layered charcoal/cream surfaces and restrained depth. |
 
+| `17f1acf` | Monitoring ChatGPT | Correct Amber migration to color-only and restore semantic statuses | Refinement layer removed; palette/focus/modal/status rules verified; CSS balanced | PASS | Existing card/layout structure untouched; Paid green, Pending yellow, Cancelled red. |
+
 ## Monitor log
 
 ### 2026-07-14
+
+- PASS: Removed the overreaching professional-refinement CSS layer from `58671d4`.
+- PASS: Theme migration is color-only: teal→amber and slate→charcoal variables, focus, charts and modal colors.
+- PASS: Existing cards/layout remain unchanged by the theme correction.
+- PASS: Semantic statuses restored: Paid green, Pending yellow/amber and Cancelled red.
+- PASS: CSS structure is balanced and all required palette tokens remain present.
 
 - PASS: Preserved the exact Amber and Charcoal palette while replacing the mechanical all-orange appearance with restrained emphasis.
 - PASS: Primary actions/active states remain amber; secondary and ghost actions are neutral; logout remains danger-styled.
