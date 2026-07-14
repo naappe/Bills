@@ -14,24 +14,28 @@ begin
 end;
 $$;
 
-do $$
-declare table_name text;
+do $
+declare
+  v_table_name text;
 begin
-  foreach table_name in array array['supply_rates','stock_entries','inventory_items']
+  foreach v_table_name in array array['supply_rates','stock_entries','inventory_items']
   loop
-    if to_regclass('public.' || table_name) is not null
+    if to_regclass('public.' || v_table_name) is not null
        and exists (
-         select 1 from information_schema.columns
-         where table_schema='public' and information_schema.columns.table_name=table_name and column_name='updated_at'
+         select 1
+         from information_schema.columns as cols
+         where cols.table_schema = 'public'
+           and cols.table_name = v_table_name
+           and cols.column_name = 'updated_at'
        ) then
-      execute format('drop trigger if exists %I on public.%I', table_name || '_set_updated_at', table_name);
+      execute format('drop trigger if exists %I on public.%I', v_table_name || '_set_updated_at', v_table_name);
       execute format(
         'create trigger %I before update on public.%I for each row execute function public.white_saffron_set_updated_at()',
-        table_name || '_set_updated_at', table_name
+        v_table_name || '_set_updated_at', v_table_name
       );
     end if;
   end loop;
-end $$;
+end $;
 
 create or replace function public.white_saffron_prevent_duplicate_bill_no()
 returns trigger
