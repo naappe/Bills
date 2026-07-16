@@ -1,4 +1,4 @@
-const CACHE_NAME = "white-saffron-pwa-v9";
+const CACHE_NAME = "white-saffron-pwa-v10";
 const OFFLINE_URL = "./offline.html";
 const APP_SHELL = [
   "./",
