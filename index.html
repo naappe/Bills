@@ -638,7 +638,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
     document.querySelectorAll('[data-view]').forEach(tab=>tab.addEventListener('click',()=>switchView(tab.dataset.view)));
     window.addEventListener('hashchange',()=>{if(state.user)switchView(viewFromHash(),false)});
     els.rows.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const r=state.rows.find(x=>String(x.id)===String(b.dataset.id));if(b.dataset.action==='edit')openDialog(r);if(b.dataset.action==='delete')deleteBill(b.dataset.id)});
-    db.auth.getSession().then(({data})=>startSession(data.session));
+    window.addEventListener('load',()=>db.auth.getSession().then(({data})=>startSession(data.session)));
   </script>
 <style>
 #idleLogoutPrompt{position:fixed;inset:0;z-index:10000;background:rgba(15,23,42,.58);display:grid;place-items:center;padding:18px}#idleLogoutPrompt.hidden{display:none!important}.idle-card{width:min(430px,100%);background:#fff;border-radius:16px;padding:22px;box-shadow:0 24px 80px rgba(15,23,42,.32);color:#172033}.idle-card h2{margin:0 0 8px;font-size:21px}.idle-card p{margin:0 0 16px;color:#64748b;line-height:1.5}.idle-card button{width:100%;min-height:44px;border:0;border-radius:10px;background:#d97706;color:#fff;font-weight:800;cursor:pointer}
