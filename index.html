@@ -400,6 +400,32 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
 }
 </style>
 
+
+<style>
+/* Bills dashboard: analytics are calculated from the same loaded records as the Bills page. */
+#dashboardView.bills-dashboard-view{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+  padding:14px!important;
+  background:#f7f9fc!important;
+  border:1px solid #edf1f5!important;
+  border-radius:18px!important;
+}
+#dashboardView.bills-dashboard-view.hidden{display:none!important}
+#dashboardView.bills-dashboard-view>.supply-dashboard-hero,
+#dashboardView.bills-dashboard-view>.supply-dashboard-kpis,
+#dashboardView.bills-dashboard-view>.supply-chart-grid,
+#dashboardView.bills-dashboard-view>.supply-recent-panel{display:none!important}
+#dashboardView .bills-analytics-dashboard{display:contents}
+#dashboardView .dashboard-overview{grid-column:1/-1}
+#dashboardView .dashboard-mini-grid>div{min-width:0}
+#dashboardView .dashboard-mini-grid strong{overflow-wrap:anywhere}
+@media(max-width:760px){
+  #dashboardView.bills-dashboard-view{grid-template-columns:1fr!important;padding:8px!important;gap:12px!important}
+  #dashboardView .dashboard-overview,#dashboardView .dashboard-trend-panel{grid-column:auto!important}
+}
+</style>
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
@@ -459,7 +485,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
 
 
       <div class="notice" id="notice"></div>
-      <section class="executive-dashboard hidden supply-dashboard-view" id="dashboardView" aria-label="Supply Records Dashboard">
+      <section class="executive-dashboard hidden bills-dashboard-view" id="dashboardView" aria-label="Bills Analytics Dashboard">
         <div class="supply-dashboard-hero">
           <div><p class="dashboard-kicker">SUPPLY OVERVIEW</p><h2>Supply records</h2><p id="supplyDashboardMessage">Loading supply information...</p></div>
           <a class="btn supply-dashboard-link" href="supply-rates.html">Open Supply Rates</a>
@@ -467,7 +493,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
         <div class="supply-dashboard-kpis" aria-label="Supply summary"><div><span>Saved items</span><strong id="supplySavedItems">0</strong></div><div><span>Vendors</span><strong id="supplyVendorCount">0</strong></div><div><span>Recorded value</span><strong id="supplyRecordedValue">0.00 MVR</strong></div><div><span>Latest record</span><strong id="supplyLatestRecord">—</strong></div></div>
 <div class="supply-chart-grid"><div class="panel page-card pad supply-chart-card supply-chart-hero"><div class="dashboard-panel-head"><div><h2>Monthly supply value</h2><p class="muted">Recorded value over the latest six months</p></div><span class="dashboard-badge">Trend</span></div><div id="supplyMonthlyTrendChart" class="supply-chart"><p class="muted">Loading...</p></div></div><div class="panel page-card pad supply-chart-card"><div class="dashboard-panel-head"><div><h2>Vendor share</h2><p class="muted">Value distribution by vendor</p></div><span class="dashboard-badge">Share</span></div><div id="supplyVendorDonut" class="supply-chart"><p class="muted">Loading...</p></div></div><div class="panel page-card pad supply-chart-card"><div class="dashboard-panel-head"><div><h2>Top items by value</h2><p class="muted">Highest recorded item values</p></div><span class="dashboard-badge">Items</span></div><div id="supplyItemChart" class="supply-chart"><p class="muted">Loading...</p></div></div></div>
 <div class="panel page-card pad supply-recent-panel"><div class="dashboard-panel-head"><div><h2>Latest supply records</h2><p class="muted">Newest saved vendor items</p></div><span class="dashboard-badge">Recent</span></div><div class="supply-recent-table-wrap"><table class="supply-recent-table"><thead><tr><th>Vendor</th><th>Item</th><th>Unit rate</th><th>Final</th><th>Date</th></tr></thead><tbody id="supplyRecentRecords"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody></table></div></div>
-<div class="legacy-bills-dashboard hidden">
+<div class="legacy-bills-dashboard bills-analytics-dashboard">
         <div class="dashboard-overview">
           <div><p class="dashboard-kicker">FINANCIAL OVERVIEW</p><h2>White Saffron bill intelligence</h2><p id="dashboardInsight">Loading business insights...</p></div>
           <div class="dashboard-mini-grid">
@@ -596,7 +622,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
     function renderAdvancedDashboard(){const rows=state.filtered,total=rows.reduce((sum,row)=>sum+amount(get(row,'amount')),0),paid=rows.filter(row=>normStatus(row)==='Paid'),paidTotal=paid.reduce((sum,row)=>sum+amount(get(row,'amount')),0),pending=rows.filter(row=>normStatus(row)==='Pending'),largest=Math.max(0,...rows.map(row=>amount(get(row,'amount')))),average=rows.length?total/rows.length:0,rate=total?paidTotal/total*100:0,top=totals(rows,row=>canonicalVendor(get(row,'vendor')))[0],now=maldivesNow(),thisStart=new Date(now.getFullYear(),now.getMonth(),1),lastStart=new Date(now.getFullYear(),now.getMonth()-1,1),lastEnd=new Date(now.getFullYear(),now.getMonth(),1),thisRows=state.rows.filter(row=>{const d=parseDate(get(row,'date'));return d&&d>=thisStart&&d<=endToday()}),lastRows=state.rows.filter(row=>{const d=parseDate(get(row,'date'));return d&&d>=lastStart&&d<lastEnd}),thisExpense=thisRows.reduce((sum,row)=>sum+amount(get(row,'amount')),0),lastExpense=lastRows.reduce((sum,row)=>sum+amount(get(row,'amount')),0),expenseDelta=comparisonMarkup(thisExpense,lastExpense,true),countDelta=comparisonMarkup(thisRows.length,lastRows.length,true);$('averageBill').textContent=`${money(average)} MVR`;$('paidDashboardAmount').textContent=`${money(paidTotal)} MVR`;$('paymentRate').textContent=`${rate.toFixed(1)}%`;$('largestBill').textContent=`${money(largest)} MVR`;$('expenseComparison').textContent=expenseDelta.label;$('expenseComparison').className=expenseDelta.className;$('billCountComparison').textContent=countDelta.label;$('billCountComparison').className=countDelta.className;$('mobileChartSummary').innerHTML=`<div><span>This month</span><strong>${money(thisExpense)} MVR</strong></div><div><span>Last month</span><strong>${money(lastExpense)} MVR</strong></div>`;$('dashboardInsight').textContent=rows.length?(pending.length?`${pending.length.toLocaleString()} pending bill(s) need attention. ${top?`${top[0]} is the highest-spend vendor at ${money(top[1])} MVR.`:''}`:'All filtered bills are settled. No pending payments in this view.'):'No bills match the active filters.';renderMonthlyTrend(rows)}
         function render(){renderStats();renderRows();renderAdvancedDashboard();renderBars(els.topVendors,totals(state.filtered,r=>canonicalVendor(get(r,'vendor'))),'vendor');renderBars(els.categoryDashboard,totals(state.filtered,category),'category');renderBars(els.paymentDashboard,totals(state.filtered,r=>get(r,'method')||'Not set'),'method');renderBars(els.statusSummary,totals(state.filtered,normStatus),'status')}
     function viewFromHash(){return location.hash.toLowerCase()==='#dashboard'?'dashboard':'bills'}
-    function switchView(v,updateUrl=true){state.view=v==='dashboard'?'dashboard':'bills';if(updateUrl&&location.hash!==`#${state.view}`)history.pushState(null,'',`#${state.view}`);els.pageTitle.textContent=state.view==='dashboard'?'Dashboard':'Bills';document.querySelectorAll('[data-view]').forEach(t=>t.classList.toggle('active',t.dataset.view===state.view));els.dashboardView.classList.toggle('hidden',state.view!=='dashboard');els.billsView.classList.toggle('hidden',state.view!=='bills');$('billsKpiSummaryCards').classList.toggle('hidden',state.view==='dashboard');document.querySelector('.filter-card').classList.toggle('hidden',state.view==='dashboard');document.querySelector('.header-meta').classList.toggle('hidden',state.view==='dashboard');$('exportBtn').classList.toggle('hidden',state.view==='dashboard');renderStats();if(state.view==='dashboard')loadSupplyDashboard()}
+    function switchView(v,updateUrl=true){state.view=v==='dashboard'?'dashboard':'bills';if(updateUrl&&location.hash!==`#${state.view}`)history.pushState(null,'',`#${state.view}`);els.pageTitle.textContent=state.view==='dashboard'?'Dashboard':'Bills';document.querySelectorAll('[data-view]').forEach(t=>t.classList.toggle('active',t.dataset.view===state.view));els.dashboardView.classList.toggle('hidden',state.view!=='dashboard');els.billsView.classList.toggle('hidden',state.view!=='bills');$('billsKpiSummaryCards').classList.remove('hidden');document.querySelector('.filter-card').classList.remove('hidden');document.querySelector('.header-meta').classList.remove('hidden');$('exportBtn').classList.remove('hidden');if(state.view==='dashboard')render();else renderStats()}
     function renderSupplyMonthlyChart(records){const target=$('supplyMonthlyTrendChart'),now=maldivesNow(),months=[];for(let offset=5;offset>=0;offset--){const d=new Date(now.getFullYear(),now.getMonth()-offset,1),value=records.reduce((sum,r)=>{const rd=new Date(r.invoice_date||r.created_at);return sum+(!Number.isNaN(rd.getTime())&&rd.getFullYear()===d.getFullYear()&&rd.getMonth()===d.getMonth()?(+r.final_amount||0):0)},0);months.push({label:d.toLocaleDateString('en-US',{month:'short'}),value})}const width=760,height=245,pad={left:52,right:24,top:30,bottom:34},cw=width-pad.left-pad.right,ch=height-pad.top-pad.bottom,max=Math.max(1,...months.map(x=>x.value)),points=months.map((x,i)=>({...x,x:pad.left+i*cw/(months.length-1),y:pad.top+ch-x.value/max*ch})),line=points.map(p=>p.x+','+p.y).join(' '),area='M '+points[0].x+' '+(pad.top+ch)+' L '+points.map(p=>p.x+' '+p.y).join(' L ')+' L '+points[points.length-1].x+' '+(pad.top+ch)+' Z',grid=[0,.5,1].map(v=>{const y=pad.top+ch*v;return '<line class="supply-chart-gridline" x1="'+pad.left+'" y1="'+y+'" x2="'+(width-pad.right)+'" y2="'+y+'"/>'}).join('');target.innerHTML='<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Monthly supply value chart"><defs><linearGradient id="supplyTrendFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d97706" stop-opacity=".28"/><stop offset="100%" stop-color="#d97706" stop-opacity=".02"/></linearGradient></defs>'+grid+'<path class="supply-trend-area" d="'+area+'"/><polyline class="supply-trend-line" points="'+line+'"/>'+points.map(p=>'<circle class="supply-trend-dot" cx="'+p.x+'" cy="'+p.y+'" r="5"/><text class="supply-chart-value" x="'+p.x+'" y="'+Math.max(14,p.y-12)+'" text-anchor="middle">'+(p.value?money(p.value):'0')+'</text><text class="supply-chart-axis" x="'+p.x+'" y="'+(height-8)+'" text-anchor="middle">'+p.label+'</text>').join('')+'</svg>'}
     function renderSupplyVendorDonut(vendors){const target=$('supplyVendorDonut'),rows=vendors.slice(0,5),total=vendors.reduce((sum,x)=>sum+x.value,0);if(!rows.length||!total){target.innerHTML='<p class="muted">No vendor data.</p>';return}const colors=['#d97706','#7c3aed','#f59e0b','#10b981','#ef4444'],shown=rows.reduce((sum,x)=>sum+x.value,0),other=Math.max(0,total-shown),parts=rows.map((x,i)=>({name:x.name,value:x.value,color:colors[i]}));if(other>.01)parts.push({name:'Other vendors',value:other,color:'#cbd5e1'});let cursor=0;const stops=parts.map(x=>{const start=cursor,end=cursor+x.value/total*100;cursor=end;return x.color+' '+start.toFixed(2)+'% '+end.toFixed(2)+'%'}).join(','),singleVendor=parts.length===1;target.innerHTML='<div class="supply-donut-wrap"><div class="supply-donut" style="background:conic-gradient('+stops+')"><div class="supply-donut-center"><strong>'+(singleVendor?'100%':money(total))+'</strong><small>'+(singleVendor?esc(parts[0].name):'MVR total')+'</small></div></div><div class="supply-chart-legend">'+parts.map(x=>'<div class="supply-legend-row"><span class="supply-legend-dot" style="background:'+x.color+'"></span><strong>'+esc(x.name)+'</strong><span>'+((x.value/total)*100).toFixed(1)+'%</span></div>').join('')+'</div></div>'}
     function renderSupplyItemChart(items){const target=$('supplyItemChart'),rows=items.slice(0,7);if(!rows.length){target.innerHTML='<p class="muted">No item data.</p>';return}const width=900,rowH=38,height=rows.length*rowH+34,labelW=190,max=Math.max(1,...rows.map(x=>x.value)),barW=width-labelW-115;target.innerHTML='<svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Highest value supply items">'+rows.map((x,i)=>{const y=12+i*rowH,w=x.value/max*barW;return '<text class="supply-chart-axis" x="'+(labelW-10)+'" y="'+(y+18)+'" text-anchor="end">'+esc(x.name.length>24?x.name.slice(0,23)+'…':x.name)+'</text><rect x="'+labelW+'" y="'+y+'" width="'+barW+'" height="24" rx="8" fill="#f5f3ed"/><rect x="'+labelW+'" y="'+y+'" width="'+w+'" height="24" rx="8" fill="#d97706"/><text class="supply-chart-value" x="'+(labelW+w+8)+'" y="'+(y+17)+'">'+money(x.value)+'</text>'}).join('')+'</svg>'}
@@ -615,7 +641,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
     async function logout(){await db.auth.signOut();document.body.classList.remove('admin');state.user=null;state.rows=[];state.yearRows=[];state.filtered=[];els.loginView.classList.remove('hidden');els.appView.classList.add('hidden')}
 
     els.loginForm.addEventListener('submit',signIn);
-    $('refreshBtn').addEventListener('click',()=>state.view==='dashboard'?loadSupplyDashboard():loadBills());
+    $('refreshBtn').addEventListener('click',loadBills);
     $('printDashboardBtn').addEventListener('click',printDashboard);
     $('exportBtn').addEventListener('click',exportCsv);
     $('addBtn')?.addEventListener('click',()=>openDialog());
