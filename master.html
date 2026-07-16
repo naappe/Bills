@@ -46,6 +46,16 @@ html[data-theme="dark"] body,html[data-theme="dark"] .main-content{background:#1
 <style>
 .item-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:18px}.item-photo-card{border:1px solid #d1d5db;border-radius:14px;overflow:hidden;background:#fff}.item-photo-card img{width:100%;height:150px;display:block;object-fit:cover;background:#eef2f3}.item-photo-card>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px}.item-photo-card .btn{min-height:44px}html[data-theme="dark"] .item-photo-card{background:#262626;border-color:#404040}
 </style>
+
+<style>
+.password-card{max-width:680px;padding:24px;display:grid;gap:20px}
+.password-card h2{margin:0 0 6px}
+.password-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.password-form label{display:grid;gap:6px;font-size:13px;font-weight:700}
+.password-form label:first-child{grid-column:1/-1}
+.password-form button{grid-column:1/-1;min-height:46px}
+@media(max-width:620px){.password-form{grid-template-columns:1fr}.password-form label:first-child,.password-form button{grid-column:auto}}
+</style>
 </head>
 <body>
   <section class="login" id="loginView">
@@ -77,7 +87,7 @@ html[data-theme="dark"] body,html[data-theme="dark"] .main-content{background:#1
     </section>
 
     <section class="panel page-card">
-      <div class="tabs"><button class="btn tab active" data-tab="vendors">Vendor Master</button><button class="btn tab" data-tab="inventory">Inventory & Alerts</button><button class="btn tab" data-tab="photos">Item Photos</button><button class="btn tab" data-tab="bills">All Bills</button></div>
+      <div class="tabs"><button class="btn tab active" data-tab="vendors">Vendor Master</button><button class="btn tab" data-tab="inventory">Inventory & Alerts</button><button class="btn tab" data-tab="photos">Item Photos</button><button class="btn tab" data-tab="bills">All Bills</button><button class="btn tab" data-tab="account">Password</button></div>
     </section>
 
     <section id="vendorsTab">
@@ -104,6 +114,21 @@ html[data-theme="dark"] body,html[data-theme="dark"] .main-content{background:#1
       <section class="panel page-card">
         <div class="toolbar filter-group"><input class="field search-bar" id="billSearch" placeholder="Search bill ID, vendor, bill no, description"><select class="field" id="billStatus"><option value="">All statuses</option><option>Pending</option><option>Paid</option><option>Cancelled</option></select><span></span></div>
         <div class="table-wrap"><table class="table"><thead><tr><th>ID</th><th>Bill Date</th><th>Vendor</th><th>Amount</th><th>Bill No</th><th>Location</th><th>TIN</th><th>Status</th><th>Method</th><th>Description</th><th>Actions</th></tr></thead><tbody id="billRows"></tbody></table></div>
+      </section>
+    </section>
+    <section class="hidden" id="accountTab">
+      <section class="panel page-card password-card">
+        <div>
+          <h2>Change administrator password</h2>
+          <p class="muted">Enter the current password before setting a new one. This updates only the signed-in Supabase Auth account.</p>
+        </div>
+        <form id="passwordForm" class="password-form">
+          <label>Current password<input class="field" name="current_password" type="password" autocomplete="current-password" required></label>
+          <label>New password<input class="field" name="new_password" type="password" autocomplete="new-password" minlength="8" required></label>
+          <label>Confirm new password<input class="field" name="confirm_password" type="password" autocomplete="new-password" minlength="8" required></label>
+          <button class="btn" id="changePasswordBtn" type="submit">Change Password</button>
+        </form>
+        <div class="notice" id="passwordNotice" aria-live="polite"></div>
       </section>
     </section>
 </div></main></section>
@@ -145,11 +170,12 @@ function itemPhotoUrl(path){return path?db.storage.from(ITEM_PHOTO_BUCKET).getPu
 function renderItemPhotos(){$('photoItemSuggestions').innerHTML=state.itemNames.map(name=>'<option value="'+esc(name)+'"></option>').join('');if(!state.itemPhotosReady){$('itemPhotoGrid').innerHTML='<p class="muted">Item photo setup is required. Run SUPABASE_ITEM_PHOTO_SETUP.sql once.</p>';return}$('itemPhotoGrid').innerHTML=state.itemPhotos.map(row=>'<article class="item-photo-card"><img src="'+esc(itemPhotoUrl(row.photo_path))+'" alt="'+esc(row.item_name)+'"><div><strong>'+esc(row.item_name)+'</strong><button class="btn danger item-photo-delete" type="button" data-photo-id="'+row.id+'" data-photo-path="'+esc(row.photo_path)+'">Remove</button></div></article>').join('')||'<p class="muted">No item photos yet. Choose an item above to upload its first photo.</p>'}
 async function saveItemPhoto(event){event.preventDefault();if(!state.itemPhotosReady)return notice('error','Run SUPABASE_ITEM_PHOTO_SETUP.sql first.',$('photoNotice'));const form=event.target,name=String(form.elements.item_name.value||'').trim(),file=form.elements.photo.files?.[0];if(!name||!file)return;if(file.size>5*1024*1024)return notice('error','Photo must be 5 MB or smaller.',$('photoNotice'));if(!['image/jpeg','image/png','image/webp'].includes(file.type))return notice('error','Use a JPEG, PNG or WebP item photo.',$('photoNotice'));const key=itemPhotoKey(name);if(!key)return notice('error','Enter a valid item name.',$('photoNotice'));const old=state.itemPhotos.find(row=>row.item_key===key),ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg',path=state.user.id+'/'+key+'-'+Date.now()+'.'+ext;notice('','Uploading item photo…',$('photoNotice'));const{error:uploadError}=await db.storage.from(ITEM_PHOTO_BUCKET).upload(path,file,{cacheControl:'86400',upsert:false});if(uploadError)return notice('error','Photo upload failed: '+uploadError.message,$('photoNotice'));const payload={item_key:key,item_name:name,photo_path:path,updated_by:state.user.id},{data:saved,error}=await db.from(ITEM_PHOTO_TABLE).upsert(payload,{onConflict:'item_key'}).select('id');if(error||!(saved||[]).length){await db.storage.from(ITEM_PHOTO_BUCKET).remove([path]);return notice('error','Photo record save failed: '+(error?.message||'blocked by permissions'),$('photoNotice'))}if(old?.photo_path)await db.storage.from(ITEM_PHOTO_BUCKET).remove([old.photo_path]);form.reset();notice('ok','Item photo saved.',$('photoNotice'));await loadAll()}
 async function removeItemPhoto(button){if(!confirm('Remove this item photo?'))return;const{data:deleted,error}=await db.from(ITEM_PHOTO_TABLE).delete().eq('id',button.dataset.photoId).select('id');if(error||!(deleted||[]).length)return notice('error','Photo removal failed: '+(error?.message||'blocked by permissions'),$('photoNotice'));await db.storage.from(ITEM_PHOTO_BUCKET).remove([button.dataset.photoPath]);notice('ok','Item photo removed.',$('photoNotice'));await loadAll()}
-function switchTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$('vendorsTab').classList.toggle('hidden',tab!=='vendors');$('inventoryTab').classList.toggle('hidden',tab!=='inventory');$('photosTab').classList.toggle('hidden',tab!=='photos');$('billsTab').classList.toggle('hidden',tab!=='bills')}
+function switchTab(tab){state.tab=tab;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$('vendorsTab').classList.toggle('hidden',tab!=='vendors');$('inventoryTab').classList.toggle('hidden',tab!=='inventory');$('photosTab').classList.toggle('hidden',tab!=='photos');$('billsTab').classList.toggle('hidden',tab!=='bills');$('accountTab').classList.toggle('hidden',tab!=='account')}
 async function start(session){state.user=session?.user||null;if(!state.user){$('loginView').classList.remove('hidden');$('appView').classList.add('hidden');return}if(!isAdmin(state.user)){await db.auth.signOut();notice('error','This page is admin only.',$('loginNotice'));return}$('loginView').classList.add('hidden');$('appView').classList.remove('hidden');await loadAll()}
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();notice('','',$('loginNotice'));const{data,error}=await db.auth.signInWithPassword({email:loginName($('email').value),password:$('password').value});if(error){notice('error',error.message,$('loginNotice'));return}await start(data.session)});
 $('logoutBtn').addEventListener('click',async()=>{await db.auth.signOut();location.reload()});
 $('refreshBtn').addEventListener('click',loadAll);
+$('passwordForm').addEventListener('submit',async e=>{e.preventDefault();const form=e.currentTarget,target=$('passwordNotice'),button=$('changePasswordBtn'),current=form.elements.current_password.value,newPassword=form.elements.new_password.value,confirmPassword=form.elements.confirm_password.value;notice('', '',target);if(newPassword.length<8)return notice('error','New password must contain at least 8 characters.',target);if(newPassword!==confirmPassword)return notice('error','New password and confirmation do not match.',target);if(current===newPassword)return notice('error','Choose a password different from the current password.',target);button.disabled=true;button.textContent='Changing...';try{const email=state.user?.email;if(!email)throw new Error('Signed-in email is unavailable. Please sign in again.');const verified=await db.auth.signInWithPassword({email,password:current});if(verified.error)throw new Error('Current password is incorrect.');const updated=await db.auth.updateUser({password:newPassword});if(updated.error)throw updated.error;form.reset();notice('ok','Password changed successfully. Use the new password next time you sign in.',target)}catch(error){notice('error',error?.message||'Password could not be changed.',target)}finally{button.disabled=false;button.textContent='Change Password'}});
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 $('vendorSearch').addEventListener('input',renderVendors);$('vendorSort').addEventListener('change',renderVendors);$('mergeTarget').addEventListener('input',renderSelected);$('mergeBtn').addEventListener('click',mergeSelected);$('clearSelection').addEventListener('click',()=>{state.selected.clear();renderVendors()});
 $('vendorList').addEventListener('change',e=>{const box=e.target.closest('[data-vendor]');if(!box)return;const name=decodeURIComponent(box.dataset.vendor);box.checked?state.selected.add(name):state.selected.delete(name);renderSelected()});
