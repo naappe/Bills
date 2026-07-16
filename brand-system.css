@@ -665,3 +665,29 @@ html[data-theme="dark"] #dashboardView .dashboard-mini-grid span{
 html[data-theme="dark"] #dashboardView .dashboard-mini-grid strong{
   color:#f8fafc!important;
 }
+
+
+/* Complete dark dashboard contrast repair */
+html[data-theme="dark"] #dashboardView .comparison-strip>div,
+html[data-theme="dark"] #dashboardView .mobile-chart-summary>div{
+  background:#273449!important;
+  border-color:#475569!important;
+  color:#f8fafc!important;
+}
+html[data-theme="dark"] #dashboardView .comparison-strip span,
+html[data-theme="dark"] #dashboardView .mobile-chart-summary span{
+  color:#cbd5e1!important;
+}
+html[data-theme="dark"] #dashboardView .comparison-strip strong,
+html[data-theme="dark"] #dashboardView .mobile-chart-summary strong{
+  color:#f8fafc!important;
+}
+html[data-theme="dark"] #dashboardView .trend-grid{
+  stroke:#475569!important;
+}
+html[data-theme="dark"] #dashboardView .trend-label{
+  fill:#cbd5e1!important;
+}
+html[data-theme="dark"] #dashboardView .trend-value{
+  fill:#f8fafc!important;
+}
