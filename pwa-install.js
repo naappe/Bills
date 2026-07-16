@@ -78,6 +78,12 @@
     return !!created && created >= sixMonthStart();
   };
 
+  const ensureRecentRows = () => {
+    if (recentRows.length || !state.rows.length) return;
+    const recent = state.rows.filter(belongsToRecentWindow);
+    recentRows = (recent.length ? recent : state.rows.slice(0, STARTUP_LIMIT)).slice();
+  };
+
   const localFilterAndRender = () => {
     updateDateRange();
     state.page = 1;
@@ -98,6 +104,7 @@
   };
 
   const restoreRecentRows = () => {
+    ensureRecentRows();
     state.rows = recentRows.slice();
     state.yearRows = state.rows.filter(isThisYear);
     rebuildVendorCanonicals();
@@ -162,6 +169,7 @@
   };
 
   applyFilters = function applyFastFilters() {
+    ensureRecentRows();
     localFilterAndRender();
     clearTimeout(searchTimer);
     const q = els.search.value.trim();
