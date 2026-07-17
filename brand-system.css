@@ -691,3 +691,73 @@ html[data-theme="dark"] #dashboardView .trend-label{
 html[data-theme="dark"] #dashboardView .trend-value{
   fill:#f8fafc!important;
 }
+
+
+/* Cross-page dark-mode contrast audit — 2026-07-17 */
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --brand-bg:#111827!important;
+  --brand-surface:#1f2937!important;
+  --brand-surface-raised:#273449!important;
+  --brand-soft:#334155!important;
+  --brand-text:#f8fafc!important;
+  --brand-muted:#cbd5e1!important;
+  --brand-border:#475569!important;
+}
+html[data-theme="dark"] :is(input,select,textarea,.field){
+  background:#1f2937!important;
+  color:#f8fafc!important;
+  border-color:#475569!important;
+  caret-color:#f8fafc;
+}
+html[data-theme="dark"] :is(input,textarea)::placeholder{color:#94a3b8!important;opacity:1}
+html[data-theme="dark"] option{background:#1f2937;color:#f8fafc}
+html[data-theme="dark"] :is(
+  .vendor-picker-sheet,.vendor-option,
+  .invoice-lines,.invoice-line-head,.invoice-row,.invoice-row .field,.remove-line,.bulk-preview,
+  .line-table-wrap,.line-table,.stock-card,.inventory-item,.vendor-row,.selected-chip,.tab,
+  .item-photo-card,.empty,.history-head>strong,.price-alert,.budget,
+  .saved-summary strong,.invoice-total-summary .final-total,
+  .analytics-rank-row,.analytics-item-row,.idle-card,
+  .card,.panel,.stat,.login-card,.master-card
+){
+  background:#1f2937!important;
+  color:#f8fafc!important;
+  border-color:#475569!important;
+}
+html[data-theme="dark"] :is(.vendor-option:hover,.vendor-option:focus-visible,.vendor-option.selected){
+  background:#3b2a16!important;
+  color:#fef3c7!important;
+  border-color:#f59e0b!important;
+}
+html[data-theme="dark"] :is(.btn.secondary,.links a,.tab){
+  background:#1f2937!important;
+  color:#f8fafc!important;
+  border-color:#475569!important;
+}
+html[data-theme="dark"] :is(.btn.secondary:hover,.links a:hover,.links a.active,.tab:hover,.tab.active){
+  background:#334155!important;
+  color:#fff!important;
+  border-color:#64748b!important;
+}
+html[data-theme="dark"] :is(
+  .vendor-option,.invoice-line-head,.line-table th,.line-table td,
+  .stock-card,.inventory-item,.vendor-row,.selected-chip,.tab,
+  .analytics-rank-row,.analytics-item-row,.history-head>strong
+) :is(strong,b,span,div){
+  color:inherit;
+}
+html[data-theme="dark"] :is(.line-table th,.supply-recent-table th){
+  background:#273449!important;
+  color:#e2e8f0!important;
+  border-color:#475569!important;
+}
+html[data-theme="dark"] :is(.line-table td,.supply-recent-table td){color:#f8fafc!important;border-color:#475569!important}
+html[data-theme="dark"] :is(.analytics-rank-row b,.analytics-item-row b,.daily-expense-column>strong){color:#f8fafc!important}
+html[data-theme="dark"] :is(.analytics-rank-row small,.analytics-item-row small,.daily-expense-column>small){color:#cbd5e1!important}
+html[data-theme="dark"] .daily-expense-column>div{background:repeating-linear-gradient(to top,#334155 0,#334155 1px,transparent 1px,transparent 37px)!important;border-color:#475569!important}
+html[data-theme="dark"] .inventory-item.low{background:#3b2f16!important;border-color:#d97706!important}
+html[data-theme="dark"] .inventory-item.critical{background:#3f1d24!important;border-color:#ef4444!important}
+html[data-theme="dark"] :is(.notice.warn,.pill.review){background:#3b2f16!important;color:#fde68a!important;border-color:#a16207!important}
+html[data-theme="dark"] :is(.notice.ok,.pill.saved){background:#16372b!important;color:#bbf7d0!important;border-color:#15803d!important}
+html[data-theme="dark"] :is(.notice.error,.btn.danger){background:#3f1d24!important;color:#fecaca!important;border-color:#b91c1c!important}
