@@ -642,7 +642,9 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
     function updateVendorPickerText(){els.vendorPickerText.textContent=els.vendorSelect.value==='__new__'?'Create new vendor':els.vendorSelect.value||'Select vendor...'}
     function openVendorPicker(){els.vendorPickerSearch.value='';renderVendorPickerList();els.vendorPickerOverlay.classList.remove('hidden')}
     function closeVendorPicker(){els.vendorPickerOverlay.classList.add('hidden')}
-    function toggleNewVendorField(){const creating=els.vendorSelect.value==='__new__';updateVendorPickerText();els.newVendorLabel.classList.toggle('hidden',!creating);els.newVendorInput.required=creating;if(!creating)els.newVendorInput.value=''}
+    function vendorTin(value){const key=vendorKey(value);if(!key)return'';const row=state.rows.find(r=>vendorKey(get(r,'vendor'))===key&&String(get(r,'tin')||'').trim());return row?String(get(row,'tin')).trim():''}
+    function autofillVendorTin(){const input=els.form.elements.tin,creating=els.vendorSelect.value==='__new__',tin=creating?'':vendorTin(els.vendorSelect.value);if(tin){input.value=tin;input.dataset.vendorAutofilled='true'}else if(input.dataset.vendorAutofilled==='true'){input.value='';delete input.dataset.vendorAutofilled}}
+    function toggleNewVendorField(){const creating=els.vendorSelect.value==='__new__';updateVendorPickerText();els.newVendorLabel.classList.toggle('hidden',!creating);els.newVendorInput.required=creating;if(!creating)els.newVendorInput.value='';autofillVendorTin()}
     function formVendor(form){return form.get('vendor')==='__new__'?cleanVendorName(form.get('new_vendor')):canonicalVendor(form.get('vendor'))}
     function category(r){const t=[get(r,'category'),get(r,'vendor'),get(r,'billNo')].join(' ').toLowerCase();if(t.includes('pack')||t.includes('paper')||t.includes('cup')||t.includes('box'))return'Packaging';if(t.includes('stelco')||t.includes('mwsc')||t.includes('dhiraagu')||t.includes('ooredoo'))return'Utilities';if(t.includes('fuel')||t.includes('transport')||t.includes('ferry'))return'Transport';if(t.includes('repair')||t.includes('hardware')||t.includes('maintenance'))return'Maintenance';if(t.includes('office')||t.includes('station')||t.includes('print'))return'Office';if(t.includes('shop')||t.includes('fihaara')||t.includes('market')||t.includes('food')||t.includes('grocery'))return'Food & Grocery';return get(r,'category')||'Other'}
     function canEdit(r){if(isAdmin())return true;const c=parseDate(get(r,'createdAt')||Date.now()),within=!Number.isNaN(c?.getTime())&&Date.now()-c.getTime()<=EDIT_WINDOW_HOURS*3600*1000,owner=get(r,'userId')||get(r,'createdBy');return within&&(!owner||owner===state.user?.id||owner===state.user?.email)}
@@ -689,6 +691,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
     $('cancelBtn').addEventListener('click',()=>els.dialog.close());
     els.form.addEventListener('submit',saveBill);
     els.form.elements.bill_no.addEventListener('input',e=>e.target.setCustomValidity(''));
+    els.form.elements.tin.addEventListener('input',e=>delete e.target.dataset.vendorAutofilled);
     els.vendorSelect.addEventListener('change',toggleNewVendorField);
     els.vendorPickerButton.addEventListener('click',openVendorPicker);
     $('closeVendorPicker').addEventListener('click',closeVendorPicker);
