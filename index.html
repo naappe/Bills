@@ -464,6 +464,11 @@ if ('serviceWorker' in navigator) {
 <style id="bill-items-editor-style">
 .bill-items-editor{margin-top:16px;padding-top:16px;border-top:1px solid #e8f4f8}.bill-items-head,.bill-items-total{display:flex;justify-content:space-between;align-items:center;gap:12px}.bill-items-head strong{color:#023e8a}.bill-items-table-wrap{overflow:auto;margin-top:10px;border:1px solid #e8f4f8;border-radius:10px}.bill-items-table{width:100%;min-width:650px;border-collapse:collapse}.bill-items-table th,.bill-items-table td{padding:8px;border-bottom:1px solid #e8f4f8;text-align:left}.bill-items-table th{font-size:11px;color:#5a7d9c;text-transform:uppercase}.bill-items-table .field{min-height:36px;padding:6px 8px}.item-remove{border:0;background:transparent;color:#ef476f;font-size:24px;cursor:pointer}.bill-items-total{padding-top:12px;color:#5a7d9c;font-size:13px}.bill-items-total strong{color:#023e8a;font-size:16px}@media(max-width:600px){.bill-items-total{align-items:flex-end;flex-direction:column}}
 </style>
+
+<style id="visible-logout-style">
+.ocean-header-logout{min-height:38px;padding:0 13px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:700 12px "General Sans",Inter,sans-serif;display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:background .18s ease,transform .18s ease}.ocean-header-logout:hover{background:rgba(255,255,255,.24);transform:translateY(-1px)}.ocean-header-logout:focus-visible{outline:3px solid rgba(255,255,255,.45);outline-offset:2px}@media(max-width:520px){.ocean-header-logout{width:38px;padding:0;justify-content:center}.ocean-header-logout span{display:none}}
+</style>
+
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
@@ -484,7 +489,7 @@ if ('serviceWorker' in navigator) {
   <header class="ocean-topbar">
     <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open menu" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     <a class="ocean-brand" href="#dashboard" aria-label="White Saffron Bills dashboard"><span class="ocean-logo"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span><span><strong>WHITE SAFFRON BILLS</strong><small>Smart Bill Management</small></span></a>
-    <div class="ocean-user-actions"><button class="ocean-bell" type="button" aria-label="Notifications"><i class="fa-regular fa-bell" aria-hidden="true"></i><b>3</b></button><span class="ocean-profile"><span id="oceanProfileAvatar">A</span><strong>ADMIN</strong></span></div>
+    <div class="ocean-user-actions"><button class="ocean-header-logout" id="oceanLogoutBtn" type="button" aria-label="Sign out"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Logout</span></button><button class="ocean-bell" type="button" aria-label="Notifications"><i class="fa-regular fa-bell" aria-hidden="true"></i><b>3</b></button><span class="ocean-profile"><span id="oceanProfileAvatar">A</span><strong>ADMIN</strong></span></div>
   </header>
   <nav class="ocean-navigation" id="oceanNavigation" aria-label="Bills navigation">
     <button class="active" data-view="bills" type="button"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bills</button>
@@ -741,6 +746,7 @@ if ('serviceWorker' in navigator) {
     document.querySelectorAll('[data-action="add-bill-master"]').forEach(button=>button.addEventListener('click',()=>openDialog()));
     $('addBillTopBtn').addEventListener('click',()=>openDialog());
     $('logoutBtn').addEventListener('click',logout);
+    $('oceanLogoutBtn')?.addEventListener('click',logout);
     $('closeDialog').addEventListener('click',()=>els.dialog.close());
     $('cancelBtn').addEventListener('click',()=>els.dialog.close());
     els.form.addEventListener('submit',saveBill);
