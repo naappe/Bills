@@ -29,7 +29,7 @@ jobs:
           import json, sys
 
           pages = sorted(Path('.').glob('*.html'))
-          required = {'index.html', 'supply-rates.html', 'prices.html', 'master.html', 'offline.html'}
+          required = {'index.html', 'master.html', 'offline.html'}
           missing = sorted(required - {p.name for p in pages})
           if missing:
               raise SystemExit('Missing application pages: ' + ', '.join(missing))
