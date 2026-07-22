@@ -478,10 +478,11 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
 
   <section class="shell hidden" id="appView">
   <header class="ocean-topbar">
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open menu" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
     <a class="ocean-brand" href="#dashboard" aria-label="White Saffron Bills dashboard"><span class="ocean-logo"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span><span><strong>WHITE SAFFRON BILLS</strong><small>Smart Bill Management</small></span></a>
     <div class="ocean-user-actions"><button class="ocean-bell" type="button" aria-label="Notifications"><i class="fa-regular fa-bell" aria-hidden="true"></i><b>3</b></button><span class="ocean-profile"><span id="oceanProfileAvatar">A</span><strong>ADMIN</strong></span></div>
   </header>
-  <nav class="ocean-navigation" aria-label="Main navigation">
+  <nav class="ocean-navigation" id="oceanNavigation" aria-label="Main navigation">
     <button data-view="dashboard" type="button"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Dashboard</button>
     <button data-view="bills" type="button"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bills</button>
     <button data-action="add-bill-master" type="button"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add Bill</button>
@@ -739,7 +740,8 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
     [els.search,els.status,els.date,els.dateFrom,els.dateTo].forEach(el=>el.addEventListener(el.tagName==='INPUT'?'input':'change',()=>{state.drilldown=null;applyFilters()}));
     els.dashboardView.addEventListener('click',e=>{const button=e.target.closest('.dashboard-drilldown');if(!button)return;state.drilldown={type:button.dataset.filterType,value:decodeURIComponent(button.dataset.filterValue)};applyFilters();switchView('bills');notice('ok',`Showing ${state.filtered.length.toLocaleString()} bill(s) for ${state.drilldown.value}. Edit any incorrect record below.`)});
     els.pager.addEventListener('click',e=>{const b=e.target.closest('button[data-page]');if(!b)return;const pages=Math.max(1,Math.ceil(state.filtered.length/BILLS_PER_PAGE));state.page=b.dataset.page==='prev'?Math.max(1,state.page-1):Math.min(pages,state.page+1);renderRows();els.billsView.scrollIntoView({behavior:'smooth',block:'start'})});
-    document.querySelectorAll('[data-view]').forEach(tab=>tab.addEventListener('click',()=>switchView(tab.dataset.view)));
+    document.querySelectorAll('[data-view]').forEach(tab=>tab.addEventListener('click',()=>{switchView(tab.dataset.view);$('oceanNavigation')?.classList.remove('nav-open');$('mobileMenuToggle')?.setAttribute('aria-expanded','false')}));
+    $('mobileMenuToggle')?.addEventListener('click',()=>{const nav=$('oceanNavigation'),open=nav.classList.toggle('nav-open');$('mobileMenuToggle').setAttribute('aria-expanded',String(open));});
     window.addEventListener('hashchange',()=>{if(state.user)switchView(viewFromHash(),false)});
     els.rows.addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const r=state.rows.find(x=>String(x.id)===String(b.dataset.id));if(b.dataset.action==='edit')openDialog(r);if(b.dataset.action==='delete')deleteBill(b.dataset.id)});
     window.addEventListener('load',()=>db.auth.getSession().then(({data})=>startSession(data.session)));
