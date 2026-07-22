@@ -1,0 +1,29 @@
+name: Apply Bills Vendor Flow
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/apply-bills-vendor-flow.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply navigation and bill-entry flow
+        run: node tools/apply-bills-vendor-flow.js
+      - name: Commit updated application
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Add vendor-focused Bills navigation and entry flow"
+          git push
