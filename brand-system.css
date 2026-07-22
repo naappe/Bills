@@ -761,3 +761,12 @@ html[data-theme="dark"] .inventory-item.critical{background:#3f1d24!important;bo
 html[data-theme="dark"] :is(.notice.warn,.pill.review){background:#3b2f16!important;color:#fde68a!important;border-color:#a16207!important}
 html[data-theme="dark"] :is(.notice.ok,.pill.saved){background:#16372b!important;color:#bbf7d0!important;border-color:#15803d!important}
 html[data-theme="dark"] :is(.notice.error,.btn.danger){background:#3f1d24!important;color:#fecaca!important;border-color:#b91c1c!important}
+
+
+/* Visibility must always win over the application-frame layout rules. */
+html body .hidden,
+html body .shell.hidden,
+html body #appView.hidden,
+html body #loginView.hidden {
+  display: none !important;
+}
