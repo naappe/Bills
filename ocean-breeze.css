@@ -135,3 +135,25 @@ button.btn.secondary:hover,.btn-outline:hover,.action-btn.edit:hover{background:
 .action-btn.delete,.btn.danger{background:var(--app-danger)!important;color:#fff!important;border:0!important}
 .field,.vendor-option{border-color:var(--app-border)!important;color:var(--app-text)!important}
 body .muted,body small,body .page-subtitle{color:var(--app-text-muted)!important}
+
+
+/* Single navigation contract for every application page. */
+#appView > .ocean-navigation{
+  width:calc(100% - 48px)!important;
+  max-width:1366px!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+#appView > .ocean-navigation > a,
+#appView > .ocean-navigation > button{
+  flex:0 0 auto!important;
+}
+@media(max-width:800px){
+  #appView > .ocean-navigation{
+    width:calc(100% - 24px)!important;
+    justify-content:flex-start!important;
+  }
+}
