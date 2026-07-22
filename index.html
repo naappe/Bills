@@ -19,6 +19,58 @@ dialog{width:min(1180px,calc(100% - 24px));border:0;border-radius:18px;padding:0
 @media(max-width:760px){.app{display:block}.rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;height:66px;z-index:80;flex-direction:row;justify-content:space-around;border-right:0;border-top:1px solid var(--line);padding:7px 10px}.brand-dot,.menu-label{display:none}.rail-nav{display:flex;gap:14px}.rail-bottom{margin:0}.rail-btn{width:44px;height:44px}.topbar{height:58px;padding:0 12px}.content{padding:18px 12px 84px}.hero{align-items:flex-start}.hero h2{font-size:23px}.hero .btn{min-width:44px}.metrics{grid-template-columns:1fr 1fr}.toolbar{grid-template-columns:1fr;border-radius:14px 14px 0 0}.modal-body{grid-template-columns:1fr}.full,.section-title,.items,.total-box{grid-column:1}.table-card{border-radius:0 0 14px 14px}}
 @media(max-width:420px){.metrics{grid-template-columns:1fr}}
 </style>
+
+<style>
+/* contrast-balance-v1 */
+:root{
+  --bg:#e8ebf0;
+  --panel:#f8f9fb;
+  --ink:#141820;
+  --text:#414957;
+  --muted:#727b89;
+  --line:#d7dce4;
+  --blue:#315efb;
+  --blue-hover:#244be0;
+  --blue-soft:#e8edff;
+  --shadow:0 14px 34px rgba(31,38,52,.10);
+}
+html,body{background:var(--bg)!important}
+.app{background:var(--bg)!important}
+.workspace{background:var(--bg)!important}
+.rail{background:#f3f4f7!important;border-right-color:#cfd5de!important}
+.topbar{background:#f7f8fa!important;border-bottom-color:#d5dae2!important}
+.content{background:transparent!important}
+.hero{padding:18px 20px;margin-bottom:16px!important;border:1px solid #d3d8e1;border-radius:16px;background:#f7f8fa;box-shadow:0 5px 18px rgba(31,38,52,.05)}
+.hero h2{color:#11151c!important}
+.hero p{color:#667080!important}
+.metric{background:#f8f9fb!important;border-color:#d4d9e2!important;box-shadow:0 3px 12px rgba(31,38,52,.04)}
+.metric.primary{background:linear-gradient(135deg,#252a35,#3a4252)!important;color:#fff!important;border-color:#252a35!important}
+.metric.primary small,.metric.primary span{color:#cbd1da!important}
+.toolbar{background:#eef1f5!important;border-color:#cfd5de!important}
+.field{background:#fff!important;border-color:#c8ced8!important;color:#202630!important}
+.field::placeholder{color:#88919f!important}
+.table-card{background:#f8f9fb!important;border-color:#cfd5de!important;box-shadow:var(--shadow)!important}
+.table-head{background:#f1f3f6!important;border-bottom-color:#d7dce4!important}
+th{background:#e7eaf0!important;color:#66707e!important}
+td{background:#f9fafb!important;border-bottom-color:#dfe3e9!important;color:#303743!important}
+tbody tr:nth-child(even) td{background:#f2f4f7!important}
+tbody tr:hover td{background:#e8edff!important}
+.card{background:#f7f8fa!important;border-color:#d3d8e1!important;box-shadow:0 5px 18px rgba(31,38,52,.05)}
+.rank-row{background:#eef1f5!important;border-color:#d6dbe3!important}
+.login{background:#e5e8ed!important}
+.login-card{background:#f7f8fa!important;border-color:#ccd2dc!important}
+dialog{background:#eef1f5!important}
+.modal-head,.modal-foot{background:#e9edf2!important;border-color:#cfd5de!important}
+.modal-body{background:#f3f5f8!important}
+.items{background:#fafbfc!important;border-color:#cfd5de!important}
+.total-box{background:#e3e7ed!important;border:1px solid #cbd1da!important}
+.btn.secondary,.icon-btn{background:#f7f8fa!important;border-color:#c8ced8!important}
+@media(max-width:760px){
+  .rail{background:#f3f4f7!important;border-top-color:#cfd5de!important}
+  .hero{padding:15px!important}
+}
+</style>
+
 </head>
 <body>
 <section class="login" id="loginView"><div class="login-card"><div class="login-logo"><i class="fa-solid fa-receipt"></i></div><h1>White Saffron Bills</h1><p class="muted">Vendor bills, payments and spending control.</p><form id="loginForm"><input class="field" id="loginName" placeholder="Username or email" required><input class="field" id="loginPassword" type="password" placeholder="Password" required><button class="btn">Sign in</button><div id="loginNotice"></div></form></div></section>
