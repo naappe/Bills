@@ -740,7 +740,7 @@ if ('serviceWorker' in navigator) {
     $('cancelBtn').addEventListener('click',()=>els.dialog.close());
     els.form.addEventListener('submit',saveBill);
     els.addItemRow.addEventListener('click',()=>{state.billItems.push(emptyBillItem());renderBillItems()});
-    els.itemsBody.addEventListener('input',event=>{const input=event.target.closest('[data-field]');if(!input)return;const row=input.closest('tr'),index=Number(row.dataset.itemIndex);state.billItems[index][input.dataset.field]=input.value;renderBillItems()});
+    els.itemsBody.addEventListener('input',event=>{const input=event.target.closest('[data-field]');if(!input)return;const row=input.closest('tr'),index=Number(row.dataset.itemIndex);state.billItems[index][input.dataset.field]=input.value;const item=state.billItems[index];row.children[4].querySelector('strong').textContent=money((Number(item.quantity)||0)*(Number(item.unit_rate)||0)*1.08);syncBillAmount()});
     els.itemsBody.addEventListener('click',event=>{const button=event.target.closest('[data-remove-item]');if(!button)return;if(state.billItems.length===1){notice('error','A bill needs at least one item line.');return}state.billItems.splice(Number(button.dataset.removeItem),1);renderBillItems()});
     els.form.elements.bill_no.addEventListener('input',e=>e.target.setCustomValidity(''));
     els.form.elements.tin.addEventListener('input',e=>delete e.target.dataset.vendorAutofilled);
