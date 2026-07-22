@@ -492,7 +492,9 @@ if ('serviceWorker' in navigator) {
     <div class="ocean-user-actions"><button class="ocean-header-logout" id="oceanLogoutBtn" type="button" aria-label="Sign out"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Logout</span></button><button class="ocean-bell" type="button" aria-label="Notifications"><i class="fa-regular fa-bell" aria-hidden="true"></i><b>3</b></button><span class="ocean-profile"><span id="oceanProfileAvatar">A</span><strong>ADMIN</strong></span></div>
   </header>
   <nav class="ocean-navigation" id="oceanNavigation" aria-label="Bills navigation">
+    <button data-view="dashboard" type="button"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i> Overview</button>
     <button class="active" data-view="bills" type="button"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bills</button>
+    <button id="navAddBillBtn" data-action="add-bill" type="button"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add New Bill</button>
   </nav>
     <aside class="sidebar">
       <div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div>
@@ -508,7 +510,7 @@ if ('serviceWorker' in navigator) {
 
     <main class="main page-container">
       <header class="topbar page-header ocean-page-header">
-        <div class="title-block"><p class="breadcrumb">Home <span>/</span> <span id="pageCrumb">Bills</span></p><h1 id="pageTitle">Bills</h1><p class="page-subtitle">Clear view of every supplier bill, payment and monthly spend.</p><div class="header-meta"><span>Showing Records: <strong id="totalCount">0</strong></span><span class="meta-divider">·</span><span>Total MVR: <strong id="totalAmount">0.00</strong></span></div><span id="recordStatus" class="hidden"></span></div>
+        <div class="title-block"><p class="breadcrumb">Home <span>/</span> <span id="pageCrumb">Bills</span></p><h1 id="pageTitle">Bills</h1><p class="page-subtitle">Review supplier transactions, payment status, bill dates and amounts due from one clear workspace.</p><div class="header-meta"><span>Showing Records: <strong id="totalCount">0</strong></span><span class="meta-divider">·</span><span>Total MVR: <strong id="totalAmount">0.00</strong></span></div><span id="recordStatus" class="hidden"></span></div>
         <div class="actions header-actions"><span class="last-updated" id="lastUpdated">Not refreshed yet</span><button class="btn secondary header-action" id="printDashboardBtn">Export / PDF</button></div>
       </header>
 
@@ -557,7 +559,7 @@ if ('serviceWorker' in navigator) {
         </div>
         <div class="supply-dashboard-kpis" aria-label="Supply summary"><div><span>Saved items</span><strong id="supplySavedItems">0</strong></div><div><span>Vendors</span><strong id="supplyVendorCount">0</strong></div><div><span>Recorded value</span><strong id="supplyRecordedValue">0.00 MVR</strong></div><div><span>Latest record</span><strong id="supplyLatestRecord">—</strong></div></div>
 <div class="supply-chart-grid"><div class="panel page-card pad supply-chart-card supply-chart-hero"><div class="dashboard-panel-head"><div><h2>Monthly supply value</h2><p class="muted">Recorded value over the latest six months</p></div><span class="dashboard-badge">Trend</span></div><div id="supplyMonthlyTrendChart" class="supply-chart"><p class="muted">Loading...</p></div></div><div class="panel page-card pad supply-chart-card"><div class="dashboard-panel-head"><div><h2>Vendor share</h2><p class="muted">Value distribution by vendor</p></div><span class="dashboard-badge">Share</span></div><div id="supplyVendorDonut" class="supply-chart"><p class="muted">Loading...</p></div></div><div class="panel page-card pad supply-chart-card"><div class="dashboard-panel-head"><div><h2>Top items by value</h2><p class="muted">Highest recorded item values</p></div><span class="dashboard-badge">Items</span></div><div id="supplyItemChart" class="supply-chart"><p class="muted">Loading...</p></div></div></div>
-<div class="panel page-card pad supply-recent-panel"><div class="dashboard-panel-head"><div><h2>Latest supply records</h2><p class="muted">Newest saved vendor items</p></div><span class="dashboard-badge">Recent</span></div><div class="supply-recent-table-wrap"><table class="supply-recent-table"><thead><tr><th>Vendor</th><th>Item</th><th>Unit rate</th><th>Final</th><th>Date</th></tr></thead><tbody id="supplyRecentRecords"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody></table></div></div>
+<div class="panel page-card pad supply-recent-panel"><div class="dashboard-panel-head"><div><h2>Latest supply records</h2><p class="muted">Newest saved vendor items</p></div><span class="dashboard-badge">Recent</span></div><div class="supply-recent-table-wrap"><table class="supply-recent-table"><thead><tr><th>Supplier</th><th>Item</th><th>Unit rate</th><th>Final</th><th>Date</th></tr></thead><tbody id="supplyRecentRecords"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody></table></div></div>
 <div class="legacy-bills-dashboard bills-analytics-dashboard">
         <div class="dashboard-overview">
           <div><p class="dashboard-kicker">FINANCIAL OVERVIEW</p><h2>White Saffron bill intelligence</h2><p id="dashboardInsight">Loading business insights...</p></div>
@@ -583,7 +585,7 @@ if ('serviceWorker' in navigator) {
       </div>
       </section>
       <section class="panel page-card ocean-bills-table-card" id="billsView">
-        <div class="panel-head ocean-table-head"><div><p class="table-eyebrow">ALL BILLS</p><strong id="billCountRow" class="bill-count-row info-counter"></strong></div><button class="btn btn-primary" id="addBillTopBtn">＋ Add New Bill</button></div>
+        <div class="panel-head ocean-table-head"><div><p class="table-eyebrow">ALL BILLS</p><strong id="billCountRow" class="bill-count-row info-counter"></strong></div><button class="btn btn-primary" id="addBillTopBtn">+ Add New Bill</button></div>
         <div class="ocean-table-wrap"><table class="ocean-bills-table"><thead><tr><th>Bill no.</th><th>Vendor</th><th>Category</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="billRows"></tbody></table></div>
         <div class="empty" id="emptyState">Loading bills...</div><div class="pager" id="listPager"></div>
       </section>
@@ -593,21 +595,21 @@ if ('serviceWorker' in navigator) {
 
   <dialog id="billDialog">
     <form method="dialog" id="billForm">
-      <div class="modal-head"><strong id="dialogTitle">Add Bill</strong><button class="btn secondary" type="button" id="closeDialog">Close</button></div>
-      <div class="modal-body">
+      <div class="modal-head"><div><strong id="dialogTitle">Add Bill</strong><small class="dialog-subtitle">Enter supplier, bill, payment and item details. Totals are calculated automatically.</small></div><button class="btn secondary" type="button" id="closeDialog">Close</button></div>
+      <div class="modal-body"><div class="form-section-title full"><span>1</span><div><strong>Bill details</strong><small>Supplier, date and reference information</small></div></div>
         <input type="hidden" name="id">
         <label>Bill Date<input class="field" name="bill_date" placeholder="25/11/2025" required></label>
         <label>Vendor<button class="field vendor-picker-button" id="vendorPickerButton" type="button"><span id="vendorPickerText">Select vendor...</span><span aria-hidden="true">›</span></button><select class="hidden" name="vendor" id="vendorSelect"><option value="">Select vendor...</option></select></label><label class="full hidden" id="newVendorLabel">New Vendor<input class="field" name="new_vendor" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" placeholder="Enter the new vendor name"></label>
-        <label>Receipt Total (MVR)<input class="field" name="amount" required inputmode="decimal" placeholder="Enter printed total amount"></label>
+        <label>Amount Due (MVR)<input class="field" name="amount" required inputmode="decimal" placeholder="Enter printed total amount"></label>
         <label>Bill GST Total (MVR)<input class="field" name="gst_total" inputmode="decimal" placeholder="Enter printed GST total (or 0.00)"></label>
         <label>Bill No<input class="field" name="bill_no"></label>
         <label>Location<input class="field" name="location" placeholder="Male / Villimale"></label>
         <label>TIN<input class="field" name="tin"></label>
-        <label>Status<select class="field" name="payment_status"><option selected>Pending</option><option>Paid</option><option>Cancelled</option></select></label>
+        <label>Payment Status<select class="field" name="payment_status"><option selected>Pending</option><option>Paid</option><option>Cancelled</option></select></label>
         <label>Payment Method<select class="field" name="payment_method"><option value="">Not set</option><option>Cash</option><option>Bank Transfer</option><option>Card</option><option>Credit</option><option>Other</option></select></label>
         <label class="full">Category<select class="field" name="category"><option value="Auto">Auto</option><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label>
         <label class="full">Description<textarea class="field" name="notes" placeholder="Write bill description, remarks, payment reference, or approval note"></textarea></label>
-        <section class="bill-items-editor full" aria-labelledby="billItemsTitle">
+        <div class="form-section-title full"><span>3</span><div><strong>Items and totals</strong><small>Add the purchased items and verify the final amount</small></div></div><section class="bill-items-editor full" aria-labelledby="billItemsTitle">
           <div class="bill-items-head"><strong id="billItemsTitle"><i class="fa-solid fa-list"></i> Bill items</strong><button class="btn secondary small" id="addItemRow" type="button">+ Add item</button></div>
           <div class="bill-items-table-wrap"><table class="bill-items-table"><thead><tr><th>Item description</th><th>Qty</th><th>Unit</th><th>Rate / unit</th><th>Line total (MVR)</th><th>GST (MVR)</th><th>Net amount</th><th></th></tr></thead><tbody id="billItemsBody"></tbody></table></div>
           <div class="bill-items-total"><span>Rate is saved for price history; enter printed line total and GST for exact bill totals.</span><strong>Net: <b id="billItemsNet">0.00</b> · GST: <b id="billItemsGst">0.00</b> · Items total: <b id="billItemsTotal">0.00</b> MVR</strong></div>
@@ -782,5 +784,18 @@ if ('serviceWorker' in navigator) {
 (function(){const root=document.documentElement,key='ws-theme';function apply(value){const mode=value==='dark'?'dark':'light';root.dataset.theme=mode;const button=document.getElementById('themeToggle');if(button){button.dataset.mode=mode;button.setAttribute('aria-pressed',String(mode==='dark'));button.setAttribute('aria-label',mode==='dark'?'Switch to light appearance':'Switch to dark appearance')}}const saved=localStorage.getItem(key);apply(saved||'light');document.addEventListener('click',event=>{if(!event.target.closest('#themeToggle'))return;const next=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem(key,next);apply(next)})})();
 </script>
 
+
+<script id="vendor-flow-navigation">
+(function(){
+  const addButton=document.getElementById('navAddBillBtn');
+  if(addButton){
+    addButton.addEventListener('click',function(){
+      document.getElementById('addBillTopBtn')?.click();
+      document.getElementById('oceanNavigation')?.classList.remove('nav-open');
+      document.getElementById('mobileMenuToggle')?.setAttribute('aria-expanded','false');
+    });
+  }
+})();
+</script>
 </body>
 </html>
