@@ -1,6 +1,7 @@
 name: Optimize Bills Loading
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -14,9 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Patch initial and background loading
-        shell: python
+        shell: bash
         run: |
+          python <<'PY'
           from pathlib import Path
 
           path = Path('index.html')
@@ -36,7 +39,10 @@ jobs:
               raise SystemExit('Expected loadBills block was not found; no file was changed.')
 
           path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+
       - name: Commit optimized loader
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -44,5 +50,3 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Optimize Bills initial data loading"
           git push
-
-# Triggered after workflow installation.
