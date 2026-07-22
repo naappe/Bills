@@ -170,3 +170,20 @@ button,.btn,input,select,textarea{font-size:14px!important}
 .bill-items-total{font-size:12px!important}
 .bill-items-total strong{font-size:14px!important}
 .page-subtitle,.muted{font-size:13px!important}
+
+
+/* Spacious bill-entry layout: amounts stay readable instead of cramped. */
+#billDialog{width:min(1180px,96vw)!important;max-width:1180px!important}
+#billDialog .modal-body{gap:18px!important;padding:24px 28px!important}
+#billDialog .modal-foot{padding:18px 28px!important}
+#billDialog .bill-items-editor{margin-top:8px!important;padding-top:22px!important}
+#billDialog .bill-items-head{margin-bottom:14px!important}
+#billDialog .bill-items-head strong{font-size:16px!important}
+#billDialog .bill-items-table{min-width:980px!important}
+#billDialog .bill-items-table th{padding:13px 12px!important;font-size:12px!important;line-height:1.3!important;white-space:normal!important}
+#billDialog .bill-items-table td{padding:10px 12px!important}
+#billDialog .bill-items-table .field{min-height:44px!important;font-size:14px!important}
+#billDialog .bill-items-total{display:grid!important;grid-template-columns:minmax(260px,1fr) auto!important;align-items:center!important;gap:22px!important;padding:18px 4px 4px!important}
+#billDialog .bill-items-total span{font-size:13px!important;line-height:1.5!important}
+#billDialog .bill-items-total strong{font-size:16px!important;white-space:nowrap!important}
+@media(max-width:700px){#billDialog{width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important}#billDialog .modal-body{padding:18px!important}#billDialog .modal-foot{padding:14px 18px!important}#billDialog .bill-items-total{grid-template-columns:1fr!important;gap:8px!important}#billDialog .bill-items-total strong{white-space:normal!important}}
