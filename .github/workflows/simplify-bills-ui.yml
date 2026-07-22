@@ -60,19 +60,8 @@ jobs:
     @media(max-width:560px){body{font-size:13px}.main{padding:10px}.title-block h1{font-size:21px}.actions{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stat{padding:14px}.value,.stat-primary .value{font-size:21px}.bill-card{grid-template-columns:1fr auto;padding:12px}.vendor{font-size:17px}.dashboard-mini-grid{grid-template-columns:1fr 1fr!important}}
 '''
           s=s.replace('</style>',css+'\n  </style>',1)
-          # plain-language labels
-          replacements={
-            'Executive Dashboard':'Home',
-            'Dashboard':'Home',
-            'New Bill':'Add Bill',
-            'Vendor':'Supplier',
-            'Vendors':'Suppliers',
-            'Payment Status':'Paid / Not Paid',
-            'Gross Amount':'Bill Total',
-            'Analytics':'Reports'
-          }
-          for a,b in replacements.items():
-              s=s.replace(a,b)
+          replacements={'Executive Dashboard':'Home','Dashboard':'Home','New Bill':'Add Bill','Vendor':'Supplier','Vendors':'Suppliers','Payment Status':'Paid / Not Paid','Gross Amount':'Bill Total','Analytics':'Reports'}
+          for a,b in replacements.items(): s=s.replace(a,b)
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit changes
@@ -82,3 +71,4 @@ jobs:
           git add index.html
           git diff --cached --quiet || git commit -m "Simplify Bills layout for fast staff entry"
           git push
+# trigger
