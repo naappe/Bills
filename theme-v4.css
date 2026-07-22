@@ -1,0 +1,20 @@
+:root{--bg:#eef3f8;--surface:#ffffff;--surface-2:#f7f9fc;--ink:#10233d;--muted:#607089;--line:#d9e2ec;--brand:#1769e0;--brand-2:#0e58c7;--brand-soft:#eaf2ff;--amber:#d88a12;--red:#c43d4b;--shadow:0 8px 24px rgba(16,35,61,.08);--radius:12px}
+html,body{background:var(--bg);color:var(--ink)}
+.login{background:linear-gradient(135deg,#edf4ff 0%,#f8fbff 50%,#eef7f5 100%)}
+.login-card{border-radius:18px;border-color:var(--line);box-shadow:0 18px 50px rgba(18,42,76,.12)}
+.mark{background:linear-gradient(135deg,#1769e0,#00a88a);border-radius:12px}
+.app{grid-template-columns:228px minmax(0,1fr)}
+.sidebar{background:#0b1f36;color:#e8eef7;padding:14px 12px}
+.brand{padding:6px 8px 16px}.brand-badge{background:#1769e0;color:#fff;border-radius:10px}.brand small{color:#8fa2ba}
+.nav{gap:3px}.nav button{color:#aebdd0;padding:9px 10px;border-radius:8px;font-size:13px}.nav button:hover,.nav button.active{background:#173652;color:#fff}.nav .primary,.nav .primary:hover,.nav .primary.active{background:#1769e0;color:#fff}
+.topbar{height:60px;padding:0 20px;background:rgba(255,255,255,.96);box-shadow:0 1px 0 var(--line)}
+.content{padding:20px;max-width:none}.page-head{margin-bottom:14px}.page-head h1{font-size:24px}
+.btn{min-height:36px;padding:0 13px;border-radius:8px;font-size:13px;background:#1769e0}.btn.secondary{background:#fff}.btn.small{min-height:30px}
+.field{min-height:36px;border-radius:8px;font-size:13px}.field:focus{border-color:#1769e0;box-shadow:0 0 0 3px rgba(23,105,224,.12)}
+.metrics{gap:10px;margin-bottom:12px}.metric{padding:14px;border-radius:12px;box-shadow:none}.metric strong{font-size:21px}.metric.brand{background:linear-gradient(135deg,#1769e0,#0e58c7)}
+.card,.section{border-radius:12px;box-shadow:none}.card-head,.section-title{padding:12px 14px}.card-body{padding:14px}.grid-2,.new-layout{gap:12px}
+.toolbar{padding:10px;gap:8px;background:#f5f8fc}.table-wrap{background:#fff}table{min-width:820px}th{padding:9px 11px;background:#f4f7fb;color:#63738a}td{padding:10px 11px;font-size:12.5px}
+.summary{top:74px;background:#102c4c;border-radius:12px;padding:16px}.summary .btn{background:#00a88a;color:#fff}.sum-row{color:#c7d5e6}
+.form-grid{padding:12px;gap:9px}.rank-row,.kpi{background:#f5f8fc;border:1px solid #e4ebf3}
+.pill.paid{background:#e5f7f1;color:#08745f}.pill.pending{background:#fff5df;color:#94620d}.pill.cancelled{background:#fdebed;color:#a63442}
+@media(max-width:760px){.content{padding:14px 10px 76px}.metrics{grid-template-columns:1fr 1fr}.topbar{height:56px}}
