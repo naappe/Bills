@@ -163,12 +163,6 @@ html[data-theme="dark"] body,html[data-theme="dark"] .main{background:#1a1a1a!im
 
 
   <link rel="stylesheet" href="ocean-breeze.css?v=20260722">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="application-name" content="White Saffron">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="White Saffron">
-  <link rel="icon" href="./assets/pwa/icon-192.svg" type="image/svg+xml">
 <style>
 /* Dashboard accessibility finishing pass */
 .topbar .actions .btn{min-height:44px!important;font-size:14px!important;padding:0 12px!important}
@@ -485,7 +479,7 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
   <nav class="ocean-navigation" id="oceanNavigation" aria-label="Main navigation">
     <button data-view="dashboard" type="button"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Dashboard</button>
     <button data-view="bills" type="button"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bills</button>
-    <a href="master.html"><i class="fa-solid fa-gear" aria-hidden="true"></i> Settings</a>
+    <a href="./master.html"><i class="fa-solid fa-gear" aria-hidden="true"></i> Settings</a>
   </nav>
     <aside class="sidebar">
       <div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div>
@@ -752,6 +746,6 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
 <script>
 (function(){const root=document.documentElement,key='ws-theme';function apply(value){const mode=value==='dark'?'dark':'light';root.dataset.theme=mode;const button=document.getElementById('themeToggle');if(button){button.dataset.mode=mode;button.setAttribute('aria-pressed',String(mode==='dark'));button.setAttribute('aria-label',mode==='dark'?'Switch to light appearance':'Switch to dark appearance')}}const saved=localStorage.getItem(key);apply(saved||'light');document.addEventListener('click',event=>{if(!event.target.closest('#themeToggle'))return;const next=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem(key,next);apply(next)})})();
 </script>
-  <script src="./pwa-install.js" defer></script>
+
 </body>
 </html>
