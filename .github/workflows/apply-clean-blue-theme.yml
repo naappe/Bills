@@ -1,0 +1,64 @@
+name: Apply clean blue theme
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/apply-clean-blue-theme.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-theme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update master theme
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              '<meta name="theme-color" content="#0f6b4f">': '<meta name="theme-color" content="#0066ff">',
+              ':root{--bg:#f3f6f4;--surface:#fff;--surface-2:#f7faf8;--ink:#17231f;--muted:#6b7974;--line:#dce5e0;--brand:#0f6b4f;--brand-2:#14966d;--brand-soft:#e7f4ee;--amber:#d88a12;--red:#c84848;--shadow:0 10px 32px rgba(28,55,45,.08);--radius:16px}': ':root{--bg:#eef4fb;--surface:#ffffff;--surface-2:#f6f9fd;--ink:#051c33;--muted:#607086;--line:#dbe5f0;--brand:#0066ff;--brand-2:#00a982;--brand-soft:#eaf3ff;--amber:#f4a340;--red:#d64a55;--shadow:0 10px 30px rgba(5,28,51,.08);--radius:16px}',
+              'background:radial-gradient(circle at top left,#dff3e9,transparent 38%),var(--bg)': 'background:radial-gradient(circle at top left,#dceaff,transparent 38%),linear-gradient(135deg,#f4f8fd,#eaf1f9)',
+              'background:#123e31;color:#e9f4ef': 'background:linear-gradient(180deg,#071f3a,#0a2b4f);color:#edf5ff',
+              'background:#f2b84b;color:#17352b': 'background:#00d084;color:#052b25',
+              '.brand small{color:#a8c7ba}': '.brand small{color:#a9bfd6}',
+              'color:#bdd4ca': 'color:#bfd0e2',
+              '.nav .primary{background:#f2b84b;color:#17352b}': '.nav .primary{background:#0066ff;color:#ffffff;box-shadow:0 8px 20px rgba(0,102,255,.28)}',
+              '.nav .primary:hover,.nav .primary.active{background:#ffc85c;color:#17352b}': '.nav .primary:hover,.nav .primary.active{background:#1f78ff;color:#ffffff}',
+              'box-shadow:0 0 0 3px rgba(20,150,109,.12)': 'box-shadow:0 0 0 3px rgba(0,102,255,.14)',
+              'background:linear-gradient(135deg,#0f6b4f,#159c70)': 'background:linear-gradient(135deg,#0066ff,#3987ff)',
+              '.metric.brand small{color:#d9efe6}': '.metric.brand small{color:#dceaff}',
+              'background:#153f32;color:#fff': 'background:linear-gradient(180deg,#071f3a,#0a3158);color:#fff',
+              'color:#d2e6de': 'color:#c9d9e9',
+              '.summary .btn{width:100%;margin-top:16px;background:#f2b84b;color:#17352b}': '.summary .btn{width:100%;margin-top:16px;background:#00d084;color:#052b25}',
+              'color:#ffdba0': 'color:#b9f7df'
+          }
+
+          for old, new in replacements.items():
+              if old not in text:
+                  print(f'Warning: pattern not found: {old[:80]}')
+              text = text.replace(old, new)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit theme update
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Apply clean blue procurement theme"
+          git push
