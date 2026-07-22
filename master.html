@@ -77,6 +77,13 @@ html,body,.main-content{background:#f0f9ff!important;color:#023e8a!important;fon
 #appView .ocean-footer{max-width:1280px!important;margin-left:auto!important;margin-right:auto!important}
 @media(max-width:800px){#appView>.ocean-topbar,#appView>.ocean-navigation,#appView>.main-content{width:calc(100% - 24px)!important}#appView>.ocean-topbar{margin-top:12px!important}}
 </style>
+<script>
+/* One-time cleanup for the retired PWA cache. */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(registration => registration.unregister()));
+  caches?.keys?.().then(keys => Promise.all(keys.filter(key => key.startsWith('white-saffron-pwa-')).map(key => caches.delete(key))));
+}
+</script>
 </head>
 <body>
   <section class="login" id="loginView">
