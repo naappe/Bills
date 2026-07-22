@@ -115,3 +115,23 @@ table th{color:var(--muted)!important;background:#f6fcff!important}table td{bord
   .ocean-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ocean-dashboard-content{grid-template-columns:1fr!important}.ocean-table-wrap{position:relative}.ocean-table-wrap::before{content:"← Scroll to see all columns →";display:block;padding:8px 14px;background:#f0f9ff;color:var(--muted);font-size:11px;text-align:center}
 }
 @media(max-width:380px){.ocean-kpi-grid{grid-template-columns:1fr!important}.ocean-kpi{min-height:82px!important}.ocean-kpi strong{font-size:19px!important}}
+
+
+/* Final visible-app consistency layer */
+:root{--app-primary:#00b4d8;--app-primary-dark:#0077b6;--app-primary-light:#90e0ef;--app-secondary:#ffd166;--app-success:#06d6a0;--app-danger:#ef476f;--app-text:#023e8a;--app-text-muted:#5a7d9c;--app-bg:#f0f9ff;--app-card:#fff;--app-border:#e8f4f8}
+html body{background:var(--app-bg)!important;color:var(--app-text)!important}
+html body .shell,html body .main{width:min(1280px,calc(100% - 40px))!important;margin-left:auto!important;margin-right:auto!important}
+html body .shell{background:var(--app-card)!important}
+html body .main{max-width:1280px!important}
+button.btn,.action-btn,.ocean-add-inline,#addBillTopBtn,#addBtn,#printDashboardBtn,#masterExportBtn{
+  min-height:40px!important;padding:0 18px!important;border:0!important;border-radius:999px!important;
+  background:linear-gradient(135deg,var(--app-primary),var(--app-primary-dark))!important;color:#fff!important;
+  font-family:"General Sans",Inter,sans-serif!important;font-size:12px!important;font-weight:600!important;
+  letter-spacing:.45px!important;box-shadow:0 4px 12px rgba(0,180,216,.25)!important;transition:.25s!important
+}
+button.btn:hover,.action-btn:hover,.ocean-add-inline:hover,#addBillTopBtn:hover,#addBtn:hover,#printDashboardBtn:hover,#masterExportBtn:hover{transform:translateY(-2px)!important;box-shadow:0 8px 24px rgba(0,180,216,.35)!important}
+button.btn.secondary,.btn-outline,.action-btn.edit{background:transparent!important;color:var(--app-primary)!important;border:2px solid var(--app-primary)!important;box-shadow:none!important}
+button.btn.secondary:hover,.btn-outline:hover,.action-btn.edit:hover{background:var(--app-primary)!important;color:#fff!important}
+.action-btn.delete,.btn.danger{background:var(--app-danger)!important;color:#fff!important;border:0!important}
+.field,.vendor-option{border-color:var(--app-border)!important;color:var(--app-text)!important}
+body .muted,body small,body .page-subtitle{color:var(--app-text-muted)!important}
