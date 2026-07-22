@@ -83,6 +83,39 @@
     recentRows = (recent.length ? recent : state.rows.slice(0,STARTUP_LIMIT)).slice();
   };
 
+  const renderBillsOnly = () => {
+    renderStats();
+    renderRows();
+  };
+
+  const renderDashboardOnly = () => {
+    renderStats();
+    renderAdvancedDashboard();
+    renderExtraAnalytics();
+    renderBars(els.topVendors,totals(state.filtered,row=>canonicalVendor(get(row,'vendor'))),'vendor');
+    renderBars(els.categoryDashboard,totals(state.filtered,category),'category');
+    renderBars(els.paymentDashboard,totals(state.filtered,row=>get(row,'method')||'Not set'),'method');
+    renderBars(els.statusSummary,totals(state.filtered,normStatus),'status');
+  };
+
+  render = function renderVisibleView(){
+    if (state.view === 'dashboard') renderDashboardOnly();
+    else renderBillsOnly();
+  };
+
+  switchView = function switchFastView(value,updateUrl=true){
+    state.view = value === 'dashboard' ? 'dashboard' : 'bills';
+    if (updateUrl && location.hash !== `#${state.view}`) history.pushState(null,'',`#${state.view}`);
+    els.pageTitle.textContent = state.view === 'dashboard' ? 'Dashboard' : 'Bills';
+    document.querySelectorAll('[data-view]').forEach(tab=>tab.classList.toggle('active',tab.dataset.view===state.view));
+    els.dashboardView.classList.toggle('hidden',state.view!=='dashboard');
+    els.billsView.classList.toggle('hidden',state.view!=='bills');
+    $('billsKpiSummaryCards').classList.remove('hidden');
+    document.querySelector('.filter-card').classList.remove('hidden');
+    document.querySelector('.header-meta').classList.remove('hidden');
+    render();
+  };
+
   const localFilterAndRender = () => {
     updateDateRange();
     state.page = 1;
