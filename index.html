@@ -40,4 +40,10 @@ $('billForm').addEventListener('submit',async e=>{e.preventDefault();const f=new
 $('exportBtn').onclick=()=>{const headers=['id','bill_date','vendor','bill_no','amount','payment_status','payment_method','category','tin','location','notes'];const csv=[headers.join(','),...state.filtered.map(r=>headers.map(h=>`"${String(get(r,h)||r[h]||'').replace(/"/g,'""')}"`).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='white-saffron-bills.csv';a.click();URL.revokeObjectURL(a.href)};
 (async()=>{const {data}=await db.auth.getSession();if(!data.session)return showLogin();state.user=data.session.user;state.role=ADMIN_IDS.includes(state.user.id)?'admin':'staff';showApp();await loadBills()})();
 </script>
+<div id="dashboardCompatibilityTargets" hidden aria-hidden="true">
+  <div id="topVendors"></div>
+  <div id="categoryDashboard"></div>
+  <div id="paymentDashboard"></div>
+  <div id="statusSummary"></div>
+</div>
 </body></html>
