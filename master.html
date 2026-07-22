@@ -73,6 +73,16 @@ html,body,.main-content{background:#f0f9ff!important;color:#023e8a!important;fon
 .settings-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important;margin-bottom:20px}.settings-grid .stat{border-radius:16px!important;padding:20px!important;background:#fff!important;box-shadow:0 8px 24px rgba(0,119,182,.08)!important}.settings-grid .stat strong{color:#023e8a!important;font:800 26px "RADAR","Futura PT",Inter,sans-serif}.page-card,.right-box{border-radius:16px!important}.tabs{gap:10px!important}.tabs .tab{min-height:42px!important;padding:0 17px!important;border-radius:10px!important;box-shadow:none!important}.merge-grid{gap:20px!important}.vendor-row{border-color:#e8f4f8!important;border-radius:12px!important}.vendor-row:hover{background:#f0fbfd}.password-card{max-width:none!important;width:min(720px,100%);border-radius:18px!important}.password-card h2{font-family:"RADAR","Futura PT",Inter,sans-serif!important;color:#023e8a!important}.login{background:#f0f9ff!important}.login-card h1{font-family:"RADAR","Futura PT",Inter,sans-serif!important;color:#023e8a!important}
 @media(max-width:700px){.shell>.main-content{padding:24px 16px 36px!important}.master-page-header h1{font-size:27px!important}.settings-grid{grid-template-columns:1fr 1fr!important;gap:12px!important}}@media(max-width:420px){.settings-grid{grid-template-columns:1fr!important}}
 </style>
+<style id="master-shared-shell-final">
+/* Final lock: master uses the exact Bills shell geometry */
+#appView>.ocean-topbar{width:calc(100% - 48px)!important;max-width:1366px!important;margin:18px auto 0!important;border-radius:18px 18px 0 0!important}
+#appView>.ocean-navigation{width:calc(100% - 48px)!important;max-width:1366px!important;margin:0 auto!important;display:flex!important;justify-content:center!important;align-items:center!important}
+#appView>.ocean-navigation>a{display:inline-flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important}
+#appView>.main-content{width:calc(100% - 48px)!important;max-width:1366px!important;margin:0 auto!important;background:#fff!important}
+#appView>.main-content>.wrap{max-width:1280px!important;margin:0 auto!important}
+#appView .ocean-footer{max-width:1280px!important;margin-left:auto!important;margin-right:auto!important}
+@media(max-width:800px){#appView>.ocean-topbar,#appView>.ocean-navigation,#appView>.main-content{width:calc(100% - 24px)!important}#appView>.ocean-topbar{margin-top:12px!important}}
+</style>
 </head>
 <body>
   <section class="login" id="loginView">
