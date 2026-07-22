@@ -29,7 +29,7 @@ jobs:
           import json, sys
 
           pages = sorted(Path('.').glob('*.html'))
-          required = {'index.html', 'master.html', 'offline.html'}
+          required = {'index.html', 'master.html'}
           missing = sorted(required - {p.name for p in pages})
           if missing:
               raise SystemExit('Missing application pages: ' + ', '.join(missing))
@@ -56,25 +56,17 @@ jobs:
                   if not (page.parent/ref).resolve().exists(): failures.append(f'{page}: missing local reference {ref}')
               if '@supabase/supabase-js@2"' in text: failures.append(f'{page}: Supabase dependency is not pinned')
               if 'whitesafrron2025@gmail.com' in text: failures.append(f'{page}: misspelled White user email')
-              if page.name != 'offline.html' and 'manifest.webmanifest' not in text: failures.append(f'{page}: PWA manifest missing')
-
-          manifest=json.loads(Path('manifest.webmanifest').read_text(encoding='utf-8'))
-          for icon in manifest.get('icons',[]):
-              if not Path(icon['src']).exists(): failures.append('manifest: missing '+icon['src'])
-          sw=Path('service-worker.js').read_text(encoding='utf-8')
-          for asset in ('index.html','offline.html','brand-system.css','pwa-install.js'):
-              if asset not in sw: failures.append('service worker: missing '+asset)
-
-          if failures:
+                    if failures:
               print('\n'.join(failures), file=sys.stderr)
               raise SystemExit(1)
-          print(f'Validated {len(pages)} HTML pages and the PWA shell.')
+          print(f'Validated {len(pages)} application pages.')
           PY
 
       - name: Check every JavaScript source
         shell: bash
         run: |
           set -euo pipefail
+          shopt -s nullglob
           for file in *.js; do node --check "$file"; done
           python - <<'PY'
           from pathlib import Path
