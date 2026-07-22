@@ -2,9 +2,6 @@ name: Compact visible bill details
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/compact-bill-details.yml'
 
 permissions:
   contents: write
@@ -13,58 +10,69 @@ jobs:
   update-bill-entry:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Make all bill details compact and visible
-        shell: python
+        shell: bash
         run: |
+          python3 <<'PY'
           from pathlib import Path
 
-          path = Path('index.html')
-          html = path.read_text(encoding='utf-8')
+          path = Path("index.html")
+          html = path.read_text(encoding="utf-8")
 
-          old = '''<details class="advanced-fields"><summary><span><i class="fa-solid fa-sliders"></i> More details</span><small>Due date, bill number, payment method and notes</small></summary><div class="advanced-grid"><label>Due date<input class="field" name="due_date" type="date"></label><label>Bill number<input class="field" name="bill_no"></label><label>TIN<input class="field" name="tin"></label><label>Location<input class="field" name="location"></label><label>Payment method<select class="field" name="payment_method"><option value="">Not set</option><option>Cash</option><option>Bank Transfer</option><option>Card</option><option>Credit</option><option>Other</option></select></label><label>Category<select class="field" name="category"><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label><label class="full">Notes<textarea class="field" name="notes" placeholder="Optional remarks or payment reference"></textarea></label></div></details>'''
+          old = '<details class="advanced-fields"><summary><span><i class="fa-solid fa-sliders"></i> More details</span><small>Due date, bill number, payment method and notes</small></summary><div class="advanced-grid"><label>Due date<input class="field" name="due_date" type="date"></label><label>Bill number<input class="field" name="bill_no"></label><label>TIN<input class="field" name="tin"></label><label>Location<input class="field" name="location"></label><label>Payment method<select class="field" name="payment_method"><option value="">Not set</option><option>Cash</option><option>Bank Transfer</option><option>Card</option><option>Credit</option><option>Other</option></select></label><label>Category<select class="field" name="category"><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label><label class="full">Notes<textarea class="field" name="notes" placeholder="Optional remarks or payment reference"></textarea></label></div></details>'
 
-          new = '''<section class="advanced-fields compact-details"><div class="compact-details-title"><span><i class="fa-solid fa-receipt"></i> Bill details</span><small>All information stays visible in a smaller layout</small></div><div class="advanced-grid"><label>Due date<input class="field" name="due_date" type="date"></label><label>Bill number<input class="field" name="bill_no" placeholder="Optional"></label><label>TIN<input class="field" name="tin" placeholder="Optional"></label><label>Location<input class="field" name="location" placeholder="Optional"></label><label>Payment<select class="field" name="payment_method"><option value="">Not set</option><option>Cash</option><option>Bank Transfer</option><option>Card</option><option>Credit</option><option>Other</option></select></label><label>Category<select class="field" name="category"><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label><label class="full compact-notes">Notes<textarea class="field" name="notes" placeholder="Optional remarks or payment reference"></textarea></label></div></section>'''
+          new = '<section class="advanced-fields compact-details"><div class="compact-details-title"><span><i class="fa-solid fa-receipt"></i> Bill details</span><small>All information stays visible in a smaller layout</small></div><div class="advanced-grid"><label>Due date<input class="field" name="due_date" type="date"></label><label>Bill number<input class="field" name="bill_no" placeholder="Optional"></label><label>TIN<input class="field" name="tin" placeholder="Optional"></label><label>Location<input class="field" name="location" placeholder="Optional"></label><label>Payment<select class="field" name="payment_method"><option value="">Not set</option><option>Cash</option><option>Bank Transfer</option><option>Card</option><option>Credit</option><option>Other</option></select></label><label>Category<select class="field" name="category"><option>Food & Grocery</option><option>Packaging</option><option>Utilities</option><option>Maintenance</option><option>Transport</option><option>Office</option><option>Other</option></select></label><label class="full compact-notes">Notes<textarea class="field" name="notes" placeholder="Optional remarks or payment reference"></textarea></label></div></section>'
 
           if old not in html:
-              raise SystemExit('Expected bill details block was not found; no changes made.')
+              print("Compact details block is already applied or the source changed.")
+          else:
+              html = html.replace(old, new, 1)
 
-          html = html.replace(old, new, 1)
+          style_id = 'compact-visible-details-v2'
+          if style_id not in html:
+              css = '''
+          <style id="compact-visible-details-v2">
+          #billDialog{width:min(1120px,calc(100% - 20px));}
+          .modern-bill-body{gap:12px!important;padding:14px!important;}
+          .quick-fields{grid-template-columns:minmax(220px,1.55fr) repeat(2,minmax(135px,.7fr));gap:9px;padding:11px 12px;}
+          .quick-fields label,.advanced-grid label{gap:4px;font-size:9px;letter-spacing:.01em;}
+          .quick-fields .field,.advanced-grid .field{min-height:34px!important;padding:0 10px!important;border-radius:9px!important;font-size:10px!important;}
+          .compact-details{grid-column:1/-1!important;display:block!important;overflow:visible!important;}
+          .compact-details-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border-bottom:1px solid #cfd5de;font-size:10px;font-weight:800;color:#303743;}
+          .compact-details-title span{display:flex;align-items:center;gap:7px;}
+          .compact-details-title small{font-size:9px;font-weight:500;color:#727b89;}
+          .compact-details .advanced-grid{grid-template-columns:repeat(6,minmax(105px,1fr));gap:8px;padding:11px 12px;}
+          .compact-details .compact-notes{grid-column:1/-1!important;}
+          .compact-details textarea.field{min-height:48px!important;max-height:70px;resize:vertical;padding:8px 10px!important;}
+          .modern-items .items-head{padding:9px 11px;}
+          .modern-items td,.modern-items th{padding:7px 8px!important;}
+          .bill-summary{padding:14px;gap:9px;}
+          .modal-head,.modal-foot{padding:11px 15px;}
+          @media(max-width:1050px){.compact-details .advanced-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+          @media(max-width:700px){.compact-details .advanced-grid{grid-template-columns:1fr 1fr}.compact-details-title{align-items:flex-start;flex-direction:column}.quick-fields{grid-template-columns:1fr 1fr}.quick-fields label:first-child{grid-column:1/-1}}
+          @media(max-width:460px){.compact-details .advanced-grid,.quick-fields{grid-template-columns:1fr}.quick-fields label:first-child{grid-column:auto}}
+          </style>
+          '''
+              marker = "</head>"
+              if marker not in html:
+                  raise SystemExit("Head closing tag not found.")
+              html = html.replace(marker, css + marker, 1)
 
-          marker = '</style>\n</head>'
-          css = '''
-<style id="compact-visible-details-v2">
-#billDialog{width:min(1120px,calc(100% - 20px));}
-.modern-bill-body{gap:12px!important;padding:14px!important;}
-.quick-fields{grid-template-columns:minmax(220px,1.55fr) repeat(2,minmax(135px,.7fr));gap:9px;padding:11px 12px;}
-.quick-fields label,.advanced-grid label{gap:4px;font-size:9px;letter-spacing:.01em;}
-.quick-fields .field,.advanced-grid .field{min-height:34px!important;padding:0 10px!important;border-radius:9px!important;font-size:10px!important;}
-.compact-details{grid-column:1/-1!important;display:block!important;overflow:visible!important;}
-.compact-details-title{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 13px;border-bottom:1px solid #cfd5de;font-size:10px;font-weight:800;color:#303743;}
-.compact-details-title span{display:flex;align-items:center;gap:7px;}
-.compact-details-title small{font-size:9px;font-weight:500;color:#727b89;}
-.compact-details .advanced-grid{grid-template-columns:repeat(6,minmax(105px,1fr));gap:8px;padding:11px 12px;}
-.compact-details .compact-notes{grid-column:1/-1!important;}
-.compact-details textarea.field{min-height:48px!important;max-height:70px;resize:vertical;padding:8px 10px!important;}
-.modern-items .items-head{padding:9px 11px;}
-.modern-items td,.modern-items th{padding:7px 8px!important;}
-.bill-summary{padding:14px;gap:9px;}
-.modal-head,.modal-foot{padding:11px 15px;}
-@media(max-width:1050px){.compact-details .advanced-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
-@media(max-width:700px){.compact-details .advanced-grid{grid-template-columns:1fr 1fr}.compact-details-title{align-items:flex-start;flex-direction:column}.quick-fields{grid-template-columns:1fr 1fr}.quick-fields label:first-child{grid-column:1/-1}}
-@media(max-width:460px){.compact-details .advanced-grid,.quick-fields{grid-template-columns:1fr}.quick-fields label:first-child{grid-column:auto}}
-</style>
-'''
-          if marker not in html:
-              raise SystemExit('Style insertion marker not found.')
-          html = html.replace(marker, '</style>\n' + css + '</head>', 1)
-          path.write_text(html, encoding='utf-8')
+          path.write_text(html, encoding="utf-8")
+          PY
 
       - name: Commit update
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git diff --cached --quiet && exit 0
+          if git diff --cached --quiet; then
+            echo "No changes required."
+            exit 0
+          fi
           git commit -m "Keep all bill details visible in compact layout"
           git push
