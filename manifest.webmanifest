@@ -2,7 +2,7 @@
   "id": "./index.html",
   "name": "Cafe' White Saffron",
   "short_name": "White Saffron",
-  "description": "Bills, supply rates, prices and stock management for Cafe' White Saffron.",
+  "description": "Smart bill management for Cafe' White Saffron.",
   "start_url": "./index.html#dashboard",
   "scope": "./",
   "display": "standalone",
@@ -11,8 +11,8 @@
     "standalone",
     "minimal-ui"
   ],
-  "background_color": "#1a1a1a",
-  "theme_color": "#d97706",
+  "background_color": "#f0f9ff",
+  "theme_color": "#00b4d8",
   "orientation": "any",
   "icons": [
     {
@@ -44,16 +44,6 @@
       "name": "Bills",
       "short_name": "Bills",
       "url": "./index.html#bills"
-    },
-    {
-      "name": "Supply Rates",
-      "short_name": "Supply",
-      "url": "./supply-rates.html"
-    },
-    {
-      "name": "Prices",
-      "short_name": "Prices",
-      "url": "./prices.html"
     }
   ],
   "categories": [
