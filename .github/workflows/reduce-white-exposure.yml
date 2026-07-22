@@ -1,0 +1,89 @@
+name: Reduce Bills White Exposure
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/reduce-white-exposure.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  tune:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tune contrast and surfaces
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          html = p.read_text(encoding='utf-8')
+          marker = '/* contrast-balance-v1 */'
+          if marker not in html:
+              css = r'''
+          <style>
+          /* contrast-balance-v1 */
+          :root{
+            --bg:#e8ebf0;
+            --panel:#f8f9fb;
+            --ink:#141820;
+            --text:#414957;
+            --muted:#727b89;
+            --line:#d7dce4;
+            --blue:#315efb;
+            --blue-hover:#244be0;
+            --blue-soft:#e8edff;
+            --shadow:0 14px 34px rgba(31,38,52,.10);
+          }
+          html,body{background:var(--bg)!important}
+          .app{background:var(--bg)!important}
+          .workspace{background:var(--bg)!important}
+          .rail{background:#f3f4f7!important;border-right-color:#cfd5de!important}
+          .topbar{background:#f7f8fa!important;border-bottom-color:#d5dae2!important}
+          .content{background:transparent!important}
+          .hero{padding:18px 20px;margin-bottom:16px!important;border:1px solid #d3d8e1;border-radius:16px;background:#f7f8fa;box-shadow:0 5px 18px rgba(31,38,52,.05)}
+          .hero h2{color:#11151c!important}
+          .hero p{color:#667080!important}
+          .metric{background:#f8f9fb!important;border-color:#d4d9e2!important;box-shadow:0 3px 12px rgba(31,38,52,.04)}
+          .metric.primary{background:linear-gradient(135deg,#252a35,#3a4252)!important;color:#fff!important;border-color:#252a35!important}
+          .metric.primary small,.metric.primary span{color:#cbd1da!important}
+          .toolbar{background:#eef1f5!important;border-color:#cfd5de!important}
+          .field{background:#fff!important;border-color:#c8ced8!important;color:#202630!important}
+          .field::placeholder{color:#88919f!important}
+          .table-card{background:#f8f9fb!important;border-color:#cfd5de!important;box-shadow:var(--shadow)!important}
+          .table-head{background:#f1f3f6!important;border-bottom-color:#d7dce4!important}
+          th{background:#e7eaf0!important;color:#66707e!important}
+          td{background:#f9fafb!important;border-bottom-color:#dfe3e9!important;color:#303743!important}
+          tbody tr:nth-child(even) td{background:#f2f4f7!important}
+          tbody tr:hover td{background:#e8edff!important}
+          .card{background:#f7f8fa!important;border-color:#d3d8e1!important;box-shadow:0 5px 18px rgba(31,38,52,.05)}
+          .rank-row{background:#eef1f5!important;border-color:#d6dbe3!important}
+          .login{background:#e5e8ed!important}
+          .login-card{background:#f7f8fa!important;border-color:#ccd2dc!important}
+          dialog{background:#eef1f5!important}
+          .modal-head,.modal-foot{background:#e9edf2!important;border-color:#cfd5de!important}
+          .modal-body{background:#f3f5f8!important}
+          .items{background:#fafbfc!important;border-color:#cfd5de!important}
+          .total-box{background:#e3e7ed!important;border:1px solid #cbd1da!important}
+          .btn.secondary,.icon-btn{background:#f7f8fa!important;border-color:#c8ced8!important}
+          @media(max-width:760px){
+            .rail{background:#f3f4f7!important;border-top-color:#cfd5de!important}
+            .hero{padding:15px!important}
+          }
+          </style>
+          '''
+              html = html.replace('</head>', css + '\n</head>', 1)
+              p.write_text(html, encoding='utf-8')
+          PY
+      - name: Commit contrast update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Reduce white exposure and improve Bills contrast"
+          git push
