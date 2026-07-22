@@ -1,4 +1,14 @@
 (() => {
+  const ensureColorSystem = () => {
+    if (document.querySelector('link[data-white-saffron-color-system]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './color-system.css?v=20260722';
+    link.dataset.whiteSaffronColorSystem = 'true';
+    document.head.appendChild(link);
+  };
+  ensureColorSystem();
+
   const ensureSemanticStructure = () => {
     const loginTitle = document.querySelector('#loginView h1');
     if (loginTitle) {
