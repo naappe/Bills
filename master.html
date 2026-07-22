@@ -37,12 +37,6 @@ html[data-theme="dark"] body,html[data-theme="dark"] .main-content{background:#1
 
 
   <link rel="stylesheet" href="ocean-breeze.css?v=20260722">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="application-name" content="White Saffron">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="White Saffron">
-  <link rel="icon" href="./assets/pwa/icon-192.svg" type="image/svg+xml">
 <style>
 .item-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:18px}.item-photo-card{border:1px solid #d1d5db;border-radius:14px;overflow:hidden;background:#fff}.item-photo-card img{width:100%;height:150px;display:block;object-fit:cover;background:#eef2f3}.item-photo-card>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px}.item-photo-card .btn{min-height:44px}html[data-theme="dark"] .item-photo-card{background:#262626;border-color:#404040}
 </style>
@@ -107,8 +101,8 @@ html,body,.main-content{background:#f0f9ff!important;color:#023e8a!important;fon
   <nav class="ocean-navigation" id="oceanNavigation" aria-label="Main navigation">
     <a href="index.html#dashboard"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i> Dashboard</a>
     <a href="index.html#bills"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bills</a>
-    <a class="active" href="master.html"><i class="fa-solid fa-gear" aria-hidden="true"></i> Settings</a>
-  </nav><aside class="sidebar"><div class="side-brand"><div class="side-logo">WS</div><div class="side-title"><strong>Cafe' White Saffron</strong><span>Finance workspace</span></div></div><div class="nav-label">Workspace</div><nav class="side-nav"><a href="index.html#dashboard"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg></span>Dashboard</a><a href="index.html#bills"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Zm3 4v2h8V8H8Zm0 4v2h8v-2H8Z"/></svg></span>Bills</a><a class="active" href="master.html"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.7 7.7 0 0 0 .1-1 7.7 7.7 0 0 0-.1-1l2-1.6-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3.5h-4L10.7 6a8 8 0 0 0-1.7 1L6.6 6l-2 3.4 2 1.6a7.7 7.7 0 0 0-.1 1 7.7 7.7 0 0 0 .1 1l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 1.7 1l.3 2.5h4l.3-2.5a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg></span>Settings</a><button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark appearance" aria-pressed="false" data-mode="light"><span class="theme-label theme-light-label">Light</span><span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span><span class="theme-label theme-dark-label">Dark</span></button></nav><div class="sidebar-summary"><span>WHITE SAFFRON</span><strong>System settings</strong><p>Manage vendors and bill records.</p></div></aside><main class="main-content"><div class="wrap page-container">
+    <a class="active" href="./master.html"><i class="fa-solid fa-gear" aria-hidden="true"></i> Settings</a>
+  </nav><main class="main-content"><div class="wrap page-container">
     <header class="top master-page-header">
       <div><span class="master-breadcrumb">Workspace <i class="fa-solid fa-chevron-right"></i> Settings</span><h1><i class="fa-solid fa-gear"></i> Settings</h1><p class="muted">Manage your account, vendors, and administrator tools.</p></div>
       <div class="actions"><button class="btn secondary header-action admin-only" id="refreshBtn">Refresh</button><button class="btn danger header-action" id="logoutBtn">Logout</button></div>
@@ -222,6 +216,6 @@ db.auth.getSession().then(({data})=>start(data.session));
 </script>
 
 <script>(function(){const button=document.getElementById('mobileMenuToggle'),nav=document.getElementById('oceanNavigation');if(!button||!nav)return;button.addEventListener('click',()=>{const open=nav.classList.toggle('nav-open');button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Close menu':'Open menu')});})();</script>
-  <script src="./pwa-install.js" defer></script>
+
 </body>
 </html>
