@@ -469,6 +469,10 @@ if ('serviceWorker' in navigator) {
 .ocean-header-logout{min-height:38px;padding:0 13px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(255,255,255,.14);color:#fff;font:700 12px "General Sans",Inter,sans-serif;display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:background .18s ease,transform .18s ease}.ocean-header-logout:hover{background:rgba(255,255,255,.24);transform:translateY(-1px)}.ocean-header-logout:focus-visible{outline:3px solid rgba(255,255,255,.45);outline-offset:2px}@media(max-width:520px){.ocean-header-logout{width:38px;padding:0;justify-content:center}.ocean-header-logout span{display:none}}
 </style>
 
+
+<style id="vendor-flow-style">
+.dialog-subtitle{display:block;margin-top:4px;color:#64748b;font-size:12px;font-weight:500}.form-section-title{display:flex;align-items:center;gap:10px;margin:4px 0 0;padding:12px 0 8px;border-bottom:1px solid #e2e8f0}.form-section-title>span{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#e8f5f1;color:#0f766e;font-size:12px;font-weight:800}.form-section-title strong,.form-section-title small{display:block}.form-section-title strong{color:#172033;font-size:14px}.form-section-title small{margin-top:2px;color:#64748b;font-size:11px;font-weight:500}#navAddBillBtn{background:#0f766e!important;color:#fff!important;border-radius:9px!important;min-height:38px!important;margin:10px 0 10px auto!important;border-bottom:0!important}#navAddBillBtn:hover{background:#0b5f59!important;color:#fff!important}.modal-foot{position:sticky;bottom:0;background:#fff;z-index:2}@media(max-width:768px){#navAddBillBtn{margin:0!important;width:100%!important}.form-section-title{padding-top:8px}.modal-body{padding-bottom:8px!important}}
+</style>
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
@@ -586,7 +590,7 @@ if ('serviceWorker' in navigator) {
       </section>
       <section class="panel page-card ocean-bills-table-card" id="billsView">
         <div class="panel-head ocean-table-head"><div><p class="table-eyebrow">ALL BILLS</p><strong id="billCountRow" class="bill-count-row info-counter"></strong></div><button class="btn btn-primary" id="addBillTopBtn">+ Add New Bill</button></div>
-        <div class="ocean-table-wrap"><table class="ocean-bills-table"><thead><tr><th>Bill no.</th><th>Vendor</th><th>Category</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="billRows"></tbody></table></div>
+        <div class="ocean-table-wrap"><table class="ocean-bills-table"><thead><tr><th>Bill no.</th><th>Supplier</th><th>Category</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="billRows"></tbody></table></div>
         <div class="empty" id="emptyState">Loading bills...</div><div class="pager" id="listPager"></div>
       </section>
       <footer class="ocean-footer"><span>© 2026 White Saffron Bills</span><span>Smart Bill Management</span><a href="https://github.com/naappe/Bills" target="_blank" rel="noreferrer">GitHub</a></footer>
