@@ -1,0 +1,36 @@
+name: Apply compact ERP theme
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'theme-v4.css'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Attach theme stylesheet
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          tag = '<link rel="stylesheet" href="theme-v4.css?v=4">'
+          if tag not in s:
+              s = s.replace('</head>', f'{tag}\n</head>')
+              p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit theme link
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Apply compact blue ERP theme"
+            git push
+          fi
