@@ -454,6 +454,13 @@ html[data-theme="dark"] #dashboardView .dashboard-badge{background:#3b2a16!impor
 .analytics-item-row:nth-child(2n) .analytics-progress i{background:linear-gradient(90deg,#8b5cf6,#ec4899)}
 @media(max-width:760px){#dashboardView .dashboard-wide{grid-column:auto}.daily-expense-chart{min-height:205px}.daily-expense-column{grid-template-rows:20px 130px 22px}.daily-expense-column>div{height:130px}.analytics-rank-row{grid-template-columns:28px minmax(0,1fr)}.analytics-rank-row>b{grid-column:2}}
 </style>
+<script>
+/* One-time cleanup for the retired PWA cache. */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(registration => registration.unregister()));
+  caches?.keys?.().then(keys => Promise.all(keys.filter(key => key.startsWith('white-saffron-pwa-')).map(key => caches.delete(key))));
+}
+</script>
 </head>
 <body data-brand-vibe="minimalist-mobile-first">
   <section class="login-page" id="loginView">
