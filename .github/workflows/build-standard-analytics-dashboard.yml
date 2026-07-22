@@ -56,7 +56,7 @@ jobs:
                   if not (page.parent/ref).resolve().exists(): failures.append(f'{page}: missing local reference {ref}')
               if '@supabase/supabase-js@2"' in text: failures.append(f'{page}: Supabase dependency is not pinned')
               if 'whitesafrron2025@gmail.com' in text: failures.append(f'{page}: misspelled White user email')
-                    if failures:
+          if failures:
               print('\n'.join(failures), file=sys.stderr)
               raise SystemExit(1)
           print(f'Validated {len(pages)} application pages.')
