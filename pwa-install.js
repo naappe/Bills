@@ -52,7 +52,7 @@
 (() => {
   if (typeof db === "undefined" || typeof state === "undefined") return;
 
-  const STARTUP_LIMIT = 1000;
+  const STARTUP_LIMIT = 50;
   const ARCHIVE_LIMIT = 250;
   let recentRows = [];
   let searchTimer = null;
