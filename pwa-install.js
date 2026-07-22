@@ -1,4 +1,40 @@
 (() => {
+  const ensureSemanticStructure = () => {
+    const loginTitle = document.querySelector('#loginView h1');
+    if (loginTitle) {
+      const heading = document.createElement('h2');
+      heading.className = loginTitle.className;
+      heading.innerHTML = loginTitle.innerHTML;
+      loginTitle.replaceWith(heading);
+    }
+
+    const main = document.querySelector('#appView main');
+    if (main) {
+      main.setAttribute('role', 'main');
+      if (!main.querySelector('.app-footer')) {
+        const footer = document.createElement('footer');
+        footer.className = 'app-footer';
+        footer.setAttribute('aria-label', 'Application footer');
+        footer.innerHTML = '<p>© 2026 White Saffron. Finance workspace.</p>';
+        main.appendChild(footer);
+      }
+    }
+
+    if (!document.getElementById('semanticStructureStyles')) {
+      const style = document.createElement('style');
+      style.id = 'semanticStructureStyles';
+      style.textContent = `
+        #loginView .login-card > h2{margin:0;font-size:26px;line-height:1.2;font-weight:750}
+        .app-footer{margin-top:32px;padding:18px 0 4px;border-top:1px solid var(--brand-border,var(--line));color:var(--brand-muted,var(--muted));font-size:12px;text-align:center}
+        .app-footer p{margin:0}
+      `;
+      document.head.appendChild(style);
+    }
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureSemanticStructure, { once:true });
+  else ensureSemanticStructure();
+
   const updateConnectivity = () => {
     let badge = document.getElementById('connectivityStatus');
     if (navigator.onLine) { badge?.remove(); return; }
@@ -83,37 +119,18 @@
     recentRows = (recent.length ? recent : state.rows.slice(0,STARTUP_LIMIT)).slice();
   };
 
-  const renderBillsOnly = () => {
+  const renderVisibleView = () => {
     renderStats();
-    renderRows();
-  };
-
-  const renderDashboardOnly = () => {
-    renderStats();
-    renderAdvancedDashboard();
-    renderExtraAnalytics();
-    renderBars(els.topVendors,totals(state.filtered,row=>canonicalVendor(get(row,'vendor'))),'vendor');
-    renderBars(els.categoryDashboard,totals(state.filtered,category),'category');
-    renderBars(els.paymentDashboard,totals(state.filtered,row=>get(row,'method')||'Not set'),'method');
-    renderBars(els.statusSummary,totals(state.filtered,normStatus),'status');
-  };
-
-  render = function renderVisibleView(){
-    if (state.view === 'dashboard') renderDashboardOnly();
-    else renderBillsOnly();
-  };
-
-  switchView = function switchFastView(value,updateUrl=true){
-    state.view = value === 'dashboard' ? 'dashboard' : 'bills';
-    if (updateUrl && location.hash !== `#${state.view}`) history.pushState(null,'',`#${state.view}`);
-    els.pageTitle.textContent = state.view === 'dashboard' ? 'Dashboard' : 'Bills';
-    document.querySelectorAll('[data-view]').forEach(tab=>tab.classList.toggle('active',tab.dataset.view===state.view));
-    els.dashboardView.classList.toggle('hidden',state.view!=='dashboard');
-    els.billsView.classList.toggle('hidden',state.view!=='bills');
-    $('billsKpiSummaryCards').classList.remove('hidden');
-    document.querySelector('.filter-card').classList.remove('hidden');
-    document.querySelector('.header-meta').classList.remove('hidden');
-    render();
+    if (state.view === 'dashboard') {
+      renderAdvancedDashboard();
+      renderExtraAnalytics();
+      renderBars(els.topVendors,totals(state.filtered,r=>canonicalVendor(get(r,'vendor'))),'vendor');
+      renderBars(els.categoryDashboard,totals(state.filtered,category),'category');
+      renderBars(els.paymentDashboard,totals(state.filtered,r=>get(r,'method')||'Not set'),'method');
+      renderBars(els.statusSummary,totals(state.filtered,normStatus),'status');
+    } else {
+      renderRows();
+    }
   };
 
   const localFilterAndRender = () => {
@@ -132,7 +149,7 @@
         (drill.type==='status' && normStatus(row)===drill.value);
       return (!q || text.includes(q)) && (!status || normStatus(row)===status) && drillMatch;
     });
-    render();
+    renderVisibleView();
   };
 
   const restoreRecentRows = () => {
@@ -195,7 +212,7 @@
       notice('','');
     } catch(error) {
       notice('error',`Bills could not load: ${error?.message||'Network request failed'}. Press Refresh to try again.`);
-      if (!previousRows.length) { state.rows=[]; state.yearRows=[]; state.filtered=[]; render(); }
+      if (!previousRows.length) { state.rows=[]; state.yearRows=[]; state.filtered=[]; renderVisibleView(); }
       else els.recordStatus.textContent = `Showing ${previousRows.length.toLocaleString()} previously loaded records`;
     }
   };
