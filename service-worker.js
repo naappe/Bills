@@ -1,8 +1,8 @@
-const CACHE_NAME = 'white-saffron-pwa-v14';
+const CACHE_NAME = 'white-saffron-pwa-v15';
 const OFFLINE_URL = './offline.html';
 const APP_SHELL = [
-  './','./index.html','./supply-rates.html','./prices.html','./master.html','./stock.html','./setup-stock.html',
-  './brand-system.css','./pwa-install.js','./session-timeout.js','./manifest.webmanifest',OFFLINE_URL,
+  './','./index.html','./supply-rates.html','./prices.html','./master.html','./stock.html','./setup-stock.html','./erp.html',
+  './brand-system.css','./color-system.css','./pwa-install.js','./session-timeout.js','./manifest.webmanifest',OFFLINE_URL,
   './assets/pwa/icon-192.svg','./assets/pwa/icon-512.svg','./assets/pwa/icon-maskable.svg'
 ];
 
