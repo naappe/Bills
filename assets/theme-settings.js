@@ -85,18 +85,22 @@ async function loadTheme(){
   }
 }
 
-function loadPriceUnitFix(){
-  if(document.querySelector('script[data-price-unit-fix]'))return;
+function loadScriptOnce(src,dataName){
+  if(document.querySelector(`script[data-${dataName}]`))return;
   const script=document.createElement('script');
-  script.src='assets/price-unit-fix-v37.js?v=37';
-  script.dataset.priceUnitFix='1';
+  script.src=src;
+  script.dataset[dataName.replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]='1';
   document.body.appendChild(script);
 }
+
+function loadPriceUnitFix(){loadScriptOnce('assets/price-unit-fix-v37.js?v=37','price-unit-fix')}
+function loadCustomProductFix(){loadScriptOnce('assets/custom-product-v38.js?v=38','custom-product-fix')}
 
 window.toggleTheme=()=>setMode(document.documentElement.dataset.theme==='dark'?'light':'dark');
 window.WhiteSaffronTheme={load:loadTheme,apply:applyTheme,setMode,toggle:window.toggleTheme,defaults:DEFAULT_THEME};
 document.addEventListener('DOMContentLoaded',()=>{ensureToggle();setMode(savedMode(),{persist:false})},{once:true});
 window.addEventListener('load',ensureToggle,{once:true});
 window.addEventListener('load',loadPriceUnitFix,{once:true});
+window.addEventListener('load',loadCustomProductFix,{once:true});
 loadTheme();
 })();
