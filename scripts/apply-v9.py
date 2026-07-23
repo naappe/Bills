@@ -17,11 +17,10 @@ marker='<script>\nconst SUPABASE_URL='
 if marker not in html: raise SystemExit('Main application script marker not found')
 head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+marker+tail
 
-old_show="function show(view){state.view=view;state.page=1;$$('.nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=({dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings'})[view];$('#sidebar').classList.remove('open');render()}"
-new_show="const APP_VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);function routeFromLocation(){const v=location.hash.slice(1).trim();return APP_VIEWS.has(v)?v:'dashboard'}function show(view){view=APP_VIEWS.has(view)?view:'dashboard';state.view=view;state.page=1;if(location.hash!==`#${view}`)history.replaceState(null,'',`${location.pathname}${location.search}#${view}`);$$('.nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=({dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings'})[view];$('#sidebar').classList.remove('open');render()}"
-if old_show in html: html=html.replace(old_show,new_show,1)
-else:
- html=re.sub(r"function show\(view\)\{.*?render\(\)\}",new_show,html,count=1)
+route_prefix="const APP_VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);function routeFromLocation(){const v=location.hash.slice(1).trim();return APP_VIEWS.has(v)?v:'dashboard'}"
+new_show=route_prefix+"function show(view){view=APP_VIEWS.has(view)?view:'dashboard';state.view=view;state.page=1;if(location.hash!==`#${view}`)history.replaceState(null,'',`${location.pathname}${location.search}#${view}`);$$('.nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=({dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings'})[view];$('#sidebar').classList.remove('open');render()}"
+# Make generation idempotent: replace any existing route declarations plus show() exactly once.
+html=re.sub(r"(?:const APP_VIEWS=new Set\(\['dashboard','bills','new','products','vendors','prices','reports','settings'\]\);function routeFromLocation\(\)\{const v=location\.hash\.slice\(1\)\.trim\(\);return APP_VIEWS\.has\(v\)\?v:'dashboard'\})*function show\(view\)\{.*?render\(\)\}",new_show,html,count=1)
 html=html.replace("try{await loadBills();show('dashboard')}catch(e)","try{await loadBills();show(routeFromLocation())}catch(e)",1)
 html=html.replace("$$('.nav button[data-view]').forEach", "$$('.nav [data-view]').forEach")
 
@@ -33,7 +32,8 @@ for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
  if html.count(f'id="{rid}"')!=1: raise SystemExit(f'{rid} contract count invalid')
+if html.count('const APP_VIEWS=')!=1: raise SystemExit(f'APP_VIEWS declaration count is {html.count("const APP_VIEWS=")}, expected 1')
 if '<h1>Procurement ERP</h1>' in html: raise SystemExit('Login heading must not create a second page H1')
 for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js','assets/router-v30.js']:
  if obsolete in html: raise SystemExit(f'obsolete asset still referenced: {obsolete}')
-print('Applied v32 semantic hierarchy, golden layout, shortcut indicators and core hash routing.')
+print('Applied idempotent hierarchy and routing build; login script syntax is valid.')
