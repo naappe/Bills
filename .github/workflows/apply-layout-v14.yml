@@ -1,0 +1,49 @@
+name: Apply New Bill layout v14
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/layout-v14.js'
+      - '.github/workflows/apply-layout-v14.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-layout-v14-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Add layout controller
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          html=p.read_text(encoding='utf-8')
+          html=re.sub(r'\n?<script src="assets/layout-v14\.js\?v=\d+"></script>','',html)
+          html=html.replace('</body>','<script src="assets/layout-v14.js?v=14"></script>\n</body>')
+          if html.count('assets/layout-v14.js?v=14') != 1:
+              raise SystemExit('layout-v14 reference count is not 1')
+          p.write_text(html,encoding='utf-8')
+          print('New Bill layout v14 linked successfully.')
+          PY
+      - name: Commit index update
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No index change needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Apply organised New Bill layout v14'
+          git push
