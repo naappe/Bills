@@ -95,6 +95,7 @@ function loadScriptOnce(src,dataName){
 
 function loadPriceUnitFix(){loadScriptOnce('assets/price-unit-fix-v37.js?v=37','price-unit-fix')}
 function loadCustomProductFix(){loadScriptOnce('assets/custom-product-v38.js?v=38','custom-product-fix')}
+function loadVendorTinFix(){loadScriptOnce('assets/vendor-tin-v40.js?v=40','vendor-tin-fix')}
 
 window.toggleTheme=()=>setMode(document.documentElement.dataset.theme==='dark'?'light':'dark');
 window.WhiteSaffronTheme={load:loadTheme,apply:applyTheme,setMode,toggle:window.toggleTheme,defaults:DEFAULT_THEME};
@@ -102,5 +103,6 @@ document.addEventListener('DOMContentLoaded',()=>{ensureToggle();setMode(savedMo
 window.addEventListener('load',ensureToggle,{once:true});
 window.addEventListener('load',loadPriceUnitFix,{once:true});
 window.addEventListener('load',loadCustomProductFix,{once:true});
+window.addEventListener('load',loadVendorTinFix,{once:true});
 loadTheme();
 })();
