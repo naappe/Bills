@@ -71,9 +71,18 @@ async function loadTheme(){
   }
 }
 
+function loadPriceUnitFix(){
+  if(document.querySelector('script[data-price-unit-fix]'))return;
+  const script=document.createElement('script');
+  script.src='assets/price-unit-fix-v37.js?v=37';
+  script.dataset.priceUnitFix='1';
+  document.body.appendChild(script);
+}
+
 window.toggleTheme=()=>setMode(document.documentElement.dataset.theme==='dark'?'light':'dark');
 window.WhiteSaffronTheme={load:loadTheme,apply:applyTheme,setMode,toggle:window.toggleTheme,defaults:DEFAULT_THEME};
 document.addEventListener('DOMContentLoaded',ensureToggle,{once:true});
 window.addEventListener('load',ensureToggle,{once:true});
+window.addEventListener('load',loadPriceUnitFix,{once:true});
 loadTheme();
 })();
