@@ -26,7 +26,7 @@
 #phaseBillForm .item-editor{min-width:0;width:100%;display:block}
 #phaseBillForm .item-editor thead{display:none}
 #phaseBillForm .item-editor tbody{display:grid;gap:16px}
-#phaseBillForm #phaseItems tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 18px;padding:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 14px rgba(5,28,51,.04)}
+#phaseBillForm #phaseItems tr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 18px;padding:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 14px rgba(5,28,51,.04);align-items:end}
 #phaseBillForm #phaseItems td{display:flex;flex-direction:column;gap:7px;min-width:0;padding:0;border:0;background:transparent!important}
 #phaseBillForm #phaseItems td:before{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 #phaseBillForm #phaseItems td:nth-child(1):before{content:'Product'}
@@ -37,13 +37,20 @@
 #phaseBillForm #phaseItems td:nth-child(6):before{content:'GST %'}
 #phaseBillForm #phaseItems td:nth-child(7):before{content:'Total / base rate'}
 #phaseBillForm #phaseItems td:nth-child(8):before{content:'Actions'}
-#phaseBillForm #phaseItems td:nth-child(7){justify-content:center;padding:10px 12px;border-radius:10px;background:var(--surface)!important;border:1px solid var(--line)}
+
+/* Keep one clear product control: saved product selector */
+#phaseBillForm #phaseItems td:first-child input[data-k="description"],
+#phaseBillForm #phaseItems td:first-child .custom-product-name{display:none!important}
+#phaseBillForm #phaseItems td:first-child select{margin:0!important}
+
+/* Balanced final row: total uses two columns, actions use one */
+#phaseBillForm #phaseItems td:nth-child(7){grid-column:span 2;justify-content:center;min-height:76px;padding:10px 14px;border-radius:10px;background:var(--surface)!important;border:1px solid var(--line)}
 #phaseBillForm #phaseItems td:nth-child(7)>strong{font-size:18px}
-#phaseBillForm #phaseItems td:nth-child(8){justify-content:flex-end}
+#phaseBillForm #phaseItems td:nth-child(8){justify-content:flex-end;min-height:76px}
 #phaseBillForm #phaseItems .field{width:100%;min-width:0}
 #phaseBillForm #phaseItems .product-field{min-width:0}
-#phaseBillForm #phaseItems .item-tools{display:flex;gap:8px;align-items:center}
-#phaseBillForm #phaseItems .item-tools .btn{flex:1}
+#phaseBillForm #phaseItems .item-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center;width:100%}
+#phaseBillForm #phaseItems .item-tools .btn{width:100%;min-width:0}
 #phaseBillForm #phaseItems .conversion{margin-top:1px;line-height:1.4}
 
 .report-actions{display:flex;gap:9px;flex-wrap:wrap}
@@ -60,11 +67,15 @@
   .phase-grid{grid-template-columns:repeat(2,1fr)}
   #phaseBillForm .entry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   #phaseBillForm #phaseItems tr{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #phaseBillForm #phaseItems td:nth-child(7){grid-column:1/-1}
+  #phaseBillForm #phaseItems td:nth-child(8){grid-column:1/-1;min-height:0}
+  #phaseBillForm #phaseItems .item-tools{grid-template-columns:1fr auto}
 }
 @media(max-width:760px){
   .phase-grid,.phase-grid.two,#phaseBillForm .entry-grid{grid-template-columns:1fr}
   #phaseBillForm .entry-grid .span-2,#phaseBillForm .entry-grid .span-4{grid-column:auto}
   #phaseBillForm #phaseItems tr{grid-template-columns:1fr;padding:14px}
+  #phaseBillForm #phaseItems td:nth-child(7),#phaseBillForm #phaseItems td:nth-child(8){grid-column:auto}
   #phaseBillForm .table-wrap{padding:12px}
   #phaseBillForm .section-title,#phaseBillForm .card-head{padding:15px}
   #phaseBillForm .entry-grid{padding:15px!important;gap:14px}
