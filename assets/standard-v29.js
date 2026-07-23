@@ -1,6 +1,50 @@
 (()=>{
 'use strict';
 
+function ensureAuditStyles(){
+  let style=document.getElementById('ws-core-accessibility-theme');
+  if(!style){
+    style=document.createElement('style');
+    style.id='ws-core-accessibility-theme';
+    style.textContent=`
+[data-theme="dark"],html[data-theme="dark"],body[data-theme="dark"]{
+  --bg:#0b111b;--surface:#141d2a;--surface-2:#1a2534;--ink:#edf4ff;--muted:#9aaac0;
+  --line:#2b3a4e;--brand:#5d9cff;--brand-2:#17375f;--brand-soft:rgba(93,156,255,.16);
+  --red:#ff737d;--shadow:0 10px 28px rgba(0,0,0,.28);
+  --bg-primary:#0b111b;--bg-secondary:#1a2534;--bg-card:#141d2a;--bg-card-hover:#1d2a3b;
+  --text-primary:#edf4ff;--text-secondary:#c2cede;--text-muted:#9aaac0;--border:#2b3a4e;
+}
+html[data-theme="dark"] body,body[data-theme="dark"]{background:#0b111b;color:#edf4ff}
+html[data-theme="dark"] .topbar,body[data-theme="dark"] .topbar,
+html[data-theme="dark"] .toolbar,body[data-theme="dark"] .toolbar,
+html[data-theme="dark"] th,body[data-theme="dark"] th{background:#1a2534;color:#edf4ff;border-color:#2b3a4e}
+html[data-theme="dark"] .card,body[data-theme="dark"] .card,
+html[data-theme="dark"] .section,body[data-theme="dark"] .section,
+html[data-theme="dark"] .metric,body[data-theme="dark"] .metric,
+html[data-theme="dark"] .ux-card,body[data-theme="dark"] .ux-card,
+html[data-theme="dark"] .field,body[data-theme="dark"] .field,
+html[data-theme="dark"] input,body[data-theme="dark"] input,
+html[data-theme="dark"] select,body[data-theme="dark"] select,
+html[data-theme="dark"] textarea,body[data-theme="dark"] textarea{background:#141d2a;color:#edf4ff;border-color:#2b3a4e}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--brand,#0b6cff)!important;outline-offset:3px!important;border-radius:6px;
+}
+a:focus:not(:focus-visible),button:focus:not(:focus-visible){outline:none}
+`;
+    const first=document.head.querySelector('style');
+    document.head.insertBefore(style,first||document.head.firstChild);
+  }
+}
+
+function syncThemeTargets(){
+  const root=document.documentElement;
+  const body=document.body;
+  if(!body)return;
+  const theme=root.dataset.theme||body.dataset.theme||localStorage.getItem('ws-color-mode')||localStorage.getItem('theme')||'light';
+  root.dataset.theme=theme;
+  body.dataset.theme=theme;
+}
+
 function removeParallax(root=document){
   root.querySelectorAll('.parallax-card').forEach(card=>{
     card.classList.remove('parallax-card');
@@ -80,6 +124,8 @@ function fixBillEditor(root=document){
 }
 
 function apply(root=document){
+  ensureAuditStyles();
+  syncThemeTargets();
   removeParallax(root);
   fixBillEditor(root);
 }
@@ -97,12 +143,13 @@ function queueApply(){
 window.addEventListener('load',queueApply);
 window.addEventListener('hashchange',queueApply);
 document.addEventListener('click',event=>{
-  if(event.target.closest('[data-go],[data-view],#addItem,[data-remove]'))setTimeout(queueApply,0);
+  if(event.target.closest('[data-go],[data-view],#addItem,[data-remove],#themeToggle,.theme-toggle'))setTimeout(queueApply,0);
 },true);
 document.addEventListener('input',event=>{
   if(event.target.closest('#phaseBillForm'))queueApply();
 },true);
+new MutationObserver(()=>syncThemeTargets()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 setTimeout(queueApply,100);
 setTimeout(queueApply,500);
-window.__WS_STANDARD__={version:30,apply:queueApply};
+window.__WS_STANDARD__={version:31,apply:queueApply};
 })();
