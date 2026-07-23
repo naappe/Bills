@@ -26,6 +26,7 @@ REQUIRED_FILES = [
     'assets/production-v20.css',
     'assets/ux-v21.js',
     'assets/ux-v21.css',
+    'assets/delete-v22.js',
 ]
 
 REQUIRED_IDS = [
