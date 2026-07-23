@@ -1,0 +1,39 @@
+name: Apply v8 colour and vendor autofill
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'assets/brand-v8.css'
+      - 'assets/vendor-autofill-v8.js'
+      - '.github/workflows/apply-v8.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update index assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          html=p.read_text(encoding='utf-8')
+          # Remove obsolete external theme files so they cannot override the final design.
+          html=re.sub(r'\n?<link rel="stylesheet" href="(?:brand-v5\.css\?v=5|brand-v6\.css\?v=6|modern-v5\.css\?v=5|assets/brand-v6\.css\?v=6|assets/brand-v7\.css\?v=7)">','',html)
+          html=html.replace('<link rel="stylesheet" href="assets/brand-v8.css?v=8">','')
+          html=html.replace('</head>','<link rel="stylesheet" href="assets/brand-v8.css?v=8">\n</head>',1)
+          html=html.replace('<script src="assets/vendor-autofill-v8.js?v=8"></script>','')
+          html=html.replace('</body>','<script src="assets/vendor-autofill-v8.js?v=8"></script>\n</body>',1)
+          # Update browser toolbar colour to match the final palette.
+          html=re.sub(r'<meta name="theme-color" content="[^"]+">','<meta name="theme-color" content="#263029">',html, count=1)
+          p.write_text(html,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Apply v8 flat palette and vendor autofill"
+          git push
