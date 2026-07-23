@@ -1,0 +1,45 @@
+name: Apply branded vendor experience
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'brand-v5.css'
+      - '.github/workflows/apply-brand-v5.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply branded theme and vendor selector
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          link='<link rel="stylesheet" href="brand-v5.css?v=5">'
+          if link not in s:
+              s=s.replace('</head>',link+'\n</head>')
+          old='<label class="wide">Vendor<input class="field" name="vendor" required value="${esc(vendorVal(r))}" placeholder="Supplier name"></label>'
+          new='<label class="wide">Vendor<div class="vendor-row"><div><input class="field" name="vendor" id="vendorInput" list="vendorOptions" required value="${esc(vendorVal(r))}" placeholder="Select saved vendor or type a new vendor"><div class="vendor-help">Choose an existing vendor. To add a new vendor, type the new name and save the bill.</div></div><button class="btn secondary" type="button" id="clearVendor">New vendor</button></div><datalist id="vendorOptions">${aggregateVendors(state.rows).map(v=>`<option value="${esc(v.name)}"></option>`).join(\'\')}</datalist></label>'
+          if old in s:
+              s=s.replace(old,new)
+          elif 'id="vendorOptions"' not in s:
+              raise SystemExit('Vendor input pattern not found')
+          marker="$('#addItem').onclick=()=>{state.items.push(freshItem());renderItemRows()};$('#billForm').onsubmit=saveBill"
+          repl="$('#addItem').onclick=()=>{state.items.push(freshItem());renderItemRows()};const clearVendor=$('#clearVendor');if(clearVendor)clearVendor.onclick=()=>{const i=$('#vendorInput');i.value='';i.focus()};$('#billForm').onsubmit=saveBill"
+          if marker in s:
+              s=s.replace(marker,repl)
+          p.write_text(s)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Apply branded theme and vendor selector"
+          git push
