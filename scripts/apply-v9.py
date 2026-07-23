@@ -16,18 +16,15 @@ shell=f'''<body>
 marker='<script>\nconst SUPABASE_URL='
 if marker not in html: raise SystemExit('Main application script marker not found')
 head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+marker+tail
-
 route_prefix="const APP_VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);function routeFromLocation(){const v=location.hash.slice(1).trim();return APP_VIEWS.has(v)?v:'dashboard'}"
 new_show=route_prefix+"function show(view){view=APP_VIEWS.has(view)?view:'dashboard';state.view=view;state.page=1;if(location.hash!==`#${view}`)history.replaceState(null,'',`${location.pathname}${location.search}#${view}`);$$('.nav [data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=({dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings'})[view];$('#sidebar').classList.remove('open');render()}"
-# Make generation idempotent: replace any existing route declarations plus show() exactly once.
 html=re.sub(r"(?:const APP_VIEWS=new Set\(\['dashboard','bills','new','products','vendors','prices','reports','settings'\]\);function routeFromLocation\(\)\{const v=location\.hash\.slice\(1\)\.trim\(\);return APP_VIEWS\.has\(v\)\?v:'dashboard'\})*function show\(view\)\{.*?render\(\)\}",new_show,html,count=1)
 html=html.replace("try{await loadBills();show('dashboard')}catch(e)","try{await loadBills();show(routeFromLocation())}catch(e)",1)
 html=html.replace("$$('.nav button[data-view]').forEach", "$$('.nav [data-view]').forEach")
-
-for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','hierarchy-v32','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','33'),('hierarchy-v32','32')]])
+for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','hierarchy-v32','bills-fix-v34','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','33'),('hierarchy-v32','32'),('bills-fix-v34','34')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/design-tokens.css?v=2','assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=32','assets/router-v31.js?v=33']
+checks=['assets/design-tokens.css?v=2','assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=32','assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34']
 for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
@@ -36,4 +33,4 @@ if html.count('const APP_VIEWS=')!=1: raise SystemExit(f'APP_VIEWS declaration c
 if '<h1>Procurement ERP</h1>' in html: raise SystemExit('Login heading must not create a second page H1')
 for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js','assets/router-v30.js']:
  if obsolete in html: raise SystemExit(f'obsolete asset still referenced: {obsolete}')
-print('Applied idempotent hierarchy and routing build; login script syntax is valid.')
+print('Applied smooth bill filters, admin delete, user management and stable routing.')
