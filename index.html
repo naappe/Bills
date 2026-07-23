@@ -42,7 +42,7 @@
 </head>
 <body>
 <div id="dashboardContract" hidden aria-hidden="true"><span id="dashboardView"></span><span id="topVendors"></span><span id="categoryDashboard"></span><span id="paymentDashboard"></span><span id="statusSummary"></span></div>
-<section class="login" id="loginView"><div class="login-card"><div class="mark">WS</div><div class="login-title">Procurement ERP</div><p class="muted">Bills, vendors, product prices and purchasing insight.</p><form id="loginForm" class="stack"><label>Username or email<input class="field" id="loginName" required autocomplete="username"></label><label>Password<input class="field" id="loginPassword" type="password" required autocomplete="current-password"></label><button class="btn">Sign in</button><div class="notice" id="loginNotice"></div></form></div></section>
+<section class="login" id="loginView"><div class="login-card"><div class="mark">WS</div><div class="login-title">Procurement ERP</div><p class="muted">Bills, vendors, product prices and purchasing insight.</p><form id="loginForm" class="stack"><label>Username<input class="field" id="loginName" required autocomplete="username"></label><label>Password<input class="field" id="loginPassword" type="password" required autocomplete="current-password"></label><button class="btn">Sign in</button><div class="notice" id="loginNotice"></div></form></div></section>
 <section class="app hidden" id="appView"><aside class="sidebar" id="sidebar"><div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div><nav class="nav" aria-label="Primary navigation"><a href="#dashboard" data-view="dashboard" class="active">▦ Dashboard</a><a href="#bills" data-view="bills">▤ Bills</a><a href="#products" data-view="products">◫ Products</a><a href="#vendors" data-view="vendors">♙ Vendors</a><a href="#prices" data-view="prices">↗ Price Book</a><a href="#reports" data-view="reports">▥ Reports</a><a href="#settings" data-view="settings">⚙ Settings</a></nav><div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div></aside><main class="main"><header class="topbar"><div style="display:flex;align-items:center;gap:10px"><button class="btn secondary mobile-menu" id="menuBtn" type="button">☰</button><div class="topbar-title" id="topTitle">Dashboard</div></div><div class="user"><div style="text-align:right"><strong id="roleLabel" style="font-size:12px">STAFF</strong><div class="muted" id="emailLabel" style="font-size:11px">Signed in</div></div><div class="avatar" id="avatar">A</div></div></header><div class="content" id="content"></div></main></section>
 <script>
 const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co';
@@ -102,12 +102,13 @@ $('#logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};$('
 <script src="assets/ux-v21.js?v=21"></script>
 <script src="assets/delete-v22.js?v=22"></script>
 <script src="assets/live-v23.js?v=23"></script>
-<script src="assets/admin-users-v24.js?v=25"></script>
+<script src="assets/admin-users-v24.js?v=26"></script>
 <script src="assets/catalog-fix-v25.js?v=25"></script>
 <script src="assets/premium-v26.js?v=26"></script>
 <script src="assets/standard-v29.js?v=29"></script>
 <script src="assets/router-v31.js?v=33"></script>
 <script src="assets/hierarchy-v32.js?v=32"></script>
 <script src="assets/bills-fix-v34.js?v=34"></script>
+<script src="assets/auth-v35.js?v=35"></script>
 </body>
 </html>
