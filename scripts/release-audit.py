@@ -24,6 +24,8 @@ REQUIRED_FILES = [
     'assets/operations-v19.css',
     'assets/production-v20.js',
     'assets/production-v20.css',
+    'assets/ux-v21.js',
+    'assets/ux-v21.css',
 ]
 
 REQUIRED_IDS = [
@@ -31,7 +33,6 @@ REQUIRED_IDS = [
     'topVendors', 'categoryDashboard', 'paymentDashboard', 'statusSummary'
 ]
 
-# Scan for actual secret-shaped values, not harmless documentation or the audit rules themselves.
 FORBIDDEN_PATTERNS = {
     'Supabase service-role JWT': r'eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}',
     'OpenAI secret key': r'\bsk-[A-Za-z0-9_-]{20,}\b',
