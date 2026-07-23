@@ -1,0 +1,32 @@
+name: Apply brand v7
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'assets/brand-v7.css'
+      - '.github/workflows/apply-brand-v7.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Attach flat brand stylesheet
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          html=p.read_text(encoding='utf-8')
+          tag='<link rel="stylesheet" href="assets/brand-v7.css?v=7">'
+          if tag not in html:
+              html=html.replace('</head>', tag+'\n</head>')
+          p.write_text(html,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add index.html
+          git diff --cached --quiet || git commit -m "Apply flat brand v7"
+          git push
