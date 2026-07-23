@@ -4,6 +4,7 @@ import re
 p = Path('index.html')
 html = p.read_text(encoding='utf-8')
 
+# Remove obsolete custom theme and helper assets.
 patterns = [
     r'\n?<link rel="stylesheet" href="brand-v5\.css\?v=5">',
     r'\n?<link rel="stylesheet" href="brand-v6\.css\?v=6">',
@@ -18,14 +19,16 @@ patterns = [
 for pattern in patterns:
     html = re.sub(pattern, '', html)
 
+# Keep one final stylesheet and force browsers to fetch the stable design.
 html = re.sub(
     r'<link rel="stylesheet" href="assets/brand-v9\.css\?v=\d+">',
-    '<link rel="stylesheet" href="assets/brand-v9.css?v=12">',
+    '<link rel="stylesheet" href="assets/brand-v9.css?v=13">',
     html,
 )
-if 'assets/brand-v9.css?v=12' not in html:
-    html = html.replace('</head>', '<link rel="stylesheet" href="assets/brand-v9.css?v=12">\n</head>')
+if 'assets/brand-v9.css?v=13' not in html:
+    html = html.replace('</head>', '<link rel="stylesheet" href="assets/brand-v9.css?v=13">\n</head>')
 
+# Rebuild the complete static application shell.
 required = ['dashboardView','topVendors','categoryDashboard','paymentDashboard','statusSummary']
 contract = '<div id="dashboardContract" hidden aria-hidden="true">' + ''.join(
     f'<span id="{rid}"></span>' for rid in required
@@ -50,21 +53,21 @@ shell = f'''<body>
   <aside class="sidebar" id="sidebar">
     <div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
     <nav class="nav">
-      <button data-view="dashboard" class="active">▦ Dashboard</button>
-      <button data-view="bills">▤ Bills</button>
-      <button data-view="new" class="primary">＋ New Bill</button>
-      <button data-view="products">◫ Products</button>
-      <button data-view="vendors">♙ Vendors</button>
-      <button data-view="prices">↗ Price Book</button>
-      <button data-view="reports">▥ Reports</button>
-      <button data-view="settings">⚙ Settings</button>
+      <button type="button" data-view="dashboard" class="active">▦ Dashboard</button>
+      <button type="button" data-view="bills">▤ Bills</button>
+      <button type="button" data-view="new" class="primary">＋ New Bill</button>
+      <button type="button" data-view="products">◫ Products</button>
+      <button type="button" data-view="vendors">♙ Vendors</button>
+      <button type="button" data-view="prices">↗ Price Book</button>
+      <button type="button" data-view="reports">▥ Reports</button>
+      <button type="button" data-view="settings">⚙ Settings</button>
     </nav>
-    <div class="side-foot"><button class="btn secondary" id="logoutBtn" style="width:100%">Sign out</button></div>
+    <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div>
   </aside>
   <main class="main">
     <header class="topbar">
       <div style="display:flex;align-items:center;gap:10px">
-        <button class="btn secondary mobile-menu" id="menuBtn">☰</button>
+        <button class="btn secondary mobile-menu" id="menuBtn" type="button">☰</button>
         <div class="topbar-title" id="topTitle">Dashboard</div>
       </div>
       <div class="user">
@@ -84,21 +87,22 @@ head, rest = html.split('<body>', 1)
 _, script_and_tail = rest.split(script_marker, 1)
 html = head + shell + script_marker + script_and_tail
 
+# Remove the two competing helper scripts that caused navigation freezes and DOM loops.
 html = re.sub(r'\n?<script src="assets/vendor-v9\.js\?v=\d+"></script>', '', html)
 html = re.sub(r'\n?<script src="assets/performance-v12\.js\?v=\d+"></script>', '', html)
-html = html.replace(
-    '</body>',
-    '<script src="assets/vendor-v9.js?v=12"></script>\n<script src="assets/performance-v12.js?v=12"></script>\n</body>'
-)
+html = re.sub(r'\n?<script src="assets/app-v13\.js\?v=\d+"></script>', '', html)
+html = html.replace('</body>', '<script src="assets/app-v13.js?v=13"></script>\n</body>')
 
 p.write_text(html, encoding='utf-8')
 
+# Verify the shell, assets, and compatibility contract.
 checks = {
     'loginView': html.count('id="loginView"'),
     'appView': html.count('id="appView"'),
     'sidebar': html.count('id="sidebar"'),
     'content': html.count('id="content"'),
     'avatar': html.count('id="avatar"'),
+    'app-v13': html.count('assets/app-v13.js?v=13'),
 }
 for name, count in checks.items():
     if count != 1:
@@ -107,7 +111,6 @@ for rid in required:
     count = html.count(f'id="{rid}"')
     if count != 1:
         raise SystemExit(f'{rid} count is {count}, expected 1')
-for asset in ['assets/brand-v9.css?v=12','assets/vendor-v9.js?v=12','assets/performance-v12.js?v=12']:
-    if asset not in html:
-        raise SystemExit(f'Missing asset reference: {asset}')
-print('Applied v12 performance, date filters and page persistence successfully.')
+if 'assets/vendor-v9.js' in html or 'assets/performance-v12.js' in html:
+    raise SystemExit('Competing legacy helper script is still referenced')
+print('Applied stable v13 shell, design, navigation and vendor search assets.')
