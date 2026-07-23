@@ -17,15 +17,33 @@ function labelResponsiveTables(root=document){
     table.querySelectorAll('tbody tr').forEach(row=>[...row.children].forEach((cell,i)=>{const label=heads[i]||'';if(cell.dataset.label!==label)cell.dataset.label=label}));
   });
 }
+function improveBillItemInputs(root=document){
+  root.querySelectorAll('#phaseItems tr').forEach(row=>{
+    const select=row.querySelector('select[data-k="product_id"]');
+    const input=row.querySelector('input[data-k="description"]');
+    if(select){
+      select.classList.add('product-choice');
+      select.setAttribute('aria-label','Choose a saved product');
+      const first=select.options?.[0];
+      if(first&&first.textContent!=='Choose saved product')first.textContent='Choose saved product';
+    }
+    if(input){
+      input.classList.add('custom-product-name');
+      input.placeholder='Or type custom product name';
+      input.setAttribute('aria-label','Custom product name');
+    }
+  });
+}
 function validateForm(form){let valid=true;form.querySelectorAll('[required]').forEach(field=>{const bad=!String(field.value??'').trim();field.classList.toggle('invalid',bad);let error=field.parentElement?.querySelector(':scope > .form-error');if(bad&&!error){error=document.createElement('span');error.className='form-error';error.textContent='This field is required.';field.parentElement?.appendChild(error)}if(!bad&&error)error.remove();if(bad)valid=false});return valid}
 function protectSubmits(root=document){root.querySelectorAll('form:not([data-production-bound="1"])').forEach(form=>{form.dataset.productionBound='1';form.addEventListener('submit',event=>{if(!validateForm(form)){event.preventDefault();form.querySelector('.invalid')?.focus();return}const button=form.querySelector('button[type="submit"]');if(button&&!button.disabled){button.dataset.originalText=button.textContent;button.disabled=true;button.textContent='Saving…';setTimeout(()=>{if(document.body.contains(button)){button.disabled=false;button.textContent=button.dataset.originalText||'Save'}},12000)}},true);form.addEventListener('input',debounce(()=>validateForm(form),120))})}
 function protectRapidActions(root=document){root.querySelectorAll('[data-delete],[data-approve],[data-reject],[data-restore]').forEach(button=>{if(button.dataset.rapidGuard==='1')return;button.dataset.rapidGuard='1';button.addEventListener('click',()=>{button.disabled=true;setTimeout(()=>button.disabled=false,1500)},true)})}
-function enhance(root=document){labelResponsiveTables(root);protectSubmits(root);protectRapidActions(root)}
+function enhance(root=document){labelResponsiveTables(root);improveBillItemInputs(root);protectSubmits(root);protectRapidActions(root)}
 function queueEnhance(){if(enhanceQueued)return;enhanceQueued=true;requestAnimationFrame(()=>{enhanceQueued=false;const content=document.getElementById('content');enhance(content||document)})}
 
 document.addEventListener('DOMContentLoaded',()=>{networkNotice();enhance()});
 document.addEventListener('click',()=>setTimeout(queueEnhance,0),true);
 window.addEventListener('hashchange',queueEnhance);
+new MutationObserver(queueEnhance).observe(document.getElementById('content')||document.body,{childList:true,subtree:true});
 window.addEventListener('unhandledrejection',event=>console.error('Unhandled application request:',event.reason));
 window.__WS_ENHANCE__=queueEnhance;
 })();
