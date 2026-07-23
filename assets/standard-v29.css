@@ -25,7 +25,6 @@ h1,h2,h3,.brand strong,.topbar-title,.page-head h1,.card h2,.card h3,.metric str
 .card-head,.ux-modal-head,.v23-card-head{padding:var(--ws-space-3) var(--ws-space-4)!important}
 .card-body{padding:var(--ws-space-4)!important}
 
-/* Golden-ratio form hierarchy */
 #phaseBillForm .phase-layout,.bill-layout{grid-template-columns:minmax(0,1.618fr) minmax(260px,1fr)!important;gap:var(--ws-space-4)!important;align-items:start}
 #phaseBillForm .phase-main{min-width:0}
 #phaseBillForm .phase-summary{position:sticky;top:88px}
@@ -35,18 +34,16 @@ h1,h2,h3,.brand strong,.topbar-title,.page-head h1,.card h2,.card h3,.metric str
 #phaseBillForm .field{min-height:44px!important;border-radius:var(--ws-radius-sm)!important}
 #phaseBillForm textarea.field{min-height:82px!important}
 
-/* Bill items: compact, readable and aligned */
 #phaseBillForm .phase-items-head,#phaseBillForm .phase-item-row{grid-template-columns:minmax(220px,1.618fr) minmax(74px,.62fr) minmax(84px,.7fr) minmax(120px,1fr) minmax(108px,.9fr) minmax(92px,.72fr) minmax(150px,1.08fr) auto!important;column-gap:12px!important}
 #phaseBillForm .phase-item-row{align-items:start!important;padding:12px 14px!important}
-#phaseBillForm .phase-custom-product{width:100%!important;margin:0!important}
+#phaseBillForm .phase-custom-product{width:100%!important;margin:0!important;position:relative}
+#phaseBillForm .v29-product-name{width:100%!important;margin:0!important;font-weight:600}
+#phaseBillForm .v29-product-switch{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;padding:0;border:0;background:none;color:var(--accent,#1769e0);font-size:.72rem;font-weight:700;cursor:pointer}
+#phaseBillForm .v29-product-switch:hover{text-decoration:underline}
 
-/* Remove all mouse tilt/parallax. */
 .parallax-card,.parallax-card:hover{transform:none!important;transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease!important;will-change:auto!important}
-
-/* Subtle professional hover only */
 .card:hover,.ux-card:hover,.v23-card:hover{transform:none!important;box-shadow:0 10px 28px rgba(15,23,42,.07)!important}
 
-/* Branding */
 .brand strong{font-size:1.02rem!important;font-weight:700!important}
 .brand small{font-family:Inter,sans-serif!important;letter-spacing:.01em}
 .sidebar{width:236px!important}
