@@ -26,51 +26,17 @@
 <link rel="stylesheet" href="assets/brand-v9.css?v=13">
 <link rel="stylesheet" href="assets/dashboard-v15.css?v=15">
 <link rel="stylesheet" href="assets/bills-v16.css?v=16">
+<link rel="stylesheet" href="assets/crud-v17.css?v=17">
 <link rel="stylesheet" href="assets/design-tokens.css?v=1">
 </head>
 <body>
 <div id="dashboardContract" hidden aria-hidden="true"><span id="dashboardView"></span><span id="topVendors"></span><span id="categoryDashboard"></span><span id="paymentDashboard"></span><span id="statusSummary"></span></div>
 <section class="login" id="loginView">
-  <div class="login-card">
-    <div class="mark">WS</div>
-    <h1>Procurement ERP</h1>
-    <p class="muted">Bills, vendors, product prices and purchasing insight.</p>
-    <form id="loginForm" class="stack">
-      <label>Username or email<input class="field" id="loginName" required autocomplete="username"></label>
-      <label>Password<input class="field" id="loginPassword" type="password" required autocomplete="current-password"></label>
-      <button class="btn">Sign in</button>
-      <div class="notice" id="loginNotice"></div>
-    </form>
-  </div>
+  <div class="login-card"><div class="mark">WS</div><h1>Procurement ERP</h1><p class="muted">Bills, vendors, product prices and purchasing insight.</p><form id="loginForm" class="stack"><label>Username or email<input class="field" id="loginName" required autocomplete="username"></label><label>Password<input class="field" id="loginPassword" type="password" required autocomplete="current-password"></label><button class="btn">Sign in</button><div class="notice" id="loginNotice"></div></form></div>
 </section>
 <section class="app hidden" id="appView">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
-    <nav class="nav">
-      <button type="button" data-view="dashboard" class="active">▦ Dashboard</button>
-      <button type="button" data-view="bills">▤ Bills</button>
-      <button type="button" data-view="new" class="primary">＋ New Bill</button>
-      <button type="button" data-view="products">◫ Products</button>
-      <button type="button" data-view="vendors">♙ Vendors</button>
-      <button type="button" data-view="prices">↗ Price Book</button>
-      <button type="button" data-view="reports">▥ Reports</button>
-      <button type="button" data-view="settings">⚙ Settings</button>
-    </nav>
-    <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div>
-  </aside>
-  <main class="main">
-    <header class="topbar">
-      <div style="display:flex;align-items:center;gap:10px">
-        <button class="btn secondary mobile-menu" id="menuBtn" type="button">☰</button>
-        <div class="topbar-title" id="topTitle">Dashboard</div>
-      </div>
-      <div class="user">
-        <div style="text-align:right"><strong id="roleLabel" style="font-size:12px">STAFF</strong><div class="muted" id="emailLabel" style="font-size:11px">Signed in</div></div>
-        <div class="avatar" id="avatar">A</div>
-      </div>
-    </header>
-    <div class="content" id="content"></div>
-  </main>
+  <aside class="sidebar" id="sidebar"><div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div><nav class="nav"><button type="button" data-view="dashboard" class="active">▦ Dashboard</button><button type="button" data-view="bills">▤ Bills</button><button type="button" data-view="new" class="primary">＋ New Bill</button><button type="button" data-view="products">◫ Products</button><button type="button" data-view="vendors">♙ Vendors</button><button type="button" data-view="prices">↗ Price Book</button><button type="button" data-view="reports">▥ Reports</button><button type="button" data-view="settings">⚙ Settings</button></nav><div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div></aside>
+  <main class="main"><header class="topbar"><div style="display:flex;align-items:center;gap:10px"><button class="btn secondary mobile-menu" id="menuBtn" type="button">☰</button><div class="topbar-title" id="topTitle">Dashboard</div></div><div class="user"><div style="text-align:right"><strong id="roleLabel" style="font-size:12px">STAFF</strong><div class="muted" id="emailLabel" style="font-size:11px">Signed in</div></div><div class="avatar" id="avatar">A</div></div></header><div class="content" id="content"></div></main>
 </section>
 <script>
 const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co';
@@ -123,5 +89,6 @@ $('#logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};$('
 <script src="assets/layout-v14.js?v=14"></script>
 <script src="assets/dashboard-v15.js?v=15"></script>
 <script src="assets/bills-v16.js?v=16"></script>
+<script src="assets/crud-v17.js?v=17"></script>
 </body>
 </html>
