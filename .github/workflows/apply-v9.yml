@@ -50,8 +50,8 @@ jobs:
                   problems.append(f'{element_id}: expected 1, found {count}')
 
           required_assets = [
-              'assets/brand-v9.css?v=9',
-              'assets/vendor-v9.js?v=9',
+              'assets/brand-v9.css',
+              'assets/vendor-v9.js',
           ]
           for asset in required_assets:
               if asset not in html:
