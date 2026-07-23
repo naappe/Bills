@@ -1,5 +1,26 @@
 (()=>{
 'use strict';
+const allowedRoles=new Set(['admin','manager','staff','readonly']);
+const resolveRole=user=>{
+  if(!user)return'staff';
+  if(typeof ADMIN_IDS!=='undefined'&&ADMIN_IDS.includes(user.id))return'admin';
+  const candidate=String(user.app_metadata?.role||user.user_metadata?.role||'staff').toLowerCase();
+  return allowedRoles.has(candidate)?candidate:'staff';
+};
+
+const originalBoot=typeof window.boot==='function'?window.boot:null;
+if(originalBoot){
+  window.boot=async function(session){
+    if(!session)return originalBoot(session);
+    const role=resolveRole(session.user);
+    await originalBoot(session);
+    state.role=role;
+    const roleLabel=document.querySelector('#roleLabel');
+    if(roleLabel)roleLabel.textContent=role.toUpperCase();
+    if(state.view==='settings'&&typeof renderSettings==='function')renderSettings();
+  };
+}
+
 const form=document.querySelector('#loginForm');
 if(!form)return;
 form.onsubmit=async e=>{
@@ -13,7 +34,7 @@ form.onsubmit=async e=>{
   const {data,error}=await db.auth.signInWithPassword({email,password});
   if(error){notice.textContent='Invalid username or password';return;}
   notice.textContent='';
-  boot(data.session);
+  window.boot(data.session);
 };
-window.__WS_AUTH__={version:35};
+window.__WS_AUTH__={version:36,resolveRole};
 })();
