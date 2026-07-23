@@ -1,0 +1,45 @@
+name: Apply v9 fixes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apply-v9.py'
+      - 'assets/brand-v9.css'
+      - 'assets/vendor-v9.js'
+      - '.github/workflows/apply-v9.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply v9 migration
+        run: python scripts/apply-v9.py
+      - name: Verify dashboard contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          html=Path('index.html').read_text(encoding='utf-8')
+          required=['dashboardView','topVendors','categoryDashboard','paymentDashboard','statusSummary']
+          bad=[x for x in required if html.count(f'id="{x}"') != 1]
+          if bad: raise SystemExit('Missing or duplicated dashboard IDs: '+', '.join(bad))
+          print('Dashboard contract passed.')
+          PY
+      - name: Commit generated index
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No index.html changes needed.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Apply v9 theme vendor autofill and dashboard contract'
+          git push
