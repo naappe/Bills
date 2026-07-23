@@ -116,5 +116,6 @@ $('#loginForm').onsubmit=async e=>{e.preventDefault();$('#loginNotice').textCont
 $('#logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};$('#menuBtn').onclick=()=>$('#sidebar').classList.toggle('open');$$('.nav button[data-view]').forEach(b=>b.onclick=()=>{if(b.dataset.view!=='new'){state.editing=null;state.items=[]}show(b.dataset.view)});db.auth.getSession().then(({data})=>boot(data.session));db.auth.onAuthStateChange((_e,s)=>{if(!s)boot(null)});
 </script>
 <script src="assets/app-v13.js?v=13"></script>
+<script src="assets/layout-v14.js?v=14"></script>
 </body>
 </html>
