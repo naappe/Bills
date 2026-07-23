@@ -9,6 +9,13 @@
 .loading-skeleton{position:relative;overflow:hidden;background:#edf2f7;border-radius:10px;min-height:18px}
 .loading-skeleton:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent);animation:ws-shimmer 1.2s infinite}
 @keyframes ws-shimmer{100%{transform:translateX(100%)}}
+
+/* Add row already creates another item, so keep only the delete action. */
+#phaseBillForm #phaseItems [data-dup]{display:none!important}
+#phaseBillForm #phaseItems .item-tools{display:block!important;width:100%}
+#phaseBillForm #phaseItems [data-rm]{width:100%!important;min-width:0!important;font-size:0!important}
+#phaseBillForm #phaseItems [data-rm]::after{content:"Delete item";font-size:12px;font-weight:800}
+
 @media(max-width:760px){
   .content{padding:14px 10px 86px}
   .card,.section{border-radius:13px}
@@ -26,8 +33,8 @@
   #phaseItems .product-choice,#phaseItems .custom-product-name{display:block!important;width:100%!important;min-width:0!important;margin:0!important}
   #phaseItems .custom-product-name{margin-top:2px!important}
   #phaseItems td:nth-child(2),#phaseItems td:nth-child(3),#phaseItems td:nth-child(4),#phaseItems td:nth-child(5),#phaseItems td:nth-child(6),#phaseItems td:nth-child(7){grid-template-columns:112px minmax(0,1fr)}
-  #phaseItems .item-tools{display:grid;grid-template-columns:1fr auto;width:100%;gap:8px}
-  #phaseItems .item-tools .btn{min-width:0}
+  #phaseItems .item-tools{display:block;width:100%}
+  #phaseItems .item-tools .btn{min-width:0;width:100%}
   .toolbar{padding:10px}
   .page-head h1{font-size:24px}
   .actions .btn{flex:1 1 auto}
