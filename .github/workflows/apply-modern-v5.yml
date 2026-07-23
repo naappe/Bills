@@ -1,0 +1,32 @@
+name: Apply modern v5 theme
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - modern-v5.css
+      - .github/workflows/apply-modern-v5.yml
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Attach modern theme
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<link rel="stylesheet" href="modern-v5.css?v=5">'
+          if tag not in s:
+              s=s.replace('</head>',tag+'\n</head>')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Apply modern White Saffron v5 theme"
+          git push
