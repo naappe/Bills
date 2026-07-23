@@ -16,12 +16,12 @@ shell=f'''<body>
 marker='<script>\nconst SUPABASE_URL='
 if marker not in html: raise SystemExit('Main application script marker not found')
 head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+marker+tail
-for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21')]])
+for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/procurement-v18.css?v=18','assets/procurement-v18.js?v=18','assets/operations-v19.css?v=19','assets/operations-v19.js?v=19','assets/production-v20.css?v=20','assets/production-v20.js?v=20','assets/ux-v21.css?v=21','assets/ux-v21.js?v=21']
+checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/procurement-v18.css?v=18','assets/procurement-v18.js?v=18','assets/operations-v19.css?v=19','assets/operations-v19.js?v=19','assets/production-v20.css?v=20','assets/production-v20.js?v=20','assets/ux-v21.css?v=21','assets/ux-v21.js?v=21','assets/delete-v22.js?v=22']
 for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
  if html.count(f'id="{rid}"')!=1: raise SystemExit(f'{rid} contract count invalid')
-print('Applied v21 UX enhancement for dashboard, products, price intelligence and reports.')
+print('Applied v22 visible admin delete controls for bills and products.')
