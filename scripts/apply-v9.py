@@ -16,12 +16,12 @@ shell=f'''<body>
 marker='<script>\nconst SUPABASE_URL='
 if marker not in html: raise SystemExit('Main application script marker not found')
 head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+marker+tail
-for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24')]])
+for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/procurement-v18.css?v=18','assets/procurement-v18.js?v=18','assets/operations-v19.css?v=19','assets/operations-v19.js?v=19','assets/production-v20.css?v=20','assets/production-v20.js?v=20','assets/ux-v21.css?v=21','assets/ux-v21.js?v=21','assets/delete-v22.js?v=22','assets/live-v23.css?v=23','assets/live-v23.js?v=23','assets/admin-users-v24.css?v=24','assets/admin-users-v24.js?v=24']
+checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/procurement-v18.js?v=18','assets/operations-v19.js?v=19','assets/production-v20.js?v=20','assets/ux-v21.js?v=21','assets/delete-v22.js?v=22','assets/live-v23.js?v=23','assets/admin-users-v24.js?v=24','assets/catalog-fix-v25.js?v=25']
 for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
  if html.count(f'id="{rid}"')!=1: raise SystemExit(f'{rid} contract count invalid')
-print('Applied v24 secure admin user management and exact entered-rate price synchronization.')
+print('Applied v25 product and Price Book synchronization fix.')
