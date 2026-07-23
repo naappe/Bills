@@ -1,4 +1,4 @@
-name: Apply v9 fixes
+name: Apply stable Bills app
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     paths:
       - 'scripts/apply-v9.py'
       - 'assets/brand-v9.css'
-      - 'assets/vendor-v9.js'
+      - 'assets/app-v13.js'
       - '.github/workflows/apply-v9.yml'
   workflow_dispatch:
 
@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: apply-v9-${{ github.ref }}
+  group: apply-bills-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Apply v9 migration
+      - name: Apply stable migration
         run: python scripts/apply-v9.py
 
       - name: Verify generated files
@@ -41,6 +41,10 @@ jobs:
               'categoryDashboard',
               'paymentDashboard',
               'statusSummary',
+              'loginView',
+              'appView',
+              'sidebar',
+              'content',
           ]
 
           problems = []
@@ -50,8 +54,8 @@ jobs:
                   problems.append(f'{element_id}: expected 1, found {count}')
 
           required_assets = [
-              'assets/brand-v9.css',
-              'assets/vendor-v9.js',
+              'assets/brand-v9.css?v=13',
+              'assets/app-v13.js?v=13',
           ]
           for asset in required_assets:
               if asset not in html:
@@ -64,6 +68,8 @@ jobs:
               'assets/brand-v6.css?v=6',
               'assets/brand-v7.css?v=7',
               'assets/input-fix-v6.js?v=6',
+              'assets/vendor-v9.js',
+              'assets/performance-v12.js',
           ]
           for asset in obsolete_assets:
               if asset in html:
@@ -72,7 +78,7 @@ jobs:
           if problems:
               raise SystemExit('\n'.join(problems))
 
-          print('V9 audit passed.')
+          print('Stable Bills app audit passed.')
           PY
 
       - name: Commit generated index
@@ -85,5 +91,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Apply v9 theme vendor autofill and dashboard contract'
+          git commit -m 'Apply stable v13 navigation vendor search and design'
           git push
