@@ -4,6 +4,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / 'index.html'
+SELF = Path(__file__).resolve()
 
 REQUIRED_FILES = [
     'assets/design-tokens.css',
@@ -30,9 +31,10 @@ REQUIRED_IDS = [
     'topVendors', 'categoryDashboard', 'paymentDashboard', 'statusSummary'
 ]
 
+# Scan for actual secret-shaped values, not harmless documentation or the audit rules themselves.
 FORBIDDEN_PATTERNS = {
-    'Supabase service-role key': r'sb_service_role|service_role',
-    'OpenAI secret key': r'sk-[A-Za-z0-9_-]{20,}',
+    'Supabase service-role JWT': r'eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}',
+    'OpenAI secret key': r'\bsk-[A-Za-z0-9_-]{20,}\b',
     'Private key block': r'BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY',
 }
 
@@ -58,7 +60,7 @@ else:
         problems.append('index.html must contain one body element')
 
 for path in ROOT.rglob('*'):
-    if not path.is_file() or '.git' in path.parts:
+    if not path.is_file() or '.git' in path.parts or path.resolve() == SELF:
         continue
     if path.suffix.lower() not in {'.html', '.js', '.css', '.py', '.md', '.yml', '.yaml', '.json'}:
         continue
@@ -79,4 +81,4 @@ if problems:
 print('FINAL RELEASE AUDIT PASSED')
 print(f'- {len(REQUIRED_FILES)} required assets present and referenced')
 print(f'- {len(REQUIRED_IDS)} required application elements present once')
-print('- no service-role, OpenAI, or private-key secrets detected')
+print('- no service-role JWT, OpenAI secret, or private-key material detected')
