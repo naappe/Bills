@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="assets/brand-v9.css?v=13">
 <link rel="stylesheet" href="assets/dashboard-v15.css?v=15">
 <link rel="stylesheet" href="assets/bills-v16.css?v=16">
+<link rel="stylesheet" href="assets/design-tokens.css?v=1">
 </head>
 <body>
 <div id="dashboardContract" hidden aria-hidden="true"><span id="dashboardView"></span><span id="topVendors"></span><span id="categoryDashboard"></span><span id="paymentDashboard"></span><span id="statusSummary"></span></div>
@@ -117,6 +118,7 @@ async function boot(session){if(!session){$('#loginView').classList.remove('hidd
 $('#loginForm').onsubmit=async e=>{e.preventDefault();$('#loginNotice').textContent='Signing in…';const name=$('#loginName').value.trim().toLowerCase(),email=LOGIN[name]||name;const {data,error}=await db.auth.signInWithPassword({email,password:$('#loginPassword').value});if(error){$('#loginNotice').textContent=error.message;return}$('#loginNotice').textContent='';boot(data.session)};
 $('#logoutBtn').onclick=async()=>{await db.auth.signOut();location.reload()};$('#menuBtn').onclick=()=>$('#sidebar').classList.toggle('open');$$('.nav button[data-view]').forEach(b=>b.onclick=()=>{if(b.dataset.view!=='new'){state.editing=null;state.items=[]}show(b.dataset.view)});db.auth.getSession().then(({data})=>boot(data.session));db.auth.onAuthStateChange((_e,s)=>{if(!s)boot(null)});
 </script>
+<script src="assets/theme-settings.js?v=1"></script>
 <script src="assets/app-v13.js?v=13"></script>
 <script src="assets/layout-v14.js?v=14"></script>
 <script src="assets/dashboard-v15.js?v=15"></script>
