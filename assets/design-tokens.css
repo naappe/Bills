@@ -1,4 +1,7 @@
 :root{
+  --phi:1.618033988749895;
+  --φ:1.618033988749895;
+
   --ws-primary:#0b6cff;
   --ws-primary-dark:#0a4ea3;
   --ws-bg:#f4f8ff;
@@ -10,9 +13,36 @@
   --ws-danger:#d64a55;
   --ws-success:#19a866;
   --ws-warning:#f4a340;
+  --ws-gold:#d79a22;
   --ws-radius:12px;
-  --ws-font:Inter,system-ui,sans-serif;
   --ws-shadow:0 6px 18px rgba(16,35,63,.06);
+
+  --font-display:Lora,Georgia,serif;
+  --font-ui:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ws-font:var(--font-ui);
+  --font-hero:3.375rem;
+  --font-h1:2.125rem;
+  --font-h2:1.5rem;
+  --font-h3:1.125rem;
+  --font-h4:1rem;
+  --font-body:1rem;
+  --font-small:.875rem;
+  --font-xs:.75rem;
+
+  --space-xs:.375rem;
+  --space-sm:.625rem;
+  --space-md:1rem;
+  --space-lg:1.625rem;
+  --space-xl:2.625rem;
+  --space-2xl:4.25rem;
+
+  --bg-primary:var(--ws-bg);
+  --bg-card:var(--ws-surface);
+  --text-primary:var(--ws-text);
+  --text-secondary:#40526c;
+  --text-muted:var(--ws-muted);
+  --accent:var(--ws-primary);
+  --gold:var(--ws-gold);
 
   --bg:var(--ws-bg)!important;
   --surface:var(--ws-surface)!important;
@@ -27,7 +57,9 @@
   --radius:var(--ws-radius)!important;
   --shadow:var(--ws-shadow)!important;
 }
-html,body{font-family:var(--ws-font)!important;background:var(--ws-bg)!important;color:var(--ws-text)!important}
+html,body{font-family:var(--font-ui)!important;background:var(--ws-bg)!important;color:var(--ws-text)!important}
+h1,h2,h3,h4,.brand strong,.topbar-title,.metric strong{font-family:var(--font-display)!important}
+h1{font-size:var(--font-h1)!important}h2{font-size:var(--font-h2)!important}h3{font-size:var(--font-h3)!important}h4{font-size:var(--font-h4)!important}
 .card,.section,.metric,.dash-card,.dash-stat,.login-card{border-color:var(--ws-border)!important;border-radius:var(--ws-radius)!important;box-shadow:var(--ws-shadow)!important}
 .btn{background:var(--ws-primary)!important}.btn.secondary{background:var(--ws-surface)!important;color:var(--ws-primary-dark)!important;border-color:var(--ws-border)!important}
 .field{border-color:var(--ws-border)!important}.field:focus{border-color:var(--ws-primary)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--ws-primary) 14%,transparent)!important}
