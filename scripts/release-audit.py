@@ -29,6 +29,8 @@ REQUIRED_FILES = [
     'assets/delete-v22.js',
     'assets/live-v23.js',
     'assets/live-v23.css',
+    'assets/admin-users-v24.js',
+    'assets/admin-users-v24.css',
 ]
 
 REQUIRED_IDS = [
