@@ -11,72 +11,68 @@ function removeParallax(root=document){
 }
 
 function findItemRows(root=document){
-  return [...root.querySelectorAll('#phaseBillForm .phase-item-row, #phaseBillForm [data-item-row], #phaseBillForm .bill-item-row')];
+  return [...root.querySelectorAll('#phaseItems tr, #phaseBillForm .phase-item-row, #phaseBillForm [data-item-row], #phaseBillForm .bill-item-row')];
 }
 
-function fixCustomItemRow(row){
-  const selects=[...row.querySelectorAll('select')];
-  const productSelect=selects.find(s=>/custom item/i.test(s.options?.[s.selectedIndex]?.text||'') || /product/i.test(s.name||s.id||''));
-  if(!productSelect)return;
-
-  const textInputs=[...row.querySelectorAll('input[type="text"]')];
-  const nameInput=textInputs.find(i=>/description|item|product/i.test(i.name||i.id||i.placeholder||'')) || textInputs[0];
-  if(!nameInput)return;
-
-  const selectedText=(productSelect.options?.[productSelect.selectedIndex]?.text||'').trim();
-  const isCustom=/custom item/i.test(selectedText) || !productSelect.value;
-  const hasName=String(nameInput.value||'').trim().length>0;
-
-  let wrap=productSelect.parentElement;
-  if(!wrap)return;
-  wrap.classList.toggle('v29-custom-active',isCustom);
-
-  if(isCustom){
-    productSelect.setAttribute('aria-hidden','true');
-    productSelect.tabIndex=-1;
-    productSelect.style.display='none';
-    nameInput.style.display='block';
-    nameInput.placeholder='Product name';
-    nameInput.setAttribute('aria-label','Product name');
-    nameInput.classList.add('v29-product-name');
-  }else{
-    productSelect.removeAttribute('aria-hidden');
-    productSelect.tabIndex=0;
-    productSelect.style.display='';
-    if(!hasName) nameInput.style.display='none';
+function ensureProductList(select,input,rowIndex){
+  const id=`v29-product-list-${rowIndex}`;
+  let list=document.getElementById(id);
+  if(!list){
+    list=document.createElement('datalist');
+    list.id=id;
+    document.body.appendChild(list);
   }
+  list.innerHTML=[...select.options]
+    .filter(option=>option.value && !/custom item/i.test(option.textContent||''))
+    .map(option=>`<option value="${String(option.textContent||'').replace(/"/g,'&quot;')}" data-id="${option.value}"></option>`)
+    .join('');
+  input.setAttribute('list',id);
+}
 
-  if(!wrap.querySelector('.v29-product-switch')){
-    const btn=document.createElement('button');
-    btn.type='button';
-    btn.className='v29-product-switch';
-    btn.textContent=isCustom?'Choose saved product':'Use custom item';
-    btn.onclick=()=>{
-      const hidden=productSelect.style.display==='none';
-      productSelect.style.display=hidden?'':'none';
-      productSelect.removeAttribute('aria-hidden');
-      productSelect.tabIndex=0;
-      btn.textContent=hidden?'Use custom item':'Choose saved product';
-      if(!hidden){
-        nameInput.style.display='block';
-        nameInput.focus();
+function fixCustomItemRow(row,rowIndex){
+  const productSelect=row.querySelector('select.product-field, select[data-k="product_id"]');
+  const nameInput=row.querySelector('input[data-k="description"]');
+  if(!productSelect||!nameInput)return;
+
+  ensureProductList(productSelect,nameInput,rowIndex);
+
+  // Only one product control is visible. The original select remains hidden so
+  // existing bill logic and product IDs continue working without duplication.
+  productSelect.hidden=true;
+  productSelect.style.display='none';
+  productSelect.setAttribute('aria-hidden','true');
+  productSelect.tabIndex=-1;
+
+  nameInput.style.display='block';
+  nameInput.placeholder='Product name';
+  nameInput.setAttribute('aria-label','Product name');
+  nameInput.classList.add('v29-product-name');
+
+  // Remove controls created by older patches.
+  row.querySelectorAll('.v29-product-switch').forEach(button=>button.remove());
+
+  if(!nameInput.dataset.v29ProductBound){
+    nameInput.dataset.v29ProductBound='1';
+    const sync=()=>{
+      const typed=String(nameInput.value||'').trim().toLowerCase();
+      const match=[...productSelect.options].find(option=>
+        option.value && String(option.textContent||'').trim().toLowerCase()===typed
+      );
+      const nextValue=match?.value||'';
+      if(productSelect.value!==nextValue){
+        productSelect.value=nextValue;
+        productSelect.dispatchEvent(new Event('change',{bubbles:true}));
       }
     };
-    wrap.appendChild(btn);
-  }else{
-    wrap.querySelector('.v29-product-switch').textContent=isCustom?'Choose saved product':'Use custom item';
-  }
-
-  if(!productSelect.dataset.v29Bound){
-    productSelect.dataset.v29Bound='1';
-    productSelect.addEventListener('change',()=>setTimeout(()=>fixCustomItemRow(row),0));
+    nameInput.addEventListener('change',sync);
+    nameInput.addEventListener('blur',sync);
   }
 }
 
 function fixBillEditor(root=document){
   const form=root.querySelector?.('#phaseBillForm') || document.querySelector('#phaseBillForm');
   if(!form)return;
-  findItemRows(form).forEach(fixCustomItemRow);
+  findItemRows(form).forEach((row,index)=>fixCustomItemRow(row,index));
 
   const heading=form.closest('.content')?.querySelector('.page-head h1');
   if(heading && /^edit bill$/i.test(heading.textContent.trim())){
@@ -94,6 +90,7 @@ const observer=new MutationObserver(()=>requestAnimationFrame(()=>apply(document
 observer.observe(document.documentElement,{childList:true,subtree:true});
 window.addEventListener('load',()=>apply(document));
 document.addEventListener('DOMContentLoaded',()=>apply(document));
-setTimeout(()=>apply(document),300);
+setTimeout(()=>apply(document),100);
+setTimeout(()=>apply(document),400);
 setTimeout(()=>apply(document),1000);
 })();
