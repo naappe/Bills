@@ -14,6 +14,8 @@ on:
       - 'assets/dashboard-v15.css'
       - 'assets/bills-v16.js'
       - 'assets/bills-v16.css'
+      - 'assets/crud-v17.js'
+      - 'assets/crud-v17.css'
       - '.github/workflows/apply-v9.yml'
   workflow_dispatch:
 
@@ -40,59 +42,25 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-
           html = Path('index.html').read_text(encoding='utf-8')
-          required_ids = [
-              'dashboardView',
-              'topVendors',
-              'categoryDashboard',
-              'paymentDashboard',
-              'statusSummary',
-              'loginView',
-              'appView',
-              'sidebar',
-              'content',
-          ]
-
+          required_ids = ['dashboardView','topVendors','categoryDashboard','paymentDashboard','statusSummary','loginView','appView','sidebar','content']
           problems = []
           for element_id in required_ids:
               count = html.count(f'id="{element_id}"')
               if count != 1:
                   problems.append(f'{element_id}: expected 1, found {count}')
-
-          required_assets = [
-              'assets/design-tokens.css?v=1',
-              'assets/theme-settings.js?v=1',
-              'assets/brand-v9.css?v=13',
-              'assets/app-v13.js?v=13',
-              'assets/layout-v14.js?v=14',
-              'assets/dashboard-v15.js?v=15',
-              'assets/dashboard-v15.css?v=15',
-              'assets/bills-v16.js?v=16',
-              'assets/bills-v16.css?v=16',
-          ]
+          required_assets = ['assets/design-tokens.css?v=1','assets/theme-settings.js?v=1','assets/brand-v9.css?v=13','assets/app-v13.js?v=13','assets/layout-v14.js?v=14','assets/dashboard-v15.js?v=15','assets/dashboard-v15.css?v=15','assets/bills-v16.js?v=16','assets/bills-v16.css?v=16','assets/crud-v17.js?v=17','assets/crud-v17.css?v=17']
           for asset in required_assets:
-              if html.count(asset) != 1:
-                  problems.append(f'asset expected once: {asset}; found {html.count(asset)}')
-
-          obsolete_assets = [
-              'brand-v5.css?v=5',
-              'brand-v6.css?v=6',
-              'modern-v5.css?v=5',
-              'assets/brand-v6.css?v=6',
-              'assets/brand-v7.css?v=7',
-              'assets/input-fix-v6.js?v=6',
-              'assets/vendor-v9.js',
-              'assets/performance-v12.js',
-          ]
+              count = html.count(asset)
+              if count != 1:
+                  problems.append(f'asset expected once: {asset}; found {count}')
+          obsolete_assets = ['brand-v5.css?v=5','brand-v6.css?v=6','modern-v5.css?v=5','assets/brand-v6.css?v=6','assets/brand-v7.css?v=7','assets/input-fix-v6.js?v=6','assets/vendor-v9.js','assets/performance-v12.js']
           for asset in obsolete_assets:
               if asset in html:
                   problems.append(f'obsolete asset still referenced: {asset}')
-
           if problems:
               raise SystemExit('\n'.join(problems))
-
-          print('Master design system audit passed.')
+          print('Master design and CRUD audit passed.')
           PY
 
       - name: Commit generated index
@@ -101,9 +69,8 @@ jobs:
             echo 'No index.html changes needed.'
             exit 0
           fi
-
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
-          git commit -m 'Apply master design system and Supabase theme settings'
+          git commit -m 'Apply normalized vendor and product CRUD'
           git push
