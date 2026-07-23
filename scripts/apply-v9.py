@@ -4,7 +4,6 @@ import re
 p = Path('index.html')
 html = p.read_text(encoding='utf-8')
 
-# Remove obsolete custom theme and helper assets.
 patterns = [
     r'\n?<link rel="stylesheet" href="brand-v5\.css\?v=5">',
     r'\n?<link rel="stylesheet" href="brand-v6\.css\?v=6">',
@@ -19,17 +18,14 @@ patterns = [
 for pattern in patterns:
     html = re.sub(pattern, '', html)
 
-# Keep one final stylesheet and force browsers to fetch the repaired layout CSS.
 html = re.sub(
     r'<link rel="stylesheet" href="assets/brand-v9\.css\?v=\d+">',
-    '<link rel="stylesheet" href="assets/brand-v9.css?v=11">',
+    '<link rel="stylesheet" href="assets/brand-v9.css?v=12">',
     html,
 )
-if 'assets/brand-v9.css?v=11' not in html:
-    html = html.replace('</head>', '<link rel="stylesheet" href="assets/brand-v9.css?v=11">\n</head>')
+if 'assets/brand-v9.css?v=12' not in html:
+    html = html.replace('</head>', '<link rel="stylesheet" href="assets/brand-v9.css?v=12">\n</head>')
 
-# Rebuild the complete static application shell. The previous nested-div regex
-# damaged everything between <body> and the main application script.
 required = ['dashboardView','topVendors','categoryDashboard','paymentDashboard','statusSummary']
 contract = '<div id="dashboardContract" hidden aria-hidden="true">' + ''.join(
     f'<span id="{rid}"></span>' for rid in required
@@ -88,13 +84,15 @@ head, rest = html.split('<body>', 1)
 _, script_and_tail = rest.split(script_marker, 1)
 html = head + shell + script_marker + script_and_tail
 
-# Add vendor autofill script once.
 html = re.sub(r'\n?<script src="assets/vendor-v9\.js\?v=\d+"></script>', '', html)
-html = html.replace('</body>', '<script src="assets/vendor-v9.js?v=11"></script>\n</body>')
+html = re.sub(r'\n?<script src="assets/performance-v12\.js\?v=\d+"></script>', '', html)
+html = html.replace(
+    '</body>',
+    '<script src="assets/vendor-v9.js?v=12"></script>\n<script src="assets/performance-v12.js?v=12"></script>\n</body>'
+)
 
 p.write_text(html, encoding='utf-8')
 
-# Verify the shell and compatibility contract.
 checks = {
     'loginView': html.count('id="loginView"'),
     'appView': html.count('id="appView"'),
@@ -109,4 +107,7 @@ for rid in required:
     count = html.count(f'id="{rid}"')
     if count != 1:
         raise SystemExit(f'{rid} count is {count}, expected 1')
-print('Repaired application shell and applied v11 assets successfully.')
+for asset in ['assets/brand-v9.css?v=12','assets/vendor-v9.js?v=12','assets/performance-v12.js?v=12']:
+    if asset not in html:
+        raise SystemExit(f'Missing asset reference: {asset}')
+print('Applied v12 performance, date filters and page persistence successfully.')
