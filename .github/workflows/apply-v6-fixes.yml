@@ -1,0 +1,43 @@
+name: Apply v6 input and brand fixes
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'assets/input-fix-v6.js'
+      - 'assets/brand-v6.css'
+      - '.github/workflows/apply-v6-fixes.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject v6 assets into index
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          css='<link rel="stylesheet" href="assets/brand-v6.css?v=6">'
+          js='<script src="assets/input-fix-v6.js?v=6"></script>'
+          if css not in s:
+              s=s.replace('</head>',f'{css}\n</head>')
+          if js not in s:
+              s=s.replace('</body>',f'{js}\n</body>')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit generated index
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Apply v6 input focus and brand fixes"
+          git push
