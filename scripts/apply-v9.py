@@ -21,10 +21,10 @@ new_show=route_prefix+"function show(view){view=APP_VIEWS.has(view)?view:'dashbo
 html=re.sub(r"(?:const APP_VIEWS=new Set\(\['dashboard','bills','new','products','vendors','prices','reports','settings'\]\);function routeFromLocation\(\)\{const v=location\.hash\.slice\(1\)\.trim\(\);return APP_VIEWS\.has\(v\)\?v:'dashboard'\})*function show\(view\)\{.*?render\(\)\}",new_show,html,count=1)
 html=html.replace("try{await loadBills();show('dashboard')}catch(e)","try{await loadBills();show(routeFromLocation())}catch(e)",1)
 html=html.replace("$$('.nav button[data-view]').forEach", "$$('.nav [data-view]').forEach")
-for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','hierarchy-v32','bills-fix-v34','auth-v35','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','26'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','33'),('hierarchy-v32','32'),('bills-fix-v34','34'),('auth-v35','35')]])
+for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','hierarchy-v32','bills-fix-v34','auth-v35','data-dashboard-v36','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','26'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','33'),('hierarchy-v32','32'),('bills-fix-v34','34'),('auth-v35','35'),('data-dashboard-v36','36')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/design-tokens.css?v=2','assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=32','assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34','assets/admin-users-v24.js?v=26','assets/auth-v35.js?v=35']
+checks=['assets/design-tokens.css?v=2','assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=32','assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34','assets/admin-users-v24.js?v=26','assets/auth-v35.js?v=35','assets/data-dashboard-v36.js?v=36']
 for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
@@ -33,4 +33,4 @@ if html.count('const APP_VIEWS=')!=1: raise SystemExit(f'APP_VIEWS declaration c
 if '<h1>Procurement ERP</h1>' in html: raise SystemExit('Login heading must not create a second page H1')
 for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js','assets/router-v30.js']:
  if obsolete in html: raise SystemExit(f'obsolete asset still referenced: {obsolete}')
-print('Applied username-only managed accounts, smooth bills, stable hierarchy and routing.')
+print('Applied robust imported-date filtering, batched bill loading, year dashboard totals and username accounts.')
