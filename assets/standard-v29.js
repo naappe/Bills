@@ -41,8 +41,8 @@ function syncThemeTargets(){
   const body=document.body;
   if(!body)return;
   const theme=root.dataset.theme||body.dataset.theme||localStorage.getItem('ws-color-mode')||localStorage.getItem('theme')||'light';
-  root.dataset.theme=theme;
-  body.dataset.theme=theme;
+  if(root.dataset.theme!==theme)root.dataset.theme=theme;
+  if(body.dataset.theme!==theme)body.dataset.theme=theme;
 }
 
 function removeParallax(root=document){
@@ -78,28 +78,21 @@ function fixCustomItemRow(row,rowIndex){
   const productSelect=row.querySelector('select.product-field, select[data-k="product_id"]');
   const nameInput=row.querySelector('input[data-k="description"]');
   if(!productSelect||!nameInput)return;
-
   ensureProductList(productSelect,nameInput,rowIndex);
-
   if(!productSelect.hidden)productSelect.hidden=true;
   if(productSelect.style.display!=='none')productSelect.style.display='none';
   if(productSelect.getAttribute('aria-hidden')!=='true')productSelect.setAttribute('aria-hidden','true');
   if(productSelect.tabIndex!==-1)productSelect.tabIndex=-1;
-
   if(nameInput.style.display!=='block')nameInput.style.display='block';
   if(nameInput.placeholder!=='Product name')nameInput.placeholder='Product name';
   if(nameInput.getAttribute('aria-label')!=='Product name')nameInput.setAttribute('aria-label','Product name');
   nameInput.classList.add('v29-product-name');
-
   row.querySelectorAll('.v29-product-switch').forEach(button=>button.remove());
-
   if(!nameInput.dataset.v29ProductBound){
     nameInput.dataset.v29ProductBound='1';
     const sync=()=>{
       const typed=String(nameInput.value||'').trim().toLowerCase();
-      const match=[...productSelect.options].find(option=>
-        option.value && String(option.textContent||'').trim().toLowerCase()===typed
-      );
+      const match=[...productSelect.options].find(option=>option.value&&String(option.textContent||'').trim().toLowerCase()===typed);
       const nextValue=match?.value||'';
       if(productSelect.value!==nextValue){
         productSelect.value=nextValue;
@@ -112,12 +105,11 @@ function fixCustomItemRow(row,rowIndex){
 }
 
 function fixBillEditor(root=document){
-  const form=root.querySelector?.('#phaseBillForm') || document.querySelector('#phaseBillForm');
+  const form=root.querySelector?.('#phaseBillForm')||document.querySelector('#phaseBillForm');
   if(!form)return;
   findItemRows(form).forEach((row,index)=>fixCustomItemRow(row,index));
-
   const heading=form.closest('.content')?.querySelector('.page-head h1');
-  if(heading && /^edit bill$/i.test(heading.textContent.trim())){
+  if(heading&&/^edit bill$/i.test(heading.textContent.trim())){
     const top=document.querySelector('#topTitle');
     if(top&&top.textContent!=='Edit Bill')top.textContent='Edit Bill';
   }
@@ -148,8 +140,7 @@ document.addEventListener('click',event=>{
 document.addEventListener('input',event=>{
   if(event.target.closest('#phaseBillForm'))queueApply();
 },true);
-new MutationObserver(()=>syncThemeTargets()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 setTimeout(queueApply,100);
 setTimeout(queueApply,500);
-window.__WS_STANDARD__={version:31,apply:queueApply};
+window.__WS_STANDARD__={version:32,apply:queueApply};
 })();
