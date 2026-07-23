@@ -16,10 +16,19 @@ shell=f'''<body>
 marker='<script>\nconst SUPABASE_URL='
 if marker not in html: raise SystemExit('Main application script marker not found')
 head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+marker+tail
+
+old_show="function show(view){state.view=view;state.page=1;$$('.nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=({dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings'})[view];$('#sidebar').classList.remove('open');render()}"
+new_show="const APP_VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);function routeFromLocation(){const v=location.hash.slice(1).trim();return APP_VIEWS.has(v)?v:'dashboard'}function show(view){view=APP_VIEWS.has(view)?view:'dashboard';state.view=view;state.page=1;if(location.hash!==`#${view}`)history.replaceState(null,'',`${location.pathname}${location.search}#${view}`);$$('.nav button[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));$('#topTitle').textContent=({dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings'})[view];$('#sidebar').classList.remove('open');render()}"
+if old_show not in html: raise SystemExit('Core show function not found')
+html=html.replace(old_show,new_show,1)
+old_boot="try{await loadBills();show('dashboard')}catch(e)"
+if old_boot not in html: raise SystemExit('Core dashboard boot call not found')
+html=html.replace(old_boot,"try{await loadBills();show(routeFromLocation())}catch(e)",1)
+
 for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','31')]])
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','32')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/premium-v26.css?v=26','assets/standard-v29.css?v=29','assets/standard-v29.js?v=29','assets/router-v31.js?v=31']
+checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/premium-v26.css?v=26','assets/standard-v29.css?v=29','assets/standard-v29.js?v=29','assets/router-v31.js?v=32']
 for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
@@ -27,4 +36,4 @@ for rid in required:
 if 'data-view="new"' in html: raise SystemExit('New Bill sidebar link must not exist')
 for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js','assets/router-v30.js']:
  if obsolete in html: raise SystemExit(f'obsolete asset still referenced: {obsolete}')
-print('Applied v31 authenticated hash router with same-page refresh restoration.')
+print('Applied core-owned hash routing; refresh now restores the exact current page.')
