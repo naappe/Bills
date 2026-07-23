@@ -17,6 +17,9 @@ document.addEventListener('keydown',event=>{
     event.preventDefault();
     const search=document.querySelector('input[type="search"],#billSearch,#uxProductSearch,#uxPriceSearch');
     search?.focus();search?.select?.();
+  }else if(event.ctrlKey&&key==='t'){
+    event.preventDefault();
+    document.querySelector('.theme-toggle,[data-theme-toggle],#themeToggle')?.click();
   }else if(event.key==='Escape'){
     const active=document.activeElement;
     if(active&&/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)){
