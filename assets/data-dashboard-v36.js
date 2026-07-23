@@ -38,6 +38,34 @@ function addedBy(row){
  const s=String(name);
  return /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(s)?`User ${s.slice(0,8)}`:s;
 }
+function itemSearchText(row){
+ const items=Array.isArray(row?.items)?row.items:[];
+ return items.map(i=>[
+  i?.item_name,
+  i?.description,
+  i?.product,
+  i?.product_name,
+  i?.pack_format,
+  i?.unit,
+  i?.base_unit,
+  i?.quantity,
+  i?.qty,
+  i?.rate,
+  i?.unit_rate
+ ].filter(v=>v!==null&&v!==undefined&&v!=='').join(' ')).join(' ');
+}
+function billSearchText(row){
+ return [
+  vendorVal(row),
+  get(row,'bill_no','Bill No'),
+  get(row,'notes','Notes'),
+  addedBy(row),
+  amountVal(row),
+  statusVal(row),
+  get(row,'payment_method','Payment Method'),
+  itemSearchText(row)
+ ].join(' ').toLowerCase();
+}
 
 window.loadBills=async function(){
  const all=[];const size=1000;let from=0;
@@ -61,7 +89,7 @@ window.renderBills=function(){
   <article class="metric brand"><small>Filtered total</small><strong id="selectedBillTotal">MVR 0.00</strong></article>
   <article class="metric"><small>Filtered bills</small><strong id="selectedBillCount">0</strong></article>
  </section>
- <section class="card bills-card"><div class="toolbar"><input class="field" id="billSearch" placeholder="Search vendor, bill number, notes, user or amount"><select class="field" id="billPeriod"><option value="month">This month</option><option value="latest">Latest added</option><option value="3months">Last 3 months</option><option value="year">This year</option><option value="future">Future bill dates</option><option value="all">All records</option><option value="archived">Archived</option></select><select class="field" id="billStatus"><option value="all">All status</option><option>Paid</option><option>Pending</option><option>Cancelled</option></select><select class="field" id="billSize"><option value="20">20 per page</option><option value="50">50 per page</option><option value="100">100 per page</option></select></div><div class="table-wrap"><table><thead><tr><th>Status</th><th>Bill date</th><th>Added at</th><th>Added by</th><th>Bill no.</th><th>Vendor</th><th>Amount</th><th>Payment</th><th>Actions</th></tr></thead><tbody id="billRowsV36"></tbody></table></div><div class="pager" id="billPagerV36"></div></section>`;
+ <section class="card bills-card"><div class="toolbar"><input class="field" id="billSearch" placeholder="Search vendor, product, pack, bill number, notes, user or amount"><select class="field" id="billPeriod"><option value="month">This month</option><option value="latest">Latest added</option><option value="3months">Last 3 months</option><option value="year">This year</option><option value="future">Future bill dates</option><option value="all">All records</option><option value="archived">Archived</option></select><select class="field" id="billStatus"><option value="all">All status</option><option>Paid</option><option>Pending</option><option>Cancelled</option></select><select class="field" id="billSize"><option value="20">20 per page</option><option value="50">50 per page</option><option value="100">100 per page</option></select></div><div class="table-wrap"><table><thead><tr><th>Status</th><th>Bill date</th><th>Added at</th><th>Added by</th><th>Bill no.</th><th>Vendor</th><th>Amount</th><th>Payment</th><th>Actions</th></tr></thead><tbody id="billRowsV36"></tbody></table></div><div class="pager" id="billPagerV36"></div></section>`;
  bindGo();
  $('#billSearch').value=saved.q||'';$('#billPeriod').value='month';$('#billStatus').value=saved.status||'all';$('#billSize').value=String(saved.size||20);
  write({...saved,period:'month'});
@@ -73,7 +101,7 @@ window.renderBills=function(){
   else if(period==='future')rows=sortByBillDate(rows.filter(isFuture));
   else if(!['all','archived'].includes(period))rows=sortByBillDate(periodRows(rows,period));
   else rows=sortByBillDate(rows);
-  rows=rows.filter(r=>(status==='all'||statusVal(r)===status)&&(!q||[vendorVal(r),get(r,'bill_no','Bill No'),get(r,'notes','Notes'),addedBy(r),amountVal(r)].join(' ').toLowerCase().includes(q)));
+  rows=rows.filter(r=>(status==='all'||statusVal(r)===status)&&(!q||billSearchText(r).includes(q)));
   state.filtered=rows;$('#selectedBillTotal').textContent=money(total(rows));$('#selectedBillCount').textContent=rows.length.toLocaleString();
   const pages=Math.max(1,Math.ceil(rows.length/state.pageSize));state.page=Math.min(state.page,pages);const start=(state.page-1)*state.pageSize,shown=rows.slice(start,start+state.pageSize);
   $('#billRowsV36').innerHTML=shown.map(r=>`<tr class="${isFuture(r)?'future-bill-row':''}"><td><span class="pill ${statusVal(r).toLowerCase()}">${esc(statusVal(r))}</span></td><td>${formatDate(dateVal(r))}${isFuture(r)?'<span class="pill pending" style="margin-left:6px">Future</span>':''}</td><td>${formatDateTime(get(r,'created_at','createdAt','added_at','inserted_at'))}</td><td>${esc(addedBy(r))}</td><td>${esc(get(r,'bill_no','Bill No')||'-')}</td><td><strong>${esc(vendorVal(r)||'-')}</strong></td><td><strong>${money(amountVal(r))}</strong></td><td>${esc(get(r,'payment_method','Payment Method')||'-')}</td><td><div class="actions">${archived?`<button class="btn secondary small" data-restore36="${r.id}">Restore</button>`:`<button class="btn secondary small" data-edit36="${r.id}">Edit</button><button class="btn secondary small" data-archive36="${r.id}">Archive</button>${isAdmin()?`<button class="btn danger small" data-delete36="${r.id}">Delete</button>`:''}`}</div></td></tr>`).join('')||'<tr><td colspan="9"><div class="empty">No bills found for this filter.</div></td></tr>';
@@ -92,5 +120,5 @@ window.renderDashboard=function(){
  bindGo();$('#dashboardPeriod').value=defaultPeriod;$('#dashboardPeriod').onchange=draw;draw();
  function draw(){const period=$('#dashboardPeriod').value,all=state.rows.filter(active),rows=periodRows(all,period),year=periodRows(all,'year'),labels={month:'This month spend','3months':'Last 3 months spend',year:'This year spend',all:'All-time spend'};write({...read(),dashboardPeriod:period});$('#dashPeriodLabel').textContent=labels[period];$('#dashPeriodTotal').textContent=money(total(rows));$('#dashYearTotal').textContent=money(total(year));$('#dashPeriodCount').textContent=rows.length.toLocaleString();$('#dashAllCount').textContent=all.length.toLocaleString();const vendors=aggregateVendors(rows).slice(0,8),recent=sortByAdded(rows).slice(0,10);$('#dashVendors').innerHTML=vendors.map(v=>`<div class="rank-row"><div><b>${esc(v.name)}</b><br><span>${v.count} bills</span></div><strong>${money(v.total)}</strong></div>`).join('')||'<div class="empty">No bills in this period.</div>';$('#dashRecent').innerHTML=recent.map(r=>`<div class="rank-row"><div><b>${esc(vendorVal(r)||'Unknown vendor')}</b><br><span>${formatDate(dateVal(r))} · Added ${formatDateTime(get(r,'created_at','createdAt','added_at','inserted_at'))}</span></div><strong>${money(amountVal(r))}</strong></div>`).join('')||'<div class="empty">No recent bills.</div>'}
 };
-window.__WS_DATA_FIX__={version:38,billDate};
+window.__WS_DATA_FIX__={version:39,billDate};
 })();
