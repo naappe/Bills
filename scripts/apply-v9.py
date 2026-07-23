@@ -16,15 +16,15 @@ shell=f'''<body>
 marker='<script>\nconst SUPABASE_URL='
 if marker not in html: raise SystemExit('Main application script marker not found')
 head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+marker+tail
-for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v30','30')]])
+for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','theme-settings']: html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','21'),('delete-v22','22'),('live-v23','23'),('admin-users-v24','24'),('catalog-fix-v25','25'),('premium-v26','26'),('standard-v29','29'),('router-v31','31')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/premium-v26.css?v=26','assets/standard-v29.css?v=29','assets/standard-v29.js?v=29','assets/router-v30.js?v=30']
+checks=['assets/design-tokens.css?v=1','assets/crud-v17.css?v=17','assets/premium-v26.css?v=26','assets/standard-v29.css?v=29','assets/standard-v29.js?v=29','assets/router-v31.js?v=31']
 for x in checks:
  if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
  if html.count(f'id="{rid}"')!=1: raise SystemExit(f'{rid} contract count invalid')
 if 'data-view="new"' in html: raise SystemExit('New Bill sidebar link must not exist')
-for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js']:
+for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js','assets/router-v30.js']:
  if obsolete in html: raise SystemExit(f'obsolete asset still referenced: {obsolete}')
-print('Applied v30 single-router cleanup and removed obsolete navigation scripts.')
+print('Applied v31 authenticated hash router with same-page refresh restoration.')
