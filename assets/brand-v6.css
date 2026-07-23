@@ -1,0 +1,35 @@
+/* White Saffron Procurement - brand system v6 */
+:root{
+  --bg:#f5f6f8!important;
+  --surface:#ffffff!important;
+  --surface-2:#f8fafc!important;
+  --ink:#172033!important;
+  --muted:#667085!important;
+  --line:#e4e7ec!important;
+  --brand:#b7791f!important;
+  --brand-2:#946315!important;
+  --brand-soft:#fff7e6!important;
+  --amber:#b7791f!important;
+  --red:#c2414b!important;
+  --shadow:0 8px 24px rgba(16,24,40,.06)!important;
+  --radius:14px!important;
+}
+html,body,button,input,select,textarea{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important}
+body{font-size:14px!important;letter-spacing:0!important}
+.sidebar{background:#20242d!important;color:#f8fafc!important;width:auto!important}
+.app{grid-template-columns:224px minmax(0,1fr)!important}
+.brand{padding:8px 10px 18px!important}.brand-badge{background:#d89a24!important;color:#fff!important;border-radius:10px!important}
+.brand strong{font-size:15px!important;letter-spacing:0!important}.brand small{color:#aeb5c2!important;font-size:10px!important;text-transform:uppercase!important;letter-spacing:.08em!important}
+.nav{gap:4px!important}.nav button{min-height:42px!important;color:#c9ced8!important;font-size:14px!important;font-weight:600!important;border-radius:9px!important;padding:10px 12px!important}
+.nav button:hover{background:#2b303b!important;color:#fff!important}.nav button.active{background:#343a46!important;color:#fff!important;box-shadow:inset 3px 0 0 #d89a24!important}
+.nav .primary,.nav .primary:hover,.nav .primary.active{background:#d89a24!important;color:#1f2937!important;box-shadow:none!important}
+.topbar{height:64px!important;background:rgba(255,255,255,.96)!important;border-color:var(--line)!important;padding:0 24px!important}.topbar-title{font-size:15px!important;font-weight:700!important;color:var(--ink)!important}
+.content{padding:24px!important;max-width:1500px!important}.page-head{margin-bottom:18px!important;align-items:center!important}.page-head h1{font-family:Inter,system-ui,sans-serif!important;font-size:26px!important;line-height:1.2!important;font-weight:750!important;letter-spacing:-.025em!important;color:var(--ink)!important}.page-head .muted{font-size:14px!important}
+.btn{min-height:40px!important;border-radius:9px!important;padding:0 14px!important;font-size:13px!important;font-weight:700!important;background:#d89a24!important;color:#20242d!important;box-shadow:0 2px 6px rgba(183,121,31,.18)!important}.btn:hover{background:#c98b1d!important;filter:none!important}.btn.secondary{background:#fff!important;color:#344054!important;border-color:#d0d5dd!important;box-shadow:none!important}.btn.danger{background:#fff!important;color:#b42318!important;border-color:#f0c3bf!important;box-shadow:none!important}
+.field{min-height:42px!important;border-radius:9px!important;border-color:#d0d5dd!important;color:#172033!important;background:#fff!important;font-size:14px!important}.field:focus{border-color:#b7791f!important;box-shadow:0 0 0 3px rgba(183,121,31,.13)!important}label{font-size:12px!important;color:#475467!important;font-weight:650!important}
+.metrics{gap:12px!important}.metric,.metric.brand{background:#fff!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:var(--shadow)!important;padding:16px!important;border-radius:13px!important}.metric.brand{border-top:3px solid #d89a24!important}.metric small,.metric.brand small{color:#667085!important;font-size:12px!important}.metric strong{font-family:Inter,system-ui,sans-serif!important;font-size:24px!important;font-weight:750!important;color:#172033!important}
+.card,.section{border-color:var(--line)!important;box-shadow:var(--shadow)!important;border-radius:14px!important}.card-head,.section-title{font-size:14px!important;font-weight:700!important;color:#172033!important;background:#fff!important}.rank-row{background:#f8fafc!important;border:1px solid #eef1f5!important;border-radius:10px!important}.rank-row b{font-size:13px!important;color:#172033!important}.rank-row span{color:#667085!important}.rank-row strong{font-size:13px!important;color:#172033!important}
+th{background:#f8fafc!important;color:#667085!important;font-size:11px!important}td{font-size:13px!important;color:#344054!important}.summary{background:#20242d!important;color:#fff!important;border:1px solid #343a46!important}.summary .btn{background:#d89a24!important;color:#20242d!important}.sum-row{color:#d0d5dd!important}.sum-row.grand{color:#fff!important}
+.pill.paid{background:#ecfdf3!important;color:#027a48!important}.pill.pending{background:#fff7e6!important;color:#946315!important}.pill.cancelled{background:#fef3f2!important;color:#b42318!important}
+.login{background:linear-gradient(135deg,#f8fafc,#eef2f6)!important}.login-card{border-color:#e4e7ec!important}.mark{background:#d89a24!important;color:#20242d!important}
+@media(max-width:760px){.content{padding:16px 12px 84px!important}.page-head h1{font-size:23px!important}.metrics{grid-template-columns:1fr 1fr!important}}
