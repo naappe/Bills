@@ -19,9 +19,14 @@ patterns = [
 for pattern in patterns:
     html = re.sub(pattern, '', html)
 
-# Add one final stylesheet.
-if 'assets/brand-v9.css?v=9' not in html:
-    html = html.replace('</head>', '<link rel="stylesheet" href="assets/brand-v9.css?v=9">\n</head>')
+# Keep one final stylesheet and force browsers to fetch the repaired layout CSS.
+html = re.sub(
+    r'<link rel="stylesheet" href="assets/brand-v9\.css\?v=\d+">',
+    '<link rel="stylesheet" href="assets/brand-v9.css?v=10">',
+    html,
+)
+if 'assets/brand-v9.css?v=10' not in html:
+    html = html.replace('</head>', '<link rel="stylesheet" href="assets/brand-v9.css?v=10">\n</head>')
 
 # Add vendor autofill script.
 if 'assets/vendor-v9.js?v=9' not in html:
