@@ -13,31 +13,75 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: apply-v9-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
       - name: Apply v9 migration
         run: python scripts/apply-v9.py
-      - name: Verify dashboard contract
+
+      - name: Verify generated files
         run: |
           python - <<'PY'
           from pathlib import Path
-          html=Path('index.html').read_text(encoding='utf-8')
-          required=['dashboardView','topVendors','categoryDashboard','paymentDashboard','statusSummary']
-          bad=[x for x in required if html.count(f'id="{x}"') != 1]
-          if bad: raise SystemExit('Missing or duplicated dashboard IDs: '+', '.join(bad))
-          print('Dashboard contract passed.')
+
+          html = Path('index.html').read_text(encoding='utf-8')
+          required_ids = [
+              'dashboardView',
+              'topVendors',
+              'categoryDashboard',
+              'paymentDashboard',
+              'statusSummary',
+          ]
+
+          problems = []
+          for element_id in required_ids:
+              count = html.count(f'id="{element_id}"')
+              if count != 1:
+                  problems.append(f'{element_id}: expected 1, found {count}')
+
+          required_assets = [
+              'assets/brand-v9.css?v=9',
+              'assets/vendor-v9.js?v=9',
+          ]
+          for asset in required_assets:
+              if asset not in html:
+                  problems.append(f'missing asset reference: {asset}')
+
+          obsolete_assets = [
+              'brand-v5.css?v=5',
+              'brand-v6.css?v=6',
+              'modern-v5.css?v=5',
+              'assets/brand-v6.css?v=6',
+              'assets/brand-v7.css?v=7',
+              'assets/input-fix-v6.js?v=6',
+          ]
+          for asset in obsolete_assets:
+              if asset in html:
+                  problems.append(f'obsolete asset still referenced: {asset}')
+
+          if problems:
+              raise SystemExit('\n'.join(problems))
+
+          print('V9 audit passed.')
           PY
+
       - name: Commit generated index
         run: |
           if git diff --quiet -- index.html; then
             echo 'No index.html changes needed.'
             exit 0
           fi
+
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html
