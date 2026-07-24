@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=40;
+const VERSION=41;
 const allowedRoles=new Set(['admin','manager','staff','readonly']);
 const resolveRole=user=>{
   if(!user)return'staff';
@@ -14,11 +14,12 @@ function installAuthViewStyles(){
   if(document.querySelector('#authViewGuardStyles'))return;
   const style=document.createElement('style');
   style.id='authViewGuardStyles';
-  style.textContent=`#loginView.hidden,#appView.hidden{display:none!important}#loginView:not(.hidden){position:fixed!important;inset:0!important;z-index:10000!important;width:100%!important;height:100dvh!important;min-height:100vh!important;overflow:auto!important}body:not(.ws-authenticated){overflow:hidden!important}body.ws-authenticated{overflow:auto!important}`;
+  style.textContent=`body.ws-auth-pending #loginView,body.ws-auth-pending #appView{display:none!important}#loginView.hidden,#appView.hidden{display:none!important}#loginView:not(.hidden){position:fixed!important;inset:0!important;z-index:10000!important;width:100%!important;height:100dvh!important;min-height:100vh!important;overflow:auto!important}body:not(.ws-authenticated):not(.ws-auth-pending){overflow:hidden!important}body.ws-authenticated{overflow:auto!important}`;
   document.head.appendChild(style);
 }
 function setAuthView(session){
   const authenticated=Boolean(session?.user);
+  document.body.classList.remove('ws-auth-pending');
   document.body.classList.toggle('ws-authenticated',authenticated);
   loginView?.classList.toggle('hidden',authenticated);
   appView?.classList.toggle('hidden',!authenticated);
@@ -40,7 +41,6 @@ function setAuthView(session){
   }
 }
 installAuthViewStyles();
-setAuthView(null);
 
 const form=document.querySelector('#loginForm');
 if(form){
