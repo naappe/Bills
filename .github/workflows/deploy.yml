@@ -34,13 +34,17 @@ jobs:
         run: |
           set -euo pipefail
           test -f index.html
-          test -f assets/js/core/insights.js
-          test -f assets/js/core/page-sections.js
-          test -f assets/js/core/rank-bars.js
+          test -f assets/js/core/ui.js
+          test -f assets/js/core/pages.js
           test -f assets/js/core/admin.js
-          grep -q 'page-sections.js?v=15' index.html
-          grep -q 'rank-bars.js?v=15' index.html
-          printf '{"build":"v15","commit":"%s","deployed_at":"%s"}\n' "$GITHUB_SHA" "$(date -u +%FT%TZ)" > build.json
+          test -f assets/js/core/controller.js
+          grep -q 'pages.js?v=17' index.html
+          ! grep -q 'page-polish.js' index.html
+          ! grep -q 'insights.js' index.html
+          ! grep -q 'page-sections.js' index.html
+          ! grep -q 'rank-bars.js' index.html
+          ! grep -q 'bills-page.js' index.html
+          printf '{"build":"v17","commit":"%s","deployed_at":"%s"}\n' "$GITHUB_SHA" "$(date -u +%FT%TZ)" > build.json
           touch .nojekyll
 
       - name: Configure GitHub Pages
