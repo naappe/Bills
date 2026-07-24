@@ -25,9 +25,9 @@ head,rest=html.split('<body>',1);_,tail=rest.split(marker,1);html=head+shell+mar
 html=html.replace("$$('.nav button[data-view]').forEach", "$$('.nav [data-view]').forEach")
 for asset in ['vendor-v9','performance-v12','app-v13','layout-v14','dashboard-v15','bills-v16','crud-v17','procurement-v18','operations-v19','production-v20','ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25','premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29','router-v30','router-v31','hierarchy-v32','bills-fix-v34','auth-v35','data-dashboard-v36','runtime-health-v44','mobile-bill-entry-v50','app-controller-v51','theme-settings']:
     html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
-modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','22'),('delete-v22','22'),('live-v23','24'),('admin-users-v24','26'),('catalog-fix-v25','25'),('premium-v26','26'),('router-v31','33'),('hierarchy-v32','33'),('bills-fix-v34','34'),('auth-v35','35'),('data-dashboard-v36','44'),('runtime-health-v44','44'),('mobile-bill-entry-v50','50'),('app-controller-v51','52')]])
+modules=''.join([f'<script src="assets/{a}.js?v={v}"></script>\n' for a,v in [('theme-settings','1'),('app-v13','13'),('layout-v14','14'),('dashboard-v15','15'),('bills-v16','16'),('crud-v17','17'),('procurement-v18','18'),('operations-v19','19'),('production-v20','20'),('ux-v21','22'),('delete-v22','22'),('live-v23','24'),('admin-users-v24','26'),('catalog-fix-v25','25'),('premium-v26','26'),('router-v31','33'),('hierarchy-v32','33'),('bills-fix-v34','34'),('auth-v35','38'),('data-dashboard-v36','44'),('runtime-health-v44','44'),('mobile-bill-entry-v50','50'),('app-controller-v51','52')]])
 html=html.replace('</body>',modules+'</body>');p.write_text(html,encoding='utf-8')
-checks=['assets/core-v14.js?v=14','assets/design-tokens.css?v=2','assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=33','assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34','assets/admin-users-v24.js?v=26','assets/auth-v35.js?v=35','assets/data-dashboard-v36.js?v=44','assets/runtime-health-v44.js?v=44','assets/mobile-bill-entry-v50.js?v=50','assets/app-controller-v51.js?v=52']
+checks=['assets/core-v14.js?v=14','assets/design-tokens.css?v=2','assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=33','assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34','assets/admin-users-v24.js?v=26','assets/auth-v35.js?v=38','assets/data-dashboard-v36.js?v=44','assets/runtime-health-v44.js?v=44','assets/mobile-bill-entry-v50.js?v=50','assets/app-controller-v51.js?v=52']
 for x in checks:
     if html.count(x)!=1: raise SystemExit(f'{x} count is {html.count(x)}, expected 1')
 for rid in required:
@@ -40,7 +40,10 @@ for required_core in ['window.show=function(view)','window.boot=async function(s
 controller=Path('assets/app-controller-v51.js').read_text(encoding='utf-8')
 for required_controller in ['queryAllBills','loadingPromise','window.reloadBillsNow','app-controller']:
     if required_controller not in controller: raise SystemExit(f'app controller contract missing: {required_controller}')
+auth=Path('assets/auth-v35.js').read_text(encoding='utf-8')
+for forbidden_auth in ['setAuthView(null);','db.auth.onAuthStateChange((_event,session)=>setAuthView(session))','await window.boot(data.session)']:
+    if forbidden_auth in auth: raise SystemExit(f'duplicate auth behavior remains: {forbidden_auth}')
 if '<h1>Procurement ERP</h1>' in html: raise SystemExit('Login heading must not create a second page H1')
 for obsolete in ['assets/navigation-admin-v27.js','assets/navigation-fix-v28.js','assets/router-v30.js','assets/standard-v29.js']:
     if obsolete in html: raise SystemExit(f'obsolete asset still referenced: {obsolete}')
-print('Applied stable Bills app with single direct data controller v52 and no refresh loop.')
+print('Applied stable Bills app with persistent single-owner authentication v38.')
