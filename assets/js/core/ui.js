@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=21;
+const VERSION=22;
 const byId=id=>document.getElementById(id);
 const val=(row,...keys)=>{for(const key of keys){if(row&&row[key]!==undefined&&row[key]!==null)return row[key]}return''};
 const all=()=>Array.isArray(state.rows)?state.rows:[];
@@ -77,8 +77,49 @@ window.renderNewBill=async()=>{
  const form=byId('billForm');form.elements.payment_status.value=statusVal(editing);form.elements.payment_method.value=val(editing,'payment_method')||'';
  const fillVendor=()=>{const vendor=findVendor(vendors,form.elements.vendor.value);if(!vendor){form.dataset.vendorId='';return}form.dataset.vendorId=vendor.id;form.elements.tin.value=vendor.tin||'';form.elements.vendor_phone.value=vendor.phone||'';form.elements.vendor_email.value=vendor.email||'';form.elements.vendor_address.value=vendor.address||'';if(vendor.default_payment_method)form.elements.payment_method.value=vendor.default_payment_method};
  form.elements.vendor.addEventListener('input',fillVendor);form.elements.vendor.addEventListener('change',fillVendor);if(vendorVal(editing))fillVendor();
- const draw=()=>{byId('itemRows').innerHTML=state.items.map((item,index)=>{const calc=baseInfo(item);return `<article class="card" data-row="${index}" style="box-shadow:none"><div class="form-grid"><label>Item<input class="field" data-f="product" value="${esc(item.product)}" required></label><label>Packing<input class="field" data-f="pack_format" value="${esc(item.pack_format)}" placeholder="10x500g"></label><label>Unit<select class="field" data-f="unit">${units.map(unit=>`<option ${unit===item.unit?'selected':''}>${unit}</option>`).join('')}</select></label><label>QTY<input class="field" data-f="qty" type="number" min="0" step="0.01" value="${item.qty}"></label><label>Rate<input class="field" data-f="rate" type="number" min="0" step="0.01" value="${item.rate}"></label><label>GST %<input class="field" data-f="gst" type="number" min="0" step="0.01" value="${item.gst}"></label></div><div class="metrics" style="margin-top:12px"><article class="metric"><small>Unit rate</small><strong>${money(calc.rate)}</strong></article><article class="metric"><small>${calc.label}</small><strong>${calc.total_base.toLocaleString()} ${calc.small_unit}</strong></article><article class="metric"><small>Per ${calc.small_unit}</small><strong>${money(calc.small_rate)}</strong></article><article class="metric"><small>Amount</small><strong>${money(calc.line_total)}</strong></article></div><div class="actions"><button class="btn danger small" data-remove="${index}" type="button">Delete row</button></div></article>`}).join('');
-  byId('itemRows').querySelectorAll('[data-row]').forEach(row=>row.querySelectorAll('[data-f]').forEach(input=>input.oninput=()=>{state.items[num(row.dataset.row)][input.dataset.f]=['product','pack_format','unit'].includes(input.dataset.f)?input.value:num(input.value);draw()}));byId('itemRows').querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{state.items.splice(num(button.dataset.remove),1);if(!state.items.length)state.items.push(emptyItem());draw()});const calculated=state.items.map(baseInfo);byId('subTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.subtotal,0));byId('gstTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.gst_amount,0));byId('grandTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.line_total,0));};
+
+ const updateTotals=()=>{
+  const calculated=state.items.map(baseInfo);
+  byId('subTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.subtotal,0));
+  byId('gstTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.gst_amount,0));
+  byId('grandTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.line_total,0));
+ };
+ const updateRowMetrics=(row,index)=>{
+  const calc=baseInfo(state.items[index]);
+  const unitRate=row.querySelector('[data-m="rate"]');
+  const baseLabel=row.querySelector('[data-m="base-label"]');
+  const baseTotal=row.querySelector('[data-m="base-total"]');
+  const smallLabel=row.querySelector('[data-m="small-label"]');
+  const smallRate=row.querySelector('[data-m="small-rate"]');
+  const amount=row.querySelector('[data-m="amount"]');
+  if(unitRate)unitRate.textContent=money(calc.rate);
+  if(baseLabel)baseLabel.textContent=calc.label;
+  if(baseTotal)baseTotal.textContent=`${calc.total_base.toLocaleString()} ${calc.small_unit}`;
+  if(smallLabel)smallLabel.textContent=`Per ${calc.small_unit}`;
+  if(smallRate)smallRate.textContent=money(calc.small_rate);
+  if(amount)amount.textContent=money(calc.line_total);
+  updateTotals();
+ };
+ const bindRows=()=>{
+  byId('itemRows').querySelectorAll('[data-row]').forEach(row=>{
+   const index=Number(row.dataset.row);
+   row.querySelectorAll('[data-f]').forEach(input=>{
+    const sync=()=>{
+     const field=input.dataset.f;
+     state.items[index][field]=['product','pack_format','unit'].includes(field)?input.value:num(input.value);
+     updateRowMetrics(row,index);
+    };
+    input.addEventListener('input',sync);
+    input.addEventListener('change',sync);
+   });
+  });
+  byId('itemRows').querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{state.items.splice(Number(button.dataset.remove),1);if(!state.items.length)state.items.push(emptyItem());draw()});
+ };
+ const draw=()=>{
+  byId('itemRows').innerHTML=state.items.map((item,index)=>{const calc=baseInfo(item);return `<article class="card" data-row="${index}" style="box-shadow:none"><div class="form-grid"><label>Item<input class="field" data-f="product" value="${esc(item.product)}" required></label><label>Packing<input class="field" data-f="pack_format" value="${esc(item.pack_format)}" placeholder="10x500g"></label><label>Unit<select class="field" data-f="unit">${units.map(unit=>`<option ${unit===item.unit?'selected':''}>${unit}</option>`).join('')}</select></label><label>QTY<input class="field" data-f="qty" type="number" min="0" step="0.01" value="${item.qty}"></label><label>Rate<input class="field" data-f="rate" type="number" min="0" step="0.01" value="${item.rate}"></label><label>GST %<input class="field" data-f="gst" type="number" min="0" step="0.01" value="${item.gst}"></label></div><div class="metrics" style="margin-top:12px"><article class="metric"><small>Unit rate</small><strong data-m="rate">${money(calc.rate)}</strong></article><article class="metric"><small data-m="base-label">${calc.label}</small><strong data-m="base-total">${calc.total_base.toLocaleString()} ${calc.small_unit}</strong></article><article class="metric"><small data-m="small-label">Per ${calc.small_unit}</small><strong data-m="small-rate">${money(calc.small_rate)}</strong></article><article class="metric"><small>Amount</small><strong data-m="amount">${money(calc.line_total)}</strong></article></div><div class="actions"><button class="btn danger small" data-remove="${index}" type="button">Delete row</button></div></article>`}).join('');
+  bindRows();
+  updateTotals();
+ };
  byId('addRow').onclick=()=>{state.items.push(emptyItem());draw()};draw();
  form.onsubmit=async event=>{event.preventDefault();const items=state.items.map(baseInfo).filter(item=>text(item.product));if(!items.length){byId('saveNotice').textContent='Add at least one item.';return}const button=byId('saveBill');button.disabled=true;byId('saveNotice').textContent=editing?'Updating…':'Saving…';try{const vendor=await saveVendor(form,vendors),subtotal=items.reduce((sum,item)=>sum+item.subtotal,0),gst=items.reduce((sum,item)=>sum+item.gst_amount,0),total=subtotal+gst,fd=new FormData(form),payload={bill_date:fd.get('bill_date'),bill_day:fd.get('bill_date'),bill_no:text(fd.get('bill_no')),vendor:text(fd.get('vendor')),vendor_id:vendor?.id||null,tin:text(fd.get('tin')),amount:String(total.toFixed(2)),subtotal,net_amount:subtotal,gst_total:gst,payment_status:fd.get('payment_status'),payment_method:fd.get('payment_method')||null,notes:text(fd.get('notes')),items,user_id:state.user?.id||null,updated_at:new Date().toISOString(),updated_by:state.user?.id||null};const result=editing?await db.from(TABLE).update(payload).eq('id',editing.id).select():await db.from(TABLE).insert(payload).select();if(result.error)throw result.error;state.editing=null;await reloadBillsNow();show('bills')}catch(error){byId('saveNotice').textContent=error.message||'Save failed'}finally{button.disabled=false}};
 };
