@@ -60,7 +60,7 @@ for asset in [
  'ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25',
  'premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29',
  'router-v30','router-v31','hierarchy-v32','bills-fix-v34','auth-v35',
- 'data-dashboard-v36','runtime-health-v44','theme-settings'
+ 'data-dashboard-v36','runtime-health-v44','mobile-bill-entry-v50','theme-settings'
 ]:
     html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
 
@@ -73,7 +73,8 @@ modules=''.join([
       ('ux-v21','22'),('delete-v22','22'),('live-v23','24'),
       ('admin-users-v24','26'),('catalog-fix-v25','25'),('premium-v26','26'),
       ('router-v31','33'),('hierarchy-v32','33'),('bills-fix-v34','34'),
-      ('auth-v35','35'),('data-dashboard-v36','44'),('runtime-health-v44','44')
+      ('auth-v35','35'),('data-dashboard-v36','44'),('runtime-health-v44','44'),
+      ('mobile-bill-entry-v50','50')
     ]
 ])
 html=html.replace('</body>',modules+'</body>')
@@ -84,7 +85,8 @@ checks=[
  'assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=33',
  'assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34',
  'assets/admin-users-v24.js?v=26','assets/auth-v35.js?v=35',
- 'assets/data-dashboard-v36.js?v=44','assets/runtime-health-v44.js?v=44'
+ 'assets/data-dashboard-v36.js?v=44','assets/runtime-health-v44.js?v=44',
+ 'assets/mobile-bill-entry-v50.js?v=50'
 ]
 for x in checks:
     if html.count(x)!=1:
@@ -111,6 +113,11 @@ for required_health in ['Database status','Loaded records','window.checkAppVersi
     if required_health not in health:
         raise SystemExit(f'runtime health contract missing: {required_health}')
 
+mobile=Path('assets/mobile-bill-entry-v50.js').read_text(encoding='utf-8')
+for required_mobile in ['Rate per ${purchase}','Optional details','item.rate_basis=\'purchase\'']:
+    if required_mobile not in mobile:
+        raise SystemExit(f'mobile entry contract missing: {required_mobile}')
+
 if '<h1>Procurement ERP</h1>' in html:
     raise SystemExit('Login heading must not create a second page H1')
 
@@ -121,4 +128,4 @@ for obsolete in [
     if obsolete in html:
         raise SystemExit(f'obsolete asset still referenced: {obsolete}')
 
-print('Applied stable modular Bills app with observable database health and v44 cache activation.')
+print('Applied stable modular Bills app with simplified mobile bill entry.')
