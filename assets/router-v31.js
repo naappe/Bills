@@ -3,6 +3,22 @@
 const VALID=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);
 const route=()=>{const v=location.hash.slice(1).trim();return VALID.has(v)?v:'dashboard'};
 
+function syncBaseQuantities(){
+  const pricing=window.__WS_PACK_UNIT_PRICING__;
+  if(!pricing||typeof pricing.calc!=='function'||typeof state==='undefined'||!Array.isArray(state.items))return;
+  document.querySelectorAll('.bill-item-card[data-index]').forEach(card=>{
+    const index=Number(card.dataset.index);
+    const item=state.items[index];
+    const output=card.querySelector('[data-out="qty"]');
+    if(!item||!output)return;
+    const calculated=pricing.calc(item);
+    const quantity=Number(calculated.smallQty||0).toLocaleString('en-US',{maximumFractionDigits:3});
+    output.textContent=`${quantity} ${calculated.smallUnit||'PCS'}`;
+  });
+}
+
+function queueBaseQuantitySync(){requestAnimationFrame(syncBaseQuantities)}
+
 function installAccessibilityShell(){
   const main=document.querySelector('.main');
   const content=document.querySelector('#content');
@@ -22,7 +38,13 @@ function installAccessibilityShell(){
     footer.innerHTML='<span>White Saffron Procurement ERP</span><span>Secure purchasing and supplier records</span>';
     main.appendChild(footer);
   }
+  if(content&&!content.dataset.baseQuantityObserver){
+    const observer=new MutationObserver(queueBaseQuantitySync);
+    observer.observe(content,{childList:true,subtree:true});
+    content.dataset.baseQuantityObserver='1';
+  }
   updateCurrentRoute();
+  queueBaseQuantitySync();
 }
 
 function updateCurrentRoute(){
@@ -39,11 +61,22 @@ window.addEventListener('hashchange',()=>{
   const view=route();
   updateCurrentRoute();
   if(typeof show==='function'&&typeof state!=='undefined'&&state.user&&state.view!==view)show(view);
+  queueBaseQuantitySync();
 });
 
 document.addEventListener('click',event=>{
-  const target=event.target;
-  if(target instanceof Element&&target.closest('.nav [data-view]'))setTimeout(updateCurrentRoute,0);
+  const target=event.target instanceof Element?event.target:null;
+  if(target?.closest('.nav [data-view]'))setTimeout(updateCurrentRoute,0);
+});
+
+document.addEventListener('input',event=>{
+  const target=event.target instanceof Element?event.target:null;
+  if(target?.closest('.bill-item-card'))queueBaseQuantitySync();
+});
+
+document.addEventListener('change',event=>{
+  const target=event.target instanceof Element?event.target:null;
+  if(target?.closest('.bill-item-card'))queueBaseQuantitySync();
 });
 
 document.addEventListener('keydown',event=>{
@@ -60,7 +93,7 @@ document.addEventListener('keydown',event=>{
   }else if(event.ctrlKey&&key==='t'){
     event.preventDefault();
     document.querySelector('.theme-toggle,[data-theme-toggle],#themeToggle')?.click();
-  }else if(key==='escape'){
+  }else if(rawKey==='Escape'){
     const active=document.activeElement;
     if(active&&/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)){
       if('value' in active)active.value='';
@@ -74,5 +107,5 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else installAccessibilityShell();
 window.addEventListener('load',installAccessibilityShell,{once:true});
 
-window.__WS_ROUTER__={version:35,route,updateCurrentRoute};
+window.__WS_ROUTER__={version:36,route,updateCurrentRoute,syncBaseQuantities};
 })();
