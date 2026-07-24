@@ -75,13 +75,33 @@ window.show=function(view){
   }catch(error){console.error(`Failed to render ${view}`,error);byId('content').innerHTML=pageHead(title,'The page could not be rendered.')+`<section class="card"><div class="empty">${esc(error.message||String(error))}</div></section>`}
 };
 
+const renderLoadError=error=>{
+  console.error('Failed to load bills from Supabase',error);
+  const content=byId('content');
+  if(content)content.innerHTML=pageHead('Bills unavailable','Supabase returned an error while loading bill records.')+`<section class="card"><div class="empty"><strong>Database error</strong><br>${esc(error?.message||String(error))}<br><br><button class="btn" id="retryBills" type="button">Retry loading bills</button></div></section>`;
+  byId('retryBills')?.addEventListener('click',()=>window.syncBillsAfterLoad());
+};
+
+window.syncBillsAfterLoad=async function(){
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+  if(sessionError){renderLoadError(sessionError);return []}
+  if(!session?.user)return [];
+  try{
+    const rows=await window.loadBills(true);
+    state.rows=Array.isArray(rows)?rows:[];
+    state.filtered=[...state.rows];
+    show(location.hash.slice(1)||state.view||'dashboard');
+    return state.rows;
+  }catch(error){renderLoadError(error);return []}
+};
+
 window.boot=async function(session){
   const login=byId('loginView'),app=byId('appView');
   if(!session?.user){state.user=null;document.body.classList.remove('logged-in');login?.classList.remove('hidden');app?.classList.add('hidden');return}
   state.user=session.user;document.body.classList.add('logged-in');login?.classList.add('hidden');app?.classList.remove('hidden');
   if(byId('emailLabel'))byId('emailLabel').textContent=session.user.email||'Signed in';
   if(byId('avatar'))byId('avatar').textContent=(session.user.email||'A').charAt(0).toUpperCase();
-  try{await loadBills()}catch(error){console.error('Failed to load bills',error);state.rows=[]}
+  try{await loadBills()}catch(error){console.error('Initial bill load failed; retrying after all modules load',error);state.rows=[]}
   show(location.hash.slice(1)||'dashboard');
 };
 
@@ -91,5 +111,6 @@ byId('menuBtn')?.addEventListener('click',()=>byId('sidebar')?.classList.toggle(
 
 db.auth.getSession().then(({data})=>boot(data.session));
 db.auth.onAuthStateChange((_event,session)=>boot(session));
-window.__WS_CORE__={version:15};
+window.addEventListener('load',()=>setTimeout(()=>window.syncBillsAfterLoad(),0),{once:true});
+window.__WS_CORE__={version:16};
 })();
