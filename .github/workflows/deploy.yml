@@ -36,15 +36,17 @@ jobs:
           test -f index.html
           test -f assets/js/core/ui.js
           test -f assets/js/core/pages.js
+          test -f assets/js/core/router.js
           test -f assets/js/core/admin.js
           test -f assets/js/core/controller.js
-          grep -q 'pages.js?v=17' index.html
+          grep -q 'pages.js?v=18' index.html
+          grep -q 'router.js?v=18' index.html
           ! grep -q 'page-polish.js' index.html
           ! grep -q 'insights.js' index.html
           ! grep -q 'page-sections.js' index.html
           ! grep -q 'rank-bars.js' index.html
           ! grep -q 'bills-page.js' index.html
-          printf '{"build":"v17","commit":"%s","deployed_at":"%s"}\n' "$GITHUB_SHA" "$(date -u +%FT%TZ)" > build.json
+          printf '{"build":"v18","commit":"%s","deployed_at":"%s"}\n' "$GITHUB_SHA" "$(date -u +%FT%TZ)" > build.json
           touch .nojekyll
 
       - name: Configure GitHub Pages
