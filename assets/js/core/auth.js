@@ -23,23 +23,23 @@ function setAuthView(session){
   appView?.classList.toggle('hidden',!authenticated);
   loginView?.setAttribute('aria-hidden',authenticated?'true':'false');
   appView?.setAttribute('aria-hidden',authenticated?'false':'true');
+  if(authenticated){
+    const role=resolveRole(session.user);
+    state.user=session.user;
+    state.role=role;
+    const roleLabel=document.querySelector('#roleLabel');
+    const emailLabel=document.querySelector('#emailLabel');
+    const avatar=document.querySelector('#avatar');
+    if(roleLabel)roleLabel.textContent=role.toUpperCase();
+    if(emailLabel)emailLabel.textContent=session.user.email||'Signed in';
+    if(avatar)avatar.textContent=(session.user.email||'A').charAt(0).toUpperCase();
+  }else{
+    state.user=null;
+  }
 }
 installAuthViewStyles();
-const originalBoot=typeof window.boot==='function'?window.boot:null;
-if(originalBoot){
-  window.boot=async function(session){
-    const result=await originalBoot(session);
-    setAuthView(session);
-    if(session?.user){
-      const role=resolveRole(session.user);
-      state.role=role;
-      const roleLabel=document.querySelector('#roleLabel');
-      if(roleLabel)roleLabel.textContent=role.toUpperCase();
-      if(state.view==='settings'&&typeof renderSettings==='function')renderSettings();
-    }
-    return result;
-  };
-}
+setAuthView(null);
+
 const form=document.querySelector('#loginForm');
 if(form){
   form.onsubmit=async event=>{
@@ -52,11 +52,33 @@ if(form){
     const email=raw.includes('@')?raw:(legacy||`${raw}@users.whitesaffron.mv`);
     if(notice)notice.textContent='Signing in…';
     if(submit)submit.disabled=true;
-    const {error}=await db.auth.signInWithPassword({email,password});
+    const {data,error}=await db.auth.signInWithPassword({email,password});
     if(submit)submit.disabled=false;
-    if(error){if(notice)notice.textContent='Invalid username or password';return;}
+    if(error){if(notice)notice.textContent=error.message||'Invalid username or password';return;}
+    setAuthView(data.session);
     if(notice)notice.textContent='';
   };
 }
-window.__WS_AUTH__={version:38,resolveRole,setAuthView};
+
+const logout=document.querySelector('#logoutBtn');
+if(logout){
+  logout.onclick=async()=>{
+    logout.disabled=true;
+    const {error}=await db.auth.signOut();
+    logout.disabled=false;
+    if(error){console.error('[auth] sign out failed',error);return;}
+    setAuthView(null);
+  };
+}
+
+db.auth.getSession().then(({data,error})=>{
+  if(error){console.error('[auth] session restore failed',error);setAuthView(null);return;}
+  setAuthView(data.session);
+});
+
+db.auth.onAuthStateChange((_event,session)=>{
+  setAuthView(session);
+});
+
+window.__WS_AUTH__={version:39,resolveRole,setAuthView};
 })();
