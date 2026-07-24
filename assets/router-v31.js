@@ -1,111 +1,13 @@
 (()=>{
 'use strict';
+const VERSION=57;
 const VALID=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);
-const route=()=>{const v=location.hash.slice(1).trim();return VALID.has(v)?v:'dashboard'};
-
-function syncBaseQuantities(){
-  const pricing=window.__WS_PACK_UNIT_PRICING__;
-  if(!pricing||typeof pricing.calc!=='function'||typeof state==='undefined'||!Array.isArray(state.items))return;
-  document.querySelectorAll('.bill-item-card[data-index]').forEach(card=>{
-    const index=Number(card.dataset.index);
-    const item=state.items[index];
-    const output=card.querySelector('[data-out="qty"]');
-    if(!item||!output)return;
-    const calculated=pricing.calc(item);
-    const quantity=Number(calculated.smallQty||0).toLocaleString('en-US',{maximumFractionDigits:3});
-    output.textContent=`${quantity} ${calculated.smallUnit||'PCS'}`;
-  });
-}
-
-function queueBaseQuantitySync(){requestAnimationFrame(syncBaseQuantities)}
-
-function installAccessibilityShell(){
-  const main=document.querySelector('.main');
-  const content=document.querySelector('#content');
-  if(content&&!content.id)content.id='main-content';
-  if(content)content.setAttribute('tabindex','-1');
-  if(!document.querySelector('.skip-link')){
-    const skip=document.createElement('a');
-    skip.className='skip-link';
-    skip.href='#main-content';
-    skip.textContent='Skip to main content';
-    skip.addEventListener('click',()=>setTimeout(()=>content?.focus(),0));
-    document.body.prepend(skip);
-  }
-  if(main&&!main.querySelector('.app-footer')){
-    const footer=document.createElement('footer');
-    footer.className='app-footer';
-    footer.innerHTML='<span>White Saffron Procurement ERP</span><span>Secure purchasing and supplier records</span>';
-    main.appendChild(footer);
-  }
-  if(content&&!content.dataset.baseQuantityObserver){
-    const observer=new MutationObserver(queueBaseQuantitySync);
-    observer.observe(content,{childList:true,subtree:true});
-    content.dataset.baseQuantityObserver='1';
-  }
-  updateCurrentRoute();
-  queueBaseQuantitySync();
-}
-
-function updateCurrentRoute(){
-  const current=route();
-  document.querySelectorAll('.nav [data-view]').forEach(link=>{
-    const active=link.dataset.view===current;
-    link.classList.toggle('active',active);
-    if(active)link.setAttribute('aria-current','page');
-    else link.removeAttribute('aria-current');
-  });
-}
-
-window.addEventListener('hashchange',()=>{
-  const view=route();
-  updateCurrentRoute();
-  if(typeof show==='function'&&typeof state!=='undefined'&&state.user&&state.view!==view)show(view);
-  queueBaseQuantitySync();
-});
-
-document.addEventListener('click',event=>{
-  const target=event.target instanceof Element?event.target:null;
-  if(target?.closest('.nav [data-view]'))setTimeout(updateCurrentRoute,0);
-});
-
-document.addEventListener('input',event=>{
-  const target=event.target instanceof Element?event.target:null;
-  if(target?.closest('.bill-item-card'))queueBaseQuantitySync();
-});
-
-document.addEventListener('change',event=>{
-  const target=event.target instanceof Element?event.target:null;
-  if(target?.closest('.bill-item-card'))queueBaseQuantitySync();
-});
-
-document.addEventListener('keydown',event=>{
-  const rawKey=typeof event.key==='string'?event.key:'';
-  if(!rawKey)return;
-  const key=rawKey.toLowerCase();
-  if(event.ctrlKey&&key==='n'){
-    event.preventDefault();
-    if(typeof show==='function')show('new');
-  }else if(event.ctrlKey&&key==='k'){
-    event.preventDefault();
-    const search=document.querySelector('input[type="search"],#billSearch,#uxProductSearch,#uxPriceSearch');
-    search?.focus();search?.select?.();
-  }else if(event.ctrlKey&&key==='t'){
-    event.preventDefault();
-    document.querySelector('.theme-toggle,[data-theme-toggle],#themeToggle')?.click();
-  }else if(rawKey==='Escape'){
-    const active=document.activeElement;
-    if(active&&/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)){
-      if('value' in active)active.value='';
-      active.dispatchEvent(new Event('input',{bubbles:true}));
-      active.blur();
-    }
-  }
-});
-
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAccessibilityShell,{once:true});
-else installAccessibilityShell();
-window.addEventListener('load',installAccessibilityShell,{once:true});
-
-window.__WS_ROUTER__={version:36,route,updateCurrentRoute,syncBaseQuantities};
+const route=()=>{const view=location.hash.slice(1).trim();return VALID.has(view)?view:'dashboard'};
+const updateCurrentRoute=()=>{const current=route();document.querySelectorAll('.nav [data-view]').forEach(link=>{const active=link.dataset.view===current;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')})};
+const installShell=()=>{const content=document.querySelector('#content');if(content){content.setAttribute('tabindex','-1');content.style.minWidth='0';content.style.maxWidth='100%'}const main=document.querySelector('.main');if(main)main.style.minWidth='0';updateCurrentRoute()};
+// Navigation and bill-entry calculations are owned by app-controller and
+// pack-unit-pricing. No hashchange, click, input, change, load, or mutation
+// observers are registered here.
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installShell,{once:true});else installShell();
+window.__WS_ROUTER__={version:VERSION,route,updateCurrentRoute};
 })();
