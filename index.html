@@ -12,8 +12,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>body.ws-auth-pending #loginView,body.ws-auth-pending #appView{display:none!important}</style>
-  <link rel="stylesheet" href="assets/css/app-shell.css?v=17">
-  <link rel="stylesheet" href="assets/css/modern-ui.css?v=17">
+  <link rel="stylesheet" href="assets/css/app-shell.css?v=18">
+  <link rel="stylesheet" href="assets/css/modern-ui.css?v=18">
 </head>
 <body class="ws-auth-pending">
   <section class="login" id="loginView">
@@ -70,26 +70,12 @@
     window.freshItem=freshItem;
   </script>
 
-  <script src="assets/js/core/ui.js?v=17"></script>
-  <script src="assets/js/core/auth.js?v=17"></script>
-  <script src="assets/js/core/admin.js?v=17"></script>
-  <script src="assets/js/core/pages.js?v=17"></script>
-  <script src="assets/js/core/controller.js?v=17"></script>
-  <script src="assets/js/core/health.js?v=17"></script>
-  <script>
-    (()=>{
-      const delegatedShow=window.show;
-      window.show=view=>{
-        if(view==='admin'){
-          state.view='admin';
-          document.querySelectorAll('.nav [data-view]').forEach(link=>link.classList.toggle('active',link.dataset.view==='admin'));
-          const title=document.getElementById('topTitle');if(title)title.textContent='Admin';
-          window.__WS_ADMIN__?.updatePresence?.('admin');
-          return window.renderAdmin?.();
-        }
-        return delegatedShow(view);
-      };
-    })();
-  </script>
+  <script src="assets/js/core/ui.js?v=18"></script>
+  <script src="assets/js/core/auth.js?v=18"></script>
+  <script src="assets/js/core/admin.js?v=18"></script>
+  <script src="assets/js/core/pages.js?v=18"></script>
+  <script src="assets/js/core/router.js?v=18"></script>
+  <script src="assets/js/core/controller.js?v=18"></script>
+  <script src="assets/js/core/health.js?v=18"></script>
 </body>
 </html>
