@@ -1,362 +1,198 @@
 # White Saffron Procurement ERP
 
-A static procurement application hosted on GitHub Pages and backed by Supabase.
+Static procurement application hosted on GitHub Pages and backed by Supabase.
 
 **Live application:** `https://naappe.github.io/Bills/`
 
-## System purpose
-
-The application manages:
-
-- procurement bills and multi-row bill entry;
-- vendors and vendor details;
-- products, categories, units and pack formats;
-- purchase rates and derived KG, G, L, ML and PCS rates;
-- dashboards, filters, reports and CSV exports;
-- authenticated roles and administrative actions.
-
-## Architecture rules
-
-### 1. Maximum five files per folder
-
-Every maintained application folder should contain no more than five active files. When a section grows beyond five files, create a clearly named subfolder instead of adding another versioned patch file.
-
-### 2. No version numbers in active filenames
-
-Use stable names such as `controller.js`, `bills.js` and `components.css`.
-
-Do not create new files such as:
-
-```text
-bills-v17.js
-bills-fix-v34.js
-bills-final-v35.js
-```
-
-Git already provides version history.
-
-### 3. One owner per responsibility
-
-- Authentication is owned by one module.
-- Supabase loading is owned by one controller.
-- Routing is owned by one router/controller.
-- A page renderer must render only its own page.
-- Health modules display state but do not query the database.
-
-### 4. Supabase is the data source
-
-The bill records must not be committed as `bills.json`, `data.js` or multiple static data chunks.
-
-Supabase remains the source of truth for bills, vendors and operational records. Static JSON files may only contain non-sensitive application configuration or fixed reference values.
-
-## Maintained structure
+## Active structure
 
 ```text
 /
-├── index.html                 Application shell and script loading order
-├── README.md                  Architecture and maintenance guide
-├── theme-v4.css               Temporary legacy theme entry
-├── RELEASE-CHECKLIST.md       Production verification checklist
-└── assets/                    Application code and styles
-
-assets/
-├── css/
-│   └── app-shell.css          Global shell, layout and shared controls
-└── js/
-    └── core/
-        ├── ui.js              Shared UI helpers and basic render utilities
-        ├── auth.js            Login form, session view and role resolution
-        ├── controller.js      Startup, Supabase loading, state and navigation
-        └── health.js          Database status display and diagnostics
+├── index.html
+├── README.md
+├── RELEASE-CHECKLIST.md
+├── assets/
+│   ├── css/
+│   │   └── app-shell.css
+│   └── js/
+│       └── core/
+│           ├── ui.js
+│           ├── auth.js
+│           ├── controller.js
+│           └── health.js
+└── .github/
+    └── workflows/
+        └── deploy.yml
 ```
 
-The active core folder currently contains four files, within the five-file limit.
+The maintained application folders contain no more than five active files. Active filenames are stable and do not use patch suffixes such as `v17`, `fix`, or `final`.
 
-## Core section responsibilities
+## Module ownership
 
 ### `index.html`
 
-Job:
-
-- defines the login and application shell;
-- loads external libraries;
-- creates the Supabase client and shared application state;
-- loads modules in a controlled order;
-- contains no bill-query ownership.
-
-Check this file when:
-
-- a script or stylesheet is not loading;
-- GitHub Pages serves an old asset;
-- the login or sidebar shell is missing;
-- startup order is incorrect.
-
-### `assets/css/app-shell.css`
-
-Job:
-
-- page frame and viewport sizing;
-- sidebar and top bar;
-- login screen;
-- shared buttons, cards, fields and tables;
-- responsive application shell.
-
-Check this file when:
-
-- the application exceeds the viewport;
-- the sidebar, header or login page is misaligned;
-- shared spacing or typography is inconsistent.
-
-### `assets/js/core/ui.js`
-
-Job:
-
-- shared value helpers;
-- money and date presentation helpers;
-- bill-table pagination rendering;
-- common page navigation helpers;
-- CSV export utility;
-- basic authenticated-view rendering.
-
-Check this file when:
-
-- bill table rows render incorrectly;
-- pagination is wrong;
-- shared formatting is wrong;
-- page render dispatch fails.
-
-This file does not own authentication subscriptions or Supabase bill loading.
+- Application shell and navigation markup
+- Supabase browser-client initialization
+- Shared application state and formatting helpers
+- Controlled script loading order
 
 ### `assets/js/core/auth.js`
 
-Job:
+- Login form
+- Username-to-email compatibility mapping
+- Role resolution
+- Login/application screen visibility
+- Logout action
 
-- login-form submission;
-- username-to-email mapping;
-- role resolution;
-- showing either the login screen or application screen.
-
-Check this file when:
-
-- sign-in fails after Supabase returns a response;
-- the application displays STAFF instead of ADMIN;
-- the login screen does not hide after authentication.
-
-This file does not start a second bill query.
+Authentication subscriptions and session restoration are owned by the controller.
 
 ### `assets/js/core/controller.js`
 
-Job:
+- Single Supabase session restoration
+- Single authentication-state subscription
+- Role application
+- Paginated loading of all bill records
+- Duplicate-load protection
+- Navigation and URL hash handling
+- Database health state
 
-- restores the current Supabase session;
-- owns the single authentication-state subscription;
-- loads all bills in controlled pages;
-- stores records in `state.rows` and `state.filtered`;
-- updates database health state;
-- owns navigation and reload operations;
-- prevents duplicate simultaneous loading through one loading promise.
+### `assets/js/core/ui.js`
 
-Check this file when:
-
-- the database remains on `Connecting…`;
-- authenticated users receive zero rows;
-- manual reload does not work;
-- navigation or startup is stuck.
-
-This is the only core file permitted to own bill loading.
+- Dashboard renderer
+- Bills list, search, status filtering and pagination
+- New/edit bill form
+- Bill insert, update and administrator delete actions
+- Products, vendors, price book, reports and settings renderers
+- CSV export and shared display helpers
 
 ### `assets/js/core/health.js`
 
-Job:
+- Display-only database status cards
+- Runtime version diagnostics
+- No Supabase queries
 
-- displays connection state;
-- displays loaded-record count;
-- exposes browser diagnostics through `checkAppVersions()`.
+### `assets/css/app-shell.css`
 
-Check this file when:
+- Login screen
+- Sidebar and top bar
+- Shared cards, forms, tables, buttons and responsive layout
 
-- health cards display the wrong state;
-- diagnostic versions are not visible.
-
-This file must never call Supabase.
-
-## Feature sections
-
-The remaining legacy feature files are temporarily loaded from `assets/`. They are being consolidated into the following structure, with no more than five files per folder:
+## Navigation
 
 ```text
-assets/js/
-├── core/                      Authentication, startup and shared state
-├── bills/                     Bill list, bill entry, calculations and actions
-├── catalog/                   Products, vendors, categories and price book
-├── dashboard/                 Dashboard, reports and analytics
-└── admin/                     Settings, users, archive and recovery
-
-assets/css/
-├── core/                      Tokens, reset, shell and responsive rules
-├── bills/                     Bill list and bill-entry styling
-├── catalog/                   Product, vendor and price-book styling
-├── dashboard/                 Dashboard and report styling
-└── admin/                     Settings and administrative styling
+Dashboard
+Bills
+Products
+Vendors
+Price Book
+Reports
+Settings
 ```
 
-### Planned JavaScript files
+The controller owns navigation. All pages render into:
 
-#### `assets/js/bills/`
+```html
+<div id="content"></div>
+```
+
+## Roles
+
+- `admin`: add, edit and delete bills
+- `manager`: add and edit bills
+- `staff`: add bills and edit records created within 24 hours when `created_at` is available
+- `readonly`: view and export only
+
+Frontend role controls are usability controls only. Supabase Row Level Security must independently enforce the same permissions.
+
+## Data behavior
+
+- Supabase table: `bills`
+- Records load in pages of 1,000 until all accessible rows are retrieved
+- `state.rows` contains the complete loaded result
+- `state.filtered` contains the current Bills-page result
+- Concurrent bill loads reuse one loading promise
+- Bill writes detect the active schema aliases already present in loaded records, including `status` versus `payment_status` and `method` versus `payment_method`
+
+## Pages
+
+### Dashboard
+
+Shows total bills, total purchasing value, vendor count, pending count and recent records.
+
+### Bills
+
+Provides vendor/bill-number search, status filtering, 20/50/100-row pagination, CSV export, editing and administrator deletion.
+
+### New Bill
+
+Creates and updates bill header records with bill date, bill number, vendor, amount, payment status and payment method.
+
+### Products and Price Book
+
+Derive product and rate information from saved bill `items` arrays when item-level data exists.
+
+### Vendors
+
+Builds a vendor summary from bill records, including bill count, total value and TIN when available.
+
+### Reports
+
+Shows purchasing value by status and recent monthly totals, with CSV export.
+
+### Settings
+
+Shows the current user, role, record count, connection state and runtime module versions. It does not expose the Supabase key.
+
+## Deployment
+
+GitHub Pages is deployed only through:
 
 ```text
-bills.js          Bill list, filters and pagination
-entry.js          New/edit bill form and row management
-pricing.js        Pack parsing and unit-rate calculations
-actions.js        Save, edit, delete, archive and restore
-validation.js     Input validation and user-facing errors
+.github/workflows/deploy.yml
 ```
 
-#### `assets/js/catalog/`
+Required repository setting:
 
 ```text
-products.js       Product list and product maintenance
-vendors.js        Vendor list, TIN and contact information
-prices.js         Price book and rate history
-categories.js     Category and unit reference logic
-catalog-utils.js  Shared catalog helpers
+Settings → Pages → Build and deployment → Source → GitHub Actions
 ```
 
-#### `assets/js/dashboard/`
+The deployment workflow runs on pushes to `main` and can also be started manually.
 
-```text
-dashboard.js      KPIs and overview cards
-reports.js        Report preparation and export actions
-filters.js        Date, vendor and status filtering
-charts.js         Chart data and visual rendering
-analytics.js      Aggregations and purchasing insights
-```
+## Security
 
-#### `assets/js/admin/`
+The frontend contains a Supabase publishable browser key. Never commit:
 
-```text
-settings.js       Company and application settings
-users.js          User and role administration
-archive.js        Archive, recovery and reset operations
-audit.js          Operational diagnostics and audit display
-admin-utils.js    Shared administrative helpers
-```
+- service-role keys
+- database passwords
+- private API keys
+- authentication tokens
+- exported procurement records containing sensitive information
 
-## Bill-entry business rules
+All read, insert, update and delete permissions must be enforced by Supabase Row Level Security.
 
-Allowed purchase units:
+## Production verification
 
-```text
-PCS, PKT, DOZ, CTN, BTL, KG, G, L, ML
-```
+After deployment:
 
-Pack-format examples:
+1. Open `https://naappe.github.io/Bills/?v=5`.
+2. Hard refresh.
+3. Sign in as administrator.
+4. Confirm the role label and loaded bill count.
+5. Open every navigation page.
+6. Create a test bill and verify it appears in Bills.
+7. Edit the test bill.
+8. Delete the test bill as administrator.
+9. Test a staff or read-only account.
+10. Confirm there are no failed requests or uncaught console errors.
 
-```text
-24x500g
-12x1L
-6x2kg
-48 PCS
-20x330ml
-```
-
-Pricing output:
-
-- PCS: rate per PCS;
-- KG: rate per KG and rate per G;
-- L: rate per L and rate per ML;
-- CTN, PKT, DOZ and BTL: purchase-unit rate plus derived base-unit rate.
-
-Bill-entry fields:
-
-```text
-Product
-Quantity
-Purchase Unit
-Pack Format
-Rate or Net Amount
-GST
-```
-
-Do not reintroduce:
-
-- Invoice Rate selector;
-- Inner Item selector;
-- duplicate pricing cards;
-- duplicate rate-per-piece displays.
-
-## Application state
-
-The shared browser state currently contains:
-
-```text
-user        Authenticated Supabase user
-role        admin, manager, staff or readonly
-rows        Complete loaded bill records
-filtered    Current filtered bill records
-view        Current page
-page        Current table page
-pageSize    Rows displayed per page
-items       Current bill-entry rows
-editing     Bill currently being edited
-```
-
-Do not create separate competing state objects for individual patch files.
-
-## Loading sequence
-
-The required startup sequence is:
-
-```text
-1. External Supabase library
-2. Shared configuration and state
-3. Core UI helpers
-4. Authentication UI
-5. Feature renderers
-6. Application controller
-7. Display-only health module
-```
-
-The controller is deliberately loaded after feature renderers so it can authenticate, load records and render the requested page only after the required functions exist.
-
-## Where to make changes
-
-| Requirement | Primary section |
-|---|---|
-| Login, session or role | `assets/js/core/auth.js` |
-| Bills not loading | `assets/js/core/controller.js` |
-| Bill rows or pagination | `assets/js/core/ui.js` and future `assets/js/bills/bills.js` |
-| Pack-format calculation | future `assets/js/bills/pricing.js` |
-| Bill save/edit/delete | future `assets/js/bills/actions.js` |
-| Vendor or product logic | future `assets/js/catalog/` |
-| Dashboard metrics | future `assets/js/dashboard/` |
-| Shared frame or mobile layout | `assets/css/app-shell.css` |
-| Database status display | `assets/js/core/health.js` |
-| Script loading order | `index.html` |
-
-## Development rules
-
-Before committing a change:
-
-1. Identify the section that owns the responsibility.
-2. Modify the owning file instead of creating a patch file.
-3. Do not add another auth listener, router or database loader.
-4. Keep each folder at five active files or fewer.
-5. Use descriptive stable filenames.
-6. Remove obsolete imports from `index.html`.
-7. Test desktop and mobile layouts.
-8. Test with admin and staff accounts.
-9. Confirm the console contains no uncaught errors.
-10. Confirm database status reaches `Connected` and the loaded count is correct.
-
-## Browser diagnostics
-
-Run this in DevTools after signing in:
+Browser diagnostics:
 
 ```javascript
 console.table({
-  controller: window.__WS_APP_CONTROLLER__?.version,
+  ui: window.__WS_CORE__?.version,
   auth: window.__WS_AUTH__?.version,
+  controller: window.__WS_APP_CONTROLLER__?.version,
   health: window.__WS_RUNTIME_HEALTH__?.version,
   role: state?.role,
   user: state?.user?.email,
@@ -365,41 +201,3 @@ console.table({
   message: window.__WS_DB_STATUS__?.message
 });
 ```
-
-Expected production state:
-
-```text
-role: admin or the assigned user role
-rows: greater than 0
-status: Connected
-message: empty
-```
-
-## Security
-
-The browser uses a Supabase publishable key. Never commit:
-
-- Supabase service-role keys;
-- database passwords;
-- private API keys;
-- personal exports of bill records;
-- authentication tokens.
-
-Access control must be enforced through Supabase Row Level Security policies, not by hiding buttons in JavaScript.
-
-## Release verification
-
-After deployment:
-
-1. open the live GitHub Pages application;
-2. hard refresh with `Ctrl + Shift + R`;
-3. sign in as an administrator;
-4. verify the role label;
-5. verify database status becomes `Connected`;
-6. verify the loaded bill count;
-7. test dashboard, bills, new bill, products, vendors, price book, reports and settings;
-8. test search and date filters;
-9. inspect the browser console;
-10. test a staff account and confirm restricted actions are unavailable.
-
-See `RELEASE-CHECKLIST.md` for production acceptance and rollback procedures.
