@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=53;
+const VERSION=54;
 const VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);
 const PAGE_SIZE=1000;
 let loadingPromise=null;
@@ -16,18 +16,12 @@ const resolveRole=user=>{
   return ['admin','manager','staff','readonly'].includes(candidate)?candidate:'staff';
 };
 
-const applyAuthenticatedUser=session=>{
+const applySession=session=>{
   currentSession=session||null;
-  const user=session?.user||null;
+  window.__WS_AUTH__?.setAuthView?.(currentSession);
+  const user=currentSession?.user||null;
   state.user=user;
-  if(!user)return;
-  state.role=resolveRole(user);
-  const roleLabel=$('#roleLabel');
-  const emailLabel=$('#emailLabel');
-  const avatar=$('#avatar');
-  if(roleLabel)roleLabel.textContent=state.role.toUpperCase();
-  if(emailLabel)emailLabel.textContent=user.email||'Signed in';
-  if(avatar)avatar.textContent=(user.email||'A').charAt(0).toUpperCase();
+  state.role=user?resolveRole(user):'staff';
 };
 
 const ensureHealthCards=()=>{
@@ -66,15 +60,15 @@ const renderCurrent=()=>{
 };
 
 const queryAllBills=async()=>{
-  const rows=[];
+  const result=[];
   for(let from=0;;from+=PAGE_SIZE){
     const {data,error}=await db.from(TABLE).select('*').order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
     if(error)throw error;
     const batch=Array.isArray(data)?data:[];
-    rows.push(...batch);
+    result.push(...batch);
     if(batch.length<PAGE_SIZE)break;
   }
-  return rows;
+  return result;
 };
 
 const loadBillsOnce=({render=true,retry=true}={})=>{
@@ -88,19 +82,20 @@ const loadBillsOnce=({render=true,retry=true}={})=>{
         if(result.error)throw result.error;
         session=result.data.session;
       }
-      applyAuthenticatedUser(session);
+      applySession(session);
       if(!session?.user){
-        setHealth('Signed out',state.rows?.length||0,'No authenticated session');
-        return state.rows||[];
+        state.rows=[];state.filtered=[];
+        setHealth('Signed out',0,'No authenticated session');
+        return [];
       }
       setHealth('Connecting…',state.rows?.length||0);
-      const rows=await queryAllBills();
-      state.rows=rows;
-      state.filtered=[...rows];
-      setHealth('Connected',rows.length);
+      const loaded=await queryAllBills();
+      state.rows=loaded;
+      state.filtered=[...loaded];
+      setHealth('Connected',loaded.length);
       if(render)renderCurrent();
-      console.info(`[app-controller] v${VERSION}: ${rows.length} bills loaded as ${state.role}`);
-      return rows;
+      console.info(`[app-controller] v${VERSION}: ${loaded.length} bills loaded as ${state.role}`);
+      return loaded;
     }catch(error){
       console.error('[app-controller] direct bill query failed',error);
       setHealth('Error',state.rows?.length||0,error?.message||String(error));
@@ -123,19 +118,9 @@ const navigate=view=>{
 
 document.addEventListener('click',event=>{
   const link=event.target.closest('.nav [data-view]');
-  if(link){
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    navigate(link.dataset.view);
-    return;
-  }
+  if(link){event.preventDefault();navigate(link.dataset.view);return;}
   const go=event.target.closest('[data-go]');
-  if(go){
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    navigate(go.dataset.go);
-    return;
-  }
+  if(go){event.preventDefault();navigate(go.dataset.go);return;}
   if($('#sidebar')?.classList.contains('open')&&!event.target.closest('#sidebar')&&!event.target.closest('#menuBtn'))$('#sidebar').classList.remove('open');
 },true);
 
@@ -145,17 +130,20 @@ window.refreshBillData=({silent=false}={})=>loadBillsOnce({render:!silent,retry:
 window.syncBillsAfterLoad=()=>loadBillsOnce({render:true,retry:true});
 
 db.auth.getSession().then(({data,error})=>{
-  if(error){setHealth('Error',0,error.message);return;}
-  applyAuthenticatedUser(data.session);
+  if(error){applySession(null);setHealth('Error',0,error.message);return;}
+  applySession(data.session);
   if(data.session?.user)loadBillsOnce({render:true,retry:true});
   else setHealth('Signed out',0,'No authenticated session');
 });
 
 db.auth.onAuthStateChange((_event,session)=>{
-  applyAuthenticatedUser(session);
+  applySession(session);
   if(session?.user)setTimeout(()=>loadBillsOnce({render:true,retry:true}),0);
-  else setHealth('Signed out',0,'Signed out');
+  else{
+    state.rows=[];state.filtered=[];state.editing=null;
+    setHealth('Signed out',0,'Signed out');
+  }
 });
 
-window.__WS_APP_CONTROLLER__={version:VERSION,navigate,reload:window.reloadBillsNow,resolveRole};
+window.__WS_APP_CONTROLLER__={version:VERSION,navigate,reload:window.reloadBillsNow,resolveRole,render:renderCurrent};
 })();
