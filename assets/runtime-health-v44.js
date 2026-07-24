@@ -1,10 +1,20 @@
 (()=>{
 'use strict';
-const VERSION=44;
+const VERSION=45;
 const REFRESH_MS=60000;
 let refreshing=false;
 let lastCount=0;
 let lastConnected=false;
+
+const loadPackSummaryFix=()=>{
+  if(window.__WS_PACK_SUMMARY_FIX__||document.querySelector('script[data-pack-summary-fix]'))return;
+  const script=document.createElement('script');
+  script.src='assets/pack-summary-fix-v49.js?v=49';
+  script.dataset.packSummaryFix='';
+  script.onload=()=>{if(state?.view==='new'&&typeof window.renderItemRows==='function')window.renderItemRows()};
+  script.onerror=()=>console.error('[pack-summary] failed to load v49');
+  document.head.appendChild(script);
+};
 
 const logStatus=(extra={})=>{
   const status={
@@ -14,7 +24,8 @@ const logStatus=(extra={})=>{
     records:lastCount,
     filter:document.querySelector('#billPeriod')?.value||null,
     recovery:typeof window.syncBillsAfterLoad==='function',
-    autoRefresh:true
+    autoRefresh:true,
+    packSummary:window.__WS_PACK_SUMMARY_FIX__?.version||'loading'
   };
   console.info(`[data-dashboard] v${window.__WS_DATA_FIX__?.version||'unknown'} loaded`);
   console.table({...status,...extra});
@@ -40,6 +51,7 @@ if(typeof originalShow==='function'){
   window.show=function(view){
     const result=originalShow(view);
     requestAnimationFrame(addHealthCards);
+    if(view==='new')loadPackSummaryFix();
     return result;
   };
 }
@@ -47,7 +59,8 @@ if(typeof originalShow==='function'){
 window.checkAppVersions=()=>logStatus({
   core:window.__WS_CORE__?.version||null,
   data:window.__WS_DATA_FIX__?.version||null,
-  pricing:window.__WS_PACK_UNIT_PRICING__?.version||window.__WS_PROCUREMENT_V38__?.version||null
+  pricing:window.__WS_PACK_UNIT_PRICING__?.version||window.__WS_PROCUREMENT_V38__?.version||null,
+  packSummary:window.__WS_PACK_SUMMARY_FIX__?.version||null
 });
 
 window.refreshBillData=async({silent=false}={})=>{
@@ -69,6 +82,7 @@ window.refreshBillData=async({silent=false}={})=>{
   }finally{refreshing=false}
 };
 
+loadPackSummaryFix();
 window.addEventListener('load',()=>setTimeout(()=>window.refreshBillData(),50),{once:true});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)window.refreshBillData({silent:true})});
 setInterval(()=>window.refreshBillData({silent:true}),REFRESH_MS);
