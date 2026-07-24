@@ -1,1 +1,0 @@
-(()=>{'use strict';window.__WS_STANDARD__={version:32,disabled:true};})();
