@@ -42,11 +42,14 @@ window.addEventListener('hashchange',()=>{
 });
 
 document.addEventListener('click',event=>{
-  if(event.target.closest('.nav [data-view]'))setTimeout(updateCurrentRoute,0);
+  const target=event.target;
+  if(target instanceof Element&&target.closest('.nav [data-view]'))setTimeout(updateCurrentRoute,0);
 });
 
 document.addEventListener('keydown',event=>{
-  const key=event.key.toLowerCase();
+  const rawKey=typeof event.key==='string'?event.key:'';
+  if(!rawKey)return;
+  const key=rawKey.toLowerCase();
   if(event.ctrlKey&&key==='n'){
     event.preventDefault();
     if(typeof show==='function')show('new');
@@ -57,7 +60,7 @@ document.addEventListener('keydown',event=>{
   }else if(event.ctrlKey&&key==='t'){
     event.preventDefault();
     document.querySelector('.theme-toggle,[data-theme-toggle],#themeToggle')?.click();
-  }else if(event.key==='Escape'){
+  }else if(key==='escape'){
     const active=document.activeElement;
     if(active&&/^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName)){
       if('value' in active)active.value='';
@@ -71,5 +74,5 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else installAccessibilityShell();
 window.addEventListener('load',installAccessibilityShell,{once:true});
 
-window.__WS_ROUTER__={version:34,route,updateCurrentRoute};
+window.__WS_ROUTER__={version:35,route,updateCurrentRoute};
 })();
