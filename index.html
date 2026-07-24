@@ -72,5 +72,20 @@
   <script src="assets/js/core/admin.js?v=9"></script>
   <script src="assets/js/core/controller.js?v=9"></script>
   <script src="assets/js/core/health.js?v=9"></script>
+  <script>
+    (()=>{
+      const delegatedShow=window.show;
+      window.show=view=>{
+        if(view==='admin'){
+          state.view='admin';
+          document.querySelectorAll('.nav [data-view]').forEach(link=>link.classList.toggle('active',link.dataset.view==='admin'));
+          const title=document.getElementById('topTitle');if(title)title.textContent='Admin';
+          window.__WS_ADMIN__?.updatePresence?.('admin');
+          return window.renderAdmin?.();
+        }
+        return delegatedShow(view);
+      };
+    })();
+  </script>
 </body>
 </html>
