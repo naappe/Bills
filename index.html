@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-  <link rel="stylesheet" href="assets/css/app-shell.css?v=8">
+  <link rel="stylesheet" href="assets/css/app-shell.css?v=9">
 </head>
 <body>
   <section class="login" id="loginView">
@@ -38,6 +38,7 @@
         <a href="#prices" data-view="prices">Price Book</a>
         <a href="#reports" data-view="reports">Reports</a>
         <a href="#settings" data-view="settings">Settings</a>
+        <a href="#admin" data-view="admin" class="hidden">Admin</a>
       </nav>
       <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div>
     </aside>
@@ -66,9 +67,10 @@
     window.freshItem=freshItem;
   </script>
 
-  <script src="assets/js/core/ui.js?v=8"></script>
-  <script src="assets/js/core/auth.js?v=8"></script>
-  <script src="assets/js/core/controller.js?v=8"></script>
-  <script src="assets/js/core/health.js?v=8"></script>
+  <script src="assets/js/core/ui.js?v=9"></script>
+  <script src="assets/js/core/auth.js?v=9"></script>
+  <script src="assets/js/core/admin.js?v=9"></script>
+  <script src="assets/js/core/controller.js?v=9"></script>
+  <script src="assets/js/core/health.js?v=9"></script>
 </body>
 </html>
