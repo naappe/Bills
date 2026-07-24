@@ -1,12 +1,34 @@
 (()=>{
 'use strict';
-const VERSION=52;
+const VERSION=53;
 const VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings']);
 const PAGE_SIZE=1000;
 let loadingPromise=null;
 let retryTimer=null;
 let currentSession=null;
 const $=s=>document.querySelector(s);
+
+const resolveRole=user=>{
+  if(window.__WS_AUTH__?.resolveRole)return window.__WS_AUTH__.resolveRole(user);
+  if(!user)return 'staff';
+  if(typeof ADMIN_IDS!=='undefined'&&ADMIN_IDS.includes(user.id))return 'admin';
+  const candidate=String(user.app_metadata?.role||user.user_metadata?.role||'staff').toLowerCase();
+  return ['admin','manager','staff','readonly'].includes(candidate)?candidate:'staff';
+};
+
+const applyAuthenticatedUser=session=>{
+  currentSession=session||null;
+  const user=session?.user||null;
+  state.user=user;
+  if(!user)return;
+  state.role=resolveRole(user);
+  const roleLabel=$('#roleLabel');
+  const emailLabel=$('#emailLabel');
+  const avatar=$('#avatar');
+  if(roleLabel)roleLabel.textContent=state.role.toUpperCase();
+  if(emailLabel)emailLabel.textContent=user.email||'Signed in';
+  if(avatar)avatar.textContent=(user.email||'A').charAt(0).toUpperCase();
+};
 
 const ensureHealthCards=()=>{
   const metrics=document.querySelector('#content .metrics');
@@ -65,20 +87,19 @@ const loadBillsOnce=({render=true,retry=true}={})=>{
         const result=await db.auth.getSession();
         if(result.error)throw result.error;
         session=result.data.session;
-        currentSession=session;
       }
+      applyAuthenticatedUser(session);
       if(!session?.user){
         setHealth('Signed out',state.rows?.length||0,'No authenticated session');
         return state.rows||[];
       }
-      state.user=session.user;
       setHealth('Connecting…',state.rows?.length||0);
       const rows=await queryAllBills();
       state.rows=rows;
       state.filtered=[...rows];
       setHealth('Connected',rows.length);
       if(render)renderCurrent();
-      console.info(`[app-controller] v${VERSION}: ${rows.length} bills loaded`);
+      console.info(`[app-controller] v${VERSION}: ${rows.length} bills loaded as ${state.role}`);
       return rows;
     }catch(error){
       console.error('[app-controller] direct bill query failed',error);
@@ -123,24 +144,18 @@ window.reloadBillsNow=()=>loadBillsOnce({render:true,retry:false});
 window.refreshBillData=({silent=false}={})=>loadBillsOnce({render:!silent,retry:false});
 window.syncBillsAfterLoad=()=>loadBillsOnce({render:true,retry:true});
 
-window.addEventListener('load',async()=>{
-  const {data,error}=await db.auth.getSession();
-  if(error){setHealth('Error',0,error.message);return}
-  currentSession=data.session;
-  if(currentSession?.user)loadBillsOnce({render:true,retry:true});
+db.auth.getSession().then(({data,error})=>{
+  if(error){setHealth('Error',0,error.message);return;}
+  applyAuthenticatedUser(data.session);
+  if(data.session?.user)loadBillsOnce({render:true,retry:true});
   else setHealth('Signed out',0,'No authenticated session');
-},{once:true});
-
-db.auth.onAuthStateChange((_event,session)=>{
-  currentSession=session;
-  if(session?.user){
-    state.user=session.user;
-    setTimeout(()=>loadBillsOnce({render:true,retry:true}),0);
-  }else{
-    state.user=null;
-    setHealth('Signed out',0,'Signed out');
-  }
 });
 
-window.__WS_APP_CONTROLLER__={version:VERSION,navigate,reload:window.reloadBillsNow};
+db.auth.onAuthStateChange((_event,session)=>{
+  applyAuthenticatedUser(session);
+  if(session?.user)setTimeout(()=>loadBillsOnce({render:true,retry:true}),0);
+  else setHealth('Signed out',0,'Signed out');
+});
+
+window.__WS_APP_CONTROLLER__={version:VERSION,navigate,reload:window.reloadBillsNow,resolveRole};
 })();
