@@ -25,56 +25,56 @@ function installAuthViewStyles(){
 }
 
 function setAuthView(session){
-  const authenticated=Boolean(session&&session.user);
+  const authenticated=Boolean(session?.user);
   document.body.classList.toggle('ws-authenticated',authenticated);
-  if(loginView)loginView.classList.toggle('hidden',authenticated);
-  if(appView)appView.classList.toggle('hidden',!authenticated);
-  if(loginView)loginView.setAttribute('aria-hidden',authenticated?'true':'false');
-  if(appView)appView.setAttribute('aria-hidden',authenticated?'false':'true');
+  loginView?.classList.toggle('hidden',authenticated);
+  appView?.classList.toggle('hidden',!authenticated);
+  loginView?.setAttribute('aria-hidden',authenticated?'true':'false');
+  appView?.setAttribute('aria-hidden',authenticated?'false':'true');
 }
 
 installAuthViewStyles();
-setAuthView(null);
 
+// Core owns session restoration and the single auth-state subscription.
+// This wrapper adds role resolution without starting another session listener.
 const originalBoot=typeof window.boot==='function'?window.boot:null;
 if(originalBoot){
   window.boot=async function(session){
+    const result=await originalBoot(session);
     setAuthView(session);
-    if(!session)return originalBoot(session);
-    const role=resolveRole(session.user);
-    await originalBoot(session);
-    state.role=role;
-    const roleLabel=document.querySelector('#roleLabel');
-    if(roleLabel)roleLabel.textContent=role.toUpperCase();
-    if(state.view==='settings'&&typeof renderSettings==='function')renderSettings();
-    setAuthView(session);
+    if(session?.user){
+      const role=resolveRole(session.user);
+      state.role=role;
+      const roleLabel=document.querySelector('#roleLabel');
+      if(roleLabel)roleLabel.textContent=role.toUpperCase();
+      if(state.view==='settings'&&typeof renderSettings==='function')renderSettings();
+    }
+    return result;
   };
 }
 
 const form=document.querySelector('#loginForm');
 if(form){
-  form.onsubmit=async e=>{
-    e.preventDefault();
+  form.onsubmit=async event=>{
+    event.preventDefault();
     const notice=document.querySelector('#loginNotice');
+    const submit=form.querySelector('button[type="submit"],button:not([type])');
     const raw=String(document.querySelector('#loginName')?.value||'').trim().toLowerCase();
     const password=String(document.querySelector('#loginPassword')?.value||'');
     const legacy=(typeof LOGIN!=='undefined'&&LOGIN[raw])||null;
     const email=raw.includes('@')?raw:(legacy||`${raw}@users.whitesaffron.mv`);
     if(notice)notice.textContent='Signing in…';
-    const {data,error}=await db.auth.signInWithPassword({email,password});
-    if(error){if(notice)notice.textContent='Invalid username or password';setAuthView(null);return}
+    if(submit)submit.disabled=true;
+    const {error}=await db.auth.signInWithPassword({email,password});
+    if(submit)submit.disabled=false;
+    if(error){
+      if(notice)notice.textContent='Invalid username or password';
+      return;
+    }
     if(notice)notice.textContent='';
-    setAuthView(data.session);
-    if(typeof window.boot==='function')await window.boot(data.session);
+    // Do not call boot here. The single core auth listener receives SIGNED_IN.
   };
 }
 
-if(db?.auth?.onAuthStateChange){
-  db.auth.onAuthStateChange((_event,session)=>setAuthView(session));
-}
-if(db?.auth?.getSession){
-  db.auth.getSession().then(({data})=>setAuthView(data?.session||null)).catch(()=>setAuthView(null));
-}
-
-window.__WS_AUTH__={version:37,resolveRole,setAuthView};
+window.__WS_AUTH__={version:38,resolveRole,setAuthView};
 })();
