@@ -1,5 +1,6 @@
 (()=>{
 'use strict';
+const VERSION=40;
 const allowedRoles=new Set(['admin','manager','staff','readonly']);
 const resolveRole=user=>{
   if(!user)return'staff';
@@ -35,6 +36,7 @@ function setAuthView(session){
     if(avatar)avatar.textContent=(session.user.email||'A').charAt(0).toUpperCase();
   }else{
     state.user=null;
+    state.role='staff';
   }
 }
 installAuthViewStyles();
@@ -67,18 +69,8 @@ if(logout){
     const {error}=await db.auth.signOut();
     logout.disabled=false;
     if(error){console.error('[auth] sign out failed',error);return;}
-    setAuthView(null);
   };
 }
 
-db.auth.getSession().then(({data,error})=>{
-  if(error){console.error('[auth] session restore failed',error);setAuthView(null);return;}
-  setAuthView(data.session);
-});
-
-db.auth.onAuthStateChange((_event,session)=>{
-  setAuthView(session);
-});
-
-window.__WS_AUTH__={version:39,resolveRole,setAuthView};
+window.__WS_AUTH__={version:VERSION,resolveRole,setAuthView};
 })();
