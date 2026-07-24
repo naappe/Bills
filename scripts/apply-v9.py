@@ -60,7 +60,7 @@ for asset in [
  'ux-v21','delete-v22','live-v23','admin-users-v24','catalog-fix-v25',
  'premium-v26','navigation-admin-v27','navigation-fix-v28','standard-v29',
  'router-v30','router-v31','hierarchy-v32','bills-fix-v34','auth-v35',
- 'data-dashboard-v36','theme-settings'
+ 'data-dashboard-v36','runtime-health-v44','theme-settings'
 ]:
     html=re.sub(rf'\n?<script src="assets/{asset}\.js\?v=\d+"></script>','',html)
 
@@ -73,7 +73,7 @@ modules=''.join([
       ('ux-v21','22'),('delete-v22','22'),('live-v23','24'),
       ('admin-users-v24','26'),('catalog-fix-v25','25'),('premium-v26','26'),
       ('router-v31','33'),('hierarchy-v32','33'),('bills-fix-v34','34'),
-      ('auth-v35','35'),('data-dashboard-v36','37')
+      ('auth-v35','35'),('data-dashboard-v36','44'),('runtime-health-v44','44')
     ]
 ])
 html=html.replace('</body>',modules+'</body>')
@@ -84,7 +84,7 @@ checks=[
  'assets/hierarchy-v32.css?v=32','assets/hierarchy-v32.js?v=33',
  'assets/router-v31.js?v=33','assets/bills-fix-v34.js?v=34',
  'assets/admin-users-v24.js?v=26','assets/auth-v35.js?v=35',
- 'assets/data-dashboard-v36.js?v=37'
+ 'assets/data-dashboard-v36.js?v=44','assets/runtime-health-v44.js?v=44'
 ]
 for x in checks:
     if html.count(x)!=1:
@@ -106,6 +106,11 @@ for required_core in [
     if required_core not in core:
         raise SystemExit(f'core-v14.js missing required routing contract: {required_core}')
 
+health=Path('assets/runtime-health-v44.js').read_text(encoding='utf-8')
+for required_health in ['Database status','Loaded records','window.checkAppVersions','setInterval']:
+    if required_health not in health:
+        raise SystemExit(f'runtime health contract missing: {required_health}')
+
 if '<h1>Procurement ERP</h1>' in html:
     raise SystemExit('Login heading must not create a second page H1')
 
@@ -116,4 +121,4 @@ for obsolete in [
     if obsolete in html:
         raise SystemExit(f'obsolete asset still referenced: {obsolete}')
 
-print('Applied stable modular Bills app with routing provided by core-v14.js.')
+print('Applied stable modular Bills app with observable database health and v44 cache activation.')
