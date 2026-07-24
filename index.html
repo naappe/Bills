@@ -10,37 +10,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-
-  <!-- Core shell -->
-  <link rel="stylesheet" href="assets/css/app-shell.css?v=1">
-
-  <!-- Feature styles: retained until each page is consolidated -->
-  <link rel="stylesheet" href="assets/brand-v9.css?v=13">
-  <link rel="stylesheet" href="theme-v4.css?v=4">
-  <link rel="stylesheet" href="assets/dashboard-v15.css?v=15">
-  <link rel="stylesheet" href="assets/bills-v16.css?v=16">
-  <link rel="stylesheet" href="assets/crud-v17.css?v=17">
-  <link rel="stylesheet" href="assets/procurement-v18.css?v=18">
-  <link rel="stylesheet" href="assets/operations-v19.css?v=19">
-  <link rel="stylesheet" href="assets/production-v20.css?v=20">
-  <link rel="stylesheet" href="assets/ux-v21.css?v=21">
-  <link rel="stylesheet" href="assets/live-v23.css?v=23">
-  <link rel="stylesheet" href="assets/admin-users-v24.css?v=24">
-  <link rel="stylesheet" href="assets/premium-v26.css?v=26">
-  <link rel="stylesheet" href="assets/standard-v29.css?v=29">
-  <link rel="stylesheet" href="assets/design-tokens.css?v=2">
-  <link rel="stylesheet" href="assets/hierarchy-v32.css?v=32">
-<link rel="stylesheet" href="assets/brand-v8.css?v=8">
+  <link rel="stylesheet" href="assets/css/app-shell.css?v=2">
 </head>
 <body>
-  <div id="dashboardContract" hidden aria-hidden="true"><span id="dashboardView"></span><span id="topVendors"></span><span id="categoryDashboard"></span><span id="paymentDashboard"></span><span id="statusSummary"></span></div>
-
   <section class="login" id="loginView">
     <div class="login-card">
       <div class="mark">WS</div>
       <div class="login-title">Procurement ERP</div>
-      <p class="muted">Bills, vendors, product prices and purchasing insight.</p>
+      <p class="muted">Clean rebuild in progress.</p>
       <form id="loginForm" class="stack">
         <label>Username<input class="field" id="loginName" required autocomplete="username"></label>
         <label>Password<input class="field" id="loginPassword" type="password" required autocomplete="current-password"></label>
@@ -54,13 +31,13 @@
     <aside class="sidebar" id="sidebar">
       <div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
       <nav class="nav" aria-label="Primary navigation">
-        <a href="#dashboard" data-view="dashboard" class="active">▦ Dashboard</a>
-        <a href="#bills" data-view="bills">▤ Bills</a>
-        <a href="#products" data-view="products">◫ Products</a>
-        <a href="#vendors" data-view="vendors">♙ Vendors</a>
-        <a href="#prices" data-view="prices">↗ Price Book</a>
-        <a href="#reports" data-view="reports">▥ Reports</a>
-        <a href="#settings" data-view="settings">⚙ Settings</a>
+        <a href="#dashboard" data-view="dashboard" class="active">Dashboard</a>
+        <a href="#bills" data-view="bills">Bills</a>
+        <a href="#products" data-view="products">Products</a>
+        <a href="#vendors" data-view="vendors">Vendors</a>
+        <a href="#prices" data-view="prices">Price Book</a>
+        <a href="#reports" data-view="reports">Reports</a>
+        <a href="#settings" data-view="settings">Settings</a>
       </nav>
       <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div>
     </aside>
@@ -73,7 +50,6 @@
     </main>
   </section>
 
-  <!-- Shared configuration -->
   <script>
     const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co';
     const SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
@@ -90,35 +66,9 @@
     window.freshItem=freshItem;
   </script>
 
-  <!-- Core ownership: UI, authentication, controller, health -->
-  <script src="assets/js/core/ui.js?v=1"></script>
-  <script src="assets/js/core/auth.js?v=1"></script>
-
-  <!-- Feature modules: temporary legacy names, grouped by responsibility -->
-  <script src="assets/pack-unit-pricing-v43.js?v=48"></script>
-  <script src="assets/theme-settings.js?v=1"></script>
-  <script src="assets/app-v13.js?v=13"></script>
-  <script src="assets/layout-v14.js?v=14"></script>
-  <script src="assets/dashboard-v15.js?v=15"></script>
-  <script src="assets/bills-v16.js?v=16"></script>
-  <script src="assets/crud-v17.js?v=17"></script>
-  <script src="assets/procurement-v18.js?v=18"></script>
-  <script src="assets/operations-v19.js?v=19"></script>
-  <script src="assets/production-v20.js?v=20"></script>
-  <script src="assets/ux-v21.js?v=22"></script>
-  <script src="assets/delete-v22.js?v=22"></script>
-  <script src="assets/live-v23.js?v=24"></script>
-  <script src="assets/admin-users-v24.js?v=26"></script>
-  <script src="assets/catalog-fix-v25.js?v=25"></script>
-  <script src="assets/premium-v26.js?v=26"></script>
-  <script src="assets/router-v31.js?v=33"></script>
-  <script src="assets/hierarchy-v32.js?v=33"></script>
-  <script src="assets/bills-fix-v34.js?v=34"></script>
-  <script src="assets/data-dashboard-v36.js?v=44"></script>
-
-  <!-- Single startup owner -->
-  <script src="assets/js/core/controller.js?v=1"></script>
-  <script src="assets/js/core/health.js?v=1"></script>
-<script src="assets/vendor-autofill-v8.js?v=8"></script>
+  <script src="assets/js/core/ui.js?v=2"></script>
+  <script src="assets/js/core/auth.js?v=2"></script>
+  <script src="assets/js/core/controller.js?v=2"></script>
+  <script src="assets/js/core/health.js?v=2"></script>
 </body>
 </html>
