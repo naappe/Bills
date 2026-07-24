@@ -10,10 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-  <link rel="stylesheet" href="assets/css/app-shell.css?v=11">
-  <link rel="stylesheet" href="assets/css/modern-ui.css?v=11">
+  <style>body.ws-auth-pending #loginView,body.ws-auth-pending #appView{display:none!important}</style>
+  <link rel="stylesheet" href="assets/css/app-shell.css?v=12">
+  <link rel="stylesheet" href="assets/css/modern-ui.css?v=12">
 </head>
-<body>
+<body class="ws-auth-pending">
   <section class="login" id="loginView">
     <div class="login-card">
       <div class="mark">WS</div>
@@ -68,13 +69,13 @@
     window.freshItem=freshItem;
   </script>
 
-  <script src="assets/js/core/ui.js?v=11"></script>
-  <script src="assets/js/core/auth.js?v=11"></script>
-  <script src="assets/js/core/admin.js?v=11"></script>
-  <script src="assets/js/page-polish.js?v=11"></script>
-  <script src="assets/js/core/visual.js?v=11"></script>
-  <script src="assets/js/core/controller.js?v=11"></script>
-  <script src="assets/js/core/health.js?v=11"></script>
+  <script src="assets/js/core/ui.js?v=12"></script>
+  <script src="assets/js/core/auth.js?v=12"></script>
+  <script src="assets/js/core/admin.js?v=12"></script>
+  <script src="assets/js/page-polish.js?v=12"></script>
+  <script src="assets/js/core/visual.js?v=12"></script>
+  <script src="assets/js/core/controller.js?v=12"></script>
+  <script src="assets/js/core/health.js?v=12"></script>
   <script>
     (()=>{
       const delegatedShow=window.show;
