@@ -91,4 +91,5 @@ const observer=new MutationObserver(queue);
 observer.observe(document.documentElement,{subtree:true,childList:true});
 window.addEventListener('hashchange',queue);
 queue();
+if(!document.querySelector('script[data-vendor-picker-loader]')){const loader=document.createElement('script');loader.src='assets/vendor-picker-loader-v42.js?v=42';loader.dataset.vendorPickerLoader='1';document.body.appendChild(loader)}
 })();
