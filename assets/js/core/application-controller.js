@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=56;
+const VERSION=57;
 const VIEWS=new Set(['dashboard','bills','new','rates','mobile','products','vendors','prices','reports','settings','admin']);
 const PAGE_SIZE=1000;
 let loadingPromise=null;
@@ -50,12 +50,16 @@ const renderCurrent=()=>{
 
 const queryAllBills=async()=>{
   const result=[];
-  for(let from=0;;from+=PAGE_SIZE){
-    const {data,error}=await db.from(TABLE).select('*').is('deleted_at',null).order('created_at',{ascending:false}).order('id',{ascending:false}).range(from,from+PAGE_SIZE-1);
-    if(error)throw error;
-    const batch=Array.isArray(data)?data:[];
-    result.push(...batch);
-    if(batch.length<PAGE_SIZE)break;
+  const PARALLEL_PAGES=3;
+  for(let from=0;;from+=PAGE_SIZE*PARALLEL_PAGES){
+    const offsets=Array.from({length:PARALLEL_PAGES},(_,index)=>from+(index*PAGE_SIZE));
+    const pages=await Promise.all(offsets.map(async offset=>{
+      const {data,error}=await db.from(TABLE).select('*').is('deleted_at',null).order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+PAGE_SIZE-1);
+      if(error)throw error;
+      return Array.isArray(data)?data:[];
+    }));
+    pages.forEach(page=>result.push(...page));
+    if(pages.some(page=>page.length<PAGE_SIZE))break;
   }
   return result;
 };
