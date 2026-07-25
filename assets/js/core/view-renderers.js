@@ -150,23 +150,30 @@ window.renderMobileDemo=()=>{
 };
 
 window.renderRates=()=>{
- const rateMoney=value=>`MVR ${num(value).toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:5})}`;
+ const rateMoney=value=>'MVR '+num(value).toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:5});
  const records=[];
  all().forEach(bill=>(Array.isArray(bill.items)?bill.items:[]).forEach(raw=>{
   const item=baseInfo(itemFromSaved(raw)),product=text(item.product),vendor=text(vendorVal(bill))||'Unknown',date=iso(dateVal(bill));
-  if(product&&item.total_base>0)records.push({product,vendor,date,purchase_unit:item.unit,purchase_rate:item.purchase_rate,base_unit:item.small_unit,base_rate:item.small_rate,key:`${product.toLowerCase()}|${item.small_unit}`});
+  if(product&&item.total_base>0)records.push({product,vendor,date,purchase_unit:item.unit,purchase_rate:item.purchase_rate,base_unit:item.small_unit,base_rate:item.small_rate,key:product.toLowerCase()+'|'+item.small_unit});
  }));
  const groups=new Map();records.forEach(record=>{const group=groups.get(record.key)||[];group.push(record);groups.set(record.key,group)});
  const rows=[...groups.values()].map(group=>{
   group.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const current=group[0],weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
-  const prior=group.find(record=>record.date&&new Date(`${record.date}T00:00:00`)<weekAgo)||group[1]||null;
+  const prior=group.find(record=>record.date&&new Date(record.date+'T00:00:00')<weekAgo)||group[1]||null;
   const vendorLatest=new Map();group.forEach(record=>{if(!vendorLatest.has(record.vendor))vendorLatest.set(record.vendor,record)});
   const cheapest=[...vendorLatest.values()].sort((a,b)=>a.base_rate-b.base_rate)[0]||current;
   const change=prior&&prior.base_rate>0?(current.base_rate-prior.base_rate)/prior.base_rate:0;
   return{current,prior,cheapest,change};
- }).sort((a,b)=>a.current.product.localeCompare(b.current.product));
- byId('content').innerHTML=head('Rates','Saved bill rates, normalized for comparison')+`<section class="metrics"><article class="metric"><small>Tracked items</small><strong>${rows.length}</strong></article><article class="metric"><small>Higher than prior week</small><strong>${rows.filter(row=>row.change>0).length}</strong></article><article class="metric"><small>Vendors compared</small><strong>${new Set(records.map(record=>record.vendor)).size}</strong></article></section><section class="card"><div class="table-wrap"><table><thead><tr><th>Product</th><th>Current rate</th><th>Previous rate</th><th>Change</th><th>Cheapest vendor</th><th>Last bill</th></tr></thead><tbody>${rows.map(({current,prior,cheapest,change})=>`<tr><td><strong>${esc(current.product)}</strong><div class="muted">${esc(current.purchase_unit)} · ${esc(current.base_unit)}</div></td><td>${rateMoney(current.base_rate)}<div class="muted">${purchaseRateLabel(current.purchase_unit)}: ${money(current.purchase_rate)}</div></td><td>${prior?rateMoney(prior.base_rate):'-'}</td><td>${prior?`<span class="pill" style="color:${change>0?'var(--red)':'var(--brand-2)'}">${change>0?'▲':'▼'} ${Math.abs(change*100).toFixed(1)}%</span>`:'-'}</td><td><strong>${esc(cheapest.vendor)}</strong><div class="muted">${rateMoney(cheapest.base_rate)}</div></td><td>${esc(current.date||'-')}</td></tr>`).join('')||'<tr><td colspan="6"><div class="empty">Save bill items to build rate intelligence.</div></td></tr>'}</tbody></table></div></section>`;
+ }).sort((a,b)=>b.change-a.change||a.current.product.localeCompare(b.current.product));
+ const increases=rows.filter(row=>row.change>0),best=rows.slice().sort((a,b)=>a.cheapest.base_rate-b.cheapest.base_rate)[0];
+ const cards=rows.map(row=>{
+  const current=row.current,prior=row.prior,cheapest=row.cheapest,up=row.change>0;
+  const status=prior?(up?'<span class="rate-status rate-status-up">▲ '+Math.abs(row.change*100).toFixed(1)+'% higher</span>':'<span class="rate-status rate-status-down">✓ Stable or lower</span>'):'<span class="rate-status">First saved rate</span>';
+  return '<article class="rate-card '+(up?'rate-card-alert':'')+'"><div class="rate-card-top"><div><h3>'+esc(current.product)+'</h3><span class="rate-unit">'+esc(purchaseUnitName(current.purchase_unit))+' · per '+esc(current.base_unit)+'</span></div>'+status+'</div><div class="rate-primary"><span>Current rate</span><strong>'+rateMoney(current.base_rate)+'</strong></div><div class="rate-details"><div><span>'+esc(purchaseRateLabel(current.purchase_unit))+'</span><strong>'+money(current.purchase_rate)+'</strong></div><div><span>Last bill</span><strong>'+esc(current.date||'-')+'</strong></div></div><div class="rate-vendor"><span>Cheapest current vendor</span><strong>'+esc(cheapest.vendor)+'</strong><b>'+rateMoney(cheapest.base_rate)+'</b></div>'+(prior?'<div class="rate-previous">Previous rate: '+rateMoney(prior.base_rate)+'</div>':'')+'</article>';
+ }).join('');
+ const overview='<section class="rate-overview"><article class="rate-overview-card"><span>Tracked products</span><strong>'+rows.length+'</strong><small>Saved item rates</small></article><article class="rate-overview-card '+(increases.length?'rate-overview-alert':'')+'"><span>Price increases</span><strong>'+increases.length+'</strong><small>Compared with prior rate</small></article><article class="rate-overview-card rate-overview-best"><span>Best available rate</span><strong>'+ (best?rateMoney(best.cheapest.base_rate):'—') +'</strong><small>'+ (best?esc(best.cheapest.vendor):'Save a bill to compare') +'</small></article></section>';
+ byId('content').innerHTML=head('Rates','Price intelligence from saved bill items')+overview+(cards?'<section class="rate-card-grid">'+cards+'</section>':'<section class="card"><div class="empty">Save bill items to build price intelligence.</div></section>');
 };
 
 window.renderProducts=()=>{const map=new Map();all().forEach(row=>(row.items||[]).forEach(item=>{const name=text(val(item,'product','description'));if(!name)return;const current=map.get(name)||{name,unit:val(item,'unit'),qty:0,total:0};current.qty+=num(val(item,'qty'));current.total+=num(val(item,'line_total'));map.set(name,current)}));const list=[...map.values()].sort((a,b)=>a.name.localeCompare(b.name));byId('content').innerHTML=head('Products',`${list.length} products`)+`<section class="card"><div class="table-wrap"><table><thead><tr><th>Product</th><th>Unit</th><th>Quantity</th><th>Total</th></tr></thead><tbody>${list.map(product=>`<tr><td>${esc(product.name)}</td><td>${esc(product.unit||'-')}</td><td>${product.qty.toLocaleString()}</td><td>${money(product.total)}</td></tr>`).join('')}</tbody></table></div></section>`};
