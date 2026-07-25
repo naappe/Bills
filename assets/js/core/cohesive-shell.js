@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=1;
+const VERSION=2;
 
 function ensureFooter(){
   const main=document.querySelector('.main');
@@ -43,5 +43,5 @@ if(window.UI&&typeof previousAfterRender==='function'&&!window.UI.__cohesiveShel
 }
 
 window.__WS_COHESIVE_SHELL__={version:VERSION,sync:syncShell};
-console.info('[cohesive-shell] v1 ready');
+console.info('[cohesive-shell] v2 ready');
 })();
