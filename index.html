@@ -4,18 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#1A3C6E">
-  <meta name="app-version" content="4.5.0">
+  <meta name="app-version" content="4.6.0">
   <title>White Saffron Procurement ERP</title>
   <script>
-    window.__BILLS_DEPLOYMENT__={version:'4.5.0',loadedAt:new Date().toISOString()};
+    window.__BILLS_DEPLOYMENT__={version:'4.6.0',loadedAt:new Date().toISOString()};
     if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(registrations=>registrations.forEach(registration=>registration.unregister())).catch(()=>{});}
     if('caches' in window){caches.keys().then(keys=>Promise.all(keys.filter(key=>/bills|white|saffron|procurement|static/i.test(key)).map(key=>caches.delete(key)))).catch(()=>{});}
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="app/css/app.css?v=4.5.0">
-  <link rel="stylesheet" href="app/css/products.css?v=4.5.0">
+  <link rel="stylesheet" href="app/css/app.css?v=4.6.0">
+  <link rel="stylesheet" href="app/css/products.css?v=4.6.0">
+  <link rel="stylesheet" href="app/css/vendors.css?v=4.6.0">
   <style>
     .date-toolbar,.bills-toolbar{display:grid;gap:16px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-sm)}
     .date-toolbar{grid-template-columns:220px 180px 180px minmax(240px,1fr);align-items:end}.bills-toolbar{grid-template-columns:minmax(300px,1.5fr) repeat(3,minmax(150px,.65fr));align-items:end}.bills-toolbar .bill-custom{grid-column:span 1}.range-summary{min-height:var(--control-height);display:flex;align-items:flex-end;justify-content:center;flex-direction:column;padding:8px 12px;border-left:1px solid var(--border)}.range-summary span{color:var(--text-muted);font-size:var(--fs-11)}.range-summary strong{color:var(--text-strong);font-size:var(--fs-13)}
@@ -57,6 +58,6 @@
     </main>
   </section>
 
-  <script type="module" src="app/js/main.js?v=4.5.0"></script>
+  <script type="module" src="app/js/main.js?v=4.6.0"></script>
 </body>
 </html>
