@@ -1,0 +1,76 @@
+name: Consolidate CSS Once
+
+on:
+  push:
+    paths:
+      - '.github/workflows/consolidate-css-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  consolidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Consolidate all CSS into breathing-room.css
+        shell: bash
+        run: |
+          set -euo pipefail
+          css_dir="assets/css"
+          target="$css_dir/breathing-room.css"
+          tmp="$(mktemp)"
+
+          files=(
+            procurement-ui.css
+            ui-structure.css
+            alignment-system.css
+            procurement-rebuild-v3.css
+            procurement-pages-v4.css
+            recovery-v5.css
+            admin-manage-v5.css
+            vendors-settings-v6.css
+            site-audit-v7.css
+            product-editor-v8.css
+            admin-users-v9.css
+            product-pricing-v10.css
+            bills-summary-v11.css
+          )
+
+          printf '/* White Saffron Procurement ERP — single consolidated stylesheet */\n' > "$tmp"
+
+          for file in "${files[@]}"; do
+            path="$css_dir/$file"
+            if [[ -f "$path" ]]; then
+              printf '\n/* ===== %s ===== */\n' "$file" >> "$tmp"
+              cat "$path" >> "$tmp"
+              printf '\n' >> "$tmp"
+            fi
+          done
+
+          printf '\n/* ===== Final breathing-room audit overrides ===== */\n' >> "$tmp"
+          awk '!/^@import[[:space:]]/' "$target" >> "$tmp"
+          mv "$tmp" "$target"
+
+          rm -f "${files[@]/#/$css_dir/}"
+          rm -f .github/workflows/consolidate-css-once.yml
+
+          if grep -q '@import' "$target"; then
+            echo 'Unexpected @import remains in consolidated CSS.' >&2
+            exit 1
+          fi
+
+          test -s "$target"
+
+      - name: Commit consolidated stylesheet
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/css .github/workflows/consolidate-css-once.yml
+          git commit -m "Consolidate CSS and remove legacy stylesheets"
+          git push
