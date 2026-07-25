@@ -81,14 +81,22 @@ window.openBillEntry=()=>{state.editing=null;const mount=byId('billEntryMount');
  const apply=()=>{const query=text(byId('billSearch').value).toLowerCase(),preset=byId('datePreset').value,status=text(byId('statusFilter').value).toLowerCase();const filtered=filterDates(list,preset,byId('dateFrom').value,byId('dateTo').value);state.filtered=filtered.filter(row=>(!query||`${vendorVal(row)} ${val(row,'bill_no','Bill No')}`.toLowerCase().includes(query))&&(!status||statusVal(row).toLowerCase()===status));state.page=1;renderBillRows()};
  byId('datePreset').onchange=()=>{const custom=byId('datePreset').value==='custom';byId('dateFrom').classList.toggle('hidden',!custom);byId('dateTo').classList.toggle('hidden',!custom);apply()};['billSearch','dateFrom','dateTo'].forEach(id=>byId(id).oninput=apply);byId('statusFilter').onchange=apply;byId('pageSize').value=String(state.pageSize||20);byId('pageSize').onchange=event=>{state.pageSize=num(event.target.value)||20;renderBillRows()};byId('exportBills').onclick=exportCsv;apply()};
 
-const loadVendors=async()=>{const{data,error}=await db.from('vendors').select('id,name,phone,email,tin,address,default_payment_method').eq('is_active',true).is('deleted_at',null).order('name');if(error){console.error('[vendors]',error);return[]}return Array.isArray(data)?data:[]};
+let vendorCache=null,vendorCacheAt=0,vendorLoadPromise=null;
+const invalidateVendorCache=()=>{vendorCache=null;vendorCacheAt=0};
+const loadVendors=async({force=false}={})=>{
+ const fresh=vendorCache&&Date.now()-vendorCacheAt<300000;
+ if(!force&&fresh)return vendorCache;
+ if(vendorLoadPromise)return vendorLoadPromise;
+ vendorLoadPromise=(async()=>{const{data,error}=await db.from('vendors').select('id,name,phone,email,tin,address,default_payment_method').eq('is_active',true).is('deleted_at',null).order('name');if(error){console.error('[vendors]',error);return[]}vendorCache=Array.isArray(data)?data:[];vendorCacheAt=Date.now();return vendorCache})().finally(()=>{vendorLoadPromise=null});
+ return vendorLoadPromise;
+};
 const findVendor=(vendors,name)=>vendors.find(vendor=>text(vendor.name).toLowerCase()===text(name).toLowerCase())||null;
 const saveVendor=async(form,vendors)=>{
  const name=text(form.elements.vendor.value);if(!name)return null;
  const existing=findVendor(vendors,name);
  const details={name,tin:text(form.elements.tin.value)||null,phone:text(form.elements.vendor_phone.value)||null,email:text(form.elements.vendor_email.value)||null,address:text(form.elements.vendor_address.value)||null,default_payment_method:form.elements.payment_method.value||null,updated_at:new Date().toISOString(),updated_by:state.user?.id||null};
- if(existing){const changed=['tin','phone','email','address','default_payment_method'].some(key=>text(existing[key])!==text(details[key]));if(changed){const{data,error}=await db.from('vendors').update(details).eq('id',existing.id).select().single();if(error)throw error;return data}return existing}
- const{data,error}=await db.from('vendors').insert({...details,created_by:state.user?.id||null}).select().single();if(error)throw error;vendors.push(data);return data;
+ if(existing){const changed=['tin','phone','email','address','default_payment_method'].some(key=>text(existing[key])!==text(details[key]));if(changed){const{data,error}=await db.from('vendors').update(details).eq('id',existing.id).select().single();if(error)throw error;invalidateVendorCache();return data}return existing}
+ const{data,error}=await db.from('vendors').insert({...details,created_by:state.user?.id||null}).select().single();if(error)throw error;invalidateVendorCache();vendors.push(data);return data;
 };
 
 window.renderNewBill=async()=>{
