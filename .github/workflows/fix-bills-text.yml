@@ -1,0 +1,63 @@
+name: Fix Bills text hierarchy
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-bills-text.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Append Bills page typography repair
+        run: |
+          cat >> assets/css/breathing-room.css <<'CSS'
+
+/* ===== Bills page text hierarchy repair — 2026-07-26 ===== */
+.audit-page{gap:22px}
+.audit-head h1{font-size:30px;line-height:1.2;letter-spacing:-.015em}
+.audit-head p{margin-top:7px;font-size:14px;line-height:1.6;color:var(--audit-muted,var(--muted))}
+.audit-toolbar{padding:18px;gap:14px}
+.audit-filter-summary{font-size:13px;line-height:1.55;font-weight:650;color:var(--audit-text,var(--text))}
+.audit-list-head,.audit-bills article{grid-template-columns:minmax(120px,.9fr) 125px minmax(160px,1.05fr) minmax(190px,1.35fr) 110px 130px minmax(210px,1.25fr);column-gap:18px;padding-inline:20px}
+.audit-list-head{min-height:46px;font-size:11px;line-height:1.4;letter-spacing:.065em}
+.audit-bills article{min-height:82px;padding-block:17px}
+.audit-bills article>span{min-width:0;line-height:1.45}
+.audit-bills strong{font-size:14px;line-height:1.45;font-weight:720;color:var(--audit-navy,var(--header));overflow-wrap:anywhere}
+.audit-bills article>span:nth-child(4) strong{font-size:15px;font-weight:800}
+.audit-bills article>span:nth-child(6) strong{font-size:15px;font-weight:850;white-space:nowrap}
+.audit-status{min-height:28px;padding:6px 11px;font-size:10px;line-height:1.4;letter-spacing:.035em;align-items:center}
+.audit-row-actions{gap:9px;align-items:center}
+.audit-row-actions .btn.small{min-height:38px;padding:8px 15px;font-size:12px;line-height:1.35}
+.audit-pager{font-size:12px;line-height:1.5}
+
+@media(max-width:760px){
+ .audit-bills article{grid-template-columns:1fr 1fr;gap:18px 20px;padding:18px}
+ .audit-bills article>span::before{font-size:10px!important;line-height:1.4;letter-spacing:.055em;margin-bottom:6px!important}
+ .audit-bills strong{font-size:14px}
+ .audit-bills article>span:nth-child(4) strong,.audit-bills article>span:nth-child(6) strong{font-size:15px}
+ .audit-row-actions{gap:10px;padding-top:2px}
+ .audit-row-actions .btn.small{flex:1;min-height:42px}
+}
+@media(max-width:480px){
+ .audit-bills article{grid-template-columns:1fr;gap:16px}
+ .audit-row-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+ .audit-row-actions .btn.small{width:100%;padding-inline:10px}
+}
+CSS
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('assets/css/breathing-room.css?v=3','assets/css/breathing-room.css?v=4')
+          p.write_text(s)
+          PY
+          rm .github/workflows/fix-bills-text.yml
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/css/breathing-room.css index.html .github/workflows/fix-bills-text.yml
+          git commit -m "Repair Bills page text hierarchy and readability"
+          git push
