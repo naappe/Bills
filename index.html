@@ -5,97 +5,44 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#1A3C6E">
   <title>White Saffron Procurement</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%200%2064%2064%22><defs><linearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22><stop stop-color=%22%23F5A623%22/><stop offset=%221%22 stop-color=%22%23FFD36A%22/></linearGradient></defs><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%231A3C6E%22/><circle cx=%2232%22 cy=%2232%22 r=%2222%22 fill=%22url(%23g)%22/><text x=%2232%22 y=%2241%22 text-anchor=%22middle%22 font-size=%2228%22 font-family=%22Arial%22 font-weight=%22900%22 fill=%22%23102A50%22>WS</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/mona-sans/index.css">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="app/css/app.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>body.ws-auth-pending #loginView,body.ws-auth-pending #appView{display:none!important}body.ws-view-pending #appView{visibility:hidden!important}</style>
-  <link rel="stylesheet" href="assets/css/app.css?v=1">
 </head>
-<body class="ws-auth-pending">
+<body class="auth-pending">
   <section class="login" id="loginView">
     <div class="login-card">
-      <div class="mark">WS</div>
-      <div class="login-title">Procurement ERP</div>
-      <p class="muted">Secure procurement records and reporting.</p>
-      <form id="loginForm" class="stack">
-        <label>Username<input class="field" id="loginName" required autocomplete="username"></label>
-        <label>Password<input class="field" id="loginPassword" type="password" required autocomplete="current-password"></label>
-        <button class="btn">Sign in</button>
-        <div class="notice" id="loginNotice"></div>
+      <div class="login-mark">WS</div>
+      <h1>Procurement ERP</h1>
+      <p>Secure supplier bills, products, pricing and reports.</p>
+      <form class="stack" id="loginForm">
+        <label>Username<input id="loginName" autocomplete="username" required></label>
+        <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+        <button class="btn" type="submit">Sign in</button>
+        <div id="loginNotice"></div>
       </form>
     </div>
   </section>
+
   <section class="app hidden" id="appView">
     <aside class="sidebar" id="sidebar">
-      <div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
-      <nav class="nav" aria-label="Primary navigation"></nav>
-      <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button">Sign out</button></div>
+      <div class="brand"><div class="brand-mark">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
+      <nav class="nav" id="nav" aria-label="Primary navigation"></nav>
+      <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div>
     </aside>
     <main class="main">
       <header class="topbar">
-        <div class="topbar-leading"><button class="btn secondary mobile-menu" id="menuBtn" type="button" aria-label="Open navigation">☰</button><div class="topbar-title" id="topTitle">Dashboard</div></div>
-        <div class="user"><div class="user-copy"><strong id="roleLabel">STAFF</strong><div class="muted" id="emailLabel">Signed in</div></div><div class="avatar" id="avatar">A</div></div>
+        <div class="top-left"><button class="btn secondary menu-btn" id="menuBtn" type="button" aria-label="Open navigation"><i class="fa-solid fa-bars"></i></button><div class="top-title"><strong id="topTitle">Dashboard</strong><small id="topSubtitle">Procurement performance overview</small></div></div>
+        <div class="user"><div class="user-copy"><strong id="roleLabel">STAFF</strong><small id="emailLabel">Signed in</small></div><div class="avatar" id="avatar">A</div></div>
       </header>
       <div class="content" id="content"></div>
+      <footer class="app-footer"><div><span>White Saffron Procurement ERP</span><span>Secure MVR workspace · © <span id="footerYear"></span></span></div></footer>
     </main>
   </section>
-  <script>
-    const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co';
-    const SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
-    const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-    const TABLE='bills';
-    const LOGIN={white:'whitesaffron2025@gmail.com',staff:'whitesaffron2025@gmail.com',supply:'whitesaffron20255@gmail.com',admin:'naappe@gmail.com',naappe:'naappe@gmail.com'};
-    const ADMIN_IDS=['5c0d47f8-68c1-4a60-a1b8-c80885c385da'];
-    const state={user:null,role:'staff',rows:[],filtered:[],view:'dashboard',page:1,pageSize:20,items:[],editing:null};
-    const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-    const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const num=v=>Number(String(v??0).replace(/,/g,''))||0;
-    const money=v=>`MVR ${num(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-    function freshItem(){return{description:'',unit:'KG',qty:1,pack_format:'',rate:0,gst:0}}
-    window.freshItem=freshItem;
-  </script>
-  <!-- Base data and compatibility -->
-  <script src="assets/js/core/view-renderers.js?v=1"></script>
-  <script src="assets/js/core/bill-delete-fix.js?v=2"></script>
-  <script src="assets/js/core/rates-legacy-compatibility.js?v=2"></script>
-  <script src="assets/js/core/rates-page.js?v=1"></script>
-  <script src="assets/js/core/vendor-bill-management.js?v=3"></script>
-  <script src="assets/js/core/bill-date-sort.js?v=1"></script>
-  <script src="assets/js/core/vendor-name-normalization.js?v=4"></script>
-  <script src="assets/js/core/settings-page.js?v=1"></script>
-  <!-- Authentication and registry -->
-  <script src="assets/js/core/session-authentication.js?v=3"></script>
-  <script src="assets/js/core/view-registry.js?v=1"></script>
-  <!-- Page renderers -->
-  <script src="assets/js/core/procurement-rebuild-v3.js?v=5"></script>
-  <script src="assets/js/core/procurement-pages-v4.js?v=3"></script>
-  <script src="assets/js/core/recovery-v5.js?v=3"></script>
-  <script src="assets/js/core/bills-period-filter-v5.js?v=1"></script>
-  <script src="assets/js/core/admin-manage-v5.js?v=1"></script>
-  <script src="assets/js/core/vendors-settings-v6.js?v=1"></script>
-  <script src="assets/js/core/site-audit-v7.js?v=3"></script>
-  <script src="assets/js/core/product-editor-v8.js?v=2"></script>
-  <script src="assets/js/core/admin-users-v9.js?v=1"></script>
-  <script src="assets/js/core/product-pricing-v10.js?v=1"></script>
-  <script src="assets/js/core/bills-summary-v11.js?v=1"></script>
-  <!-- Shared UI and token-aware enhancements -->
-  <script src="assets/js/core/ui-foundation.js?v=1"></script>
-  <script src="assets/js/core/cohesive-shell.js?v=2"></script>
-  <script src="assets/js/core/role-access-v10.js?v=1"></script>
-  <script src="assets/js/core/add-bill-disclosures.js?v=2"></script>
-  <script src="assets/js/core/invoice-entry-layout.js?v=3"></script>
-  <script src="assets/js/core/catalog-list-redesign.js?v=2"></script>
-  <script src="assets/js/core/line-item-bill-save.js?v=3"></script>
-  <script src="assets/js/core/bill-total-fix.js?v=2"></script>
-  <script src="assets/js/core/bills-list-standard.js?v=1"></script>
-  <script src="assets/js/core/industrial-dashboard.js?v=1"></script>
-  <!-- Lifecycle: keep last -->
-  <script src="assets/js/core/hash-router.js?v=8"></script>
-  <script src="assets/js/core/application-controller.js?v=2"></script>
+
+  <script type="module" src="app/js/main.js?v=2"></script>
 </body>
 </html>
