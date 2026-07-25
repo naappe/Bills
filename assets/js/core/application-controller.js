@@ -36,11 +36,13 @@ const setHealth=(status,count,message='')=>{
 
 const currentView=()=>{
   const hash=location.hash.slice(1);
-  return VIEWS.has(hash)?hash:(VIEWS.has(state.view)?state.view:'dashboard');
+  let remembered='';try{remembered=localStorage.getItem('ws-current-view')||''}catch(_error){}
+  return VIEWS.has(hash)?hash:(VIEWS.has(remembered)?remembered:(VIEWS.has(state.view)?state.view:'dashboard'));
 };
 
 const renderCurrent=()=>{
-  if(typeof window.show==='function')window.show(currentView());
+  const view=currentView();state.view=view;try{localStorage.setItem('ws-current-view',view)}catch(_error){}
+  if(typeof window.show==='function')window.show(view);
 };
 
 const queryAllBills=async()=>{
@@ -96,7 +98,7 @@ const loadBillsOnce=({render=true,retry=true}={})=>{
 const navigate=view=>{
   view=VIEWS.has(view)?view:'dashboard';
   $('#sidebar')?.classList.remove('open');
-  if(location.hash!==`#${view}`)history.pushState(null,'',`#${view}`);
+  if(location.hash!==`#${view}`)history.pushState(null,'',location.pathname+`#${view}`);
   state.view=view;
   renderCurrent();
 };
