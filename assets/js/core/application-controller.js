@@ -6,6 +6,8 @@ const PAGE_SIZE=1000;
 let loadingPromise=null;
 let retryTimer=null;
 let currentSession=null;
+let loadedUserId=null;
+let hasLoadedBills=false;
 const $=selector=>document.querySelector(selector);
 
 const clearRetry=()=>{
@@ -58,7 +60,7 @@ const queryAllBills=async()=>{
   return result;
 };
 
-const loadBillsOnce=({render=true,retry=true}={})=>{
+const loadBillsOnce=({render=true,retry=true,force=false}={})=>{
   if(loadingPromise)return loadingPromise;
   clearRetry();
   loadingPromise=(async()=>{
@@ -71,14 +73,20 @@ const loadBillsOnce=({render=true,retry=true}={})=>{
       }
       applySession(session);
       if(!session?.user){
+        loadedUserId=null;hasLoadedBills=false;
         state.rows=[];state.filtered=[];
         setHealth('Signed out',0,'No authenticated session');
         return [];
+      }
+      if(!force&&hasLoadedBills&&loadedUserId===session.user.id){
+        if(render)renderCurrent();
+        return state.rows;
       }
       setHealth('Connecting…',state.rows?.length||0);
       const loaded=await queryAllBills();
       state.rows=loaded;
       state.filtered=[...loaded];
+      loadedUserId=session.user.id;hasLoadedBills=true;
       setHealth('Connected',loaded.length);
       if(render)renderCurrent();
       console.info(`[app-controller] v${VERSION}: ${loaded.length} bills loaded as ${state.role}`);
@@ -118,8 +126,8 @@ state.view=initialView;
 document.body.classList.add('ws-view-pending');
 window.addEventListener('hashchange',renderCurrent);
 window.addEventListener('beforeunload',clearRetry);
-window.reloadBillsNow=()=>loadBillsOnce({render:true,retry:false});
-window.refreshBillData=({silent=false}={})=>loadBillsOnce({render:!silent,retry:false});
+window.reloadBillsNow=()=>loadBillsOnce({render:true,retry:false,force:true});
+window.refreshBillData=({silent=false}={})=>loadBillsOnce({render:!silent,retry:false,force:true});
 window.syncBillsAfterLoad=()=>loadBillsOnce({render:true,retry:true});
 
 db.auth.getSession().then(({data,error})=>{
@@ -134,6 +142,7 @@ db.auth.onAuthStateChange((_event,session)=>{
   if(session?.user)setTimeout(()=>loadBillsOnce({render:true,retry:true}),0);
   else{
     clearRetry();
+    loadedUserId=null;hasLoadedBills=false;
     state.rows=[];state.filtered=[];state.editing=null;
     setHealth('Signed out',0,'Signed out');
   }
