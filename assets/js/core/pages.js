@@ -1,6 +1,8 @@
 (()=>{
 'use strict';
-const VERSION=2;
+const VERSION=3;
+window.__WS_RENDERERS__=window.__WS_RENDERERS__||{};
+window.__WS_PAGES__={version:VERSION,ready:false};
 const byId=id=>document.getElementById(id);
 const rows=()=>Array.isArray(state.rows)?state.rows:[];
 const val=(row,...keys)=>{for(const key of keys){if(row&&row[key]!==undefined&&row[key]!==null)return row[key]}return''};
@@ -29,5 +31,5 @@ byId('datePreset').onchange=()=>{const custom=byId('datePreset').value==='custom
 const originalNew=window.renderNewBill;
 window.renderNewBill=async()=>{await originalNew?.();if(!state.editing&&Array.isArray(state.items)&&state.items.length>1){const buttons=[...document.querySelectorAll('#itemRows [data-remove]')];for(let i=buttons.length-1;i>0;i--)buttons[i]?.click()}};
 Object.assign(window.__WS_RENDERERS__,{dashboard:window.renderDashboard,bills:window.renderBills,new:window.renderNewBill});
-window.__WS_PAGES__={version:VERSION};
+window.__WS_PAGES__={version:VERSION,ready:true};
 })();
