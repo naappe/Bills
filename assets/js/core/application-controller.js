@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const VERSION=56;
-const VIEWS=new Set(['dashboard','bills','new','products','vendors','prices','reports','settings','admin']);
+const VIEWS=new Set(['dashboard','bills','new','rates','mobile','products','vendors','prices','reports','settings','admin']);
 const PAGE_SIZE=1000;
 let loadingPromise=null;
 let retryTimer=null;
