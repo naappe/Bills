@@ -49,6 +49,8 @@
     </main>
   </section>
   <script>
+    window.__WS_MOBILE_PREVIEW__=new URLSearchParams(location.search).has('mobile-preview');
+    if(window.__WS_MOBILE_PREVIEW__)document.body.classList.add('ws-mobile-preview');
     const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co';
     const SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
     const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);

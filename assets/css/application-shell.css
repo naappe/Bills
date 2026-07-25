@@ -18,3 +18,7 @@
 
 /* Zoom-safe application baseline */
 html{font-size:100%;-webkit-text-size-adjust:100%}body{min-height:100vh;min-height:100dvh}img,svg,video{display:block;max-width:100%;height:auto}.main>*{min-width:0}.card{width:100%;min-width:0;word-wrap:break-word;overflow-wrap:break-word}input,select,textarea{max-width:100%;min-width:40px;font-size:1rem}.table-wrap{max-width:100%}.table-wrap th,.table-wrap td{max-width:200px;overflow:hidden;text-overflow:ellipsis}@media(max-width:700px){.table-wrap th,.table-wrap td{max-width:120px;white-space:normal}}
+
+
+/* Stable embedded device preview: outer controls own navigation */
+body.ws-mobile-preview .sidebar{display:none!important}body.ws-mobile-preview .main{width:100%;min-width:0}body.ws-mobile-preview .mobile-menu{display:none!important}body.ws-mobile-preview .topbar{min-height:54px;padding:0 14px}body.ws-mobile-preview .content{padding:14px}body.ws-mobile-preview .page-head{margin-bottom:14px}
