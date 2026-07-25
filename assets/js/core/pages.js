@@ -1,35 +1,24 @@
-(()=>{
-'use strict';
-const VERSION=3;
-window.__WS_RENDERERS__=window.__WS_RENDERERS__||{};
-window.__WS_PAGES__={version:VERSION,ready:false};
-const byId=id=>document.getElementById(id);
-const rows=()=>Array.isArray(state.rows)?state.rows:[];
-const val=(row,...keys)=>{for(const key of keys){if(row&&row[key]!==undefined&&row[key]!==null)return row[key]}return''};
-const text=v=>String(v??'').trim();
-const vendor=row=>text(window.vendorVal?.(row));
-const amount=row=>Number(window.amountVal?.(row)||0);
-const status=row=>text(window.statusVal?.(row)||'Pending');
-const billNo=row=>text(val(row,'bill_no','Bill No'))||'-';
-const billDay=row=>String(val(row,'bill_day','bill_date','Bill Date','date','Date')||'').slice(0,10);
-const addedAt=row=>val(row,'created_at');
-const longDate=raw=>{if(!raw)return'-';const s=String(raw).slice(0,10),m=s.match(/^(\d{4})-(\d{2})-(\d{2})$/),d=m?new Date(+m[1],+m[2]-1,+m[3]):new Date(raw);return Number.isNaN(d.getTime())?String(raw):d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})};
-const dateTime=raw=>{if(!raw)return'-';const d=new Date(raw);return Number.isNaN(d.getTime())?'-':d.toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})};
-const localDay=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const range=preset=>{const now=new Date(),today=localDay(now);let start='',end='';if(preset==='today')start=end=today;if(preset==='week'){const d=new Date(now);d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));start=localDay(d);end=today}if(preset==='month'){start=`${today.slice(0,7)}-01`;end=today}if(preset==='lastmonth'){start=localDay(new Date(now.getFullYear(),now.getMonth()-1,1));end=localDay(new Date(now.getFullYear(),now.getMonth(),0))}if(preset==='year'){start=`${today.slice(0,4)}-01-01`;end=today}return{start,end}};
-const filterDate=(list,preset,from='',to='')=>{let{start,end}=range(preset);if(preset==='custom'){start=from;end=to}return list.filter(row=>{const day=billDay(row);return(!start||day>=start)&&(!end||day<=end)})};
-const kpi=(label,value,tone='blue')=>`<article class="kpi-card tone-${tone}"><div class="kpi-label">${esc(label)}</div><div class="kpi-value">${value}</div></article>`;
-const getUsers=async()=>{const map=new Map();const{data}=await db.from('user_presence').select('user_id,email,display_name');(data||[]).forEach(u=>map.set(String(u.user_id),u.display_name||u.email||String(u.user_id).slice(0,8)));return map};
+(() => {
+  'use strict';
 
-window.renderDashboard=()=>{const list=rows(),latest=[...list].sort((a,b)=>String(addedAt(b)||'').localeCompare(String(addedAt(a)||'')),month=filterDate(list,'month'),outstanding=list.filter(r=>status(r).toLowerCase()!=='paid').reduce((s,r)=>s+amount(r),0);byId('content').innerHTML=pageHead('Dashboard','Live procurement performance',state.role!=='readonly'?'<button class="btn" data-go="new">New Bill</button>':'')+`<section class="kpi-grid">${kpi('Active bills',list.length.toLocaleString(),'blue')}${kpi('This month',money(month.reduce((s,r)=>s+amount(r),0)),'purple')}${kpi('Outstanding',money(outstanding),'orange')}${kpi('Last added',dateTime(addedAt(latest[0])),'green')}</section><section class="card"><div class="card-head"><strong>Latest added bills</strong><button class="btn secondary small" data-go="bills">View all</button></div><div class="table-wrap"><table><thead><tr><th>Added at</th><th>Bill date</th><th>Vendor</th><th>Bill no.</th><th>Status</th><th>Amount</th></tr></thead><tbody>${latest.slice(0,20).map(r=>`<tr><td>${esc(dateTime(addedAt(r)))}</td><td>${esc(longDate(billDay(r)))}</td><td>${esc(vendor(r)||'-')}</td><td>${esc(billNo(r))}</td><td><span class="pill">${esc(status(r))}</span></td><td>${money(amount(r))}</td></tr>`).join('')}</tbody></table></div></section>`};
+  const VERSION = 4;
+  const supportedViews = ['dashboard', 'bills', 'new'];
+  const rendererNames = {
+    dashboard: 'renderDashboard',
+    bills: 'renderBills',
+    new: 'renderNewBill'
+  };
 
-window.renderBills=async()=>{const list=rows(),users=await getUsers();state.filtered=[...list];state.page=1;byId('content').innerHTML=pageHead('Bills',`${list.length.toLocaleString()} active records`,`<button class="btn secondary" id="exportBills">Export CSV</button>${state.role!=='readonly'?'<button class="btn" data-go="new">New Bill</button>':''}`)+`<section class="kpi-grid" id="billMetrics"></section><section class="card"><div class="toolbar bills-toolbar"><input class="field" id="billSearch" placeholder="Search vendor or bill no."><select class="field" id="datePreset"><option value="all" selected>All dates</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option><option value="lastmonth">Last month</option><option value="year">This year</option><option value="custom">Date range</option></select><select class="field" id="statusFilter"><option value="">All statuses</option>${[...new Set(list.map(status))].sort().map(s=>`<option>${esc(s)}</option>`).join('')}</select><select class="field" id="pageSize"><option>20</option><option>50</option><option>100</option></select><input class="field hidden" id="dateFrom" type="date"><input class="field hidden" id="dateTo" type="date"></div><div class="table-wrap"><table><thead><tr><th>Status</th><th>Bill date</th><th>Added at</th><th>Bill no.</th><th>Vendor</th><th>Amount</th><th>Added by</th><th>Actions</th></tr></thead><tbody id="billRows"></tbody></table></div><div class="pager" id="pager"></div></section>`;
-const render=()=>{const visible=state.filtered||[],size=Number(state.pageSize||20),pages=Math.max(1,Math.ceil(visible.length/size));state.page=Math.min(Math.max(1,state.page||1),pages);const start=(state.page-1)*size,latest=visible[0],paid=visible.filter(r=>status(r).toLowerCase()==='paid').reduce((s,r)=>s+amount(r),0);byId('billMetrics').innerHTML=kpi('Visible bills',visible.length.toLocaleString(),'blue')+kpi('Visible value',money(visible.reduce((s,r)=>s+amount(r),0)),'purple')+kpi('Paid value',money(paid),'green')+kpi('Latest added',dateTime(addedAt(latest)),'orange');byId('billRows').innerHTML=visible.slice(start,start+size).map(r=>{const uid=String(val(r,'user_id','updated_by')||''),who=users.get(uid)||text(val(r,'created_by'))||'-';return`<tr><td><span class="pill">${esc(status(r))}</span></td><td>${esc(longDate(billDay(r)))}</td><td>${esc(dateTime(addedAt(r)))}</td><td>${esc(billNo(r))}</td><td>${esc(vendor(r)||'-')}</td><td>${money(amount(r))}</td><td>${esc(who)}</td><td><div class="actions">${state.role!=='readonly'?`<button class="btn secondary small" data-edit="${r.id}">Edit</button>`:''}${state.role==='admin'?`<button class="btn danger small" data-delete="${r.id}">Delete</button>`:''}</div></td></tr>`}).join('')||'<tr><td colspan="8"><div class="empty">No bills found.</div></td></tr>';byId('billRows').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{state.editing=list.find(r=>String(r.id)===b.dataset.edit)||null;show('new')});byId('billRows').querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this bill?'))return;b.disabled=true;const{error}=await db.from(TABLE).delete().eq('id',b.dataset.delete);if(error){alert(error.message);b.disabled=false;return}await reloadBillsNow()});byId('pager').innerHTML=`<span>${visible.length?start+1:0}-${Math.min(start+size,visible.length)} of ${visible.length}</span><div class="actions"><button class="btn secondary small" id="prev" ${state.page<=1?'disabled':''}>Previous</button><span>Page ${state.page} of ${pages}</span><button class="btn secondary small" id="next" ${state.page>=pages?'disabled':''}>Next</button></div>`;byId('prev').onclick=()=>{state.page--;render()};byId('next').onclick=()=>{state.page++;render()}};
-const apply=()=>{const q=text(byId('billSearch').value).toLowerCase(),preset=byId('datePreset').value,s=text(byId('statusFilter').value).toLowerCase();state.filtered=filterDate(list,preset,byId('dateFrom').value,byId('dateTo').value).filter(r=>(!q||`${vendor(r)} ${billNo(r)}`.toLowerCase().includes(q))&&(!s||status(r).toLowerCase()===s)).sort((a,b)=>String(addedAt(b)||'').localeCompare(String(addedAt(a)||'')));state.page=1;render()};
-byId('datePreset').onchange=()=>{const custom=byId('datePreset').value==='custom';byId('dateFrom').classList.toggle('hidden',!custom);byId('dateTo').classList.toggle('hidden',!custom);apply()};['billSearch','dateFrom','dateTo'].forEach(id=>byId(id).oninput=apply);byId('statusFilter').onchange=apply;byId('pageSize').value=String(state.pageSize||20);byId('pageSize').onchange=e=>{state.pageSize=Number(e.target.value)||20;render()};byId('exportBills').onclick=window.exportCsv;apply()};
+  const registry = window.__WS_RENDERERS__ || {};
+  supportedViews.forEach(view => {
+    const renderer = window[rendererNames[view]];
+    if (typeof renderer === 'function') registry[view] = renderer;
+  });
 
-const originalNew=window.renderNewBill;
-window.renderNewBill=async()=>{await originalNew?.();if(!state.editing&&Array.isArray(state.items)&&state.items.length>1){const buttons=[...document.querySelectorAll('#itemRows [data-remove]')];for(let i=buttons.length-1;i>0;i--)buttons[i]?.click()}};
-Object.assign(window.__WS_RENDERERS__,{dashboard:window.renderDashboard,bills:window.renderBills,new:window.renderNewBill});
-window.__WS_PAGES__={version:VERSION,ready:true};
+  window.__WS_RENDERERS__ = registry;
+  window.__WS_PAGES__ = {
+    version: VERSION,
+    ready: supportedViews.every(view => typeof registry[view] === 'function'),
+    supportedViews
+  };
 })();
