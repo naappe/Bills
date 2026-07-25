@@ -18,16 +18,19 @@ const go=view=>{location.hash=`#${view}`};
 
 function rebuildShell(){
  const nav=document.querySelector('.nav');
- if(nav&&!nav.dataset.rebuilt){
+ if(nav){
   const items=[['Overview',null,null],['Dashboard','dashboard','fa-th-large'],['Procurement',null,null],['Bills','bills','fa-file-invoice'],['Price Intelligence','rates','fa-chart-line'],['Products','products','fa-box'],['Vendors','vendors','fa-building'],['Insights',null,null],['Reports','reports','fa-chart-pie'],['Workspace',null,null],['Settings','settings','fa-sliders-h'],['Admin & users','admin','fa-user-cog']];
-  nav.innerHTML=items.map(([label,view,icon])=>view?`<a href="#${view}" data-view="${view}"><i class="fas ${icon}" aria-hidden="true"></i><span>${label}</span></a>`:`<div class="nav-section-label">${label}</div>`).join('');
-  nav.dataset.rebuilt='1';
+  const signature='inventory-nav-v2';
+  if(nav.dataset.signature!==signature){
+   nav.innerHTML=items.map(([label,view,icon])=>view?`<a href="#${view}" data-view="${view}"><i class="fas ${icon}" aria-hidden="true"></i><span>${label}</span></a>`:`<div class="nav-section-label">${label}</div>`).join('');
+   nav.dataset.signature=signature;
+  }
  }
  const title=byId('topTitle');
  if(title&&!title.parentElement.classList.contains('topbar-page')){
-  const wrap=document.createElement('div');wrap.className='topbar-page';title.parentNode.insertBefore(wrap,title);wrap.appendChild(title);const sub=document.createElement('div');sub.className='topbar-subtitle';sub.id='topSubtitle';sub.textContent='Overview of your procurement metrics';wrap.appendChild(sub);
+  const wrap=document.createElement('div');wrap.className='topbar-page';title.parentNode.insertBefore(wrap,title);wrap.appendChild(title);const sub=document.createElement('div');sub.className='topbar-subtitle';sub.id='topSubtitle';wrap.appendChild(sub);
  }
- document.querySelector('.inventory-top-actions')?.remove();
+ document.querySelectorAll('.inventory-top-actions').forEach(node=>node.remove());
  syncTopbar();
 }
 function syncTopbar(){
@@ -64,6 +67,6 @@ window.renderDashboard=()=>{
  if(window.Chart&&byId('ipSpendChart')){try{window.__IP_CHART__?.destroy();window.__IP_CHART__=new Chart(byId('ipSpendChart'),{type:'bar',data:{labels:months.map(m=>m.label),datasets:[{data:trend,backgroundColor:'#1a5cff',borderRadius:7,borderSkipped:false,maxBarThickness:46}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{displayColors:false,callbacks:{label:ctx=>cash(ctx.raw)}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{color:'#8a9aa8'}},y:{grid:{color:'#e6edf4'},border:{display:false},ticks:{color:'#8a9aa8',callback:v=>`MVR ${Number(v).toLocaleString('en-US')}`}}}}})}catch(error){console.warn('[inventory-rebuild] chart unavailable',error)}};
 };
 
-document.addEventListener('DOMContentLoaded',rebuildShell,{once:true});window.addEventListener('hashchange',()=>setTimeout(syncTopbar,0));setTimeout(rebuildShell,0);
-window.__WS_INVENTORY_REBUILD__={version:1,rebuildShell};
+document.addEventListener('DOMContentLoaded',rebuildShell,{once:true});window.addEventListener('hashchange',()=>setTimeout(()=>{rebuildShell();syncTopbar()},0));setTimeout(rebuildShell,0);
+window.__WS_INVENTORY_REBUILD__={version:2,rebuildShell};
 })();
