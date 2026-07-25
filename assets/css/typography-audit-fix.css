@@ -68,10 +68,9 @@
   line-height:1.45;
 }
 
-/* Navigation group labels remain compact but readable */
 .nav-section-label,
 .ui-nav-label{
-  font-size:12px;
+  font-size:var(--audit-label);
   line-height:1.4;
   letter-spacing:.1em;
 }
@@ -79,7 +78,7 @@
 .user strong,
 .user .muted,
 #emailLabel{
-  font-size:12px;
+  font-size:var(--audit-label);
   line-height:1.4;
 }
 
