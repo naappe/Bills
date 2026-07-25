@@ -1,157 +1,159 @@
 # White Saffron Procurement ERP
 
-A static procurement application for entering, reviewing, and managing supplier bills. It is hosted on GitHub Pages and uses Supabase for authentication and bill data.
+A GitHub Pages procurement application for entering, reviewing, comparing, and reporting supplier bills. Supabase provides authentication and bill records; the browser renders all pages into one application shell.
 
 **Live site:** https://naappe.github.io/Bills/
 
-## Application architecture
+## Current routes
 
-The application is a single-content renderer. It does not use separate HTML containers for each page.
+- `#dashboard` — procurement totals, payment health and monthly spend
+- `#bills` — searchable bill list with bill date and last-edited activity
+- `#new` — add or edit a bill
+- `#rates` / `#prices` — price intelligence
+- `#products` — product catalogue
+- `#vendors` — supplier directory
+- `#reports` — procurement analytics
+- `#settings` — workspace defaults
+- `#admin` — account and system overview
+
+## Runtime architecture
 
 ```text
 URL hash
-  → hash router
-  → selected view renderer
-  → #content.innerHTML
+  → hash-router.js
+  → registered window renderer
+  → #content
+  → final route override, where applicable
 ```
 
-The only page-content container is:
+The application currently uses a transition-layer architecture. Earlier modules remain loaded because some still provide shared bill-entry, rate, authentication, and compatibility functions. Newer modules loaded later override selected page renderers.
 
-```html
-<div id="content"></div>
-```
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the authoritative load order and module ownership.
 
-Current supported routes (bill entry opens inside Bills):
+## Current page ownership
 
-- `#dashboard`
-- `#bills`
-- `#new`
+| Page | Final renderer |
+|---|---|
+| Dashboard | `recovery-v5.js` |
+| Bills | `site-audit-v7.js` |
+| New Bill | base bill-entry modules / `view-renderers.js` |
+| Price Intelligence | `procurement-rebuild-v3.js`, enhanced by `product-editor-v8.js` |
+| Products | `site-audit-v7.js`, enhanced by `product-editor-v8.js` |
+| Vendors | `site-audit-v7.js` |
+| Reports | `procurement-rebuild-v3.js` |
+| Settings | `vendors-settings-v6.js` |
+| Admin | `admin-manage-v5.js` |
 
-## Active file structure
+## Product catalogue editing
+
+Products are currently derived from recorded bill items; there is no dedicated Supabase `products` table.
+
+The product editor supports catalogue-only metadata:
+
+- display name
+- category
+- image URL
+
+These overrides are saved in browser local storage under:
 
 ```text
-/
-├── index.html                         Application shell and script order
-├── README.md                          This technical reference
-└── assets/
-    ├── css/
-    │   ├── application-shell.css      Layout, navigation, forms and responsive rules
-    │   └── design-system.css          Typography, spacing and component refinements
-    └── js/
-        └── core/
-            ├── session-authentication.js  Login, logout and session display
-            ├── view-renderers.js          Base view renderers and shared UI helpers
-            ├── view-registry.js           Registers the three supported views
-            ├── hash-router.js             Hash routing and window.show(view)
-            └── application-controller.js  Supabase session and bill-data lifecycle
+ws-product-catalogue-v1
 ```
 
-Inactive legacy files may remain in the repository, but they are not loaded by `index.html` and must not be reactivated without a separate review.
+They do not rewrite historical supplier bills. This prevents catalogue edits from changing original procurement records. A future migration should move catalogue metadata into a dedicated Supabase products table.
 
-## Module responsibilities
+## Product images
 
-### `index.html`
+The Products page follows this order:
 
-- Provides the login shell, application shell, sidebar and `#content`.
-- Creates the Supabase browser client using the publishable key.
-- Defines shared application state and simple display helpers.
-- Loads active modules in this required order:
+1. Saved bill-item image URL, when available.
+2. Catalogue image URL saved through Edit Product.
+3. Clearly labelled illustrative placeholder.
 
-```text
-view-renderers
-→ session-authentication
-→ view-registry
-→ hash-router
-→ application-controller
+Illustrative images are not presented as exact product photography. Product names, suppliers, packs, and prices remain grounded in recorded bill data.
+
+## Browser console audit
+
+Open Developer Tools → Console and run:
+
+```js
+WSAssetAudit()
 ```
 
-### `session-authentication.js`
+This prints every loaded JavaScript and CSS asset and classifies it as:
 
-- Handles sign-in and sign-out.
-- Restores the correct login or application view.
-- Resolves the current user role.
-- Updates the header user details.
+- current override
+- transition override
+- legacy/base
+- core or vendor
 
-### `view-renderers.js`
+Additional diagnostics:
 
-- Owns shared UI helpers and base renderers.
-- Renders Dashboard, Bills, and New Bill into `#content`.
-- Provides bill list filtering, pagination, CSV export, bill create/update, and permitted deletion.
-- Contains additional base renderers for future modules, but they are not routable until intentionally registered.
+```js
+window.__WS_SITE_AUDIT__
+window.__WS_PRODUCT_EDITOR__
+window.__WS_RENDERERS__
+```
 
-### `view-registry.js`
+To check runtime errors captured by the site audit:
 
-- Registers Dashboard, Bills, New Bill compatibility route, and Rates.
-- Does not define routing, authentication, database queries, or admin overrides.
-- Must remain syntactically valid and side-effect free.
-
-### `hash-router.js`
-
-- Defines `window.show(view)`.
-- Reads the URL hash and selects a supported view.
-- Updates active navigation and the page title.
-- Shows a clear build error if a supported renderer is unavailable.
-
-### `application-controller.js`
-
-- Restores the Supabase session.
-- Subscribes to authentication changes.
-- Loads accessible `bills` records in 1,000-record pages.
-- Prevents duplicate concurrent loads.
-- Maintains database status and triggers the active renderer.
-
-## Roles
-
-- `admin`: create, edit and delete bills.
-- `manager`: create and edit bills.
-- `staff`: create bills and edit records when permitted.
-- `readonly`: view and export only.
-
-Frontend roles are usability controls. Supabase Row Level Security must enforce all real permissions.
-
-## Rate intelligence
-
-Each new bill item stores the entered **row total**, the derived purchase-unit rate (Case / PCS / PKT / TIN, etc.), and its normalized per-g, per-ML, or per-PCS rate. The Rates page compares the latest rate against the most recent earlier rate, highlights increases, and shows the cheapest vendor based on each vendor’s latest saved rate.
+```js
+window.__WS_SITE_AUDIT__.errors
+```
 
 ## Data behavior
 
-- Primary table: `bills`.
-- `state.rows`: all records loaded for the active user.
-- `state.filtered`: Bills-page filtered result.
-- Records are ordered newest first.
-- The application supports common column aliases such as `status` / `payment_status` and `method` / `payment_method`.
+- Primary Supabase table: `bills`
+- Main runtime records: `state.rows`
+- Bills are loaded in paginated database requests by `application-controller.js`
+- Bill-date filters prioritize actual bill-date fields
+- Last Added / Edited prioritizes `updated_at`, compatible edit fields, then `created_at`
+- Amounts use MVR and `en-US` number formatting
+
+## Roles
+
+- `admin`: create, edit and delete bills
+- `manager`: create and edit bills
+- `staff`: create bills and edit when permitted
+- `readonly`: view only
+
+Frontend role checks are usability controls. Supabase Row Level Security must enforce actual permissions.
+
+## Design system
+
+- Interface font: Mona Sans
+- Brand font: Playfair Display
+- Primary navy: `#10204d`
+- Saffron accent: `#ffb400`
+- Success green: `#16835c`
+- Background: soft procurement green-grey
+- Bills: responsive list view
+- Vendors: two-column desktop list
+- Products: four-column desktop catalogue
 
 ## Deployment
 
-GitHub Pages publishes directly from:
+GitHub Pages publishes from:
 
 ```text
 Branch: main
 Folder: /(root)
 ```
 
-No GitHub Actions workflow is required for the current static site setup.
+No build step is required.
 
-## Required verification before every deploy
+## Required verification
 
-Run a direct JavaScript syntax check before changing deployment settings or diagnosing browser cache:
+After each deployment:
 
-```bash
-node --check assets/js/core/view-renderers.js
-node --check assets/js/core/session-authentication.js
-node --check assets/js/core/view-registry.js
-node --check assets/js/core/hash-router.js
-node --check assets/js/core/application-controller.js
-```
-
-Then verify:
-
-1. Each command exits successfully.
-2. GitHub Pages has finished publishing the `main` branch.
-3. The live site displays only Dashboard, Bills, and New Bill.
-4. The browser console contains no uncaught syntax errors.
-5. Dashboard, Bills (including embedded Add bill), Rates, and Mobile demo in both Phone and Tablet modes each render correctly after sign-in.
+1. Wait for GitHub Pages to publish.
+2. Hard refresh the live page.
+3. Open the console and run `WSAssetAudit()`.
+4. Confirm `window.__WS_SITE_AUDIT__.errors` is empty.
+5. Test Dashboard, Bills, New Bill, Price Intelligence, Products, Vendors, Reports, Settings and Admin.
+6. Verify desktop and mobile layouts.
+7. Confirm create/edit/delete permissions with the appropriate user role.
 
 ## Security
 
-The frontend uses a Supabase publishable browser key. Never commit service-role keys, private API keys, passwords, tokens, or exported sensitive procurement data.
+The frontend contains only a Supabase publishable browser key. Never commit service-role keys, private API keys, passwords, access tokens, or exported sensitive procurement data.
