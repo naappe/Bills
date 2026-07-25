@@ -1,0 +1,138 @@
+/* White Saffron Procurement ERP — typography and spacing audit corrections */
+:root{
+  --audit-h1:36px;
+  --audit-h2:30px;
+  --audit-h3:24px;
+  --audit-body:16px;
+  --audit-subtitle:18px;
+  --audit-label:14px;
+  --audit-small:12px;
+  --audit-heading-line:1.3;
+  --audit-body-line:1.6;
+}
+
+/* Application page hierarchy */
+#content h1,
+.page-head h1,
+.ip-page-header h1,
+.ui-page-heading h1,
+.v4-head h1,
+.pr-page-header h1{
+  font-size:clamp(30px,3vw,var(--audit-h1));
+  line-height:var(--audit-heading-line);
+  letter-spacing:.02em;
+}
+
+/* Dashboard section hierarchy */
+#content .ip-card-head h2,
+#content .v4-panel h2,
+#content .ui-card-header h2,
+#content .dashboard-card h2,
+#content [class*="dashboard"] h2{
+  font-size:clamp(24px,2.2vw,var(--audit-h2));
+  line-height:var(--audit-heading-line);
+  letter-spacing:.02em;
+  text-transform:none;
+}
+
+#content h3{
+  font-size:clamp(20px,1.8vw,var(--audit-h3));
+  line-height:var(--audit-heading-line);
+  letter-spacing:.01em;
+}
+
+/* Page subtitles and operational copy */
+#topSubtitle,
+.topbar-subtitle,
+.ip-page-header p,
+.ui-page-heading p,
+.v4-head p,
+.pr-page-header p{
+  font-size:var(--audit-subtitle);
+  line-height:1.6;
+}
+
+#content p,
+#content .text,
+#content .body,
+#content p.muted{
+  font-size:var(--audit-body);
+  line-height:var(--audit-body-line);
+}
+
+/* Labels */
+#emailLabel,
+#content label,
+#content .label{
+  font-size:var(--audit-label);
+  line-height:1.45;
+}
+
+/* Navigation group labels remain compact but readable */
+.nav-section-label,
+.ui-nav-label{
+  font-size:12px;
+  line-height:1.4;
+  letter-spacing:.1em;
+}
+
+.user strong,
+.user .muted,
+#emailLabel{
+  font-size:12px;
+  line-height:1.4;
+}
+
+/* Small and metadata text */
+#content small,
+#content .small,
+#content .ip-kpi small,
+#content .ip-supplier small,
+#content .v4-timeline small,
+#content .v4-alert-list small,
+#content .pr-product-card small,
+#content .pr-price-card small{
+  font-size:var(--audit-small);
+  line-height:1.5;
+}
+
+/* KPI and card labels */
+#content .ip-kpi span,
+#content .v4-kpis span,
+#content .pr-summary-grid span,
+#content .v4-panel header span{
+  font-size:var(--audit-label);
+  line-height:1.45;
+}
+
+/* Protect enlarged type from clipping */
+#content strong,
+#content h1,
+#content h2,
+#content h3{
+  overflow-wrap:anywhere;
+  min-width:0;
+}
+
+#content .ip-card-head,
+#content .v4-panel > header,
+#content .ui-card-header{
+  gap:16px;
+}
+
+/* Preserve practical density on smaller screens */
+@media (max-width:760px){
+  :root{
+    --audit-h1:30px;
+    --audit-h2:24px;
+    --audit-h3:20px;
+    --audit-body:15px;
+    --audit-subtitle:16px;
+  }
+  #content .ip-card-head h2,
+  #content .v4-panel h2,
+  #content .ui-card-header h2,
+  #content [class*="dashboard"] h2{
+    font-size:24px;
+  }
+}
