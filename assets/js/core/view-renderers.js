@@ -92,11 +92,9 @@ window.renderNewBill=async()=>{
  if(vendorVal(editing))fillVendor();
 
  const updateTotals=()=>{
-  const calculated=state.items.map(baseInfo);
-  byId('subTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.subtotal,0));
-  byId('gstTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.gst_amount,0));
-  byId('grandTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.line_total,0));
- };
+   const calculated=state.items.map(baseInfo);
+   byId('grandTotal').textContent=money(calculated.reduce((sum,item)=>sum+item.line_total,0));
+  };
  const updateRowMetrics=(row,index)=>{
   const calc=baseInfo(state.items[index]);
   const unitRate=row.querySelector('[data-m="rate"]');
@@ -105,14 +103,12 @@ window.renderNewBill=async()=>{
   const baseTotal=row.querySelector('[data-m="base-total"]');
   const smallLabel=row.querySelector('[data-m="small-label"]');
   const smallRate=row.querySelector('[data-m="small-rate"]');
-  const amount=row.querySelector('[data-m="amount"]');
   if(unitRate)unitRate.textContent=money(calc.purchase_rate);
    if(rateLabel)rateLabel.textContent=purchaseRateLabel(state.items[index].unit);
   if(baseLabel)baseLabel.textContent=calc.label;
   if(baseTotal)baseTotal.textContent=`${calc.total_base.toLocaleString()} ${calc.small_unit}`;
   if(smallLabel)smallLabel.textContent=`Per ${calc.small_unit}`;
   if(smallRate)smallRate.textContent=preciseRateMoney(calc.small_rate);
-  if(amount)amount.textContent=money(calc.line_total);
   updateTotals();
  };
  const bindRows=()=>{
@@ -131,7 +127,7 @@ window.renderNewBill=async()=>{
   byId('itemRows').querySelectorAll('[data-remove]').forEach(button=>button.onclick=()=>{state.items.splice(Number(button.dataset.remove),1);if(!state.items.length)state.items.push(emptyItem());draw()});
  };
  const draw=()=>{
-  byId('itemRows').innerHTML=state.items.map((item,index)=>{const calc=baseInfo(item);return `<article class="card" data-row="${index}" style="box-shadow:none"><div class="form-grid"><label>Item<input class="field" data-f="product" value="${esc(item.product)}" required></label><label>Packing<input class="field" data-f="pack_format" value="${esc(item.pack_format)}" placeholder="10x500g"></label><label>Unit<select class="field" data-f="unit">${units.map(unit=>`<option ${unit===item.unit?'selected':''}>${unit}</option>`).join('')}</select></label><label>QTY<input class="field" data-f="qty" type="number" min="0" step="0.01" value="${item.qty}"></label><label>Row total<input class="field" data-f="rate" type="number" min="0" step="0.01" value="${item.rate}"></label><label>GST %<input class="field" data-f="gst" type="number" min="0" step="0.01" value="${item.gst}"></label></div><div class="metrics" style="margin-top:12px"><article class="metric"><small data-m="rate-label">${purchaseRateLabel(item.unit)}</small><strong data-m="rate">${money(calc.purchase_rate)}</strong></article><article class="metric"><small data-m="base-label">${calc.label}</small><strong data-m="base-total">${calc.total_base.toLocaleString()} ${calc.small_unit}</strong></article><article class="metric"><small data-m="small-label">Per ${calc.small_unit}</small><strong data-m="small-rate">${preciseRateMoney(calc.small_rate)}</strong></article><article class="metric"><small>Row total</small><strong data-m="amount">${money(calc.line_total)}</strong></article></div><div class="actions"><button class="btn danger small" data-remove="${index}" type="button">Delete row</button></div></article>`}).join('');
+  byId('itemRows').innerHTML=state.items.map((item,index)=>{const calc=baseInfo(item);return `<article class="card" data-row="${index}" style="box-shadow:none"><div class="form-grid"><label>Item<input class="field" data-f="product" value="${esc(item.product)}" required></label><label>Packing<input class="field" data-f="pack_format" value="${esc(item.pack_format)}" placeholder="10x500g"></label><label>Unit<select class="field" data-f="unit">${units.map(unit=>`<option ${unit===item.unit?'selected':''}>${unit}</option>`).join('')}</select></label><label>QTY<input class="field" data-f="qty" type="number" min="0" step="0.01" value="${item.qty}"></label><label>Row total<input class="field" data-f="rate" type="number" min="0" step="0.01" value="${item.rate}"></label><label>GST %<input class="field" data-f="gst" type="number" min="0" step="0.01" value="${item.gst}"></label></div><div class="metrics" style="margin-top:12px"><article class="metric"><small data-m="rate-label">${purchaseRateLabel(item.unit)}</small><strong data-m="rate">${money(calc.purchase_rate)}</strong></article><article class="metric"><small data-m="base-label">${calc.label}</small><strong data-m="base-total">${calc.total_base.toLocaleString()} ${calc.small_unit}</strong></article><article class="metric"><small data-m="small-label">Per ${calc.small_unit}</small><strong data-m="small-rate">${preciseRateMoney(calc.small_rate)}</strong></article></div><div class="actions"><button class="btn danger small" data-remove="${index}" type="button">Delete row</button></div></article>`}).join('');
   bindRows();
   updateTotals();
  };
