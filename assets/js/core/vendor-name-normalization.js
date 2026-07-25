@@ -84,8 +84,8 @@ document.addEventListener('click',event=>{
  openNormalization();
 },true);
 
-const renameButton=()=>{const button=el('mergeVendors');if(button)button.textContent='Merge spelling variants'};
-new MutationObserver(renameButton).observe(document.documentElement,{childList:true,subtree:true});
+const renameButton=()=>{const button=el('mergeVendors');if(button&&button.textContent!=='Merge spelling variants')button.textContent='Merge spelling variants'};
+document.addEventListener('DOMContentLoaded',renameButton,{once:true});
 renameButton();
-window.__WS_VENDOR_NAME_NORMALIZATION__={version:1,open:openNormalization};
+window.__WS_VENDOR_NAME_NORMALIZATION__={version:2,open:openNormalization};
 })();
