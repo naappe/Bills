@@ -1,0 +1,196 @@
+/* White Saffron ERP — final alignment and spacing system */
+:root{
+  --ws-page-max:1440px;
+  --ws-page-x:24px;
+  --ws-page-y:28px;
+  --ws-section-gap:20px;
+  --ws-card-pad:20px;
+  --ws-control-h:42px;
+  --ws-radius:12px;
+  --ws-text-xs:12px;
+  --ws-text-sm:13px;
+  --ws-text-body:14px;
+  --ws-text-base:16px;
+  --ws-text-section:20px;
+  --ws-text-page:28px;
+}
+
+/* Page container and vertical rhythm */
+#content{
+  width:100%;
+  max-width:var(--ws-page-max);
+  margin:0 auto;
+  padding:var(--ws-page-y) var(--ws-page-x) 56px;
+  font-size:var(--ws-text-body);
+  line-height:1.5;
+}
+#content.ui-page,
+#content>section,
+#content>.ip-dashboard,
+#content>.rates-page{
+  min-width:0;
+}
+.ui-page,.ip-dashboard,.rates-page{
+  gap:var(--ws-section-gap)!important;
+}
+.ui-page>*+*,.ip-dashboard>*+*,.rates-page>*+*{
+  margin-top:0!important;
+}
+
+/* Typography hierarchy */
+#content h1,.ui-page-heading h1,.ip-page-header h1,.page-head h1{
+  margin:0;
+  font-size:var(--ws-text-page)!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  letter-spacing:-.025em!important;
+  color:var(--color-primary,var(--header));
+}
+#content h2,.ui-card-header h2,.ip-card-head h2,.card>.page-head h2{
+  margin:0;
+  font-size:var(--ws-text-section)!important;
+  line-height:1.25!important;
+  font-weight:750!important;
+  letter-spacing:-.015em!important;
+}
+#content h3{margin:0;font-size:var(--ws-text-base);line-height:1.35;font-weight:750}
+.page-head .muted,.ui-page-heading p,.ui-page-heading .muted,.ip-page-header p{
+  margin-top:5px!important;
+  font-size:var(--ws-text-sm)!important;
+  line-height:1.45!important;
+}
+label,.field-label{font-size:var(--ws-text-sm)!important;font-weight:650;line-height:1.35}
+small,.muted{line-height:1.4}
+
+/* Page headers */
+.page-head,.ui-page-header,.ip-page-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px!important;
+  margin:0!important;
+  padding:0!important;
+}
+.page-head>div:first-child,.ui-page-heading,.ip-page-header>div:first-child{min-width:0}
+.page-head .actions,.ui-page-actions,.ip-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Cards */
+.card,.ui-card,.ip-card,.settings-card,.member-card,.rates-product-card{
+  border-radius:var(--ws-radius)!important;
+}
+.card-body,.ui-card-body,.ip-card-body,
+.card>.stack,.ui-page .card>.stack{
+  padding:var(--ws-card-pad)!important;
+}
+.card-head,.card-header,.ui-card-header,.ip-card-head,.card>.page-head{
+  min-height:58px;
+  padding:16px var(--ws-card-pad)!important;
+  gap:14px!important;
+}
+
+/* Toolbars and filters */
+.toolbar,.ui-toolbar,.bills-toolbar,.rates-toolbar{
+  gap:12px!important;
+  padding:14px var(--ws-card-pad)!important;
+  align-items:end!important;
+}
+.toolbar>*,.ui-toolbar>*,.bills-toolbar>*,.rates-toolbar>*{min-width:0}
+
+/* Controls */
+input.field,select.field,textarea.field,
+input:not([type=checkbox]):not([type=radio]),select,textarea{
+  min-height:var(--ws-control-h);
+  padding:9px 12px;
+  font:500 var(--ws-text-body)/1.35 var(--font-primary);
+  border-radius:8px;
+}
+textarea{min-height:92px;resize:vertical}
+.btn,.ip-btn,button.btn{
+  min-height:var(--ws-control-h);
+  padding:8px 20px!important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-size:var(--ws-text-body)!important;
+  line-height:1!important;
+}
+.btn.small,.ip-btn.small{min-height:34px;padding:6px 12px!important;font-size:var(--ws-text-sm)!important}
+
+/* Forms */
+.form-grid,.ui-form-grid{
+  gap:16px!important;
+  padding:var(--ws-card-pad)!important;
+}
+.form-grid>label,.ui-form-grid>label,.ui-form label{
+  display:grid;
+  align-content:start;
+  gap:7px!important;
+  min-width:0;
+  margin:0!important;
+}
+.stack{gap:16px!important}
+.actions{gap:10px!important}
+
+/* Metrics */
+.metrics,.ui-metric-grid,.ip-kpis,.rates-summary{
+  gap:16px!important;
+}
+.metric,.ui-metric,.ip-kpi,.rates-summary article{
+  padding:18px var(--ws-card-pad)!important;
+}
+.metric strong,.ui-metric strong,.ip-kpi strong,.rates-summary strong{
+  line-height:1.15!important;
+}
+
+/* Tables */
+.table-wrap,.ui-table-wrap,.ip-table-wrap{overflow:auto}
+table,.ui-table,.ip-table{width:100%;border-collapse:collapse}
+th,.ui-table th,.ip-table th{
+  height:42px;
+  padding:10px 14px!important;
+  font-size:11px!important;
+  line-height:1.2!important;
+  font-weight:800!important;
+  letter-spacing:.045em!important;
+  vertical-align:middle!important;
+}
+td,.ui-table td,.ip-table td{
+  min-height:48px;
+  padding:12px 14px!important;
+  font-size:var(--ws-text-sm)!important;
+  line-height:1.35!important;
+  vertical-align:middle!important;
+}
+td .actions{justify-content:flex-end;white-space:nowrap}
+
+/* Pagination and empty states */
+.pager,.ui-pagination{padding:14px var(--ws-card-pad)!important;gap:12px!important}
+.empty,.ui-empty{padding:32px var(--ws-card-pad)!important;min-height:150px!important}
+
+/* Sidebar and top bar alignment */
+.topbar{min-height:64px;padding:0 20px!important}
+.brand{min-height:86px;padding:18px 16px!important}
+.nav a{min-height:42px;padding:9px 14px!important;margin:0 2px 2px 0!important;gap:11px!important}
+.ui-nav-label,.nav-section-label{padding:18px 14px 7px!important}
+
+/* Responsive */
+@media(max-width:1100px){
+  :root{--ws-page-x:20px;--ws-page-y:24px}
+  .form-grid,.ui-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:768px){
+  :root{--ws-page-x:14px;--ws-page-y:18px;--ws-card-pad:16px;--ws-section-gap:16px}
+  #content{padding-bottom:72px}
+  .page-head,.ui-page-header,.ip-page-header{flex-direction:column;gap:12px!important}
+  .page-head .actions,.ui-page-actions,.ip-actions{width:100%}
+  .page-head .actions .btn,.ui-page-actions .btn,.ip-actions .btn{flex:1}
+  .form-grid,.ui-form-grid{grid-template-columns:1fr!important;padding:var(--ws-card-pad)!important}
+  .toolbar,.ui-toolbar,.bills-toolbar,.rates-toolbar{grid-template-columns:1fr!important;padding:var(--ws-card-pad)!important}
+  #content h1,.ui-page-heading h1,.ip-page-header h1,.page-head h1{font-size:24px!important}
+}
+@media(max-width:480px){
+  :root{--ws-page-x:12px;--ws-card-pad:14px}
+  td,.ui-table td,.ip-table td{padding:10px 12px!important}
+  th,.ui-table th,.ip-table th{padding:9px 12px!important}
+}
