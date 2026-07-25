@@ -13,7 +13,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>body.ws-auth-pending #loginView,body.ws-auth-pending #appView{display:none!important}body.ws-view-pending #appView{visibility:hidden!important}</style>
-  <link rel="stylesheet" href="assets/css/procurement-ui.css?v=1">
+  <link rel="stylesheet" href="assets/css/procurement-ui.css?v=2">
+  <link rel="stylesheet" href="assets/css/ui-structure.css?v=1">
 </head>
 <body class="ws-auth-pending">
   <section class="login" id="loginView">
@@ -32,22 +33,13 @@
   <section class="app hidden" id="appView">
     <aside class="sidebar" id="sidebar">
       <div class="brand"><div class="brand-badge">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="#dashboard" data-view="dashboard" class="active">Dashboard</a>
-        <a href="#bills" data-view="bills">Bills</a>
-        <a href="#rates" data-view="rates">Price Intelligence</a>
-        <a href="#products" data-view="products">Products</a>
-        <a href="#vendors" data-view="vendors">Vendors</a>
-        <a href="#reports" data-view="reports">Reports</a>
-        <a href="#settings" data-view="settings">Settings</a>
-        <a href="#admin" data-view="admin">Admin &amp; users</a>
-      </nav>
+      <nav class="nav" aria-label="Primary navigation"></nav>
       <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button">Sign out</button></div>
     </aside>
     <main class="main">
       <header class="topbar">
-        <div style="display:flex;align-items:center;gap:10px"><button class="btn secondary mobile-menu" id="menuBtn" type="button">☰</button><div class="topbar-title" id="topTitle">Dashboard</div></div>
-        <div class="user"><div style="text-align:right"><strong id="roleLabel">STAFF</strong><div class="muted" id="emailLabel">Signed in</div></div><div class="avatar" id="avatar">A</div></div>
+        <div class="topbar-leading"><button class="btn secondary mobile-menu" id="menuBtn" type="button" aria-label="Open navigation">☰</button><div class="topbar-title" id="topTitle">Dashboard</div></div>
+        <div class="user"><div class="user-copy"><strong id="roleLabel">STAFF</strong><div class="muted" id="emailLabel">Signed in</div></div><div class="avatar" id="avatar">A</div></div>
       </header>
       <div class="content" id="content"></div>
     </main>
@@ -76,8 +68,9 @@
   <script src="assets/js/core/settings-page.js?v=1"></script>
   <script src="assets/js/core/session-authentication.js?v=2"></script>
   <script src="assets/js/core/view-registry.js?v=1"></script>
-  <script src="assets/js/core/hash-router.js?v=1"></script>
-  <script src="assets/js/core/application-controller.js?v=2"></script>
   <script src="assets/js/core/inventory-rebuild.js?v=2"></script>
+  <script src="assets/js/core/ui-foundation.js?v=1"></script>
+  <script src="assets/js/core/hash-router.js?v=2"></script>
+  <script src="assets/js/core/application-controller.js?v=2"></script>
 </body>
 </html>
