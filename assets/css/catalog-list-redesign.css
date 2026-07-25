@@ -1,0 +1,37 @@
+/* White Saffron — catalogue cards, price list and compact bill entry */
+.ws-catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.ws-product-tile{border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden;box-shadow:var(--shadow-sm);cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease}
+.ws-product-tile:hover{border-color:#b9c9c0;box-shadow:0 12px 28px rgba(15,30,76,.09)}
+.ws-product-image{height:150px;display:grid;place-items:center;background:linear-gradient(145deg,#fff,#f4f8f5);overflow:hidden}
+.ws-product-image img{width:100%;height:100%;object-fit:contain;padding:12px}
+.ws-product-fallback{font-size:64px;line-height:1}
+.ws-product-copy{padding:13px;text-align:center;border-top:1px solid var(--line)}
+.ws-product-copy h2{font-size:15px!important;line-height:1.3!important;margin:0 0 5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws-product-copy p{font-size:12px!important;color:var(--muted);margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws-product-copy strong{display:block;margin-top:7px;color:var(--success);font-size:14px}
+.ws-catalog-toolbar{display:flex;align-items:center;gap:12px;padding:14px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.ws-catalog-toolbar input{flex:1}
+.ws-catalog-toolbar span{font-size:12px;color:var(--muted);white-space:nowrap}
+.ws-product-drawer{position:fixed;inset:0;z-index:1200;background:rgba(7,17,47,.45);display:flex;justify-content:flex-end}
+.ws-product-drawer[hidden]{display:none}
+.ws-product-panel{width:min(430px,100%);height:100%;background:#fff;box-shadow:-18px 0 45px rgba(7,17,47,.18);padding:26px;overflow:auto}
+.ws-product-panel-head{display:flex;justify-content:flex-end}.ws-product-panel-head button{border:0;background:transparent;font-size:28px;color:var(--muted)}
+.ws-product-panel .ws-product-image{height:240px;border:1px solid var(--line);border-radius:14px}
+.ws-product-panel h2{text-align:center;margin-top:20px!important}.ws-product-panel .ws-panel-vendor{text-align:center;color:var(--muted);font-size:13px}.ws-product-panel .ws-panel-price{text-align:center;color:var(--success);font-size:24px;font-weight:800;margin-top:16px}
+.ws-panel-facts{display:grid;gap:10px;margin-top:22px}.ws-panel-facts div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13px}.ws-panel-facts span{color:var(--muted)}
+.ws-price-list{display:grid;gap:10px}
+.ws-price-row{display:grid;grid-template-columns:64px minmax(180px,1.6fr) minmax(130px,1fr) 120px 120px 120px auto;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:13px}
+.ws-price-thumb{width:58px;height:58px;border-radius:10px;background:#f5f8f6;display:grid;place-items:center;overflow:hidden}.ws-price-thumb img{width:100%;height:100%;object-fit:contain;padding:5px}.ws-price-thumb span{font-size:30px}
+.ws-price-main h2{font-size:15px!important;margin:0!important}.ws-price-main small{display:block;color:var(--muted);margin-top:3px}.ws-price-cell span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em}.ws-price-cell strong{display:block;margin-top:4px;font-size:13px;color:var(--header)}
+.ws-price-row button{white-space:nowrap}
+/* Compact invoice rows */
+#billForm #itemRows{gap:8px!important}
+#billForm #itemRows>[data-row]{padding:0!important;border-radius:10px!important}
+#billForm #itemRows>[data-row]>.form-grid{grid-template-columns:minmax(180px,2fr) minmax(120px,1fr) 90px 90px 120px 90px!important;gap:8px!important;padding:12px!important;align-items:end}
+#billForm #itemRows>[data-row]>.metrics{grid-template-columns:repeat(3,minmax(0,1fr))!important;margin:0!important;padding:0 12px 10px!important;gap:8px!important}
+#billForm #itemRows>[data-row]>.metrics .metric{padding:8px 10px!important;border-radius:8px!important}
+#billForm #itemRows>[data-row]>.actions{padding:0 12px 12px!important;justify-content:flex-end}
+#billForm #itemRows label{font-size:11px!important;gap:5px!important}
+#billForm #itemRows input,#billForm #itemRows select{min-height:38px!important;padding:7px 9px!important;font-size:13px!important}
+@media(max-width:980px){.ws-price-row{grid-template-columns:58px 1fr 110px 110px}.ws-price-cell.ws-hide-tablet{display:none}#billForm #itemRows>[data-row]>.form-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:680px){.ws-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ws-product-image{height:120px}.ws-price-row{grid-template-columns:52px 1fr auto}.ws-price-cell{display:none}.ws-price-row button{padding:7px 10px!important}#billForm #itemRows>[data-row]>.form-grid{grid-template-columns:1fr 1fr!important}.ws-catalog-toolbar{align-items:stretch;flex-direction:column}}
