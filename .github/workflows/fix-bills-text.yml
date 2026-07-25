@@ -1,18 +1,31 @@
 name: Fix Bills text hierarchy
-on:
+
+'on':
   push:
     paths:
-      - '.github/workflows/fix-bills-text.yml'
+      - .github/workflows/fix-bills-text.yml
+
 permissions:
   contents: write
+
 jobs:
   repair:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Append Bills page typography repair
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Apply Bills typography repair
+        shell: bash
         run: |
-          cat >> assets/css/breathing-room.css <<'CSS'
+          python3 - <<'PY'
+          from pathlib import Path
+
+          css_path = Path('assets/css/breathing-room.css')
+          css = css_path.read_text(encoding='utf-8')
+          marker = '/* ===== Bills page text hierarchy repair — 2026-07-26 ===== */'
+
+          repair = r'''
 
 /* ===== Bills page text hierarchy repair — 2026-07-26 ===== */
 .audit-page{gap:22px}
@@ -45,19 +58,24 @@ jobs:
  .audit-row-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
  .audit-row-actions .btn.small{width:100%;padding-inline:10px}
 }
-CSS
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('index.html')
-          s=p.read_text()
-          s=s.replace('assets/css/breathing-room.css?v=3','assets/css/breathing-room.css?v=4')
-          p.write_text(s)
+'''
+
+          if marker not in css:
+              css_path.write_text(css.rstrip() + repair + '\n', encoding='utf-8')
+
+          index_path = Path('index.html')
+          index = index_path.read_text(encoding='utf-8')
+          index = index.replace('assets/css/breathing-room.css?v=3', 'assets/css/breathing-room.css?v=4')
+          index_path.write_text(index, encoding='utf-8')
+
+          Path('.github/workflows/fix-bills-text.yml').unlink()
           PY
-          rm .github/workflows/fix-bills-text.yml
+
       - name: Commit repair
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/css/breathing-room.css index.html .github/workflows/fix-bills-text.yml
-          git commit -m "Repair Bills page text hierarchy and readability"
+          git diff --cached --quiet || git commit -m "Repair Bills page text hierarchy and readability"
           git push
