@@ -1,137 +1,232 @@
-/* White Saffron Procurement ERP — typography and spacing audit corrections */
+/* White Saffron Procurement ERP — shared page alignment and typography */
 :root{
-  --audit-h1:36px;
-  --audit-h2:30px;
-  --audit-h3:24px;
-  --audit-body:16px;
-  --audit-subtitle:18px;
-  --audit-label:14px;
-  --audit-small:12px;
-  --audit-heading-line:1.3;
-  --audit-body-line:1.6;
+  --ws-shell-width:1240px;
+  --ws-page-gap:20px;
+  --ws-page-title:30px;
+  --ws-section-title:20px;
+  --ws-body:14px;
+  --ws-meta:12px;
+  --ws-label:13px;
 }
 
-/* Application page hierarchy */
+/* One consistent page canvas for every renderer */
+#content{
+  width:100%;
+  max-width:none;
+  padding:28px 32px 40px;
+  align-items:stretch;
+}
+
+#content > .v4-page,
+#content > .pr-page,
+#content > .ip-dashboard,
+#content > .ui-page,
+#content > .rates-page,
+#content > .page-head,
+#content > form,
+#content > section{
+  width:min(100%,var(--ws-shell-width));
+  margin-inline:auto !important;
+  min-width:0;
+}
+
+.v4-page,
+.pr-page,
+.ip-dashboard,
+.ui-page,
+.rates-page{
+  display:grid;
+  gap:var(--ws-page-gap);
+}
+
+/* One page-header system */
+.v4-head,
+.pr-page-header,
+.ip-page-header,
+.ui-page-header,
+.page-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+  width:100%;
+  margin:0;
+}
+
+.v4-head > div:first-child,
+.pr-page-header > div:first-child,
+.ip-page-header > div:first-child,
+.ui-page-heading,
+.page-head > div:first-child{
+  display:grid;
+  gap:5px;
+  min-width:0;
+}
+
 #content h1,
-.page-head h1,
+.v4-head h1,
+.pr-page-header h1,
 .ip-page-header h1,
 .ui-page-heading h1,
-.v4-head h1,
-.pr-page-header h1{
-  font-size:clamp(30px,3vw,var(--audit-h1));
-  line-height:var(--audit-heading-line);
-  letter-spacing:.02em;
+.page-head h1{
+  margin:0;
+  font-size:var(--ws-page-title);
+  line-height:1.25;
+  letter-spacing:-.02em;
+  color:var(--header);
 }
 
-/* Dashboard section hierarchy */
-#content .ip-card-head h2,
-#content .v4-panel h2,
-#content .ui-card-header h2,
-#content .dashboard-card h2,
-#content [class*="dashboard"] h2{
-  font-size:clamp(24px,2.2vw,var(--audit-h2));
-  line-height:var(--audit-heading-line);
-  letter-spacing:.02em;
-  text-transform:none;
-}
-
-#content h3{
-  font-size:clamp(20px,1.8vw,var(--audit-h3));
-  line-height:var(--audit-heading-line);
-  letter-spacing:.01em;
-}
-
-/* Page subtitles and operational copy */
-#topSubtitle,
-.topbar-subtitle,
+.v4-head p,
+.pr-page-header p,
 .ip-page-header p,
 .ui-page-heading p,
-.v4-head p,
-.pr-page-header p{
-  font-size:var(--audit-subtitle);
-  line-height:1.6;
+.page-head p{
+  margin:0;
+  font-size:14px;
+  line-height:1.5;
+  color:var(--muted);
 }
 
-#content p,
-#content .text,
-#content .body,
-#content p.muted{
-  font-size:var(--audit-body);
-  line-height:var(--audit-body-line);
+/* Section titles should remain compact inside cards */
+#content h2,
+.v4-panel h2,
+.pr-report-card h2,
+.ip-card-head h2,
+.ui-card-header h2{
+  font-size:var(--ws-section-title);
+  line-height:1.3;
+  letter-spacing:-.01em;
 }
 
-/* Labels */
-#emailLabel,
+#content p{
+  font-size:var(--ws-body);
+  line-height:1.55;
+}
+
+#content small,
+#content .small{
+  font-size:var(--ws-meta);
+  line-height:1.45;
+}
+
 #content label,
 #content .label{
-  font-size:var(--audit-label);
-  line-height:1.45;
+  font-size:var(--ws-label);
+  line-height:1.4;
 }
 
+/* Shared cards and toolbars */
+.v4-settings-panel,
+.v4-toolbar,
+.pr-toolbar,
+.ui-toolbar,
+.ip-card,
+.ui-card,
+.card{
+  width:100%;
+  min-width:0;
+}
+
+.v4-settings-panel,
+.v4-panel,
+.pr-toolbar,
+.pr-product-card,
+.pr-price-card,
+.pr-report-card,
+.ui-card,
+.ip-card,
+.card{
+  border-radius:16px;
+}
+
+/* Settings uses the same width and spacing as Products/Prices */
+.v4-settings-panel{
+  padding:24px;
+}
+
+.v4-settings-panel > h2{
+  margin-bottom:20px;
+}
+
+.v4-settings-panel .v4-form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  padding:0;
+}
+
+.v4-settings-panel .v4-actions{
+  margin-top:22px;
+}
+
+/* Product and price grids align to the same left edge */
+.pr-product-grid,
+.pr-price-grid,
+.v4-vendor-grid,
+.v4-bill-grid{
+  width:100%;
+  margin:0;
+}
+
+/* Restore a professional compact sidebar; audit sizing must not distort navigation */
 .nav-section-label,
 .ui-nav-label{
-  font-size:var(--audit-label);
+  padding:18px 14px 7px !important;
+  font-size:10px !important;
+  line-height:1.35 !important;
+  letter-spacing:.12em !important;
+  white-space:nowrap;
+}
+
+.nav a{
+  font-size:14px !important;
+  line-height:1.3;
+}
+
+.brand small{
+  font-size:11px !important;
+}
+
+.user strong{
+  font-size:12px !important;
+}
+
+#emailLabel,
+.user .muted{
+  font-size:11px !important;
   line-height:1.4;
-  letter-spacing:.1em;
 }
 
-.user strong,
-.user .muted,
-#emailLabel{
-  font-size:var(--audit-label);
+.topbar-title{
+  font-size:16px;
+}
+
+.topbar-subtitle,
+#topSubtitle{
+  font-size:12px;
   line-height:1.4;
 }
 
-/* Small and metadata text */
-#content small,
-#content .small,
-#content .ip-kpi small,
-#content .ip-supplier small,
-#content .v4-timeline small,
-#content .v4-alert-list small,
-#content .pr-product-card small,
-#content .pr-price-card small{
-  font-size:var(--audit-small);
-  line-height:1.5;
-}
-
-/* KPI and card labels */
-#content .ip-kpi span,
-#content .v4-kpis span,
-#content .pr-summary-grid span,
-#content .v4-panel header span{
-  font-size:var(--audit-label);
-  line-height:1.45;
-}
-
-/* Protect enlarged type from clipping */
+/* Prevent enlarged text from breaking rows */
 #content strong,
 #content h1,
 #content h2,
 #content h3{
-  overflow-wrap:anywhere;
   min-width:0;
+  overflow-wrap:anywhere;
 }
 
-#content .ip-card-head,
-#content .v4-panel > header,
-#content .ui-card-header{
-  gap:16px;
+@media (max-width:1100px){
+  :root{--ws-shell-width:100%;}
+  #content{padding:24px 20px 36px;}
+  .pr-product-grid,.pr-price-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 
-/* Preserve practical density on smaller screens */
 @media (max-width:760px){
-  :root{
-    --audit-h1:30px;
-    --audit-h2:24px;
-    --audit-h3:20px;
-    --audit-body:15px;
-    --audit-subtitle:16px;
-  }
-  #content .ip-card-head h2,
-  #content .v4-panel h2,
-  #content .ui-card-header h2,
-  #content [class*="dashboard"] h2{
-    font-size:24px;
-  }
+  #content{padding:18px 14px 30px;}
+  .v4-head,.pr-page-header,.ip-page-header,.ui-page-header,.page-head{flex-direction:column;gap:12px;}
+  #content h1,.v4-head h1,.pr-page-header h1,.ip-page-header h1,.ui-page-heading h1,.page-head h1{font-size:26px;}
+  .v4-settings-panel{padding:18px;}
+  .v4-settings-panel .v4-form-grid{grid-template-columns:1fr;}
+  .pr-product-grid,.pr-price-grid,.v4-vendor-grid,.v4-bill-grid{grid-template-columns:1fr;}
 }
