@@ -1,0 +1,15 @@
+import {store} from './store.js';
+import {dashboardPage,billsPage,newBillPage,productsPage,ratesPage,vendorsPage,reportsPage,settingsPage,adminPage} from './pages.js';
+
+const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:productsPage,rates:ratesPage,prices:ratesPage,vendors:vendorsPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
+const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Manage supplier purchases'],new:['New bill','Record a supplier purchase'],products:['Products','Generated product catalogue'],rates:['Price Intelligence','Compare product and supplier prices'],vendors:['Vendors','Supplier directory'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace defaults'],admin:['Admin & users','Access and system status']};
+
+export function navigate(route){location.hash=`#${route}`}
+export function renderRoute(){
+  const route=(location.hash||'#dashboard').slice(1).toLowerCase();const page=routes[route]||dashboardPage;
+  store.route=routes[route]?route:'dashboard';
+  document.querySelectorAll('.nav a[data-route]').forEach(link=>link.classList.toggle('active',link.dataset.route===store.route||(link.dataset.route==='rates'&&store.route==='prices')));
+  const [title,subtitle]=meta[store.route]||meta.dashboard;document.querySelector('#topTitle').textContent=title;document.querySelector('#topSubtitle').textContent=subtitle;
+  document.querySelector('#sidebar').classList.remove('open');document.querySelector('#content').replaceChildren();page();
+}
+export function startRouter(){window.addEventListener('hashchange',renderRoute);renderRoute()}
