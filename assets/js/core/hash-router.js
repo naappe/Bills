@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const VERSION=1;
-const TITLES={dashboard:'Dashboard',bills:'Bills',new:'New Bill',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings',admin:'Admin'};
+const TITLES={dashboard:'Dashboard',bills:'Bills',new:'New Bill',rates:'Rates',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings',admin:'Admin'};
 const VALID=Object.keys(TITLES);
 
 const renderBuildError=view=>{
@@ -37,6 +37,7 @@ window.show=view=>{
     dashboard:window.renderDashboard,
     bills:window.renderBills,
     new:window.renderNewBill,
+    rates:window.renderRates,
     products:window.renderProducts,
     vendors:window.renderVendors,
     prices:window.renderPrices,

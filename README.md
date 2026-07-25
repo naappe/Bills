@@ -81,7 +81,7 @@ view-renderers
 
 ### `view-registry.js`
 
-- Registers only Dashboard, Bills, and New Bill.
+- Registers Dashboard, Bills, New Bill, and Rates.
 - Does not define routing, authentication, database queries, or admin overrides.
 - Must remain syntactically valid and side-effect free.
 
@@ -108,6 +108,10 @@ view-renderers
 - `readonly`: view and export only.
 
 Frontend roles are usability controls. Supabase Row Level Security must enforce all real permissions.
+
+## Rate intelligence
+
+Each new bill item stores the entered **row total**, the derived purchase-unit rate (Case / PCS / PKT / TIN, etc.), and its normalized per-g, per-ML, or per-PCS rate. The Rates page compares the latest rate against the most recent earlier rate, highlights increases, and shows the cheapest vendor based on each vendor’s latest saved rate.
 
 ## Data behavior
 
@@ -146,7 +150,7 @@ Then verify:
 2. GitHub Pages has finished publishing the `main` branch.
 3. The live site displays only Dashboard, Bills, and New Bill.
 4. The browser console contains no uncaught syntax errors.
-5. Dashboard, Bills, and New Bill each render correctly after sign-in.
+5. Dashboard, Bills, New Bill, and Rates each render correctly after sign-in.
 
 ## Security
 
