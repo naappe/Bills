@@ -1,10 +1,15 @@
 (()=>{
 'use strict';
-const VERSION=43;
+const VERSION=44;
 const allowedRoles=new Set(['admin','manager','staff','readonly']);
+const ROLE_KEY='ws-user-roles-v1';
+const roleOverrides=()=>{try{return JSON.parse(localStorage.getItem(ROLE_KEY)||'{}')}catch{return{}}};
 const resolveRole=user=>{
   if(!user)return'staff';
   if(typeof ADMIN_IDS!=='undefined'&&ADMIN_IDS.includes(user.id))return'admin';
+  const email=String(user.email||'').trim().toLowerCase();
+  const override=String(roleOverrides()[email]||'').toLowerCase();
+  if(allowedRoles.has(override))return override;
   const candidate=String(user.app_metadata?.role||user.user_metadata?.role||'staff').toLowerCase();
   return allowedRoles.has(candidate)?candidate:'staff';
 };
@@ -54,7 +59,6 @@ function setAuthView(session){
   }
 }
 installAuthViewStyles();
-
 const form=document.querySelector('#loginForm');
 if(form){
   form.onsubmit=async event=>{
@@ -74,7 +78,6 @@ if(form){
     if(notice)notice.textContent='';
   };
 }
-
 const logout=document.querySelector('#logoutBtn');
 if(logout){
   logout.onclick=async()=>{
@@ -84,5 +87,5 @@ if(logout){
     if(error){console.error('[auth] sign out failed',error);return;}
   };
 }
-window.__WS_AUTH__={version:VERSION,resolveRole,setAuthView};
+window.__WS_AUTH__={version:VERSION,resolveRole,setAuthView,roleStorage:ROLE_KEY};
 })();
