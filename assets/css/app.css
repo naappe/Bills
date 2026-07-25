@@ -1,0 +1,12 @@
+/* White Saffron Procurement ERP — single stylesheet entry point.
+   Import order is intentional: base → compatibility → page modules → shell → tokens.
+   New visual work must use semantic tokens from assets/tokens/design-tokens.json. */
+
+@import url('./breathing-room.css?v=5');
+@import url('./typography-audit-fix.css?v=1');
+@import url('./invoice-entry.css?v=2');
+@import url('./catalog-list-redesign.css?v=2');
+@import url('./new-bill-standard.css?v=1');
+@import url('./cohesive-shell.css?v=2');
+@import url('./industrial-dashboard.css?v=1');
+@import url('./design-tokens.css?v=1');
