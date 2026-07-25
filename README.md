@@ -21,7 +21,7 @@ The only page-content container is:
 <div id="content"></div>
 ```
 
-Current supported routes:
+Current supported routes (bill entry opens inside Bills):
 
 - `#dashboard`
 - `#bills`
@@ -81,7 +81,7 @@ view-renderers
 
 ### `view-registry.js`
 
-- Registers Dashboard, Bills, New Bill, and Rates.
+- Registers Dashboard, Bills, New Bill compatibility route, and Rates.
 - Does not define routing, authentication, database queries, or admin overrides.
 - Must remain syntactically valid and side-effect free.
 
@@ -150,7 +150,7 @@ Then verify:
 2. GitHub Pages has finished publishing the `main` branch.
 3. The live site displays only Dashboard, Bills, and New Bill.
 4. The browser console contains no uncaught syntax errors.
-5. Dashboard, Bills, New Bill, Rates, and Mobile demo each render correctly after sign-in.
+5. Dashboard, Bills (including embedded Add bill), Rates, and Mobile demo each render correctly after sign-in.
 
 ## Security
 
