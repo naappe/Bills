@@ -443,3 +443,69 @@ h2{line-height:1.3;letter-spacing:0}
  .audit-row-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
  .audit-row-actions .btn.small{width:100%;padding-inline:10px}
 }
+
+
+/* ===== Bills responsive width repair — 2026-07-26 ===== */
+.audit-page,
+.audit-list,
+.audit-bills{min-width:0;max-width:100%}
+.audit-bills{overflow:hidden}
+@media(max-width:1200px){
+  .audit-list-head{display:none}
+  .audit-bills{display:grid;gap:14px;background:transparent;border:0}
+  .audit-bills article{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:18px 22px;
+    min-height:0;
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:var(--surface);
+    box-shadow:var(--shadow-sm)
+  }
+  .audit-bills article>span{display:block;min-width:0}
+  .audit-bills article>span::before{
+    display:block;
+    margin-bottom:6px;
+    color:var(--muted);
+    font-size:10px;
+    line-height:1.35;
+    font-weight:800;
+    letter-spacing:.07em;
+    text-transform:uppercase
+  }
+  .audit-bills article>span:nth-child(1)::before{content:"Invoice"}
+  .audit-bills article>span:nth-child(2)::before{content:"Bill date"}
+  .audit-bills article>span:nth-child(3)::before{content:"Last edited"}
+  .audit-bills article>span:nth-child(4)::before{content:"Vendor"}
+  .audit-bills article>span::nth-child(5)::before{content:"Status"}
+  .audit-bills article>span:nth-child(6)::before{content:"Amount"}
+  .audit-row-actions{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding-top:14px;
+    border-top:1px solid var(--line)
+  }
+  .audit-row-actions::before{display:none!important}
+  .audit-row-actions .btn.small{min-width:88px}
+  .audit-toolbar{grid-template-columns:minmax(220px,1fr) repeat(2,minmax(150px,190px))}
+  .audit-toolbar input[type="date"]{grid-column:auto}
+}
+@media(max-width:860px){
+  .audit-toolbar{grid-template-columns:1fr 1fr}
+  .audit-toolbar>label:first-child{grid-column:1/-1}
+  .audit-bills article{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .audit-toolbar{grid-template-columns:1fr}
+  .audit-toolbar>label:first-child{grid-column:auto}
+  .audit-bills article{grid-template-columns:1fr}
+  .audit-row-actions{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr))
+  }
+  .audit-row-actions .btn.small{min-width:0;width:100%}
+}
