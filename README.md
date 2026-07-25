@@ -1,203 +1,153 @@
 # White Saffron Procurement ERP
 
-Static procurement application hosted on GitHub Pages and backed by Supabase.
+A static procurement application for entering, reviewing, and managing supplier bills. It is hosted on GitHub Pages and uses Supabase for authentication and bill data.
 
-**Live application:** `https://naappe.github.io/Bills/`
+**Live site:** https://naappe.github.io/Bills/
 
-## Active structure
+## Application architecture
 
-```text
-/
-├── index.html
-├── README.md
-├── RELEASE-CHECKLIST.md
-├── assets/
-│   ├── css/
-│   │   └── app-shell.css
-│   └── js/
-│       └── core/
-│           ├── ui.js
-│           ├── auth.js
-│           ├── controller.js
-│           └── health.js
-└── .github/
-    └── workflows/
-        └── deploy.yml
-```
-
-The maintained application folders contain no more than five active files. Active filenames are stable and do not use patch suffixes such as `v17`, `fix`, or `final`.
-
-## Module ownership
-
-### `index.html`
-
-- Application shell and navigation markup
-- Supabase browser-client initialization
-- Shared application state and formatting helpers
-- Controlled script loading order
-
-### `assets/js/core/auth.js`
-
-- Login form
-- Username-to-email compatibility mapping
-- Role resolution
-- Login/application screen visibility
-- Logout action
-
-Authentication subscriptions and session restoration are owned by the controller.
-
-### `assets/js/core/controller.js`
-
-- Single Supabase session restoration
-- Single authentication-state subscription
-- Role application
-- Paginated loading of all bill records
-- Duplicate-load protection
-- Navigation and URL hash handling
-- Database health state
-
-### `assets/js/core/ui.js`
-
-- Dashboard renderer
-- Bills list, search, status filtering and pagination
-- New/edit bill form
-- Bill insert, update and administrator delete actions
-- Products, vendors, price book, reports and settings renderers
-- CSV export and shared display helpers
-
-### `assets/js/core/health.js`
-
-- Display-only database status cards
-- Runtime version diagnostics
-- No Supabase queries
-
-### `assets/css/app-shell.css`
-
-- Login screen
-- Sidebar and top bar
-- Shared cards, forms, tables, buttons and responsive layout
-
-## Navigation
+The application is a single-content renderer. It does not use separate HTML containers for each page.
 
 ```text
-Dashboard
-Bills
-Products
-Vendors
-Price Book
-Reports
-Settings
+URL hash
+  → hash router
+  → selected view renderer
+  → #content.innerHTML
 ```
 
-The controller owns navigation. All pages render into:
+The only page-content container is:
 
 ```html
 <div id="content"></div>
 ```
 
+Current supported routes:
+
+- `#dashboard`
+- `#bills`
+- `#new`
+
+## Active file structure
+
+```text
+/
+├── index.html                         Application shell and script order
+├── README.md                          This technical reference
+└── assets/
+    ├── css/
+    │   ├── application-shell.css      Layout, navigation, forms and responsive rules
+    │   └── design-system.css          Typography, spacing and component refinements
+    └── js/
+        └── core/
+            ├── session-authentication.js  Login, logout and session display
+            ├── view-renderers.js          Base view renderers and shared UI helpers
+            ├── view-registry.js           Registers the three supported views
+            ├── hash-router.js             Hash routing and window.show(view)
+            └── application-controller.js  Supabase session and bill-data lifecycle
+```
+
+Inactive legacy files may remain in the repository, but they are not loaded by `index.html` and must not be reactivated without a separate review.
+
+## Module responsibilities
+
+### `index.html`
+
+- Provides the login shell, application shell, sidebar and `#content`.
+- Creates the Supabase browser client using the publishable key.
+- Defines shared application state and simple display helpers.
+- Loads active modules in this required order:
+
+```text
+view-renderers
+→ session-authentication
+→ view-registry
+→ hash-router
+→ application-controller
+```
+
+### `session-authentication.js`
+
+- Handles sign-in and sign-out.
+- Restores the correct login or application view.
+- Resolves the current user role.
+- Updates the header user details.
+
+### `view-renderers.js`
+
+- Owns shared UI helpers and base renderers.
+- Renders Dashboard, Bills, and New Bill into `#content`.
+- Provides bill list filtering, pagination, CSV export, bill create/update, and permitted deletion.
+- Contains additional base renderers for future modules, but they are not routable until intentionally registered.
+
+### `view-registry.js`
+
+- Registers only Dashboard, Bills, and New Bill.
+- Does not define routing, authentication, database queries, or admin overrides.
+- Must remain syntactically valid and side-effect free.
+
+### `hash-router.js`
+
+- Defines `window.show(view)`.
+- Reads the URL hash and selects a supported view.
+- Updates active navigation and the page title.
+- Shows a clear build error if a supported renderer is unavailable.
+
+### `application-controller.js`
+
+- Restores the Supabase session.
+- Subscribes to authentication changes.
+- Loads accessible `bills` records in 1,000-record pages.
+- Prevents duplicate concurrent loads.
+- Maintains database status and triggers the active renderer.
+
 ## Roles
 
-- `admin`: add, edit and delete bills
-- `manager`: add and edit bills
-- `staff`: add bills and edit records created within 24 hours when `created_at` is available
-- `readonly`: view and export only
+- `admin`: create, edit and delete bills.
+- `manager`: create and edit bills.
+- `staff`: create bills and edit records when permitted.
+- `readonly`: view and export only.
 
-Frontend role controls are usability controls only. Supabase Row Level Security must independently enforce the same permissions.
+Frontend roles are usability controls. Supabase Row Level Security must enforce all real permissions.
 
 ## Data behavior
 
-- Supabase table: `bills`
-- Records load in pages of 1,000 until all accessible rows are retrieved
-- `state.rows` contains the complete loaded result
-- `state.filtered` contains the current Bills-page result
-- Concurrent bill loads reuse one loading promise
-- Bill writes detect the active schema aliases already present in loaded records, including `status` versus `payment_status` and `method` versus `payment_method`
-
-## Pages
-
-### Dashboard
-
-Shows total bills, total purchasing value, vendor count, pending count and recent records.
-
-### Bills
-
-Provides vendor/bill-number search, status filtering, 20/50/100-row pagination, CSV export, editing and administrator deletion.
-
-### New Bill
-
-Creates and updates bill header records with bill date, bill number, vendor, amount, payment status and payment method.
-
-### Products and Price Book
-
-Derive product and rate information from saved bill `items` arrays when item-level data exists.
-
-### Vendors
-
-Builds a vendor summary from bill records, including bill count, total value and TIN when available.
-
-### Reports
-
-Shows purchasing value by status and recent monthly totals, with CSV export.
-
-### Settings
-
-Shows the current user, role, record count, connection state and runtime module versions. It does not expose the Supabase key.
+- Primary table: `bills`.
+- `state.rows`: all records loaded for the active user.
+- `state.filtered`: Bills-page filtered result.
+- Records are ordered newest first.
+- The application supports common column aliases such as `status` / `payment_status` and `method` / `payment_method`.
 
 ## Deployment
 
-GitHub Pages is deployed only through:
+GitHub Pages publishes directly from:
 
 ```text
-.github/workflows/deploy.yml
+Branch: main
+Folder: /(root)
 ```
 
-Required repository setting:
+No GitHub Actions workflow is required for the current static site setup.
 
-```text
-Settings → Pages → Build and deployment → Source → GitHub Actions
+## Required verification before every deploy
+
+Run a direct JavaScript syntax check before changing deployment settings or diagnosing browser cache:
+
+```bash
+node --check assets/js/core/view-renderers.js
+node --check assets/js/core/session-authentication.js
+node --check assets/js/core/view-registry.js
+node --check assets/js/core/hash-router.js
+node --check assets/js/core/application-controller.js
 ```
 
-The deployment workflow runs on pushes to `main` and can also be started manually.
+Then verify:
+
+1. Each command exits successfully.
+2. GitHub Pages has finished publishing the `main` branch.
+3. The live site displays only Dashboard, Bills, and New Bill.
+4. The browser console contains no uncaught syntax errors.
+5. Dashboard, Bills, and New Bill each render correctly after sign-in.
 
 ## Security
 
-The frontend contains a Supabase publishable browser key. Never commit:
-
-- service-role keys
-- database passwords
-- private API keys
-- authentication tokens
-- exported procurement records containing sensitive information
-
-All read, insert, update and delete permissions must be enforced by Supabase Row Level Security.
-
-## Production verification
-
-After deployment:
-
-1. Open `https://naappe.github.io/Bills/?v=5`.
-2. Hard refresh.
-3. Sign in as administrator.
-4. Confirm the role label and loaded bill count.
-5. Open every navigation page.
-6. Create a test bill and verify it appears in Bills.
-7. Edit the test bill.
-8. Delete the test bill as administrator.
-9. Test a staff or read-only account.
-10. Confirm there are no failed requests or uncaught console errors.
-
-Browser diagnostics:
-
-```javascript
-console.table({
-  ui: window.__WS_CORE__?.version,
-  auth: window.__WS_AUTH__?.version,
-  controller: window.__WS_APP_CONTROLLER__?.version,
-  health: window.__WS_RUNTIME_HEALTH__?.version,
-  role: state?.role,
-  user: state?.user?.email,
-  rows: state?.rows?.length,
-  status: window.__WS_DB_STATUS__?.status,
-  message: window.__WS_DB_STATUS__?.message
-});
-```
+The frontend uses a Supabase publishable browser key. Never commit service-role keys, private API keys, passwords, tokens, or exported sensitive procurement data.
