@@ -1,0 +1,52 @@
+/* Targeted spacing and typography stabilization — additive, no legacy removals */
+*{box-sizing:border-box}
+body{line-height:1.55}
+
+/* Header and account area */
+.topbar{gap:20px;padding-block:16px}
+.topbar-leading,.user{gap:16px}
+.user-copy{display:grid;gap:4px;min-width:0}
+#emailLabel{line-height:1.5}
+.brand{gap:14px}
+.brand>div:last-child{display:grid;gap:4px}
+.brand small{line-height:1.5}
+
+/* Page headings: readable without constraining tables or application layouts */
+.audit-head{gap:24px;margin-bottom:2px}
+.audit-head>div:first-child{min-width:0}
+.audit-head h1{max-width:720px;line-height:1.22;letter-spacing:-.02em}
+.audit-head p{max-width:680px;line-height:1.6;margin-top:8px}
+#topSubtitle{display:block;line-height:1.5;margin-top:4px}
+
+/* Controls */
+.btn,button{line-height:1.25}
+.btn{min-height:40px;padding-block:8px}
+.btn.small{min-height:36px}
+.field,input,select,textarea{line-height:1.5}
+
+/* Icons: enlarge primary navigation/action icons without inflating decorative table icons */
+.nav i,.topbar i,.btn i,.mobile-menu i{font-size:20px;line-height:1;display:inline-grid;place-items:center;flex:0 0 auto}
+.nav a,.nav button{gap:12px;min-height:44px}
+.audit-toolbar>label i{font-size:18px}
+
+/* Real content containers */
+.audit-page{gap:20px}
+.audit-toolbar{gap:16px;padding:18px}
+.audit-list-head,.audit-bills article{column-gap:16px}
+.audit-bills article{padding-block:16px}
+.audit-row-actions{gap:10px}
+.audit-pager{margin-top:16px;padding:14px 18px}
+.audit-vendor-grid,.audit-product-grid{gap:16px}
+.audit-vendor-item{padding:16px 18px}
+.audit-product>div{padding:18px}
+
+/* Avoid cramped adjacent text blocks */
+.muted+p,p+.muted,small+div,span+div{margin-top:0}
+
+@media(max-width:760px){
+  .topbar{padding-block:12px;gap:14px}
+  .content{padding:18px}
+  .audit-head{gap:16px}
+  .audit-toolbar{padding:16px;gap:14px}
+  .audit-bills article{gap:16px;padding:16px}
+}
