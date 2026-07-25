@@ -54,6 +54,31 @@ td .actions{justify-content:flex-end;white-space:nowrap}
 .nav a{min-height:42px;padding:9px 14px!important;margin:0 2px 2px 0!important;gap:11px!important}
 .ui-nav-label,.nav-section-label{padding:18px 14px 7px!important}
 
+/* Keep the top bar as the single page heading. Preserve page actions only. */
+#content>.page-head>div:first-child,
+#content>.ip-dashboard>.ip-page-header>div:first-child,
+#content>.rates-page>.page-head>div:first-child,
+#content>.rates-page>.ui-page-header>div:first-child,
+#content>.ui-page>.ui-page-header>.ui-page-heading{
+  display:none!important;
+}
+#content>.page-head,
+#content>.ip-dashboard>.ip-page-header,
+#content>.rates-page>.page-head,
+#content>.rates-page>.ui-page-header,
+#content>.ui-page>.ui-page-header{
+  min-height:0!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+}
+#content>.page-head:not(:has(.actions)),
+#content>.ip-dashboard>.ip-page-header:not(:has(.ip-actions)),
+#content>.rates-page>.page-head:not(:has(.actions)),
+#content>.rates-page>.ui-page-header:not(:has(.ui-page-actions)),
+#content>.ui-page>.ui-page-header:not(:has(.ui-page-actions)){
+  display:none!important;
+}
+
 /* Stable interface: no lift, bounce, translate, scale, or wiggle effects */
 .card,.ui-card,.ip-card,.settings-card,.member-card,.rates-product-card,.rates-product-card,.price-card,.product-card,.vendor-card,.ip-kpi,.metric,.ui-metric,.btn,.ip-btn,.nav a{
   transform:none!important;
