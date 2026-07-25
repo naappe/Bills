@@ -21,4 +21,3 @@ html{font-size:100%;-webkit-text-size-adjust:100%}body{min-height:100vh;min-heig
 
 
 /* Stable embedded device preview: outer controls own navigation */
-body.ws-mobile-preview .sidebar{display:none!important}body.ws-mobile-preview .main{width:100%;min-width:0}body.ws-mobile-preview .mobile-menu{display:none!important}body.ws-mobile-preview .topbar{min-height:54px;padding:0 14px}body.ws-mobile-preview .content{padding:14px}body.ws-mobile-preview .page-head{margin-bottom:14px}
