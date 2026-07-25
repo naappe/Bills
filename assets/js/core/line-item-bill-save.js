@@ -1,104 +1,42 @@
 (()=>{
 'use strict';
-const VERSION=2;
+const VERSION=3;
 const text=value=>String(value??'').trim();
 const number=value=>Number(String(value??0).replace(/,/g,''))||0;
 const safe=value=>typeof esc==='function'?esc(value):text(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const cash=value=>typeof money==='function'?money(value):`MVR ${number(value).toFixed(2)}`;
 const precise=value=>`MVR ${number(value).toLocaleString('en-US',{minimumFractionDigits:3,maximumFractionDigits:5})}`;
-
-function parsePack(input){
- const value=text(input).toLowerCase().replace(/\s+/g,'');
- let match=value.match(/^(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)(kg|g|l|ml|pcs|pc)$/i);
- if(match){const count=number(match[1]),size=number(match[2]),unit=match[3].toLowerCase()==='pc'?'pcs':match[3].toLowerCase();return{count,size,unit,base:count*size}}
- match=value.match(/^(\d+(?:\.\d+)?)(kg|g|l|ml|pcs|pc)$/i);
- if(match){const size=number(match[1]),unit=match[2].toLowerCase()==='pc'?'pcs':match[2].toLowerCase();return{count:1,size,unit,base:size}}
- return{count:0,size:0,unit:'',base:0};
-}
-
-function calculate(raw){
- const item={...raw},pack=parsePack(item.pack_format),qty=number(item.qty),entered=number(item.rate),gstPct=number(item.gst),rateMode=item.rate_mode==='per_unit'?'per_unit':'line_total';
- const subtotal=rateMode==='per_unit'?qty*entered:entered,gstAmount=subtotal*gstPct/100,lineTotal=subtotal+gstAmount,purchaseRate=qty?subtotal/qty:0;
- let basePerPurchase=1,smallUnit='pcs',measurement='pieces';
- if(pack.base){
-  if(pack.unit==='kg'){basePerPurchase=pack.base*1000;smallUnit='g';measurement='weight'}
-  else if(pack.unit==='g'){basePerPurchase=pack.base;smallUnit='g';measurement='weight'}
-  else if(pack.unit==='l'){basePerPurchase=pack.base*1000;smallUnit='ml';measurement='volume'}
-  else if(pack.unit==='ml'){basePerPurchase=pack.base;smallUnit='ml';measurement='volume'}
-  else{basePerPurchase=pack.base}
- }else{
-  const unit=text(item.unit).toUpperCase();
-  if(unit==='KG'){basePerPurchase=1000;smallUnit='g';measurement='weight'}
-  else if(unit==='G'){basePerPurchase=1;smallUnit='g';measurement='weight'}
-  else if(unit==='L'){basePerPurchase=1000;smallUnit='ml';measurement='volume'}
-  else if(unit==='ML'){basePerPurchase=1;smallUnit='ml';measurement='volume'}
-  else if(unit==='DOZ'){basePerPurchase=12}
- }
- const totalBase=qty*basePerPurchase;
- return{...item,product:text(item.product),pack_format:text(item.pack_format),unit:text(item.unit).toUpperCase()||'CSE',qty,rate:entered,rate_mode:rateMode,gst:gstPct,gst_pct:gstPct,subtotal,gst_amount:gstAmount,line_total:lineTotal,purchase_rate:purchaseRate,base_per_purchase:basePerPurchase,total_base:totalBase,small_unit:smallUnit,small_rate:totalBase?subtotal/totalBase:0,measurement};
-}
-
-async function saveVendor(form){
- const name=text(form.elements.vendor?.value);if(!name)return null;
- const details={name,tin:text(form.elements.tin?.value)||null,phone:text(form.elements.vendor_phone?.value)||null,email:text(form.elements.vendor_email?.value)||null,address:text(form.elements.vendor_address?.value)||null,default_payment_method:form.elements.payment_method?.value||null,updated_at:new Date().toISOString(),updated_by:state.user?.id||null};
- const lookup=await db.from('vendors').select('id,name,tin,phone,email,address,default_payment_method').ilike('name',name).is('deleted_at',null).limit(1);if(lookup.error)throw lookup.error;
- const existing=lookup.data?.[0]||null;
- if(existing){const changed=['tin','phone','email','address','default_payment_method'].some(key=>text(existing[key])!==text(details[key]));if(!changed)return existing;const updated=await db.from('vendors').update(details).eq('id',existing.id).select().single();if(updated.error)throw updated.error;return updated.data}
- const inserted=await db.from('vendors').insert({...details,created_by:state.user?.id||null}).select().single();if(inserted.error)throw inserted.error;return inserted.data;
-}
-
-function installStyles(){
- if(document.getElementById('wsLineItemSaveStyles'))return;
- const style=document.createElement('style');style.id='wsLineItemSaveStyles';style.textContent=`
- #billForm #itemRows [data-row]>.metrics,#billForm #itemRows [data-row]>.invoice-line-metrics{display:none!important}
- #billForm #itemRows [data-row]>.actions,#billForm #itemRows [data-row]>.invoice-line-actions{padding-top:0!important}
- #billForm .bill-row-save-note{display:flex;align-items:flex-start;gap:8px;margin:0;color:var(--muted);font-size:12px;line-height:1.45}
- #billForm .bill-row-save-note i{color:var(--success);margin-top:2px}
- .ws-review-overlay{position:fixed;inset:0;z-index:1600;background:rgba(5,28,51,.55);display:grid;place-items:center;padding:24px}
- .ws-review-dialog{width:min(1000px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 28px 70px rgba(5,28,51,.25)}
- .ws-review-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:22px 24px;border-bottom:1px solid var(--line)}
- .ws-review-head h2{margin:0!important;font-size:22px!important}.ws-review-head p{margin:4px 0 0!important;color:var(--muted)}
- .ws-review-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:18px 24px;background:var(--surface-soft)}
- .ws-review-summary div{display:grid;gap:4px}.ws-review-summary span,.ws-review-table th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}.ws-review-summary strong{font-size:14px;color:var(--header)}
- .ws-review-table-wrap{overflow:auto;padding:0 24px}.ws-review-table{width:100%;border-collapse:collapse}.ws-review-table th,.ws-review-table td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.ws-review-table td:first-child{white-space:normal;min-width:180px}.ws-review-table strong{color:var(--header)}
- .ws-review-total{display:flex;justify-content:flex-end;gap:28px;padding:18px 24px;font-size:14px}.ws-review-total strong{font-size:20px;color:var(--header)}
- .ws-review-actions{display:flex;justify-content:flex-end;gap:10px;padding:18px 24px;border-top:1px solid var(--line);position:sticky;bottom:0;background:#fff}
- @media(max-width:760px){.ws-review-overlay{padding:10px}.ws-review-summary{grid-template-columns:1fr 1fr}.ws-review-actions .btn{flex:1}.ws-review-total{justify-content:space-between}}
- `;document.head.appendChild(style);
-}
-
-function review(items,form){
- return new Promise(resolve=>{
-  const fd=new FormData(form),total=items.reduce((sum,item)=>sum+item.line_total,0),gst=items.reduce((sum,item)=>sum+item.gst_amount,0);
-  const overlay=document.createElement('div');overlay.className='ws-review-overlay';
-  overlay.innerHTML=`<section class="ws-review-dialog" role="dialog" aria-modal="true" aria-labelledby="wsReviewTitle"><header class="ws-review-head"><div><h2 id="wsReviewTitle">Review before saving</h2><p>Check the bill header and every calculated product record.</p></div><button class="btn secondary small" type="button" data-review-close>×</button></header><div class="ws-review-summary"><div><span>Vendor</span><strong>${safe(fd.get('vendor')||'—')}</strong></div><div><span>Bill date</span><strong>${safe(fd.get('bill_date')||'—')}</strong></div><div><span>Bill no.</span><strong>${safe(fd.get('bill_no')||'—')}</strong></div><div><span>Records created</span><strong>${items.length}</strong></div></div><div class="ws-review-table-wrap"><table class="ws-review-table"><thead><tr><th>Product</th><th>Packing</th><th>Unit</th><th>Qty</th><th>Base quantity</th><th>Unit rate</th><th>Per ${safe(items[0]?.small_unit||'unit')}</th><th>GST</th><th>Total</th></tr></thead><tbody>${items.map(item=>`<tr><td><strong>${safe(item.product)}</strong></td><td>${safe(item.pack_format||'—')}</td><td>${safe(item.unit)}</td><td>${item.qty}</td><td>${item.total_base.toLocaleString()} ${safe(item.small_unit)}</td><td>${cash(item.purchase_rate)}</td><td>${precise(item.small_rate)}</td><td>${cash(item.gst_amount)}</td><td><strong>${cash(item.line_total)}</strong></td></tr>`).join('')}</tbody></table></div><div class="ws-review-total"><span>GST <b>${cash(gst)}</b></span><span>Total due <strong>${cash(total)}</strong></span></div><footer class="ws-review-actions"><button class="btn secondary" type="button" data-review-back>Back to edit</button><button class="btn" type="button" data-review-confirm>Confirm & save ${items.length} record${items.length===1?'':'s'}</button></footer></section>`;
-  const finish=value=>{overlay.remove();resolve(value)};
-  overlay.querySelector('[data-review-close]').onclick=()=>finish(false);overlay.querySelector('[data-review-back]').onclick=()=>finish(false);overlay.querySelector('[data-review-confirm]').onclick=()=>finish(true);overlay.onclick=event=>{if(event.target===overlay)finish(false)};document.body.appendChild(overlay);
- });
-}
-
-function enhance(){
- const form=document.getElementById('billForm');if(!form||form.dataset.lineItemSave==='2')return;form.dataset.lineItemSave='2';installStyles();
- const savePanel=form.querySelector('.bill-save-panel,.invoice-footer-card');if(savePanel&&!savePanel.querySelector('.bill-row-save-note')){const note=document.createElement('p');note.className='bill-row-save-note';note.innerHTML='<i class="fas fa-circle-check"></i><span>You will review all calculated item records before anything is saved.</span>';savePanel.querySelector('.notice')?.before(note)}
- form.onsubmit=async event=>{
-  event.preventDefault();
-  const items=(Array.isArray(state.items)?state.items:[]).map(calculate).filter(item=>item.product),notice=document.getElementById('saveNotice'),button=document.getElementById('saveBill');
-  if(!text(form.elements.vendor?.value)){if(notice)notice.textContent='Select or enter a vendor.';form.elements.vendor?.focus();return}
-  if(!form.elements.bill_date?.value){if(notice)notice.textContent='Select the bill date.';form.elements.bill_date?.focus();return}
-  if(!items.length){if(notice)notice.textContent='Add at least one item.';return}
-  const confirmed=await review(items,form);if(!confirmed){if(notice)notice.textContent='Review closed. Nothing was saved.';return}
-  if(button)button.disabled=true;if(notice)notice.textContent=state.editing?'Updating item records…':`Saving ${items.length} item record${items.length===1?'':'s'}…`;
-  try{
-   const vendor=await saveVendor(form),data=new FormData(form),shared={bill_date:data.get('bill_date'),bill_day:data.get('bill_date'),bill_no:text(data.get('bill_no')),vendor:text(data.get('vendor')),vendor_id:vendor?.id||null,tin:text(data.get('tin')),payment_status:data.get('payment_status')||'Pending',payment_method:data.get('payment_method')||null,notes:text(data.get('notes')),user_id:state.user?.id||null,updated_at:new Date().toISOString(),updated_by:state.user?.id||null};
-   const records=items.map(item=>({...shared,amount:String(item.line_total.toFixed(2)),subtotal:item.subtotal,net_amount:item.subtotal,gst_total:item.gst_amount,items:[item]}));
-   let result;
-   if(state.editing){const updated=await db.from(TABLE).update(records[0]).eq('id',state.editing.id).select();if(updated.error)throw updated.error;let inserted=[];if(records.length>1){const extra=await db.from(TABLE).insert(records.slice(1)).select();if(extra.error)throw extra.error;inserted=extra.data||[]}result=[...(updated.data||[]),...inserted]}
-   else{const inserted=await db.from(TABLE).insert(records).select();if(inserted.error)throw inserted.error;result=inserted.data||[]}
-   state.editing=null;window.__WS_LAST_SAVED_BILL__=result[0]||null;window.__WS_LAST_SAVED_BILL_ROWS__=result;await window.reloadBillsNow?.();window.show?.('bills');
-  }catch(error){console.error('[line-item-bill-save]',error);if(notice)notice.textContent=error?.message||'Save failed'}finally{if(button)button.disabled=false}
- };
-}
-
+function parsePack(input){const value=text(input).toLowerCase().replace(/\s+/g,'');let match=value.match(/^(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)(kg|g|l|ml|pcs|pc)$/i);if(match){const count=number(match[1]),size=number(match[2]),unit=match[3].toLowerCase()==='pc'?'pcs':match[3].toLowerCase();return{count,size,unit,base:count*size}}match=value.match(/^(\d+(?:\.\d+)?)(kg|g|l|ml|pcs|pc)$/i);if(match){const size=number(match[1]),unit=match[2].toLowerCase()==='pc'?'pcs':match[2].toLowerCase();return{count:1,size,unit,base:size}}return{count:0,size:0,unit:'',base:0}}
+function calculate(raw){const item={...raw},pack=parsePack(item.pack_format),qty=number(item.qty),entered=number(item.rate),gstPct=number(item.gst),rateMode=item.rate_mode==='per_unit'?'per_unit':'line_total';const subtotal=rateMode==='per_unit'?qty*entered:entered,gstAmount=subtotal*gstPct/100,lineTotal=subtotal+gstAmount,purchaseRate=qty?subtotal/qty:0;let basePerPurchase=1,smallUnit='pcs',measurement='pieces';if(pack.base){if(pack.unit==='kg'){basePerPurchase=pack.base*1000;smallUnit='g';measurement='weight'}else if(pack.unit==='g'){basePerPurchase=pack.base;smallUnit='g';measurement='weight'}else if(pack.unit==='l'){basePerPurchase=pack.base*1000;smallUnit='ml';measurement='volume'}else if(pack.unit==='ml'){basePerPurchase=pack.base;smallUnit='ml';measurement='volume'}else basePerPurchase=pack.base}else{const unit=text(item.unit).toUpperCase();if(unit==='KG'){basePerPurchase=1000;smallUnit='g';measurement='weight'}else if(unit==='G'){basePerPurchase=1;smallUnit='g';measurement='weight'}else if(unit==='L'){basePerPurchase=1000;smallUnit='ml';measurement='volume'}else if(unit==='ML'){basePerPurchase=1;smallUnit='ml';measurement='volume'}else if(unit==='DOZ')basePerPurchase=12}const totalBase=qty*basePerPurchase;return{...item,product:text(item.product),pack_format:text(item.pack_format),unit:text(item.unit).toUpperCase()||'CSE',qty,rate:entered,rate_mode:rateMode,gst:gstPct,gst_pct:gstPct,subtotal,gst_amount:gstAmount,line_total:lineTotal,purchase_rate:purchaseRate,base_per_purchase:basePerPurchase,total_base:totalBase,small_unit:smallUnit,small_rate:totalBase?subtotal/totalBase:0,measurement}}
+async function saveVendor(form){const name=text(form.elements.vendor?.value);if(!name)return null;const details={name,tin:text(form.elements.tin?.value)||null,phone:text(form.elements.vendor_phone?.value)||null,email:text(form.elements.vendor_email?.value)||null,address:text(form.elements.vendor_address?.value)||null,default_payment_method:form.elements.payment_method?.value||null,updated_at:new Date().toISOString(),updated_by:state.user?.id||null};const lookup=await db.from('vendors').select('id,name,tin,phone,email,address,default_payment_method').ilike('name',name).is('deleted_at',null).limit(1);if(lookup.error)throw lookup.error;const existing=lookup.data?.[0]||null;if(existing){const changed=['tin','phone','email','address','default_payment_method'].some(key=>text(existing[key])!==text(details[key]));if(!changed)return existing;const updated=await db.from('vendors').update(details).eq('id',existing.id).select().single();if(updated.error)throw updated.error;return updated.data}const inserted=await db.from('vendors').insert({...details,created_by:state.user?.id||null}).select().single();if(inserted.error)throw inserted.error;return inserted.data}
+function installStyles(){if(document.getElementById('wsLineItemSaveStyles'))document.getElementById('wsLineItemSaveStyles').remove();const style=document.createElement('style');style.id='wsLineItemSaveStyles';style.textContent=`
+#billForm #itemRows [data-row]>.metrics,#billForm #itemRows [data-row]>.invoice-line-metrics{display:none!important}
+#billForm #itemRows [data-row]{padding-block:0!important}
+#billForm #itemRows [data-row]>.form-grid,#billForm #itemRows [data-row]>.invoice-line-grid{padding-top:14px!important;padding-bottom:14px!important}
+#billForm #itemRows [data-row]>.actions,#billForm #itemRows [data-row]>.invoice-line-actions{padding-top:0!important;margin:0!important}
+#billForm.invoice-entry-form{gap:14px!important}
+#billForm .invoice-items-head{padding:14px 18px!important}
+#billForm .invoice-footer-card,#billForm .bill-save-panel{grid-template-columns:minmax(0,1.45fr) minmax(300px,.65fr)!important;gap:18px!important;padding:18px!important;align-items:start!important}
+#billForm .invoice-footer-card>label,#billForm .bill-save-panel>label{grid-column:1!important;grid-row:1/5!important}
+#billForm .invoice-footer-card textarea,#billForm .bill-save-panel textarea{min-height:132px!important}
+#billForm .bill-total-summary,#billForm .invoice-total-due{grid-column:2!important;grid-row:1!important;padding:0!important;border:1px solid #dfe7e2!important;border-radius:14px!important;background:#fafcfb!important;overflow:hidden!important}
+#billForm .bill-total-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 15px;border-bottom:1px solid #e5ebe7;font-size:13px;color:#657487}
+#billForm .bill-total-row strong{font-size:14px!important;color:#0f1e4c!important}
+#billForm .bill-total-row.total{padding:15px;background:#fff8e5;border-bottom:0;font-weight:800;color:#0f1e4c}
+#billForm .bill-total-row.total strong{font-size:22px!important;color:#0f1e4c!important}
+#billForm .bill-row-save-note{grid-column:2!important;display:flex;align-items:flex-start;gap:8px;margin:0!important;color:var(--muted);font-size:12px;line-height:1.45}
+#billForm .bill-row-save-note i{color:var(--success);margin-top:2px}
+#billForm .invoice-footer-card .notice,#billForm .bill-save-panel .notice{grid-column:2!important;min-height:18px!important;margin:0!important}
+#billForm .invoice-footer-card>.actions,#billForm .bill-save-panel>.actions{grid-column:2!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin:0!important}
+#billForm .invoice-footer-card>.actions .btn,#billForm .bill-save-panel>.actions .btn{min-height:42px!important}
+.ws-review-overlay{position:fixed;inset:0;z-index:1600;background:rgba(5,28,51,.55);display:grid;place-items:center;padding:24px}.ws-review-dialog{width:min(1000px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 28px 70px rgba(5,28,51,.25)}.ws-review-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:22px 24px;border-bottom:1px solid var(--line)}.ws-review-head h2{margin:0!important;font-size:22px!important}.ws-review-head p{margin:4px 0 0!important;color:var(--muted)}.ws-review-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:18px 24px;background:var(--surface-soft)}.ws-review-summary div{display:grid;gap:4px}.ws-review-summary span,.ws-review-table th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}.ws-review-summary strong{font-size:14px;color:var(--header)}.ws-review-table-wrap{overflow:auto;padding:0 24px}.ws-review-table{width:100%;border-collapse:collapse}.ws-review-table th,.ws-review-table td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.ws-review-table td:first-child{white-space:normal;min-width:180px}.ws-review-table strong{color:var(--header)}.ws-review-total{display:flex;justify-content:flex-end;gap:28px;padding:18px 24px;font-size:14px}.ws-review-total strong{font-size:20px;color:var(--header)}.ws-review-actions{display:flex;justify-content:flex-end;gap:10px;padding:18px 24px;border-top:1px solid var(--line);position:sticky;bottom:0;background:#fff}
+@media(max-width:760px){#billForm .invoice-footer-card,#billForm .bill-save-panel{grid-template-columns:1fr!important;padding:14px!important}#billForm .invoice-footer-card>label,#billForm .bill-save-panel>label,#billForm .bill-total-summary,#billForm .invoice-total-due,#billForm .bill-row-save-note,#billForm .invoice-footer-card .notice,#billForm .bill-save-panel .notice,#billForm .invoice-footer-card>.actions,#billForm .bill-save-panel>.actions{grid-column:1!important;grid-row:auto!important}.ws-review-overlay{padding:10px}.ws-review-summary{grid-template-columns:1fr 1fr}.ws-review-actions .btn{flex:1}.ws-review-total{justify-content:space-between}}
+`;document.head.appendChild(style)}
+function totals(){const items=(Array.isArray(state.items)?state.items:[]).map(calculate);return{subtotal:items.reduce((s,i)=>s+i.subtotal,0),gst:items.reduce((s,i)=>s+i.gst_amount,0),total:items.reduce((s,i)=>s+i.line_total,0)}}
+function refreshVisibleTotals(){const value=totals();const subtotal=document.getElementById('billSubtotal'),gst=document.getElementById('billGstTotal'),grand=document.getElementById('grandTotal');if(subtotal)subtotal.textContent=cash(value.subtotal);if(gst)gst.textContent=cash(value.gst);if(grand)grand.textContent=cash(value.total)}
+function ensureVisibleTotals(form){const panel=form.querySelector('.bill-total-summary,.invoice-total-due');if(!panel)return;panel.classList.add('bill-total-summary');panel.innerHTML='<div class="bill-total-row"><span>Subtotal</span><strong id="billSubtotal">MVR 0.00</strong></div><div class="bill-total-row"><span>GST total</span><strong id="billGstTotal">MVR 0.00</strong></div><div class="bill-total-row total"><span>Total due</span><strong id="grandTotal">MVR 0.00</strong></div>';refreshVisibleTotals()}
+function review(items,form){return new Promise(resolve=>{const fd=new FormData(form),total=items.reduce((sum,item)=>sum+item.line_total,0),gst=items.reduce((sum,item)=>sum+item.gst_amount,0);const overlay=document.createElement('div');overlay.className='ws-review-overlay';overlay.innerHTML=`<section class="ws-review-dialog" role="dialog" aria-modal="true" aria-labelledby="wsReviewTitle"><header class="ws-review-head"><div><h2 id="wsReviewTitle">Review before saving</h2><p>Check the bill header and every calculated product record.</p></div><button class="btn secondary small" type="button" data-review-close>×</button></header><div class="ws-review-summary"><div><span>Vendor</span><strong>${safe(fd.get('vendor')||'—')}</strong></div><div><span>Bill date</span><strong>${safe(fd.get('bill_date')||'—')}</strong></div><div><span>Bill no.</span><strong>${safe(fd.get('bill_no')||'—')}</strong></div><div><span>Records created</span><strong>${items.length}</strong></div></div><div class="ws-review-table-wrap"><table class="ws-review-table"><thead><tr><th>Product</th><th>Packing</th><th>Unit</th><th>Qty</th><th>Base quantity</th><th>Unit rate</th><th>Per ${safe(items[0]?.small_unit||'unit')}</th><th>GST</th><th>Total</th></tr></thead><tbody>${items.map(item=>`<tr><td><strong>${safe(item.product)}</strong></td><td>${safe(item.pack_format||'—')}</td><td>${safe(item.unit)}</td><td>${item.qty}</td><td>${item.total_base.toLocaleString()} ${safe(item.small_unit)}</td><td>${cash(item.purchase_rate)}</td><td>${precise(item.small_rate)}</td><td>${cash(item.gst_amount)}</td><td><strong>${cash(item.line_total)}</strong></td></tr>`).join('')}</tbody></table></div><div class="ws-review-total"><span>GST <b>${cash(gst)}</b></span><span>Total due <strong>${cash(total)}</strong></span></div><footer class="ws-review-actions"><button class="btn secondary" type="button" data-review-back>Back to edit</button><button class="btn" type="button" data-review-confirm>Confirm & save ${items.length} record${items.length===1?'':'s'}</button></footer></section>`;const finish=value=>{overlay.remove();resolve(value)};overlay.querySelector('[data-review-close]').onclick=()=>finish(false);overlay.querySelector('[data-review-back]').onclick=()=>finish(false);overlay.querySelector('[data-review-confirm]').onclick=()=>finish(true);overlay.onclick=event=>{if(event.target===overlay)finish(false)};document.body.appendChild(overlay)})}
+function enhance(){const form=document.getElementById('billForm');if(!form||form.dataset.lineItemSave==='3')return;form.dataset.lineItemSave='3';installStyles();ensureVisibleTotals(form);const savePanel=form.querySelector('.bill-save-panel,.invoice-footer-card');if(savePanel&&!savePanel.querySelector('.bill-row-save-note')){const note=document.createElement('p');note.className='bill-row-save-note';note.innerHTML='<i class="fas fa-circle-check"></i><span>You will review all calculated item records before anything is saved.</span>';savePanel.querySelector('.notice')?.before(note)}form.addEventListener('input',()=>setTimeout(refreshVisibleTotals,0));form.addEventListener('change',()=>setTimeout(refreshVisibleTotals,0));document.getElementById('addRow')?.addEventListener('click',()=>setTimeout(refreshVisibleTotals,0));document.getElementById('itemRows')?.addEventListener('click',event=>{if(event.target.closest('[data-remove]'))setTimeout(refreshVisibleTotals,0)});form.onsubmit=async event=>{event.preventDefault();const items=(Array.isArray(state.items)?state.items:[]).map(calculate).filter(item=>item.product),notice=document.getElementById('saveNotice'),button=document.getElementById('saveBill');if(!text(form.elements.vendor?.value)){if(notice)notice.textContent='Select or enter a vendor.';form.elements.vendor?.focus();return}if(!form.elements.bill_date?.value){if(notice)notice.textContent='Select the bill date.';form.elements.bill_date?.focus();return}if(!items.length){if(notice)notice.textContent='Add at least one item.';return}const confirmed=await review(items,form);if(!confirmed){if(notice)notice.textContent='Review closed. Nothing was saved.';return}if(button)button.disabled=true;if(notice)notice.textContent=state.editing?'Updating item records…':`Saving ${items.length} item record${items.length===1?'':'s'}…`;try{const vendor=await saveVendor(form),data=new FormData(form),shared={bill_date:data.get('bill_date'),bill_day:data.get('bill_date'),bill_no:text(data.get('bill_no')),vendor:text(data.get('vendor')),vendor_id:vendor?.id||null,tin:text(data.get('tin')),payment_status:data.get('payment_status')||'Pending',payment_method:data.get('payment_method')||null,notes:text(data.get('notes')),user_id:state.user?.id||null,updated_at:new Date().toISOString(),updated_by:state.user?.id||null};const records=items.map(item=>({...shared,amount:String(item.line_total.toFixed(2)),subtotal:item.subtotal,net_amount:item.subtotal,gst_total:item.gst_amount,items:[item]}));let result;if(state.editing){const updated=await db.from(TABLE).update(records[0]).eq('id',state.editing.id).select();if(updated.error)throw updated.error;let inserted=[];if(records.length>1){const extra=await db.from(TABLE).insert(records.slice(1)).select();if(extra.error)throw extra.error;inserted=extra.data||[]}result=[...(updated.data||[]),...inserted]}else{const inserted=await db.from(TABLE).insert(records).select();if(inserted.error)throw inserted.error;result=inserted.data||[]}state.editing=null;window.__WS_LAST_SAVED_BILL__=result[0]||null;window.__WS_LAST_SAVED_BILL_ROWS__=result;await window.reloadBillsNow?.();window.show?.('bills')}catch(error){console.error('[line-item-bill-save]',error);if(notice)notice.textContent=error?.message||'Save failed'}finally{if(button)button.disabled=false}}}
 const original=window.renderNewBill;if(typeof original==='function'){window.renderNewBill=async function(...args){const result=await original.apply(this,args);enhance();return result};if(window.__WS_RENDERERS__)window.__WS_RENDERERS__.new=window.renderNewBill}
-installStyles();console.info('[line-item-bill-save] v2 ready');
+installStyles();console.info('[line-item-bill-save] v3 ready');
 })();
