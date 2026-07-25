@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
-const VERSION=5;
-const TITLES={dashboard:'Dashboard',bills:'Bills',new:'New Bill',rates:'Rates',mobile:'Mobile demo',products:'Products',vendors:'Vendors',prices:'Price Book',reports:'Reports',settings:'Settings',admin:'Admin'};
+const VERSION=6;
+const TITLES={dashboard:'Dashboard',bills:'Bills',new:'New Bill',rates:'Price Intelligence',mobile:'Mobile demo',products:'Products',vendors:'Vendors',prices:'Price Intelligence',reports:'Reports',settings:'Settings',admin:'Admin'};
 const VALID=Object.keys(TITLES);
 let transitionTimer=null;
 
@@ -46,6 +46,10 @@ const finishRender=(view,result)=>Promise.resolve(result).then(value=>{endRender
 
 window.show=view=>{
  view=VALID.includes(view)?view:'dashboard';
+ if((view==='admin'||view==='rates'||view==='prices')&&state.role!=='admin'){
+  if(location.hash!== '#dashboard')history.replaceState(null,'','#dashboard');
+  view='dashboard';
+ }
  beginRender();
  state.view=view;
  document.querySelectorAll('.nav [data-view]').forEach(link=>link.classList.toggle('active',link.dataset.view===view));
@@ -54,10 +58,7 @@ window.show=view=>{
  document.getElementById('sidebar')?.classList.remove('open');
  window.__WS_ADMIN__?.updatePresence?.(view);
 
- if(view==='admin'){
-  if(state.role!=='admin')return window.show('dashboard');
-  return finishRender(view,window.renderAdmin?.()).catch(error=>{console.error('[router] admin render failed',error);renderBuildError(view)});
- }
+ if(view==='admin')return finishRender(view,window.renderAdmin?.()).catch(error=>{console.error('[router] admin render failed',error);renderBuildError(view)});
  if(!window.__WS_PAGES__){console.error('[router] pages.js missing; legacy renderer blocked');renderBuildError(view);return}
  const renderer={dashboard:window.renderDashboard,bills:window.renderBills,new:window.renderNewBill,rates:window.renderRates,mobile:window.renderMobileDemo,products:window.renderProducts,vendors:window.renderVendors,prices:window.renderPrices,reports:window.renderReports,settings:window.renderSettings}[view];
  if(typeof renderer!=='function'){renderBuildError(view);return}
