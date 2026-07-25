@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION=41;
+const VERSION=42;
 const allowedRoles=new Set(['admin','manager','staff','readonly']);
 const resolveRole=user=>{
   if(!user)return'staff';
@@ -21,7 +21,8 @@ function setAuthView(session){
   const authenticated=Boolean(session?.user);
   document.body.classList.remove('ws-auth-pending');
   document.body.classList.toggle('ws-authenticated',authenticated);
-  document.body.classList.toggle('ws-view-pending',authenticated);
+  /* Do not add ws-view-pending during token refresh or tab restoration. */
+  if(!authenticated)document.body.classList.remove('ws-view-pending');
   loginView?.classList.toggle('hidden',authenticated);
   appView?.classList.toggle('hidden',!authenticated);
   loginView?.setAttribute('aria-hidden',authenticated?'true':'false');
