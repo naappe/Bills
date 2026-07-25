@@ -18,58 +18,13 @@ jobs:
       - name: Apply Bills typography repair
         shell: bash
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          css_path = Path('assets/css/breathing-room.css')
-          css = css_path.read_text(encoding='utf-8')
-          marker = '/* ===== Bills page text hierarchy repair — 2026-07-26 ===== */'
-
-          repair = r'''
-
-/* ===== Bills page text hierarchy repair — 2026-07-26 ===== */
-.audit-page{gap:22px}
-.audit-head h1{font-size:30px;line-height:1.2;letter-spacing:-.015em}
-.audit-head p{margin-top:7px;font-size:14px;line-height:1.6;color:var(--audit-muted,var(--muted))}
-.audit-toolbar{padding:18px;gap:14px}
-.audit-filter-summary{font-size:13px;line-height:1.55;font-weight:650;color:var(--audit-text,var(--text))}
-.audit-list-head,.audit-bills article{grid-template-columns:minmax(120px,.9fr) 125px minmax(160px,1.05fr) minmax(190px,1.35fr) 110px 130px minmax(210px,1.25fr);column-gap:18px;padding-inline:20px}
-.audit-list-head{min-height:46px;font-size:11px;line-height:1.4;letter-spacing:.065em}
-.audit-bills article{min-height:82px;padding-block:17px}
-.audit-bills article>span{min-width:0;line-height:1.45}
-.audit-bills strong{font-size:14px;line-height:1.45;font-weight:720;color:var(--audit-navy,var(--header));overflow-wrap:anywhere}
-.audit-bills article>span:nth-child(4) strong{font-size:15px;font-weight:800}
-.audit-bills article>span:nth-child(6) strong{font-size:15px;font-weight:850;white-space:nowrap}
-.audit-status{min-height:28px;padding:6px 11px;font-size:10px;line-height:1.4;letter-spacing:.035em;align-items:center}
-.audit-row-actions{gap:9px;align-items:center}
-.audit-row-actions .btn.small{min-height:38px;padding:8px 15px;font-size:12px;line-height:1.35}
-.audit-pager{font-size:12px;line-height:1.5}
-
-@media(max-width:760px){
- .audit-bills article{grid-template-columns:1fr 1fr;gap:18px 20px;padding:18px}
- .audit-bills article>span::before{font-size:10px!important;line-height:1.4;letter-spacing:.055em;margin-bottom:6px!important}
- .audit-bills strong{font-size:14px}
- .audit-bills article>span:nth-child(4) strong,.audit-bills article>span:nth-child(6) strong{font-size:15px}
- .audit-row-actions{gap:10px;padding-top:2px}
- .audit-row-actions .btn.small{flex:1;min-height:42px}
-}
-@media(max-width:480px){
- .audit-bills article{grid-template-columns:1fr;gap:16px}
- .audit-row-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
- .audit-row-actions .btn.small{width:100%;padding-inline:10px}
-}
-'''
-
-          if marker not in css:
-              css_path.write_text(css.rstrip() + repair + '\n', encoding='utf-8')
-
-          index_path = Path('index.html')
-          index = index_path.read_text(encoding='utf-8')
-          index = index.replace('assets/css/breathing-room.css?v=3', 'assets/css/breathing-room.css?v=4')
-          index_path.write_text(index, encoding='utf-8')
-
-          Path('.github/workflows/fix-bills-text.yml').unlink()
-          PY
+          marker='/* ===== Bills page text hierarchy repair — 2026-07-26 ===== */'
+          if ! grep -Fq "$marker" assets/css/breathing-room.css; then
+            printf '\n' >> assets/css/breathing-room.css
+            echo 'LyogPT09PT0gQmlsbHMgcGFnZSB0ZXh0IGhpZXJhcmNoeSByZXBhaXIg4oCUIDIwMjYtMDctMjYgPT09PT0gKi8KLmF1ZGl0LXBhZ2V7Z2FwOjIycHh9Ci5hdWRpdC1oZWFkIGgxe2ZvbnQtc2l6ZTozMHB4O2xpbmUtaGVpZ2h0OjEuMjtsZXR0ZXItc3BhY2luZzotLjAxNWVtfQouYXVkaXQtaGVhZCBwe21hcmdpbi10b3A6N3B4O2ZvbnQtc2l6ZToxNHB4O2xpbmUtaGVpZ2h0OjEuNjtjb2xvcjp2YXIoLS1hdWRpdC1tdXRlZCx2YXIoLS1tdXRlZCkpfQouYXVkaXQtdG9vbGJhcntwYWRkaW5nOjE4cHg7Z2FwOjE0cHh9Ci5hdWRpdC1maWx0ZXItc3VtbWFyeXtmb250LXNpemU6MTNweDtsaW5lLWhlaWdodDoxLjU1O2ZvbnQtd2VpZ2h0OjY1MDtjb2xvcjp2YXIoLS1hdWRpdC10ZXh0LHZhcigtLXRleHQpKX0KLmF1ZGl0LWxpc3QtaGVhZCwuYXVkaXQtYmlsbHMgYXJ0aWNsZXtncmlkLXRlbXBsYXRlLWNvbHVtbnM6bWlubWF4KDEyMHB4LC45ZnIpIDEyNXB4IG1pbm1heCgxNjBweCwxLjA1ZnIpIG1pbm1heCgxOTBweCwxLjM1ZnIpIDExMHB4IDEzMHB4IG1pbm1heCgyMTBweCwxLjI1ZnIpO2NvbHVtbi1nYXA6MThweDtwYWRkaW5nLWlubGluZToyMHB4fQouYXVkaXQtbGlzdC1oZWFke21pbi1oZWlnaHQ6NDZweDtmb250LXNpemU6MTFweDtsaW5lLWhlaWdodDoxLjQ7bGV0dGVyLXNwYWNpbmc6LjA2NWVtfQouYXVkaXQtYmlsbHMgYXJ0aWNsZXttaW4taGVpZ2h0OjgycHg7cGFkZGluZy1ibG9jazoxN3B4fQouYXVkaXQtYmlsbHMgYXJ0aWNsZT5zcGFue21pbi13aWR0aDowO2xpbmUtaGVpZ2h0OjEuNDV9Ci5hdWRpdC1iaWxscyBzdHJvbmd7Zm9udC1zaXplOjE0cHg7bGluZS1oZWlnaHQ6MS40NTtmb250LXdlaWdodDo3MjA7Y29sb3I6dmFyKC0tYXVkaXQtbmF2eSx2YXIoLS1oZWFkZXIpKTtvdmVyZmxvdy13cmFwOmFueXdoZXJlfQouYXVkaXQtYmlsbHMgYXJ0aWNsZT5zcGFuOm50aC1jaGlsZCg0KSBzdHJvbmd7Zm9udC1zaXplOjE1cHg7Zm9udC13ZWlnaHQ6ODAwfQouYXVkaXQtYmlsbHMgYXJ0aWNsZT5zcGFuOm50aC1jaGlsZCg2KSBzdHJvbmd7Zm9udC1zaXplOjE1cHg7Zm9udC13ZWlnaHQ6ODUwO3doaXRlLXNwYWNlOm5vd3JhcH0KLmF1ZGl0LXN0YXR1c3ttaW4taGVpZ2h0OjI4cHg7cGFkZGluZzo2cHggMTFweDtmb250LXNpemU6MTBweDtsaW5lLWhlaWdodDoxLjQ7bGV0dGVyLXNwYWNpbmc6LjAzNWVtO2FsaWduLWl0ZW1zOmNlbnRlcn0KLmF1ZGl0LXJvdy1hY3Rpb25ze2dhcDo5cHg7YWxpZ24taXRlbXM6Y2VudGVyfQouYXVkaXQtcm93LWFjdGlvbnMgLmJ0bi5zbWFsbHttaW4taGVpZ2h0OjM4cHg7cGFkZGluZzo4cHggMTVweDtmb250LXNpemU6MTJweDtsaW5lLWhlaWdodDoxLjM1fQouYXVkaXQtcGFnZXJ7Zm9udC1zaXplOjEycHg7bGluZS1oZWlnaHQ6MS41fQpAbWVkaWEobWF4LXdpZHRoOjc2MHB4KXsKIC5hdWRpdC1iaWxscyBhcnRpY2xle2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnIgMWZyO2dhcDoxOHB4IDIwcHg7cGFkZGluZzoxOHB4fQogLmF1ZGl0LWJpbGxzIGFydGljbGU+c3Bhbjo6YmVmb3Jle2ZvbnQtc2l6ZToxMHB4IWltcG9ydGFudDtsaW5lLWhlaWdodDoxLjQ7bGV0dGVyLXNwYWNpbmc6LjA1NWVtO21hcmdpbi1ib3R0b206NnB4IWltcG9ydGFudH0KIC5hdWRpdC1iaWxscyBzdHJvbmd7Zm9udC1zaXplOjE0cHh9CiAuYXVkaXQtYmlsbHMgYXJ0aWNsZT5zcGFuOm50aC1jaGlsZCg0KSBzdHJvbmcsLmF1ZGl0LWJpbGxzIGFydGljbGU+c3Bhbjo6bnRoLWNoaWxkKDYpIHN0cm9uZ3tmb250LXNpemU6MTVweH0KIC5hdWRpdC1yb3ctYWN0aW9uc3tnYXA6MTBweDtwYWRkaW5nLXRvcDoycHh9CiAuYXVkaXQtcm93LWFjdGlvbnMgLmJ0bi5zbWFsbHtmbGV4OjE7bWluLWhlaWdodDo0MnB4fQp9CkBtZWRpYShtYXgtd2lkdGg6NDgwcHgpewogLmF1ZGl0LWJpbGxzIGFydGljbGV7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmcjtnYXA6MTZweH0KIC5hdWRpdC1yb3ctYWN0aW9uc3tkaXNwbGF5OmdyaWQ7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCgzLG1pbm1heCgwLDFmcikpO3dpZHRoOjEwMCV9CiAuYXVkaXQtcm93LWFjdGlvbnMgLmJ0bi5zbWFsbHt3aWR0aDoxMDAlO3BhZGRpbmctaW5saW5lOjEwcHh9Cn0K' | base64 --decode >> assets/css/breathing-room.css
+          fi
+          sed -i 's/assets\/css\/breathing-room.css?v=3/assets\/css\/breathing-room.css?v=4/' index.html
+          rm .github/workflows/fix-bills-text.yml
 
       - name: Commit repair
         shell: bash
