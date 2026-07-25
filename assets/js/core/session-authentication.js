@@ -21,6 +21,7 @@ function setAuthView(session){
   const authenticated=Boolean(session?.user);
   document.body.classList.remove('ws-auth-pending');
   document.body.classList.toggle('ws-authenticated',authenticated);
+  document.body.classList.toggle('ws-view-pending',authenticated);
   loginView?.classList.toggle('hidden',authenticated);
   appView?.classList.toggle('hidden',!authenticated);
   loginView?.setAttribute('aria-hidden',authenticated?'true':'false');

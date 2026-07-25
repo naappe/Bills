@@ -42,7 +42,8 @@ const currentView=()=>{
 
 const renderCurrent=()=>{
   const view=currentView();state.view=view;try{localStorage.setItem('ws-current-view',view)}catch(_error){}
-  if(typeof window.show==='function')window.show(view);
+  const rendered=typeof window.show==='function'?window.show(view):null;
+  return Promise.resolve(rendered).finally(()=>document.body.classList.remove('ws-view-pending'));
 };
 
 const queryAllBills=async()=>{
@@ -111,6 +112,10 @@ document.addEventListener('click',event=>{
   if($('#sidebar')?.classList.contains('open')&&!event.target.closest('#sidebar')&&!event.target.closest('#menuBtn'))$('#sidebar').classList.remove('open');
 },true);
 
+const initialView=currentView();
+if(location.hash!==`#${initialView}`)history.replaceState(null,'',location.pathname+`#${initialView}`);
+state.view=initialView;
+document.body.classList.add('ws-view-pending');
 window.addEventListener('hashchange',renderCurrent);
 window.addEventListener('beforeunload',clearRetry);
 window.reloadBillsNow=()=>loadBillsOnce({render:true,retry:false});
