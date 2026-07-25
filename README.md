@@ -150,7 +150,7 @@ Then verify:
 2. GitHub Pages has finished publishing the `main` branch.
 3. The live site displays only Dashboard, Bills, and New Bill.
 4. The browser console contains no uncaught syntax errors.
-5. Dashboard, Bills, New Bill, and Rates each render correctly after sign-in.
+5. Dashboard, Bills, New Bill, Rates, and Mobile demo each render correctly after sign-in.
 
 ## Security
 

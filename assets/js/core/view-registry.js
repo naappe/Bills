@@ -2,12 +2,13 @@
   'use strict';
 
   const VERSION = 4;
-  const supportedViews = ['dashboard', 'bills', 'new', 'rates'];
+  const supportedViews = ['dashboard', 'bills', 'new', 'rates', 'mobile'];
   const rendererNames = {
     dashboard: 'renderDashboard',
     bills: 'renderBills',
     new: 'renderNewBill',
-    rates: 'renderRates'
+    rates: 'renderRates',
+    mobile: 'renderMobileDemo'
   };
 
   const registry = window.__WS_RENDERERS__ || {};
