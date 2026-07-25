@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#263029">
+  <meta name="theme-color" content="#111827">
   <title>White Saffron Procurement</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%230066ff%22/><text x=%2232%22 y=%2241%22 text-anchor=%22middle%22 font-size=%2228%22 font-family=%22Arial%22 font-weight=%22700%22 fill=%22white%22>WS</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23635bff%22/><text x=%2232%22 y=%2241%22 text-anchor=%22middle%22 font-size=%2228%22 font-family=%22Arial%22 font-weight=%22700%22 fill=%22white%22>WS</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>body.ws-auth-pending #loginView,body.ws-auth-pending #appView{display:none!important}body.ws-view-pending #appView{visibility:hidden!important}</style>
   <link rel="stylesheet" href="assets/css/application-shell.css?v=1">
   <link rel="stylesheet" href="assets/css/design-system.css?v=1">
+  <link rel="stylesheet" href="assets/css/stripe-finance.css?v=1">
 </head>
 <body class="ws-auth-pending">
   <section class="login" id="loginView">
@@ -35,8 +36,11 @@
       <nav class="nav" aria-label="Primary navigation">
         <a href="#dashboard" data-view="dashboard" class="active">Dashboard</a>
         <a href="#bills" data-view="bills">Bills</a>
-        <a href="#rates" data-view="rates">Rates</a>
-        <a href="#mobile" data-view="mobile">Mobile demo</a>
+        <a href="#rates" data-view="rates">Price Intelligence</a>
+        <a href="#products" data-view="products">Products</a>
+        <a href="#vendors" data-view="vendors">Vendors</a>
+        <a href="#reports" data-view="reports">Reports</a>
+        <a href="#settings" data-view="settings">Settings</a>
         <a href="#admin" data-view="admin">Admin &amp; users</a>
       </nav>
       <div class="side-foot"><button class="btn secondary" id="logoutBtn" type="button" style="width:100%">Sign out</button></div>
@@ -67,9 +71,9 @@
   <script src="assets/js/core/view-renderers.js?v=1"></script>
   <script src="assets/js/core/bill-delete-fix.js?v=2"></script>
   <script src="assets/js/core/rates-legacy-compatibility.js?v=2"></script>
-  <script src="assets/js/core/session-authentication.js?v=1"></script>
+  <script src="assets/js/core/session-authentication.js?v=2"></script>
   <script src="assets/js/core/view-registry.js?v=1"></script>
   <script src="assets/js/core/hash-router.js?v=1"></script>
-  <script src="assets/js/core/application-controller.js?v=1"></script>
+  <script src="assets/js/core/application-controller.js?v=2"></script>
 </body>
 </html>
