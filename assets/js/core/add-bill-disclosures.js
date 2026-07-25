@@ -23,6 +23,9 @@ const css=`
 .bill-detail-grid>label{padding-top:16px}
 .bill-payment-grid{grid-template-columns:repeat(2,minmax(180px,1fr));max-width:640px}
 .bill-disclosure summary:focus-visible{outline:3px solid rgba(13,98,243,.18);outline-offset:-3px;border-radius:13px}
+#content .command-eyebrow,#content .command-period,#content .command-card small,#content .command-kpis small,#content .v4-dashboard-bottom small,#content .v4-dashboard-bottom header span,#content .payment-breakdown span,#content .command-supplier-list b,#content .command-supplier-list span{font-size:12px!important;line-height:1.45}
+#content .command-kpis p,#content .command-card p,#content .command-hero p{font-size:13px!important;line-height:1.55}
+#content .command-supplier-list strong,#content .v4-dashboard-bottom strong,#content .v4-dashboard-bottom b{min-width:0;overflow-wrap:anywhere}
 @media(max-width:1000px){.bill-primary-grid{grid-template-columns:1fr 1fr}.bill-primary-grid .vendor-field{grid-column:span 2}.bill-detail-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:640px){.bill-primary-grid{grid-template-columns:1fr;padding:18px}.bill-primary-grid .vendor-field{grid-column:auto}.bill-disclosures{padding:0 18px 18px}.bill-detail-grid,.bill-payment-grid{grid-template-columns:1fr}.bill-disclosure summary{min-height:60px;padding:11px 13px}}
 `;
@@ -95,8 +98,41 @@ function enhance(){
  refresh();
 }
 
+function canonicalDate(raw){
+ const value=String(raw??'').trim();
+ if(!value)return'';
+ const token=value.match(/\b\d{1,4}[-\/]\d{1,2}[-\/]\d{1,4}\b/)?.[0];
+ if(!token)return value;
+ const parts=token.split(/[-\/]/).map(Number);
+ let year,month,day;
+ if(parts[0]>999){
+  year=parts[0];
+  if(parts[1]>12&&parts[2]<=12){day=parts[1];month=parts[2]}
+  else{month=parts[1];day=parts[2]}
+ }else if(parts[2]>999){day=parts[0];month=parts[1];year=parts[2]}
+ else return value;
+ const date=new Date(Date.UTC(year,month-1,day));
+ if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day)return value;
+ const formatted=`${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+ return value.replace(token,formatted);
+}
+
+function repairDashboardDates(){
+ const root=document.getElementById('content');
+ if(!root)return;
+ root.querySelectorAll('small,time').forEach(element=>{
+  const fixed=canonicalDate(element.textContent);
+  if(fixed!==element.textContent)element.textContent=fixed;
+ });
+}
+
 ensureStyles();
 window.renderNewBill=async(...args)=>{const result=await original(...args);enhance();return result};
 if(window.__WS_RENDERERS__)window.__WS_RENDERERS__.new=window.renderNewBill;
-console.info('[add-bill-disclosures] ready');
+const originalDashboard=window.renderDashboard;
+if(typeof originalDashboard==='function'){
+ window.renderDashboard=(...args)=>{const result=originalDashboard(...args);repairDashboardDates();requestAnimationFrame(repairDashboardDates);return result};
+ if(window.__WS_RENDERERS__)window.__WS_RENDERERS__.dashboard=window.renderDashboard;
+}
+console.info('[ui-enhancements] v2 ready');
 })();
