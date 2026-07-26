@@ -45,13 +45,51 @@ function buildProducts(){
   return cache.products;
 }
 
-const imageMarkup=product=>product.photo?`<img src="${escapeHtml(product.photo)}" alt="${escapeHtml(product.name)}" loading="lazy" style="object-fit:${product.imageFit}" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="product-fallback" hidden>${escapeHtml(product.name.slice(0,1).toUpperCase())}</span>`:`<span class="product-fallback">${escapeHtml(product.name.slice(0,1).toUpperCase())}</span>`;
+const imageMarkup=product=>product.photo
+  ?`<img src="${escapeHtml(product.photo)}" alt="${escapeHtml(product.name)}" loading="lazy" style="object-fit:${product.imageFit}" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="product-fallback" hidden>${escapeHtml(product.name.slice(0,1).toUpperCase())}</span>`
+  :`<span class="product-fallback">${escapeHtml(product.name.slice(0,1).toUpperCase())}</span>`;
 
 export function productsPage(){
   const products=buildProducts();
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest saved bill rates. Calculations are reused from bill entry for faster loading.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name or description"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
-  const draw=()=>{const q=text($('#productSearch').value).toLowerCase(),filtered=q?products.filter(p=>p.search.includes(q)):products;$('#productCount').textContent=`${filtered.length} products`;$('#productCatalog').innerHTML=filtered.map(product=>`<article class="product-record simple-product-card"><div class="product-photo">${imageMarkup(product)}</div><div class="product-info"><div class="product-title-row"><div><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description)}</p></div>${store.role==='admin'?`<button class="btn secondary small" data-product-edit="${escapeHtml(product.key)}">Edit</button>`:''}</div><div class="product-pack-summary"><div><span>Unit / packing</span><strong>${escapeHtml(product.pack||product.unit)}</strong></div><div><span>Quantity</span><strong>${product.qty.toLocaleString('en-US')}</strong></div></div><div class="product-price-grid"><div class="product-price retail"><span>Retail</span><strong>${product.retail.total?money(product.retail.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Price per pack item'))}</small></div><div class="product-price wholesale"><span>Wholesale</span><strong>${product.wholesale.total?money(product.wholesale.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Total pack × quantity'))}</small></div></div></div></article>`).join('')||'<div class="empty">No products match this search.</div>';document.querySelectorAll('[data-product-edit]').forEach(button=>button.onclick=()=>showEdit(products.find(p=>p.key===button.dataset.productEdit)))};
-  products.forEach(p=>p.search=`${p.name} ${p.description}`.toLowerCase());
-  let timer;$('#productSearch').oninput=()=>{clearTimeout(timer);timer=setTimeout(draw,100)};draw();
-  function showEdit(product){if(store.role!=='admin')return;const modal=document.createElement('div');modal.className='modal';modal.innerHTML=`<section class="modal-card product-editor"><header class="card-head"><div><h2>Edit product</h2><small>Name and image only. Pricing comes from bills.</small></div><button class="btn secondary small" data-close>Close</button></header><form class="card-body form-grid" id="productEditForm"><label>Product name<input id="editProductName" value="${escapeHtml(product.name)}" required></label><label>Photo URL<input id="editProductPhoto" type="url" value="${escapeHtml(product.photo.startsWith('data:')?'':product.photo)}" placeholder="https://..."></label><label>Image display<select id="editProductFit"><option value="contain" ${product.imageFit==='contain'?'selected':''}>Fit full product</option><option value="cover" ${product.imageFit==='cover'?'selected':''}>Crop to fill</option></select></label><div class="actions product-editor-actions"><button class="btn" type="submit">Save product</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form></section>`;document.body.appendChild(modal);modal.querySelectorAll('[data-close]').forEach(el=>el.onclick=()=>modal.remove());modal.querySelector('#productEditForm').onsubmit=e=>{e.preventDefault();const meta=readMeta();meta[product.key]={name:cleanName($('#editProductName').value),photo:text($('#editProductPhoto').value),imageFit:$('#editProductFit').value};writeMeta(meta);cache.revision=-1;modal.remove();productsPage()}}
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Visual product catalogue with the latest GST-inclusive purchase rates.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name or description"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
+
+  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit}`.toLowerCase());
+
+  const draw=()=>{
+    const q=text($('#productSearch').value).toLowerCase();
+    const filtered=q?products.filter(product=>product.search.includes(q)):products;
+    $('#productCount').textContent=`${filtered.length} products`;
+    $('#productCatalog').innerHTML=filtered.map(product=>`<article class="product-record portrait-product-card">
+      <div class="product-visual">
+        <div class="product-photo">${imageMarkup(product)}</div>
+        ${store.role==='admin'?`<button class="product-edit-button" type="button" data-product-edit="${escapeHtml(product.key)}" aria-label="Edit ${escapeHtml(product.name)}"><i class="fa-solid fa-pen"></i></button>`:''}
+      </div>
+      <div class="product-info">
+        <div class="product-heading"><h3>${escapeHtml(product.name)}</h3><p>${escapeHtml(product.description)}</p></div>
+        <div class="product-meta-line"><span><i class="fa-solid fa-box"></i>${escapeHtml(product.pack||product.unit)}</span><span><i class="fa-solid fa-layer-group"></i>Qty ${product.qty.toLocaleString('en-US')}</span></div>
+        <div class="product-wholesale"><span>Wholesale total</span><strong>${product.wholesale.total?money(product.wholesale.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Pack × quantity'))}</small></div>
+        <div class="product-retail-line"><span>Retail per item</span><strong>${product.retail.total?money(product.retail.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Per pack item'))}</small></div>
+      </div>
+    </article>`).join('')||'<div class="empty">No products match this search.</div>';
+    document.querySelectorAll('[data-product-edit]').forEach(button=>button.onclick=()=>showEdit(products.find(product=>product.key===button.dataset.productEdit)));
+  };
+
+  let timer;
+  $('#productSearch').oninput=()=>{clearTimeout(timer);timer=setTimeout(draw,100)};
+  draw();
+
+  function showEdit(product){
+    if(store.role!=='admin')return;
+    const modal=document.createElement('div');
+    modal.className='modal';
+    modal.innerHTML=`<section class="modal-card product-editor"><header class="card-head"><div><h2>Edit product</h2><small>Name and image only. Pricing comes from bills.</small></div><button class="btn secondary small" data-close>Close</button></header><form class="card-body form-grid" id="productEditForm"><label>Product name<input id="editProductName" value="${escapeHtml(product.name)}" required></label><label>Photo URL<input id="editProductPhoto" type="url" value="${escapeHtml(product.photo.startsWith('data:')?'':product.photo)}" placeholder="https://..."></label><label>Image display<select id="editProductFit"><option value="contain" ${product.imageFit==='contain'?'selected':''}>Fit full product</option><option value="cover" ${product.imageFit==='cover'?'selected':''}>Crop to fill</option></select></label><div class="actions product-editor-actions"><button class="btn" type="submit">Save product</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form></section>`;
+    document.body.appendChild(modal);
+    modal.querySelectorAll('[data-close]').forEach(element=>element.onclick=()=>modal.remove());
+    modal.querySelector('#productEditForm').onsubmit=event=>{
+      event.preventDefault();
+      const meta=readMeta();
+      meta[product.key]={name:cleanName($('#editProductName').value),photo:text($('#editProductPhoto').value),imageFit:$('#editProductFit').value};
+      writeMeta(meta);cache.revision=-1;modal.remove();productsPage();
+    };
+  }
 }
