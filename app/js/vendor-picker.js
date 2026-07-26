@@ -36,6 +36,12 @@ function setupVendorPicker(){
   if(!input||input.dataset.vendorPickerReady==='1')return;
   input.dataset.vendorPickerReady='1';
   input.removeAttribute('list');
+  input.setAttribute('autocomplete','new-password');
+  input.setAttribute('name','supplier_lookup');
+  input.setAttribute('autocorrect','off');
+  input.setAttribute('autocapitalize','none');
+  input.setAttribute('spellcheck','false');
+  input.closest('form')?.setAttribute('autocomplete','off');
   document.querySelector('#vendorList')?.remove();
 
   const label=input.closest('label');
@@ -48,7 +54,6 @@ function setupVendorPicker(){
 
   const directory=vendorDirectory();
   const byName=new Map(directory.map(v=>[v.name.toLowerCase(),v]));
-  let filtering=false;
 
   const fill=vendor=>{
     if(!vendor)return;
@@ -58,7 +63,6 @@ function setupVendorPicker(){
     if(mobile)mobile.value=vendor.mobile;
     if(location)location.value=vendor.location;
     list.hidden=true;
-    filtering=false;
     input.dispatchEvent(new Event('change',{bubbles:true}));
   };
 
@@ -70,23 +74,15 @@ function setupVendorPicker(){
     list.querySelectorAll('[data-vendor]').forEach(button=>button.addEventListener('mousedown',event=>{event.preventDefault();fill(byName.get(button.dataset.vendor.toLowerCase()))}));
   };
 
-  const openAll=()=>{
-    filtering=false;
-    input.select();
-    draw(true);
-  };
-
+  const openAll=()=>{input.select();draw(true)};
   input.addEventListener('focus',openAll);
   input.addEventListener('click',openAll);
-  input.addEventListener('input',()=>{
-    filtering=true;
-    draw(false);
-  });
+  input.addEventListener('input',()=>draw(false));
   input.addEventListener('keydown',event=>{
     if(event.key==='ArrowDown'&&!list.hidden){event.preventDefault();list.querySelector('button')?.focus()}
     if(event.key==='Escape')list.hidden=true;
   });
-  input.addEventListener('blur',()=>setTimeout(()=>{list.hidden=true;filtering=false},150));
+  input.addEventListener('blur',()=>setTimeout(()=>{list.hidden=true},150));
 }
 
 installStyles();
