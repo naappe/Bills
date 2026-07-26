@@ -2,26 +2,26 @@
 
 :root{
   /* Brand */
-  --brand-navy:#4B5563;
-  --brand-navy-900:#2F3742;
-  --brand-navy-100:#ECEFF2;
-  --brand-gold:#4B5563;
-  --brand-gold-700:#2F3742;
-  --brand-gold-100:#EEF1F4;
-  --brand-gold-soft:#6B7280;
+  --brand-navy:#1A3C6E;
+  --brand-navy-900:#102A50;
+  --brand-navy-100:#EAF0F7;
+  --brand-gold:#F5A623;
+  --brand-gold-700:#C97B08;
+  --brand-gold-100:#FFF4DA;
+  --brand-gold-soft:#F7C85B;
 
   /* Surfaces */
-  --bg:#F3F5F7;
+  --bg:#F3F7F5;
   --surface:#FFFFFF;
-  --surface-muted:#F7F8FA;
-  --surface-track:#E6E9ED;
-  --border:#D8DDE3;
-  --border-strong:#BCC4CE;
+  --surface-muted:#F8FAF9;
+  --surface-track:#E7EEEA;
+  --border:#D9E2DD;
+  --border-strong:#BFCBC5;
   --border-danger:#F0C8CF;
 
   /* Text */
   --text:#344054;
-  --text-strong:#2F3742;
+  --text-strong:#102A50;
   --text-muted:#667085;
   --text-on-brand:#FFFFFF;
   --text-on-brand-muted:rgba(255,255,255,.62);
@@ -30,18 +30,18 @@
   /* Status */
   --success:#16835C;
   --success-soft:#EAF8F2;
-  --warning:#A15C00;
+  --warning:#B46B00;
   --warning-soft:#FFF4DF;
   --danger:#C64052;
   --danger-soft:#FFF0F2;
 
   /* Interaction and overlays */
-  --focus-ring:rgba(75,85,99,.14);
+  --focus-ring:rgba(26,60,110,.12);
   --brand-overlay-subtle:rgba(255,255,255,.08);
   --brand-overlay-border:rgba(255,255,255,.10);
-  --brand-overlay-active:rgba(255,255,255,.13);
-  --login-glow:rgba(75,85,99,.12);
-  --modal-backdrop:rgba(47,55,66,.52);
+  --brand-overlay-active:rgba(245,166,35,.16);
+  --login-glow:rgba(245,166,35,.18);
+  --modal-backdrop:rgba(16,42,80,.52);
   --topbar-glass:rgba(255,255,255,.96);
 
   /* Typography — one global family for every page and component */
@@ -94,8 +94,8 @@
   --radius-pill:999px;
 
   /* Elevation */
-  --shadow-sm:0 1px 3px rgba(47,55,66,.07);
-  --shadow-md:0 12px 32px rgba(47,55,66,.12);
+  --shadow-sm:0 1px 3px rgba(16,42,80,.07);
+  --shadow-md:0 12px 32px rgba(16,42,80,.12);
   --shadow-focus:0 0 0 3px var(--focus-ring);
 
   /* Layout */
@@ -114,8 +114,8 @@
   --duration-normal:200ms;
 
   /* Gradients */
-  --gradient-brand:linear-gradient(180deg,#2F3742,#4B5563);
-  --gradient-accent:linear-gradient(90deg,#4B5563,#6B7280);
+  --gradient-brand:linear-gradient(180deg,var(--brand-navy-900),var(--brand-navy));
+  --gradient-accent:linear-gradient(90deg,var(--brand-gold),var(--brand-gold-soft));
 }
 
 /* Global typography hierarchy. These selectors affect every route. */
