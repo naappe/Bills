@@ -1,8 +1,8 @@
 import {store} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter} from './router.js?v=4.9.35';
-import './vendor-picker.js?v=4.9.35';
-import './bill-entry-cleanup.js?v=4.9.35';
+import {startRouter} from './router.js?v=4.9.36';
+import './vendor-picker.js?v=4.9.36';
+import './bill-entry-cleanup.js?v=4.9.36';
 
 const $=s=>document.querySelector(s);
 const navGroups=[
@@ -11,7 +11,7 @@ const navGroups=[
   ['Analytics',[['reports','Reports','fa-chart-pie']]],
   ['Administration',[['settings','Settings','fa-gear'],['admin','Admin & users','fa-users-gear','admin']]]
 ];
-const health={version:'4.9.35',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
+const health={version:'4.9.36',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
 window.app={store,health};
 function buildNav(){$('#nav').innerHTML=navGroups.map(([group,items])=>{const visible=items.filter(([, , ,requiredRole])=>!requiredRole||store.role===requiredRole);if(!visible.length)return'';return `<div><div class="nav-label">${group}</div>${visible.map(([route,label,icon])=>`<a href="#${route}" data-route="${route}"><i class="fa-solid ${icon}"></i><span>${label}</span></a>`).join('')}</div>`}).join('')}
 function showApp(){buildNav();document.body.classList.remove('auth-pending');$('#loginView').classList.add('hidden');$('#appView').classList.remove('hidden');const email=store.user?.email||'Signed in';$('#roleLabel').textContent=store.role.toUpperCase();$('#emailLabel').textContent=email;$('#avatar').textContent=email.charAt(0).toUpperCase();health.authenticated=true}
