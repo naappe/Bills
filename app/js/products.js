@@ -51,9 +51,9 @@ const imageMarkup=product=>product.photo
 
 export function productsPage(){
   const products=buildProducts();
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Visual product catalogue with the latest GST-inclusive purchase rates.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name or description"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Product catalogue showing base unit, case quantity, retail and wholesale prices.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name, unit or case"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
 
-  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit}`.toLowerCase());
+  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit} ${product.qty}`.toLowerCase());
 
   const draw=()=>{
     const q=text($('#productSearch').value).toLowerCase();
@@ -65,10 +65,10 @@ export function productsPage(){
         ${store.role==='admin'?`<button class="product-edit-button" type="button" data-product-edit="${escapeHtml(product.key)}" aria-label="Edit ${escapeHtml(product.name)}"><i class="fa-solid fa-pen"></i></button>`:''}
       </div>
       <div class="product-info">
-        <div class="product-heading"><h3>${escapeHtml(product.name)}</h3><p>${escapeHtml(product.description)}</p></div>
-        <div class="product-meta-line"><span><i class="fa-solid fa-box"></i>${escapeHtml(product.pack||product.unit)}</span><span><i class="fa-solid fa-layer-group"></i>Qty ${product.qty.toLocaleString('en-US')}</span></div>
-        <div class="product-wholesale"><span>Wholesale total</span><strong>${product.wholesale.total?money(product.wholesale.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Pack × quantity'))}</small></div>
-        <div class="product-retail-line"><span>Retail per item</span><strong>${product.retail.total?money(product.retail.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Per pack item'))}</small></div>
+        <div class="product-heading"><h3>${escapeHtml(product.name)}</h3></div>
+        <div class="product-meta-line"><span><i class="fa-solid fa-scale-balanced"></i>Base unit: ${escapeHtml(product.pack||product.unit)}</span><span><i class="fa-solid fa-boxes-stacked"></i>Case: ${product.qty.toLocaleString('en-US')}</span></div>
+        <div class="product-wholesale"><span>Wholesale</span><strong>${product.wholesale.total?money(product.wholesale.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Case total'))}</small></div>
+        <div class="product-retail-line"><span>Retail</span><strong>${product.retail.total?money(product.retail.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Per unit'))}</small></div>
       </div>
     </article>`).join('')||'<div class="empty">No products match this search.</div>';
     document.querySelectorAll('[data-product-edit]').forEach(button=>button.onclick=()=>showEdit(products.find(product=>product.key===button.dataset.productEdit)));
