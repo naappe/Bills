@@ -1,249 +1,147 @@
 # White Saffron Procurement ERP
 
-Modern procurement and supplier management system built for restaurants, cafés, hotels, and retail businesses.
+White Saffron Procurement ERP is a browser-based procurement system for recording supplier bills, tracking product costs, comparing vendors, and reviewing purchasing performance.
 
-Manage supplier bills, monitor product prices, compare vendors, and make purchasing decisions from one unified dashboard.
+**Current version:** `v4.9.37`  
+**Status:** Active development  
+**Platform:** GitHub Pages + Supabase  
+**Live site:** https://naappe.github.io/Bills/
 
-> **Current Version:** v4.6.0 (Stable)
->
-> **Status:** Active Development
->
-> **Platform:** GitHub Pages + Supabase
->
-> **Live Demo:** https://naappe.github.io/Bills/
+## Current application
 
----
+The application is a static single-page app built with HTML, CSS, and JavaScript ES modules. Supabase provides authentication and persistent bill data. GitHub Pages hosts the frontend.
 
-# Overview
+### Main modules
 
-White Saffron Procurement ERP is designed to simplify the entire purchasing process.
+- **Dashboard** — procurement overview and key spending indicators.
+- **Bills** — searchable supplier bills, date and vendor filters, pagination, bill detail popup, editing, and deletion controls.
+- **Bill Entry** — one supplier bill with multiple product rows saved as one bill record.
+- **Price Intelligence** — normalized product costs, supplier comparison, price trends, and alerts for administrators.
+- **Products** — product catalogue with images, retail pricing, wholesale pricing, pack information, and case quantity.
+- **Vendors** — supplier directory and procurement history.
+- **Reports** — procurement value, payment status, average bill value, supplier statistics, and spending trends.
+- **Settings** — workspace configuration.
+- **Admin & Users** — administrator-only account and system controls.
 
-Instead of storing invoices as static documents, every bill becomes structured purchasing data that can be searched, compared, analyzed, and reported.
+## Bill workflow
 
-The system automatically builds product history, vendor statistics, procurement analytics, and future price intelligence from supplier bills.
+1. Select or type a vendor.
+2. Existing vendor TIN, mobile number, and location are filled when saved data is available.
+3. Enter the bill date, bill number, payment details, and category.
+4. Add one or more product rows.
+5. Enter pack format, unit, quantity, pack rate, and GST.
+6. Review calculated subtotal, GST, and total.
+7. Save all item rows as one bill record.
+8. Open any bill row to view the complete supplier bill in a detail popup.
+9. Edit a bill to restore all saved item rows back into Bill Entry.
 
----
+## Product pricing rules
 
-# Key Features
+The Products page is intentionally simple and customer-facing:
 
-## Procurement Dashboard
+- Retail price is the price for one selling unit.
+- Wholesale price is the price for one configured case.
+- Case quantity is stored separately from bill quantity.
+- Product images are displayed with `object-fit: contain`.
+- Base-unit calculations are not displayed on product cards.
 
-- Live procurement overview
-- Monthly spending
-- Payment status
-- Vendor statistics
-- Purchasing trends
+Technical calculations such as cost per KG, G, L, ML, or PCS belong only in Price Intelligence.
 
-## Bill Management
+## Bill data model
 
-- Fast supplier bill entry
-- Multiple line items
-- Automatic totals
-- Edit history
-- Advanced search and filtering
+Each bill stores shared bill information and an `items` collection. Item rows may contain:
 
-## Product Catalogue
+- `description`
+- `pack_format`
+- `unit`
+- `qty`
+- `pack_rate`
+- `row_total`
+- `gst`
+- `base_quantity`
+- `base_unit`
+- `unit_rate`
+- `large_unit_rate`
 
-- Automatically generated from bills
-- Product images and catalogue metadata
-- Categories and active status
-- Base-unit pricing
-- Purchase history
+Older records without an `items` collection are still supported through legacy single-item fields.
 
-## Vendor Management
+## Access rules
 
-- Supplier profiles derived from bills
-- Canonical grouping by TIN, mobile, and normalized name
-- Spending summaries
-- Paid and pending totals
-- Purchase history
-- Duplicate and alias indicators
+- **Admin** — full application controls, including Price Intelligence and delete operations.
+- **Staff** — standard procurement access; editing is restricted to the allowed time window where implemented.
 
-## Price Intelligence
+Frontend role checks improve usability, but Supabase Row Level Security must enforce actual permissions.
 
-The full v4.7 implementation is planned.
-
-- Historical pricing
-- Cheapest compatible supplier
-- Vendor comparison
-- Price alerts
-- Savings analysis
-
-## Reporting
-
-- Procurement analytics
-- Spending trends
-- Vendor performance
-- Product purchasing reports
-
----
-
-# Technology
+## Technology
 
 - HTML5
 - CSS3
-- Modern JavaScript ES modules
+- JavaScript ES modules
 - Supabase Auth and database
 - GitHub Pages
+- Font Awesome
+- Inter typeface
 
 No build process or application server is required.
 
----
-
-# Screens
-
-- Dashboard
-- Bills
-- New Bill
-- Products
-- Vendors
-- Price Intelligence
-- Reports
-- Settings
-- Administration
-
----
-
-# Project Architecture
-
-White Saffron Procurement ERP is a static single-page application.
+## Runtime structure
 
 ```text
-GitHub Pages
-  → index.html application shell
-  → app/js/main.js
-  → Supabase session restoration
-  → paginated bill loading
-  → hash router
-  → route renderer
-  → #content
+index.html
+└── app/
+    ├── css/
+    │   ├── tokens.css
+    │   ├── app.css
+    │   ├── layout.css
+    │   ├── products.css
+    │   ├── vendors.css
+    │   ├── rates.css
+    │   ├── reports.css
+    │   ├── admin.css
+    │   └── system.css
+    └── js/
+        ├── main.js
+        ├── router.js
+        ├── store.js
+        ├── data.js
+        ├── pages.js
+        ├── bills.js
+        ├── bill-entry.js
+        ├── products.js
+        ├── vendors.js
+        ├── rates.js
+        ├── reports.js
+        ├── admin.js
+        ├── vendor-picker.js
+        └── bill-entry-cleanup.js
 ```
 
-Core ownership:
-
-- `index.html` — application shell and asset loading
-- `app/js/main.js` — boot, authentication lifecycle, and navigation
-- `app/js/router.js` — route mapping and rendering
-- `app/js/store.js` — shared browser state and formatting helpers
-- `app/js/data.js` — Supabase authentication and bill mutations
-- `app/js/pages.js` — shared page renderers
-- `app/js/products.js` — product catalogue
-- `app/js/vendors.js` — vendor directory
-- `app/css/app.css` — design system and shared layout
-- `app/css/products.css` — product-specific styles
-- `app/css/vendors.css` — vendor-specific styles
-
-Products and vendors are currently derived from historical bill records. Catalogue and alias overrides remain browser-local until the normalized database migration.
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the full runtime design and module ownership.
-
----
-
-# Current Routes
+## Current routes
 
 | Route | Purpose |
 |---|---|
 | `#dashboard` | Procurement overview |
-| `#bills` | Searchable supplier bills |
-| `#new` | Add or edit a bill |
+| `#bills` | Bill list, filters, details, edit, and delete |
+| `#new` | Create or edit a supplier bill |
 | `#rates` / `#prices` | Price Intelligence |
 | `#products` | Product catalogue |
-| `#vendors` | Supplier directory |
+| `#vendors` | Vendor directory |
 | `#reports` | Procurement reports |
-| `#settings` | Workspace defaults |
-| `#admin` | Users and system status |
+| `#settings` | Workspace settings |
+| `#admin` | Users and system administration |
 
----
+## UI and performance
 
-# Data and Roles
+- One fixed desktop sidebar.
+- One browser scrollbar on the far right.
+- Shared top bar and responsive content layout.
+- Full-width application content.
+- Mobile sidebar drawer.
+- Versioned assets to prevent stale browser files.
+- Browser service workers and old application caches are cleared during startup.
+- Current page load is lightweight and uses browser caching for static assets.
 
-- Primary runtime data: Supabase bills table
-- Browser state: `store.rows`
-- Currency: MVR
-- Number formatting: `en-US`
-- Bills load in database pages of 1,000 rows
-- Historical bill data remains the source of truth
-
-Current frontend roles:
-
-- `admin` — full application controls where implemented
-- `staff` — standard procurement access
-
-The planned role model adds `manager` and `readonly`. Frontend checks are usability controls only; Supabase Row Level Security must enforce real permissions.
-
----
-
-# Development Status
-
-| Module | Status |
-|---|---|
-| Authentication | Complete |
-| Application shell and router | Complete |
-| Dashboard | Complete foundation |
-| Bills | Complete foundation |
-| Products | Complete v4.5 foundation |
-| Vendors | Complete v4.6 foundation |
-| Price Intelligence | Planned for v4.7 |
-| Reports | Partial |
-| Users and Roles | Planned for v4.8 |
-| Database Normalization | Planned for v4.9 |
-| Assisted Procurement | Planned for v5.0 |
-
----
-
-# Documentation
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) — runtime, modules, state, routing, and performance
-- [DATABASE.md](DATABASE.md) — current data model, target schema, RLS, and migration plan
-- [CHANGELOG.md](CHANGELOG.md) — release history and known limitations
-- [ROADMAP.md](ROADMAP.md) — implementation order and definition of done
-- [CONTRIBUTING.md](CONTRIBUTING.md) — coding, design, security, testing, and Git standards
-
----
-
-# Development Roadmap
-
-## v4.6 — Stable Procurement Foundation
-
-- Modular runtime
-- Dashboard and Bills foundation
-- Product Catalogue
-- Vendor Directory
-- Documentation checkpoint
-
-## v4.7 — Price Intelligence
-
-- Product price timeline
-- Compatible vendor comparison
-- Price movement alerts
-- Savings opportunities
-- Admin-only procurement insights
-
-## v4.8 — Users and Roles
-
-- User profiles
-- Permission matrix
-- Account status
-- Audit logging
-- RLS-aligned administration
-
-## v4.9 — Database Normalization
-
-- Products and product aliases
-- Vendors and vendor aliases
-- Normalized bills and bill items
-- Migration validation and rollback
-
-## v5.0 — Assisted Procurement
-
-- OCR-assisted bill capture
-- Product and vendor matching suggestions
-- Duplicate and anomaly detection
-- Forecasting and purchasing recommendations
-
----
-
-# Deployment
+## Deployment
 
 GitHub Pages publishes from:
 
@@ -252,34 +150,35 @@ Branch: main
 Folder: /(root)
 ```
 
-After deployment:
+After a deployment:
 
 1. Wait for GitHub Pages to publish.
-2. Hard refresh the live site.
-3. Test login and session restoration.
-4. Test every route.
-5. Test bill create, edit, and delete behavior for the appropriate role.
-6. Review desktop, tablet, and mobile layouts.
-7. Check the browser console and network panel for failures.
+2. Refresh the live site.
+3. Confirm the deployment version in `index.html`.
+4. Test authentication and session restoration.
+5. Test Dashboard, Bills, Bill Entry, Products, Vendors, Price Intelligence, Reports, Settings, and Admin.
+6. Test bill create, view, edit, and delete flows.
+7. Check desktop, tablet, and mobile layouts.
+8. Confirm there are no browser console errors or failed network requests.
 
----
+## Security
 
-# Security
-
-The frontend may contain only a Supabase publishable browser key.
+Only a Supabase publishable browser key may be present in frontend code.
 
 Never commit:
 
-- service-role keys
+- Supabase service-role keys
 - passwords
 - private API keys
 - access tokens
-- sensitive procurement exports
+- confidential exports
 
-Supabase Row Level Security is the application security boundary. Hidden controls and frontend role labels are not sufficient authorization.
+Supabase Row Level Security is the security boundary. Hiding frontend controls is not sufficient authorization.
 
----
+## Project status
 
-# License
+The current application foundation is operational. Active work is focused on data accuracy, consistent user experience, product and vendor intelligence, reporting quality, and database normalization.
 
-Internal White Saffron Project.
+## License
+
+Internal White Saffron project.
