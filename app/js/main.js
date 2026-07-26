@@ -1,6 +1,6 @@
 import {store} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter} from './router.js?v=4.9.24';
+import {startRouter} from './router.js?v=4.9.27';
 
 const $=s=>document.querySelector(s);
 const navGroups=[
@@ -9,7 +9,7 @@ const navGroups=[
   ['Analytics',[['reports','Reports','fa-chart-pie']]],
   ['Administration',[['settings','Settings','fa-gear'],['admin','Admin & users','fa-users-gear','admin']]]
 ];
-const health={version:'4.9.24',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
+const health={version:'4.9.27',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
 window.app={store,health};
 
 function buildNav(){
@@ -50,15 +50,7 @@ function showWorkspaceError(error){
 
 async function loadAndStart(){
   $('#content').innerHTML='<section class="panel"><div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i><h2>Loading procurement workspace</h2><p>Retrieving bills and preparing the dashboard…</p></div></section>';
-  try{
-    await loadBills();
-    health.dataLoaded=true;
-    startRouter();
-  }catch(error){
-    health.dataLoaded=false;
-    showWorkspaceError(error);
-    throw error;
-  }
+  try{await loadBills();health.dataLoaded=true;startRouter()}catch(error){health.dataLoaded=false;showWorkspaceError(error);throw error}
 }
 
 async function boot(){
@@ -66,38 +58,7 @@ async function boot(){
   $('#menuBtn').onclick=()=>$('#sidebar').classList.toggle('open');
   $('#logoutBtn').onclick=async()=>{await signOut();health.dataLoaded=false;showLogin()};
   $('#footerYear').textContent=new Date().getFullYear();
-
-  $('#loginForm').onsubmit=async e=>{
-    e.preventDefault();
-    const notice=$('#loginNotice');
-    const submit=e.submitter||$('#loginForm button[type="submit"]');
-    notice.textContent='Signing in…';
-    if(submit)submit.disabled=true;
-    try{
-      await signIn($('#loginName').value,$('#loginPassword').value);
-      showApp();
-      notice.textContent='';
-      await loadAndStart().catch(()=>{});
-    }catch(error){
-      health.error=error?.message||String(error);
-      showLogin(health.error);
-    }finally{
-      if(submit)submit.disabled=false;
-    }
-  };
-
-  try{
-    const user=await restoreSession();
-    if(!user){showLogin();health.booted=true;return}
-    showApp();
-    await loadAndStart().catch(()=>{});
-  }catch(error){
-    health.error=error?.message||String(error);
-    console.error('[Authentication restore]',error);
-    showLogin('Your saved session expired. Please sign in again.');
-  }finally{
-    health.booted=true;
-  }
+  $('#loginForm').onsubmit=async e=>{e.preventDefault();const notice=$('#loginNotice'),submit=e.submitter||$('#loginForm button[type="submit"]');notice.textContent='Signing in…';if(submit)submit.disabled=true;try{await signIn($('#loginName').value,$('#loginPassword').value);showApp();notice.textContent='';await loadAndStart().catch(()=>{})}catch(error){health.error=error?.message||String(error);showLogin(health.error)}finally{if(submit)submit.disabled=false}};
+  try{const user=await restoreSession();if(!user){showLogin();health.booted=true;return}showApp();await loadAndStart().catch(()=>{})}catch(error){health.error=error?.message||String(error);console.error('[Authentication restore]',error);showLogin('Your saved session expired. Please sign in again.')}finally{health.booted=true}
 }
-
 boot();
