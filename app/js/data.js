@@ -23,6 +23,40 @@ export async function loadBills(){
   }
   store.set({rows:all});return all;
 }
-export async function saveBillRecords(records){const {data,error}=await db.from(CONFIG.table).insert(records).select();if(error)throw error;store.set({rows:[...(data||[]),...store.rows]});return data}
-export async function updateBill(id,record){const {data,error}=await db.from(CONFIG.table).update(record).eq('id',id).select().single();if(error)throw error;store.set({rows:store.rows.map(row=>String(row.id)===String(id)?data:row)});return data}
+
+const protectedColumns=new Set(['id','created_at','updated_at']);
+function schemaColumns(){
+  const columns=new Set();
+  for(const row of store.rows||[])Object.keys(row||{}).forEach(key=>columns.add(key));
+  return columns;
+}
+function compatibleRecord(record){
+  const source={...(record||{})},columns=schemaColumns();
+  if(source.mobile!==undefined&&!columns.has('mobile')){
+    if(columns.has('phone')&&source.phone===undefined)source.phone=source.mobile;
+    else if(columns.has('vendor_mobile')&&source.vendor_mobile===undefined)source.vendor_mobile=source.mobile;
+    delete source.mobile;
+  }
+  if(source.tin!==undefined&&!columns.has('tin')&&columns.has('vendor_tin')){
+    source.vendor_tin=source.tin;delete source.tin;
+  }
+  if(source.location!==undefined&&!columns.has('location')&&columns.has('address')){
+    source.address=source.location;delete source.location;
+  }
+  if(!columns.size)return source;
+  return Object.fromEntries(Object.entries(source).filter(([key])=>columns.has(key)&&!protectedColumns.has(key)));
+}
+
+export async function saveBillRecords(records){
+  const payload=(records||[]).map(compatibleRecord);
+  const {data,error}=await db.from(CONFIG.table).insert(payload).select();
+  if(error)throw error;
+  store.set({rows:[...(data||[]),...store.rows]});return data;
+}
+export async function updateBill(id,record){
+  const payload=compatibleRecord(record);
+  const {data,error}=await db.from(CONFIG.table).update(payload).eq('id',id).select().single();
+  if(error)throw error;
+  store.set({rows:store.rows.map(row=>String(row.id)===String(id)?data:row)});return data;
+}
 export async function deleteBill(id){const {error}=await db.from(CONFIG.table).delete().eq('id',id);if(error)throw error;store.set({rows:store.rows.filter(row=>String(row.id)!==String(id))})}
