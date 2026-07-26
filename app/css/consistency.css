@@ -1,0 +1,64 @@
+/* Cross-route consistency layer: hierarchy, rhythm, typography and responsive alignment. */
+.content{--section-gap:var(--sp-3);align-content:start;gap:var(--section-gap)}
+.content>.page-head{min-height:64px;margin:0;padding:0;align-items:flex-start}
+.content>.page-head h1{margin:0;color:var(--text-strong);font-size:clamp(var(--fs-24),2vw,var(--fs-30));font-weight:var(--weight-bold);line-height:1.15;letter-spacing:-.025em}
+.content>.page-head p{max-width:760px;margin:6px 0 0;color:var(--text-muted);font-size:var(--fs-13);line-height:1.5}
+.content>.page-head+.toolbar,.content>.page-head+.date-toolbar,.content>.page-head+.bills-toolbar,.content>.page-head+.rates-toolbar,.content>.page-head+.report-toolbar{margin-top:calc(var(--sp-1) * -1)}
+.content>section,.content>article,.content>.grid-4,.content>.grid-2,.content>.catalog,.content>.admin-grid,.content>.report-grid{min-width:0}
+
+/* One shared surface language. */
+.card,.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar,.product-filters,.vendor-filters,.kpi{border:1px solid var(--border);border-radius:var(--radius-card);background:var(--surface);box-shadow:var(--shadow-sm)}
+.card-head{min-height:58px;padding:var(--sp-1-5) var(--sp-2);gap:var(--sp-2)}
+.card-head>div{min-width:0}.card-head h2{margin:0;font-size:var(--fs-18);font-weight:var(--weight-semibold);line-height:1.25}.card-head small{margin-top:3px;color:var(--text-muted);font-size:var(--fs-11);line-height:1.4}
+.card-body{padding:var(--sp-2)}
+
+/* Common controls and action alignment. */
+.actions{gap:var(--sp-1);align-items:center}.page-head>.actions{margin-left:auto;justify-content:flex-end}
+.btn{min-height:var(--control-height);border-radius:var(--radius-control);font-size:var(--fs-13);font-weight:var(--weight-semibold)}
+.btn i{width:1em;text-align:center}
+label{gap:6px;color:var(--text-strong);font-size:var(--fs-12);font-weight:var(--weight-semibold)}
+input,select,textarea{min-height:var(--control-height);font-size:var(--fs-13)}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:0;box-shadow:var(--shadow-focus)}
+
+/* Grids use the same breakpoints and gaps on every route. */
+.grid-4,.catalog,.admin-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:var(--sp-2)}
+.grid-2,.report-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:var(--sp-2)}
+.form-grid{gap:var(--sp-2)}
+.kpi{min-height:132px;padding:var(--sp-2)}
+
+/* Tables share one density and numeric alignment. */
+.table-wrap{border-radius:inherit}
+.table th{height:42px;padding:10px 12px;font-size:var(--fs-10);font-weight:var(--weight-semibold);letter-spacing:.05em}
+.table td{height:var(--table-row);padding:10px 12px;font-size:var(--fs-13);line-height:1.4}
+.table th.num,.table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.table tbody tr:last-child td{border-bottom:0}
+.pager{min-height:58px;padding:var(--sp-1-5) var(--sp-2)}
+
+/* Current Bills table has six columns; remove stale eight-column sizing. */
+.bills-table{width:100%;min-width:920px;table-layout:fixed}
+.bills-table th:nth-child(1),.bills-table td:nth-child(1){width:120px}
+.bills-table th:nth-child(2),.bills-table td:nth-child(2){width:130px}
+.bills-table th:nth-child(3),.bills-table td:nth-child(3){width:190px}
+.bills-table th:nth-child(4),.bills-table td:nth-child(4){width:auto}
+.bills-table th:nth-child(5),.bills-table td:nth-child(5){width:150px}
+.bills-table th:nth-child(6),.bills-table td:nth-child(6){width:160px}
+
+/* Route transitions remain subtle and do not change layout. */
+.content>*{animation:route-enter var(--duration-normal) ease both}
+@keyframes route-enter{from{opacity:.65;transform:translateY(3px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.content>*{animation:none}.btn,.kpi,.nav a{transition:none!important}}
+
+@media(max-width:820px){
+  .content{--section-gap:var(--sp-2);padding:var(--sp-2)}
+  .content>.page-head{min-height:auto;flex-direction:column;gap:var(--sp-1-5)}
+  .content>.page-head h1{font-size:var(--fs-24)}
+  .page-head>.actions{width:100%;margin-left:0;justify-content:flex-start}
+  .card-head{align-items:flex-start}
+  .table{min-width:760px}
+}
+@media(max-width:520px){
+  .page-head>.actions,.page-head>.actions .btn{width:100%}
+  .card-head{min-height:54px}
+  .card-head,.card-body{padding:var(--sp-2)}
+  .pager{align-items:stretch}.pager .actions{width:100%}.pager .btn{flex:1}
+}
