@@ -18,12 +18,14 @@ function vendorDirectory(){
   return [...map.values()].sort((a,b)=>a.name.localeCompare(b.name));
 }
 
+function escape(value){return clean(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+
 function installStyles(){
   if(document.querySelector('#vendorPickerStyles'))return;
   const style=document.createElement('style');
   style.id='vendorPickerStyles';
   style.textContent=`
-    .vendor-picker{position:relative}.vendor-picker-list{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 6px);max-height:280px;overflow:auto;padding:6px;background:var(--surface,#fff);border:1px solid var(--border,#d7e0e7);border-radius:14px;box-shadow:0 18px 42px rgba(13,35,62,.16)}
+    .vendor-picker{position:relative}.vendor-picker-list{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 6px);max-height:300px;overflow:auto;padding:6px;background:var(--surface,#fff);border:1px solid var(--border,#d7e0e7);border-radius:14px;box-shadow:0 18px 42px rgba(13,35,62,.16)}
     .vendor-picker-list[hidden]{display:none}.vendor-picker-option{display:block;width:100%;padding:10px 12px;border:0;border-radius:10px;background:transparent;text-align:left;color:var(--text-strong,#102a43);cursor:pointer}.vendor-picker-option:hover,.vendor-picker-option:focus{background:var(--surface-muted,#f1f5f4);outline:0}.vendor-picker-option strong,.vendor-picker-option small{display:block}.vendor-picker-option small{margin-top:3px;color:var(--text-muted,#64748b)}.vendor-picker-empty{padding:12px;color:var(--text-muted,#64748b)}
   `;
   document.head.appendChild(style);
@@ -46,6 +48,8 @@ function setupVendorPicker(){
 
   const directory=vendorDirectory();
   const byName=new Map(directory.map(v=>[v.name.toLowerCase(),v]));
+  let filtering=false;
+
   const fill=vendor=>{
     if(!vendor)return;
     input.value=vendor.name;
@@ -54,21 +58,35 @@ function setupVendorPicker(){
     if(mobile)mobile.value=vendor.mobile;
     if(location)location.value=vendor.location;
     list.hidden=true;
+    filtering=false;
     input.dispatchEvent(new Event('change',{bubbles:true}));
   };
-  const draw=()=>{
-    const query=clean(input.value).toLowerCase();
-    const matches=(query?directory.filter(v=>`${v.name} ${v.tin} ${v.mobile} ${v.location}`.toLowerCase().includes(query)):directory).slice(0,80);
-    list.innerHTML=matches.length?matches.map(v=>`<button type="button" class="vendor-picker-option" data-vendor="${v.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><strong>${v.name.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</strong><small>${[v.tin&&`TIN ${v.tin}`,v.mobile,v.location].filter(Boolean).join(' · ').replace(/&/g,'&amp;').replace(/</g,'&lt;')||'No saved contact details'}</small></button>`).join(''):'<div class="vendor-picker-empty">No matching vendor. Continue typing to use a new vendor.</div>';
+
+  const draw=(showAll=false)=>{
+    const query=showAll?'':clean(input.value).toLowerCase();
+    const matches=(query?directory.filter(v=>`${v.name} ${v.tin} ${v.mobile} ${v.location}`.toLowerCase().includes(query)):directory).slice(0,120);
+    list.innerHTML=matches.length?matches.map(v=>`<button type="button" class="vendor-picker-option" data-vendor="${escape(v.name)}"><strong>${escape(v.name)}</strong><small>${escape([v.tin&&`TIN ${v.tin}`,v.mobile,v.location].filter(Boolean).join(' · ')||'No saved contact details')}</small></button>`).join(''):'<div class="vendor-picker-empty">No matching vendor. Continue typing to use a new vendor.</div>';
     list.hidden=false;
     list.querySelectorAll('[data-vendor]').forEach(button=>button.addEventListener('mousedown',event=>{event.preventDefault();fill(byName.get(button.dataset.vendor.toLowerCase()))}));
   };
 
-  input.addEventListener('focus',draw);
-  input.addEventListener('click',draw);
-  input.addEventListener('input',()=>{draw();const exact=byName.get(clean(input.value).toLowerCase());if(exact)fill(exact)});
-  input.addEventListener('keydown',event=>{if(event.key==='ArrowDown'&&!list.hidden){event.preventDefault();list.querySelector('button')?.focus()}if(event.key==='Escape')list.hidden=true});
-  input.addEventListener('blur',()=>setTimeout(()=>{list.hidden=true},120));
+  const openAll=()=>{
+    filtering=false;
+    input.select();
+    draw(true);
+  };
+
+  input.addEventListener('focus',openAll);
+  input.addEventListener('click',openAll);
+  input.addEventListener('input',()=>{
+    filtering=true;
+    draw(false);
+  });
+  input.addEventListener('keydown',event=>{
+    if(event.key==='ArrowDown'&&!list.hidden){event.preventDefault();list.querySelector('button')?.focus()}
+    if(event.key==='Escape')list.hidden=true;
+  });
+  input.addEventListener('blur',()=>setTimeout(()=>{list.hidden=true;filtering=false},150));
 }
 
 installStyles();
