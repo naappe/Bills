@@ -1,7 +1,7 @@
 import {store} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter} from './router.js?v=4.9.52';
-import './vendor-picker.js?v=4.9.51';
+import {startRouter} from './router.js?v=4.9.55';
+import './vendor-picker.js?v=4.9.55';
 
 const $=s=>document.querySelector(s);
 const navGroups=[
@@ -10,7 +10,7 @@ const navGroups=[
   ['Analytics',[['reports','Reports','fa-chart-pie']]],
   ['Administration',[['settings','Settings','fa-gear'],['admin','Admin & users','fa-users-gear','admin']]]
 ];
-const health={version:'4.9.52',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
+const health={version:'4.9.55',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
 window.app={store,health};
 function removeGeneratedPlaceholders(){try{const key='bills.productMetadata.v3',meta=JSON.parse(localStorage.getItem(key)||'{}');let changed=false;for(const value of Object.values(meta)){if(value?.imageSource==='generated'||String(value?.photo||'').includes('Generated%20catalogue%20illustration')){delete value.photo;delete value.imageSource;changed=true}}if(changed)localStorage.setItem(key,JSON.stringify(meta))}catch{}}
 function buildNav(){$('#nav').innerHTML=navGroups.map(([group,items])=>{const visible=items.filter(([, , ,requiredRole])=>!requiredRole||store.role===requiredRole);if(!visible.length)return'';return `<div class="nav-group"><div class="nav-label">${group}</div>${visible.map(([route,label,icon])=>`<a href="#${route}" data-route="${route}" title="${label}"><i class="fa-solid ${icon}" aria-hidden="true"></i><span>${label}</span></a>`).join('')}</div>`}).join('')}
