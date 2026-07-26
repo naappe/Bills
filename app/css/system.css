@@ -1,6 +1,18 @@
-/* White Saffron shared component layer — applied after every route stylesheet. */
+/* White Saffron shared structural and component system — loaded last on every route. */
 
 :root{
+  /* Global structural tokens */
+  --shell-sidebar:220px;
+  --shell-content-max:1600px;
+  --layout-gap:24px;
+  --layout-gap-sm:16px;
+  --page-inline:24px;
+  --page-block:28px;
+  --grid-card-min:230px;
+  --grid-panel-min:360px;
+  --toolbar-field-min:150px;
+
+  /* Shared visual tokens */
   --bg:#F5F8F7;
   --surface-muted:#F7F9F8;
   --border:#DCE5E1;
@@ -15,13 +27,42 @@
   --control-height-sm:36px;
   --nav-height:46px;
   --table-row:58px;
+  --sidebar-width:var(--shell-sidebar);
+  --content-max:var(--shell-content-max);
+  --page-pad:var(--page-inline);
 }
 
+html,body{max-width:100%;overflow-x:hidden}
 body{font-size:var(--fs-14);line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-.content{gap:var(--sp-3);padding-top:28px;padding-bottom:32px}
-.page-head{align-items:center}
-.page-head h1{font-size:clamp(var(--fs-24),2vw,var(--fs-30));font-weight:var(--weight-semibold);letter-spacing:-.03em}
+.app,.main,.content,.content>*,.card,.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar,.grid-4,.grid-2,.catalog,.report-grid,.admin-grid{min-width:0}
+.main{width:100%;overflow-x:hidden}
+.content{width:100%;max-width:var(--content-max);gap:var(--layout-gap);padding:var(--page-block) var(--page-inline) 32px;overflow:hidden}
+.page-head{align-items:center;min-width:0}
+.page-head>div:first-child{min-width:0}
+.page-head h1{font-size:clamp(var(--fs-24),2vw,var(--fs-30));font-weight:var(--weight-semibold);letter-spacing:-.03em;overflow-wrap:anywhere}
 .page-head p{margin-top:7px;font-size:var(--fs-14);line-height:1.45}
+
+/* Tokenized responsive page grids: one rule controls every route. */
+.grid-4,.catalog,.admin-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--grid-card-min)),1fr))!important;gap:var(--layout-gap-sm)!important}
+.grid-2,.report-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--grid-panel-min)),1fr))!important;gap:var(--layout-gap-sm)!important}
+.report-wide,.admin-span-3{grid-column:1/-1}
+.admin-span-2{grid-column:span 2}
+
+/* All filter bars now wrap by available width instead of forcing page overflow. */
+.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar,.product-filters,.vendor-filters{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--toolbar-field-min)),1fr))!important;
+  align-items:end!important;
+  width:100%;
+  padding:18px;
+  gap:var(--layout-gap-sm);
+  border-radius:var(--radius-card);
+  border-color:var(--border);
+  box-shadow:var(--shadow-sm);
+}
+.toolbar>*,.date-toolbar>*,.bills-toolbar>*,.rates-toolbar>*,.report-toolbar>*,.product-filters>*,.vendor-filters>*{min-width:0;grid-column:auto!important}
+.toolbar input,.toolbar select,.date-toolbar input,.date-toolbar select,.bills-toolbar input,.bills-toolbar select,.rates-toolbar input,.rates-toolbar select,.report-toolbar input,.report-toolbar select{width:100%;min-width:0}
+.range-summary,.report-range{min-height:var(--control-height);border-left:0!important;border-top:0!important;align-items:flex-start!important;background:var(--surface-muted);border-radius:var(--radius-control);padding:10px 13px}
 
 .card,.kpi,.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar{border-color:var(--border);box-shadow:var(--shadow-sm)}
 .card{border-radius:var(--radius-card)}
@@ -30,10 +71,10 @@ body{font-size:var(--fs-14);line-height:1.5;-webkit-font-smoothing:antialiased;t
 .card-head small{font-size:var(--fs-12)}
 .card-body{padding:var(--sp-3)}
 
-.kpi{min-height:150px;padding:22px 24px;border-top-width:3px;transition:transform var(--duration-fast),box-shadow var(--duration-fast),border-color var(--duration-fast)}
+.kpi{min-width:0;min-height:150px;padding:22px 24px;border-top-width:3px;transition:transform var(--duration-fast),box-shadow var(--duration-fast),border-color var(--duration-fast)}
 .kpi:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
 .kpi span{font-size:var(--fs-13);font-weight:var(--weight-medium)}
-.kpi strong{margin-top:8px;font-size:clamp(var(--fs-24),2vw,var(--fs-30));font-weight:var(--weight-bold);line-height:1.15}
+.kpi strong{max-width:100%;margin-top:8px;font-size:clamp(var(--fs-24),2vw,var(--fs-30));font-weight:var(--weight-bold);line-height:1.15;overflow-wrap:anywhere}
 .kpi small{margin-top:8px;color:var(--text-muted)}
 
 .btn{min-height:var(--control-height);padding:9px 17px;border-radius:var(--radius-control);font-size:var(--fs-13);font-weight:var(--weight-semibold);transition:transform var(--duration-fast),box-shadow var(--duration-fast),border-color var(--duration-fast),background var(--duration-fast)}
@@ -58,7 +99,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--brand-navy);box-shado
 .side-foot{padding:14px 16px}
 .topbar{box-shadow:0 1px 0 rgba(16,42,80,.03)}
 
-.table-wrap{scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+.table-wrap{width:100%;max-width:100%;overflow:auto;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
 .table{border-collapse:separate;border-spacing:0}
 .table th{height:46px;padding:12px 15px;background:#F6F8F7;color:#5E6B7C;font-size:var(--fs-11);font-weight:var(--weight-semibold);letter-spacing:.055em;box-shadow:inset 0 -1px 0 var(--border)}
 .table td{height:var(--table-row);padding:13px 15px;color:var(--text);font-size:var(--fs-14);line-height:1.35}
@@ -72,27 +113,30 @@ input:focus,select:focus,textarea:focus{border-color:var(--brand-navy);box-shado
 .pager{min-height:66px;padding:14px var(--sp-3);background:var(--surface-muted)}
 .empty{padding:48px 24px;font-size:var(--fs-14)}
 
-.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar{padding:18px;gap:16px;border-radius:var(--radius-card)}
-.range-summary{min-height:var(--control-height)}
 .progress-row{min-height:38px}
 .track{height:8px}
 .progress-row>strong{font-size:var(--fs-13);font-weight:var(--weight-semibold)}
-
 .modal-card{border:1px solid var(--border)}
 .totals{padding:18px;border-radius:var(--radius-card)}
 
+@media(max-width:1100px){
+  :root{--shell-sidebar:210px;--page-inline:20px;--layout-gap:20px;--grid-card-min:210px;--grid-panel-min:320px}
+  .admin-span-2{grid-column:auto}
+}
+
 @media(max-width:820px){
-  :root{--control-height:46px;--table-row:60px}
-  .content{padding-top:20px;padding-bottom:24px}
+  :root{--control-height:46px;--table-row:60px;--page-inline:16px;--page-block:20px;--grid-panel-min:280px}
+  .content{padding:var(--page-block) var(--page-inline) 24px;gap:20px}
   .page-head{align-items:stretch}
   .page-head h1{font-size:var(--fs-24)}
   .card-head,.card-body{padding:var(--sp-2)}
-  .toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar{padding:var(--sp-2)}
+  .toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar,.product-filters,.vendor-filters{padding:var(--sp-2)}
   .table td{padding:13px 14px}
   .btn{min-height:46px}
 }
 
 @media(max-width:520px){
+  :root{--grid-card-min:100%;--grid-panel-min:100%;--toolbar-field-min:100%}
   .content{gap:18px}
   .kpi{min-height:132px;padding:20px}
   .page-head>.actions .btn{width:100%}
