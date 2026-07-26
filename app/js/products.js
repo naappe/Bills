@@ -12,14 +12,18 @@ const productName=(item,row)=>cleanName(get(item,'description','product','name')
 const imageOf=(row,item,override)=>text(override||get(item,'photo_url','image_url','image','photo')||get(row,'photo_url','image_url','image','photo'));
 let cache={revision:-1,meta:'',products:[]};
 
-function packPieces(pack,qty){
+function packCaseQty(pack){
   const normalized=text(pack).toLowerCase().replace(/[×*]/g,'x').replace(/\s+/g,'');
   const multi=normalized.match(/^(\d+(?:\.\d+)?)x\d+(?:\.\d+)?(?:kg|g|l|ml|pcs?|btl|pkt|can|tin|ctn|doz)$/);
-  return (multi?number(multi[1]):1)*(number(qty)||1);
+  return multi?number(multi[1]):0;
+}
+function purchasedPieces(pack,qty){
+  const caseQty=packCaseQty(pack);
+  return (caseQty||1)*(number(qty)||1);
 }
 function gstRate(item,row){return firstNumber(item,'gst','gst_percent','gst_rate','tax_rate')||firstNumber(row,'gst','gst_percent','gst_rate','tax_rate')}
 function withGst(net,gst){const gstAmount=net>0&&gst>0?net*gst/100:0;return{net,gstAmount,total:net+gstAmount}}
-function priceNote(gst,defaultText){return gst>0?'GST included':defaultText}
+function priceNote(gst,defaultText){return gst>0?`${defaultText} · GST included`:defaultText}
 function displayUnit(value){const unit=text(value).toUpperCase();return unit==='PCS'?'piece':unit||'unit'}
 
 function buildProducts(){
@@ -31,13 +35,15 @@ function buildProducts(){
     for(const item of itemsOf(row)){
       const raw=productName(item,row),key=keyOf(raw);if(!key)continue;
       const override=meta[key]||{},pack=text(get(item,'pack_format','packing')),unit=text(get(item,'unit')).toUpperCase()||'PCS',baseUnit=text(get(item,'base_unit')).toUpperCase()||unit,qty=firstNumber(item,'qty','quantity')||1;
-      const netWholesale=firstNumber(item,'row_total','line_total','total','net_amount')||(firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')*qty);
-      const gst=gstRate(item,row),wholesale=withGst(netWholesale,gst);
-      const savedRetail=firstNumber(item,'retail_rate','each_rate','unit_price','price_each');
-      const pieces=packPieces(pack,qty);
-      const retailNet=savedRetail||(pieces>0&&netWholesale>0?netWholesale/pieces:firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price'));
-      const retail=withGst(retailNet,gst);
-      const candidate={key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,baseUnit,qty,retail,wholesale,gst,lastDate:date,records:1};
+      const lineNet=firstNumber(item,'row_total','line_total','total','net_amount')||(firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')*qty);
+      const gst=gstRate(item,row),savedRetail=firstNumber(item,'retail_rate','each_rate','unit_price','price_each');
+      const pieces=purchasedPieces(pack,qty);
+      const retailNet=savedRetail||(pieces>0&&lineNet>0?lineNet/pieces:firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price'));
+      const caseQty=number(override.caseQty)||packCaseQty(pack);
+      const savedWholesale=firstNumber(item,'wholesale_rate','case_rate','carton_rate');
+      const wholesaleNet=savedWholesale||(caseQty>0&&retailNet>0?retailNet*caseQty:0);
+      const retail=withGst(retailNet,gst),wholesale=withGst(wholesaleNet,gst);
+      const candidate={key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,baseUnit,qty,caseQty,retail,wholesale,gst,lastDate:date,records:1};
       const current=map.get(key);
       if(!current)map.set(key,candidate);else{current.records++;if(!current.lastDate||date>=current.lastDate)Object.assign(current,candidate,{records:current.records})}
     }
@@ -52,13 +58,13 @@ const imageMarkup=product=>product.photo
 
 export function productsPage(){
   const products=buildProducts();
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Choose Retail or Wholesale to view the required price.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name, unit or case"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Retail is the price per item. Wholesale is the price for one complete case.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name, unit or case"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
 
-  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit} ${product.baseUnit} ${product.qty}`.toLowerCase());
+  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit} ${product.baseUnit} ${product.qty} ${product.caseQty}`.toLowerCase());
 
   const priceData=(product,mode)=>mode==='wholesale'
-    ?{label:'Wholesale',value:product.wholesale.total,note:priceNote(product.gst,`Case total · Qty ${product.qty.toLocaleString('en-US')}`)}
-    :{label:'Retail',value:product.retail.total,note:priceNote(product.gst,`Per ${displayUnit(product.unit)}`)};
+    ?{label:'Wholesale · Case',value:product.wholesale.total,note:product.caseQty?priceNote(product.gst,`One case · ${product.caseQty.toLocaleString('en-US')} pieces`):'Set the case quantity to calculate wholesale'}
+    :{label:'Retail · Each',value:product.retail.total,note:priceNote(product.gst,`Per ${displayUnit(product.unit)}`)};
 
   const draw=()=>{
     const q=text($('#productSearch').value).toLowerCase();
@@ -73,14 +79,14 @@ export function productsPage(){
         </div>
         <div class="product-info">
           <div class="product-heading"><h3>${escapeHtml(product.name)}</h3></div>
-          <div class="product-meta-line"><span><i class="fa-solid fa-tag"></i>${escapeHtml(product.pack||product.unit)}</span><span><i class="fa-solid fa-boxes-stacked"></i>Case ${product.qty.toLocaleString('en-US')}</span></div>
+          <div class="product-meta-line"><span><i class="fa-solid fa-tag"></i>${escapeHtml(product.pack||product.unit)}</span><span><i class="fa-solid fa-boxes-stacked"></i>${product.caseQty?`Case ${product.caseQty.toLocaleString('en-US')} pcs`:'Case size not set'}</span></div>
           <div class="product-price-switch" role="group" aria-label="Choose price type">
             <button type="button" class="${selected==='retail'?'active':''}" data-price-mode="retail" data-product-key="${escapeHtml(product.key)}">Retail</button>
             <button type="button" class="${selected==='wholesale'?'active':''}" data-price-mode="wholesale" data-product-key="${escapeHtml(product.key)}">Wholesale</button>
           </div>
           <div class="product-selected-price">
             <span>${escapeHtml(shown.label)}</span>
-            <strong>${shown.value?money(shown.value):'Not recorded'}</strong>
+            <strong>${shown.value?money(shown.value):'Case size required'}</strong>
             <small>${escapeHtml(shown.note)}</small>
           </div>
         </div>
@@ -98,13 +104,13 @@ export function productsPage(){
     if(store.role!=='admin')return;
     const modal=document.createElement('div');
     modal.className='modal';
-    modal.innerHTML=`<section class="modal-card product-editor"><header class="card-head"><div><h2>Edit product</h2><small>Name and image only. Pricing comes from bills.</small></div><button class="btn secondary small" data-close>Close</button></header><form class="card-body form-grid" id="productEditForm"><label>Product name<input id="editProductName" value="${escapeHtml(product.name)}" required></label><label>Photo URL<input id="editProductPhoto" type="url" value="${escapeHtml(product.photo.startsWith('data:')?'':product.photo)}" placeholder="https://..."></label><label>Image display<select id="editProductFit"><option value="contain" ${product.imageFit==='contain'?'selected':''}>Fit full product</option><option value="cover" ${product.imageFit==='cover'?'selected':''}>Crop to fill</option></select></label><div class="actions product-editor-actions"><button class="btn" type="submit">Save product</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form></section>`;
+    modal.innerHTML=`<section class="modal-card product-editor"><header class="card-head"><div><h2>Edit product</h2><small>Set the case quantity once so wholesale always means one full case.</small></div><button class="btn secondary small" data-close>Close</button></header><form class="card-body form-grid" id="productEditForm"><label>Product name<input id="editProductName" value="${escapeHtml(product.name)}" required></label><label>Case quantity<input id="editProductCaseQty" type="number" min="1" step="1" value="${product.caseQty||''}" placeholder="Example: 12"></label><label>Photo URL<input id="editProductPhoto" type="url" value="${escapeHtml(product.photo.startsWith('data:')?'':product.photo)}" placeholder="https://..."></label><label>Image display<select id="editProductFit"><option value="contain" ${product.imageFit==='contain'?'selected':''}>Fit full product</option><option value="cover" ${product.imageFit==='cover'?'selected':''}>Crop to fill</option></select></label><div class="actions product-editor-actions"><button class="btn" type="submit">Save product</button><button class="btn secondary" type="button" data-close>Cancel</button></div></form></section>`;
     document.body.appendChild(modal);
     modal.querySelectorAll('[data-close]').forEach(element=>element.onclick=()=>modal.remove());
     modal.querySelector('#productEditForm').onsubmit=event=>{
       event.preventDefault();
       const meta=readMeta();
-      meta[product.key]={name:cleanName($('#editProductName').value),photo:text($('#editProductPhoto').value),imageFit:$('#editProductFit').value};
+      meta[product.key]={name:cleanName($('#editProductName').value),caseQty:Math.max(0,Math.round(number($('#editProductCaseQty').value))),photo:text($('#editProductPhoto').value),imageFit:$('#editProductFit').value};
       writeMeta(meta);cache.revision=-1;modal.remove();productsPage();
     };
   }
