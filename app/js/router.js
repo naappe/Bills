@@ -1,5 +1,6 @@
 import {store} from './store.js';
-import {dashboardPage,billsPage,newBillPage,settingsPage} from './pages.js';
+import {dashboardPage,newBillPage,settingsPage} from './pages.js';
+import {billsPage} from './bills.js';
 import {productsPage} from './products.js';
 import {vendorsPage} from './vendors.js';
 import {ratesPage} from './rates.js';
