@@ -1,13 +1,13 @@
 import {store} from './store.js';
-import {dashboardPage} from './pages.js';
-import {settingsPage} from './settings.js?v=4.9.50';
-import {newBillPage} from './bill-entry.js?v=4.9.50';
-import {billsPage} from './bills.js?v=4.9.50';
-import {productsPage} from './products.js?v=4.9.50';
-import {vendorsPage} from './vendors.js?v=4.9.50';
-import {ratesPage} from './rates.js?v=4.9.50';
-import {reportsPage} from './reports.js?v=4.9.50';
-import {adminPage} from './admin.js?v=4.9.50';
+import {dashboardPage} from './dashboard.js?v=4.9.51';
+import {settingsPage} from './settings.js?v=4.9.51';
+import {newBillPage} from './bill-entry.js?v=4.9.51';
+import {billsPage} from './bills.js?v=4.9.51';
+import {productsPage} from './products.js?v=4.9.51';
+import {vendorsPage} from './vendors.js?v=4.9.51';
+import {ratesPage} from './rates.js?v=4.9.51';
+import {reportsPage} from './reports.js?v=4.9.51';
+import {adminPage} from './admin.js?v=4.9.51';
 
 const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:productsPage,rates:ratesPage,prices:ratesPage,vendors:vendorsPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
 const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Search, review and manage supplier purchases'],new:['Bill entry','Record or edit every item in one supplier bill'],products:['Products','Retail and wholesale product prices'],rates:['Price Intelligence','Compare normalized product and supplier rates'],prices:['Price Intelligence','Compare normalized product and supplier rates'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace preferences and account security'],admin:['Admin & users','Account access, roles and system health']};
