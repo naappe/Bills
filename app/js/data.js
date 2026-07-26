@@ -12,6 +12,22 @@ export async function signIn(username,password){
 }
 export async function signOut(){await db.auth.signOut();store.set({user:null,rows:[]})}
 export async function restoreSession(){const {data}=await db.auth.getSession();const user=data.session?.user||null;store.set({user,role:CONFIG.adminIds.includes(user?.id)?'admin':'staff'});return user}
+export async function sendPasswordReset(email=store.user?.email){
+  const target=String(email||'').trim();
+  if(!target)throw new Error('No account email is available.');
+  const redirectTo=`${location.origin}${location.pathname}#settings`;
+  const {error}=await db.auth.resetPasswordForEmail(target,{redirectTo});
+  if(error)throw error;
+  return target;
+}
+export async function updatePassword(password){
+  const value=String(password||'');
+  if(value.length<8)throw new Error('Password must contain at least 8 characters.');
+  const {data,error}=await db.auth.updateUser({password:value});
+  if(error)throw error;
+  if(data?.user)store.set({user:data.user});
+  return data?.user||null;
+}
 export async function loadBills(){
   const all=[];let from=0;const step=1000;
   while(true){
