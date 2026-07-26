@@ -1,10 +1,11 @@
 import {store} from './store.js';
-import {dashboardPage,billsPage,newBillPage,ratesPage,reportsPage,settingsPage,adminPage} from './pages.js';
+import {dashboardPage,billsPage,newBillPage,reportsPage,settingsPage,adminPage} from './pages.js';
 import {productsPage} from './products.js';
 import {vendorsPage} from './vendors.js';
+import {ratesPage} from './rates.js';
 
 const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:productsPage,rates:ratesPage,prices:ratesPage,vendors:vendorsPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
-const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Manage supplier purchases'],new:['New bill','Record a supplier purchase'],products:['Products','Product catalogue and purchase history'],rates:['Price Intelligence','Compare product and supplier prices'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace defaults'],admin:['Admin & users','Access and system status']};
+const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Manage supplier purchases'],new:['New bill','Record a supplier purchase'],products:['Products','Product catalogue and purchase history'],rates:['Price Intelligence','Compare normalized product and supplier rates'],prices:['Price Intelligence','Compare normalized product and supplier rates'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace defaults'],admin:['Admin & users','Access and system status']};
 let started=false;
 
 export function navigate(route){
