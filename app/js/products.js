@@ -46,16 +46,31 @@ function wholesaleTotal(item){
   return packRate?packRate*qty:0;
 }
 
-function costRate(item,wholesale,parsed){
+function gstRate(item,row){
+  return firstNumber(item,'gst','gst_percent','gst_rate','tax_rate')
+    || firstNumber(row,'gst','gst_percent','gst_rate','tax_rate');
+}
+
+function priceWithGst(net,gstRateValue){
+  const gstAmount=net>0&&gstRateValue>0?net*gstRateValue/100:0;
+  return{net,gstAmount,total:net+gstAmount};
+}
+
+function costRate(item,wholesaleTotalWithGst,parsed){
+  if(parsed.base>0&&wholesaleTotalWithGst>0)return wholesaleTotalWithGst/parsed.base;
   const savedSmall=firstNumber(item,'unit_rate');
-  if(savedSmall)return savedSmall;
-  return parsed.base>0&&wholesale>0?wholesale/parsed.base:0;
+  return savedSmall;
 }
 
 function rateLabel(baseUnit){
   if(baseUnit==='ML')return 'Cost per ML';
   if(baseUnit==='G')return 'Cost per G';
   return 'Cost per each';
+}
+
+function priceNote(price,gstRateValue,defaultText){
+  if(gstRateValue<=0)return defaultText;
+  return `+ GST ${money(price.gstAmount)} · Total ${money(price.total)}`;
 }
 
 function buildProducts(){
@@ -69,10 +84,11 @@ function buildProducts(){
       const unit=text(get(item,'unit')).toUpperCase()||'PCS';
       const qty=firstNumber(item,'qty','quantity')||1;
       const parsed=parsePack(pack,unit,qty);
-      const wholesale=wholesaleTotal(item);
-      const retail=retailRate(item,row,wholesale,parsed);
-      const cost=costRate(item,wholesale,parsed);
-      if(!map.has(key))map.set(key,{key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,qty,parsed,retail,wholesale,cost,lastDate:date,records:0});
+      const gst=gstRate(item,row);
+      const wholesale=priceWithGst(wholesaleTotal(item),gst);
+      const retail=priceWithGst(retailRate(item,row,wholesale.net,parsed),gst);
+      const cost=costRate(item,wholesale.total,parsed);
+      if(!map.has(key))map.set(key,{key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,qty,parsed,retail,wholesale,cost,gst,lastDate:date,records:0});
       const product=map.get(key);product.records++;
       if(!product.lastDate||date>=product.lastDate){
         product.name=cleanName(override.name||raw);
@@ -86,6 +102,7 @@ function buildProducts(){
         product.retail=retail;
         product.wholesale=wholesale;
         product.cost=cost;
+        product.gst=gst;
         product.lastDate=date;
       }
     });
@@ -99,7 +116,7 @@ const imageMarkup=product=>product.photo
 
 export function productsPage(){
   const products=buildProducts();
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest product image, unit, packing and cost rates calculated from saved bill entries.</p></div></header>
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest product image, unit, packing and GST-aware cost rates calculated from saved bill entries.</p></div></header>
   <section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name or description"><span id="productCount">${products.length} products</span></section>
   <section class="product-catalog" id="productCatalog"></section>`;
 
@@ -113,8 +130,8 @@ export function productsPage(){
         <div class="product-title-row"><div><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description)}</p></div>${store.role==='admin'?`<button class="btn secondary small" data-product-edit="${escapeHtml(product.key)}">Edit</button>`:''}</div>
         <div class="product-pack-summary"><div><span>Unit / packing</span><strong>${escapeHtml(product.pack||product.unit)}</strong></div><div><span>Quantity</span><strong>${product.qty.toLocaleString('en-US')}</strong></div><div><span>${rateLabel(product.parsed.baseUnit)}</span><strong>${product.cost?`${money(product.cost)} / ${escapeHtml(product.parsed.baseUnit)}`:'Not recorded'}</strong></div></div>
         <div class="product-price-grid">
-          <div class="product-price retail"><span>Retail</span><strong>${product.retail?money(product.retail):'Not recorded'}</strong><small>Price per pack item</small></div>
-          <div class="product-price wholesale"><span>Wholesale</span><strong>${product.wholesale?money(product.wholesale):'Not recorded'}</strong><small>Total pack × quantity</small></div>
+          <div class="product-price retail"><span>Retail</span><strong>${product.retail.net?money(product.retail.net):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.retail,product.gst,'Price per pack item'))}</small></div>
+          <div class="product-price wholesale"><span>Wholesale</span><strong>${product.wholesale.net?money(product.wholesale.net):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.wholesale,product.gst,'Total pack × quantity'))}</small></div>
         </div>
       </div>
     </article>`).join('')||'<div class="empty">No products match this search.</div>';
