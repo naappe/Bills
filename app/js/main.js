@@ -1,6 +1,7 @@
 import {store} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
 import {startRouter} from './router.js?v=4.9.27';
+import './vendor-picker.js?v=4.9.28';
 
 const $=s=>document.querySelector(s);
 const navGroups=[
@@ -9,7 +10,7 @@ const navGroups=[
   ['Analytics',[['reports','Reports','fa-chart-pie']]],
   ['Administration',[['settings','Settings','fa-gear'],['admin','Admin & users','fa-users-gear','admin']]]
 ];
-const health={version:'4.9.27',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
+const health={version:'4.9.28',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
 window.app={store,health};
 
 function buildNav(){
