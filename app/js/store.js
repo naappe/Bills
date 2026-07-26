@@ -1,6 +1,10 @@
 export const store={
-  user:null,role:'staff',rows:[],route:'dashboard',page:1,pageSize:20,editing:null,
-  set(patch){Object.assign(this,patch);document.dispatchEvent(new CustomEvent('store:change',{detail:patch}))}
+  user:null,role:'staff',rows:[],route:'dashboard',page:1,pageSize:20,editing:null,dataRevision:0,
+  set(patch){
+    Object.assign(this,patch);
+    if(Object.prototype.hasOwnProperty.call(patch,'rows'))this.dataRevision++;
+    document.dispatchEvent(new CustomEvent('store:change',{detail:patch}));
+  }
 };
 export const text=v=>String(v??'').trim();
 export const number=v=>Number(String(v??0).replace(/,/g,''))||0;
