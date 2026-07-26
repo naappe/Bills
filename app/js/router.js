@@ -1,12 +1,13 @@
 import {store} from './store.js';
-import {dashboardPage,billsPage,newBillPage,settingsPage,adminPage} from './pages.js';
+import {dashboardPage,billsPage,newBillPage,settingsPage} from './pages.js';
 import {productsPage} from './products.js';
 import {vendorsPage} from './vendors.js';
 import {ratesPage} from './rates.js';
 import {reportsPage} from './reports.js';
+import {adminPage} from './admin.js';
 
 const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:productsPage,rates:ratesPage,prices:ratesPage,vendors:vendorsPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
-const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Manage supplier purchases'],new:['New bill','Record a supplier purchase'],products:['Products','Product catalogue and purchase history'],rates:['Price Intelligence','Compare normalized product and supplier rates'],prices:['Price Intelligence','Compare normalized product and supplier rates'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Spend, supplier, product and payment analytics'],settings:['Settings','Workspace defaults'],admin:['Admin & users','Access and system status']};
+const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Manage supplier purchases'],new:['New bill','Record a supplier purchase'],products:['Products','Product catalogue and purchase history'],rates:['Price Intelligence','Compare normalized product and supplier rates'],prices:['Price Intelligence','Compare normalized product and supplier rates'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace defaults'],admin:['Admin & users','Account access, roles and system health']};
 let started=false;
 
 export function navigate(route){
@@ -15,7 +16,8 @@ export function navigate(route){
 }
 
 export function renderRoute(){
-  const route=(location.hash||'#dashboard').slice(1).toLowerCase();
+  let route=(location.hash||'#dashboard').slice(1).toLowerCase();
+  if(route==='admin'&&store.role!=='admin')route='dashboard';
   const page=routes[route]||dashboardPage;
   store.route=routes[route]?route:'dashboard';
   document.querySelectorAll('.nav a[data-route]').forEach(link=>link.classList.toggle('active',link.dataset.route===store.route||(link.dataset.route==='rates'&&store.route==='prices')));
