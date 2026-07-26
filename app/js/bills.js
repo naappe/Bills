@@ -3,9 +3,10 @@ import {deleteBill} from './data.js';
 
 const $=selector=>document.querySelector(selector);
 const unique=values=>[...new Set(values.filter(Boolean))];
-const today=()=>new Date().toISOString().slice(0,10);
+const localISO=(value=new Date())=>`${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}`;
+const today=()=>localISO();
 const dateOnly=value=>new Date(`${value}T00:00:00`);
-const iso=value=>value.toISOString().slice(0,10);
+const iso=value=>localISO(value);
 const filterState=store.filters||(store.filters={});
 filterState.bills||={period:'month',query:'',vendor:'',from:'',to:'',pageSize:20};
 let indexCache={revision:-1,rows:[]};
