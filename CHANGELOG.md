@@ -8,14 +8,60 @@ The project uses semantic-style version numbers for checkpoints. Dates and exact
 
 ### Planned
 
-- Dedicated Price Intelligence module
-- Product price timeline
-- Vendor price comparison
-- Cheapest compatible supplier calculation
-- Configurable price alerts
-- Savings opportunities
-- Users and roles administration
+- Protected server-side user administration
+- Secure role assignment backed by Supabase tables and RLS
 - Database normalization
+- Product and vendor master tables
+- Configurable price alerts
+
+## [4.8.0] — Admin and role workspace
+
+### Added
+
+- Dedicated `app/js/admin.js` module
+- Dedicated `app/css/admin.css` stylesheet
+- Admin-only route guard
+- Configured access identity summary
+- Staff and admin permission matrix
+- Current-session details
+- System-health indicators
+- Recent procurement activity table
+- Clear security boundary for Supabase Auth administration
+
+### Changed
+
+- Admin route now uses a dedicated module instead of the shared page implementation
+- Application version and cache-busting asset references updated to v4.8.0
+
+### Known limitations
+
+- A static GitHub Pages client cannot securely list, create, suspend, or delete Supabase Auth users
+- Secure user administration requires a protected Edge Function, server endpoint, or direct Supabase dashboard access
+- Application aliases are configuration identities, not a complete Supabase Auth directory
+
+## [4.7.1] — Procurement reports
+
+### Added
+
+- Dedicated Reports module and stylesheet
+- Period, vendor, category, and payment-status filters
+- Procurement, paid, pending, and average-bill KPIs
+- Monthly spend trend
+- Payment-health visualization
+- Supplier, category, and product rankings
+- CSV export and print layout
+
+## [4.7.0] — Price Intelligence
+
+### Added
+
+- Dedicated Price Intelligence module and stylesheet
+- Normalized unit-price comparison
+- Price movement indicators
+- Cheapest supplier detection
+- Supplier range and savings analysis
+- Product history and supplier comparison panels
+- Admin-only access
 
 ## [4.6.0] — Stable procurement foundation
 
