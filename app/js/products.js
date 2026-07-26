@@ -20,6 +20,7 @@ function packPieces(pack,qty){
 function gstRate(item,row){return firstNumber(item,'gst','gst_percent','gst_rate','tax_rate')||firstNumber(row,'gst','gst_percent','gst_rate','tax_rate')}
 function withGst(net,gst){const gstAmount=net>0&&gst>0?net*gst/100:0;return{net,gstAmount,total:net+gstAmount}}
 function priceNote(gst,defaultText){return gst>0?'GST included':defaultText}
+function displayUnit(value){const unit=text(value).toUpperCase();return unit==='PCS'?'piece':unit||'unit'}
 
 function buildProducts(){
   const meta=readMeta(),metaSignature=JSON.stringify(meta);
@@ -29,14 +30,17 @@ function buildProducts(){
     const date=billDate(row);
     for(const item of itemsOf(row)){
       const raw=productName(item,row),key=keyOf(raw);if(!key)continue;
-      const override=meta[key]||{},pack=text(get(item,'pack_format','packing')),unit=text(get(item,'unit')).toUpperCase()||'PCS',qty=firstNumber(item,'qty','quantity')||1;
+      const override=meta[key]||{},pack=text(get(item,'pack_format','packing')),unit=text(get(item,'unit')).toUpperCase()||'PCS',baseUnit=text(get(item,'base_unit')).toUpperCase()||unit,qty=firstNumber(item,'qty','quantity')||1;
       const netWholesale=firstNumber(item,'row_total','line_total','total','net_amount')||(firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')*qty);
       const gst=gstRate(item,row),wholesale=withGst(netWholesale,gst);
       const savedRetail=firstNumber(item,'retail_rate','each_rate','unit_price','price_each');
       const pieces=packPieces(pack,qty);
       const retailNet=savedRetail||(pieces>0&&netWholesale>0?netWholesale/pieces:firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price'));
       const retail=withGst(retailNet,gst);
-      const candidate={key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,qty,retail,wholesale,gst,lastDate:date,records:1};
+      const savedBase=firstNumber(item,'large_unit_rate','unit_rate','base_rate','rate_per_unit');
+      const baseNet=savedBase||(baseUnit===unit?retailNet:0);
+      const base=withGst(baseNet,gst);
+      const candidate={key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,baseUnit,qty,retail,wholesale,base,gst,lastDate:date,records:1};
       const current=map.get(key);
       if(!current)map.set(key,candidate);else{current.records++;if(!current.lastDate||date>=current.lastDate)Object.assign(current,candidate,{records:current.records})}
     }
@@ -51,26 +55,44 @@ const imageMarkup=product=>product.photo
 
 export function productsPage(){
   const products=buildProducts();
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Product catalogue showing base unit, case quantity, retail and wholesale prices.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name, unit or case"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Select Base Unit, Retail or Wholesale to view the required price.</p></div></header><section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name, unit or case"><span id="productCount">${products.length} products</span></section><section class="product-catalog" id="productCatalog"></section>`;
 
-  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit} ${product.qty}`.toLowerCase());
+  products.forEach(product=>product.search=`${product.name} ${product.description} ${product.pack} ${product.unit} ${product.baseUnit} ${product.qty}`.toLowerCase());
+
+  const priceData=(product,mode)=>{
+    if(mode==='wholesale')return{label:'Wholesale',value:product.wholesale.total,note:priceNote(product.gst,`Case total · Qty ${product.qty.toLocaleString('en-US')}`)};
+    if(mode==='retail')return{label:'Retail',value:product.retail.total,note:priceNote(product.gst,`Per ${displayUnit(product.unit)}`)};
+    return{label:'Base unit',value:product.base.total,note:priceNote(product.gst,`Per ${displayUnit(product.baseUnit)}`)};
+  };
 
   const draw=()=>{
     const q=text($('#productSearch').value).toLowerCase();
     const filtered=q?products.filter(product=>product.search.includes(q)):products;
     $('#productCount').textContent=`${filtered.length} products`;
-    $('#productCatalog').innerHTML=filtered.map(product=>`<article class="product-record portrait-product-card">
-      <div class="product-visual">
-        <div class="product-photo">${imageMarkup(product)}</div>
-        ${store.role==='admin'?`<button class="product-edit-button" type="button" data-product-edit="${escapeHtml(product.key)}" aria-label="Edit ${escapeHtml(product.name)}"><i class="fa-solid fa-pen"></i></button>`:''}
-      </div>
-      <div class="product-info">
-        <div class="product-heading"><h3>${escapeHtml(product.name)}</h3></div>
-        <div class="product-meta-line"><span><i class="fa-solid fa-scale-balanced"></i>Base unit: ${escapeHtml(product.pack||product.unit)}</span><span><i class="fa-solid fa-boxes-stacked"></i>Case: ${product.qty.toLocaleString('en-US')}</span></div>
-        <div class="product-wholesale"><span>Wholesale</span><strong>${product.wholesale.total?money(product.wholesale.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Case total'))}</small></div>
-        <div class="product-retail-line"><span>Retail</span><strong>${product.retail.total?money(product.retail.total):'Not recorded'}</strong><small>${escapeHtml(priceNote(product.gst,'Per unit'))}</small></div>
-      </div>
-    </article>`).join('')||'<div class="empty">No products match this search.</div>';
+    $('#productCatalog').innerHTML=filtered.map(product=>{
+      const selected=product.selectedPrice||'base',shown=priceData(product,selected);
+      return `<article class="product-record portrait-product-card" data-product-card="${escapeHtml(product.key)}">
+        <div class="product-visual">
+          <div class="product-photo">${imageMarkup(product)}</div>
+          ${store.role==='admin'?`<button class="product-edit-button" type="button" data-product-edit="${escapeHtml(product.key)}" aria-label="Edit ${escapeHtml(product.name)}"><i class="fa-solid fa-pen"></i></button>`:''}
+        </div>
+        <div class="product-info">
+          <div class="product-heading"><h3>${escapeHtml(product.name)}</h3></div>
+          <div class="product-meta-line"><span><i class="fa-solid fa-scale-balanced"></i>${escapeHtml(product.pack||product.baseUnit)}</span><span><i class="fa-solid fa-boxes-stacked"></i>Case ${product.qty.toLocaleString('en-US')}</span></div>
+          <div class="product-price-switch" role="group" aria-label="Choose price type">
+            <button type="button" class="${selected==='base'?'active':''}" data-price-mode="base" data-product-key="${escapeHtml(product.key)}">Base Unit</button>
+            <button type="button" class="${selected==='retail'?'active':''}" data-price-mode="retail" data-product-key="${escapeHtml(product.key)}">Retail</button>
+            <button type="button" class="${selected==='wholesale'?'active':''}" data-price-mode="wholesale" data-product-key="${escapeHtml(product.key)}">Wholesale</button>
+          </div>
+          <div class="product-selected-price">
+            <span>${escapeHtml(shown.label)}</span>
+            <strong>${shown.value?money(shown.value):'Not recorded'}</strong>
+            <small>${escapeHtml(shown.note)}</small>
+          </div>
+        </div>
+      </article>`;
+    }).join('')||'<div class="empty">No products match this search.</div>';
+    document.querySelectorAll('[data-price-mode]').forEach(button=>button.onclick=()=>{const product=products.find(item=>item.key===button.dataset.productKey);if(!product)return;product.selectedPrice=button.dataset.priceMode;draw()});
     document.querySelectorAll('[data-product-edit]').forEach(button=>button.onclick=()=>showEdit(products.find(product=>product.key===button.dataset.productEdit)));
   };
 
