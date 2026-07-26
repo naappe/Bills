@@ -44,7 +44,9 @@ export function adminPage(){
   const rows=store.rows;
   const paid=rows.filter(row=>status(row).toLowerCase()==='paid');
   const pending=rows.filter(row=>status(row).toLowerCase()!=='paid');
-  const latest=[...rows].sort((a,b)=>String(get(b,'updated_at','created_at')).localeCompare(String(get(a,'updated_at','created_at'))).slice(0,8);
+  const latest=[...rows]
+    .sort((a,b)=>String(get(b,'updated_at','created_at')).localeCompare(String(get(a,'updated_at','created_at'))))
+    .slice(0,8);
   const total=rows.reduce((sum,row)=>sum+number(get(row,'amount','total','grand_total')),0);
   const suppliers=new Set(rows.map(vendor).filter(Boolean));
   const sessionEmail=store.user?.email||'Unknown';
