@@ -3,7 +3,6 @@ import {store,money,escapeHtml,text,number,billDate,itemOf,get} from './store.js
 const $=s=>document.querySelector(s);
 const content=()=>$('#content');
 const META_KEY='bills.productMetadata.v3';
-const IMAGE_KEY='bills.productImages.v1';
 const readJson=key=>{try{return JSON.parse(localStorage.getItem(key)||'{}')}catch{return{}}};
 const writeMeta=value=>localStorage.setItem(META_KEY,JSON.stringify(value));
 const keyOf=value=>text(value).toLowerCase().replace(/\s+/g,' ').trim();
@@ -12,7 +11,7 @@ const safeDate=value=>/^\d{4}-\d{2}-\d{2}$/.test(value)?value:'';
 const firstNumber=(source,...fields)=>{for(const field of fields){const value=number(get(source,field));if(value>0)return value}return 0};
 const itemsOf=row=>Array.isArray(row?.items)&&row.items.length?row.items:[itemOf(row)].filter(Boolean);
 const productName=(item,row)=>cleanName(get(item,'description','product','name')||get(row,'product','description'));
-const imageOf=(row,item,override,uploaded)=>text(override||uploaded||get(item,'photo_url','image_url','image','photo')||get(row,'photo_url','image_url','image','photo'));
+const imageOf=(row,item,override)=>text(override||get(item,'photo_url','image_url','image','photo')||get(row,'photo_url','image_url','image','photo'));
 
 function parsePack(pack,unit,qty=1){
   const normalized=text(pack).toLowerCase().replace(/[×*]/g,'x').replace(/\s+/g,'');
@@ -31,18 +30,6 @@ function parsePack(pack,unit,qty=1){
   return{count,size,kind,packageQty,pieces,base,baseUnit};
 }
 
-function formatMeasurement(parsed){
-  if(parsed.baseUnit==='G'){
-    const kg=parsed.base/1000;
-    return `${parsed.base.toLocaleString('en-US')} G · ${kg.toLocaleString('en-US',{maximumFractionDigits:3})} KG`;
-  }
-  if(parsed.baseUnit==='ML'){
-    const liters=parsed.base/1000;
-    return `${parsed.base.toLocaleString('en-US')} ML · ${liters.toLocaleString('en-US',{maximumFractionDigits:3})} L`;
-  }
-  return `${parsed.pieces.toLocaleString('en-US')} PCS`;
-}
-
 function retailRate(item,row,wholesale,parsed){
   const saved=firstNumber(item,'retail_rate','each_rate','unit_price','price_each');
   if(saved)return saved;
@@ -51,33 +38,45 @@ function retailRate(item,row,wholesale,parsed){
     || firstNumber(row,'unit_rate','large_unit_rate','pack_rate','bill_rate','rate','purchase_rate','price');
 }
 
-function wholesaleTotal(item,row){
+function wholesaleTotal(item){
   const saved=firstNumber(item,'row_total','line_total','total','amount','net_amount');
   if(saved)return saved;
   const qty=firstNumber(item,'qty','quantity')||1;
   const packRate=firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price');
-  if(packRate)return packRate*qty;
-  return 0;
+  return packRate?packRate*qty:0;
+}
+
+function costRate(item,wholesale,parsed){
+  const savedSmall=firstNumber(item,'unit_rate');
+  if(savedSmall)return savedSmall;
+  return parsed.base>0&&wholesale>0?wholesale/parsed.base:0;
+}
+
+function rateLabel(baseUnit){
+  if(baseUnit==='ML')return 'Cost per ML';
+  if(baseUnit==='G')return 'Cost per G';
+  return 'Cost per each';
 }
 
 function buildProducts(){
-  const meta=readJson(META_KEY),images=readJson(IMAGE_KEY),map=new Map();
+  const meta=readJson(META_KEY),map=new Map();
   [...store.rows].sort((a,b)=>billDate(a).localeCompare(billDate(b))).forEach(row=>{
     itemsOf(row).forEach(item=>{
       const raw=productName(item,row),key=keyOf(raw);
       if(!key)return;
-      const override=meta[key]||{},uploaded=images[key]?.data||'',date=safeDate(billDate(row));
+      const override=meta[key]||{},date=safeDate(billDate(row));
       const pack=text(get(item,'pack_format','packing'));
       const unit=text(get(item,'unit')).toUpperCase()||'PCS';
       const qty=firstNumber(item,'qty','quantity')||1;
       const parsed=parsePack(pack,unit,qty);
-      const wholesale=wholesaleTotal(item,row);
+      const wholesale=wholesaleTotal(item);
       const retail=retailRate(item,row,wholesale,parsed);
-      if(!map.has(key))map.set(key,{key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo,uploaded),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,qty,parsed,retail,wholesale,lastDate:date,records:0});
+      const cost=costRate(item,wholesale,parsed);
+      if(!map.has(key))map.set(key,{key,name:cleanName(override.name||raw),photo:imageOf(row,item,override.photo),imageFit:override.imageFit==='cover'?'cover':'contain',description:text(get(item,'description'))||raw,pack,unit,qty,parsed,retail,wholesale,cost,lastDate:date,records:0});
       const product=map.get(key);product.records++;
       if(!product.lastDate||date>=product.lastDate){
         product.name=cleanName(override.name||raw);
-        product.photo=imageOf(row,item,override.photo,uploaded);
+        product.photo=imageOf(row,item,override.photo);
         product.imageFit=override.imageFit==='cover'?'cover':'contain';
         product.description=text(get(item,'description'))||raw;
         product.pack=pack;
@@ -86,6 +85,7 @@ function buildProducts(){
         product.parsed=parsed;
         product.retail=retail;
         product.wholesale=wholesale;
+        product.cost=cost;
         product.lastDate=date;
       }
     });
@@ -99,7 +99,7 @@ const imageMarkup=product=>product.photo
 
 export function productsPage(){
   const products=buildProducts();
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest product, packing, quantity, weight and prices from saved bill entries.</p></div></header>
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest product image, unit, packing and cost rates calculated from saved bill entries.</p></div></header>
   <section class="toolbar product-filters"><input id="productSearch" placeholder="Search product name or description"><span id="productCount">${products.length} products</span></section>
   <section class="product-catalog" id="productCatalog"></section>`;
 
@@ -111,9 +111,9 @@ export function productsPage(){
       <div class="product-photo">${imageMarkup(product)}</div>
       <div class="product-info">
         <div class="product-title-row"><div><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description)}</p></div>${store.role==='admin'?`<button class="btn secondary small" data-product-edit="${escapeHtml(product.key)}">Edit</button>`:''}</div>
-        <div class="product-pack-summary"><div><span>Unit / packing</span><strong>${escapeHtml(product.pack||product.unit)}</strong></div><div><span>Quantity</span><strong>${product.qty.toLocaleString('en-US')}</strong></div><div><span>Total weight / volume</span><strong>${escapeHtml(formatMeasurement(product.parsed))}</strong></div></div>
+        <div class="product-pack-summary"><div><span>Unit / packing</span><strong>${escapeHtml(product.pack||product.unit)}</strong></div><div><span>Quantity</span><strong>${product.qty.toLocaleString('en-US')}</strong></div><div><span>${rateLabel(product.parsed.baseUnit)}</span><strong>${product.cost?`${money(product.cost)} / ${escapeHtml(product.parsed.baseUnit)}`:'Not recorded'}</strong></div></div>
         <div class="product-price-grid">
-          <div class="product-price retail"><span>Retail</span><strong>${product.retail?money(product.retail):'Not recorded'}</strong><small>${product.parsed.baseUnit==='PCS'?'Price per each':'Price per pack item'}</small></div>
+          <div class="product-price retail"><span>Retail</span><strong>${product.retail?money(product.retail):'Not recorded'}</strong><small>Price per pack item</small></div>
           <div class="product-price wholesale"><span>Wholesale</span><strong>${product.wholesale?money(product.wholesale):'Not recorded'}</strong><small>Total pack × quantity</small></div>
         </div>
       </div>
