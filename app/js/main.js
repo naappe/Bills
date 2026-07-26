@@ -1,7 +1,7 @@
 import {store} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
 import {startRouter} from './router.js?v=4.9.27';
-import './vendor-picker.js?v=4.9.28';
+import './vendor-picker.js?v=4.9.29';
 
 const $=s=>document.querySelector(s);
 const navGroups=[
@@ -10,7 +10,7 @@ const navGroups=[
   ['Analytics',[['reports','Reports','fa-chart-pie']]],
   ['Administration',[['settings','Settings','fa-gear'],['admin','Admin & users','fa-users-gear','admin']]]
 ];
-const health={version:'4.9.28',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
+const health={version:'4.9.29',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};
 window.app={store,health};
 
 function buildNav(){
@@ -62,4 +62,5 @@ async function boot(){
   $('#loginForm').onsubmit=async e=>{e.preventDefault();const notice=$('#loginNotice'),submit=e.submitter||$('#loginForm button[type="submit"]');notice.textContent='Signing in…';if(submit)submit.disabled=true;try{await signIn($('#loginName').value,$('#loginPassword').value);showApp();notice.textContent='';await loadAndStart().catch(()=>{})}catch(error){health.error=error?.message||String(error);showLogin(health.error)}finally{if(submit)submit.disabled=false}};
   try{const user=await restoreSession();if(!user){showLogin();health.booted=true;return}showApp();await loadAndStart().catch(()=>{})}catch(error){health.error=error?.message||String(error);console.error('[Authentication restore]',error);showLogin('Your saved session expired. Please sign in again.')}finally{health.booted=true}
 }
+
 boot();
