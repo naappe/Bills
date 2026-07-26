@@ -7,6 +7,7 @@ export const CONFIG={
     white:'whitesaffron2025@gmail.com',
     staff:'whitesaffron2025@gmail.com',
     supply:'whitesaffron2025@gmail.com',
+    zee:'whitesaffron2025@gmail.com',
     admin:'naappe@gmail.com',
     naappe:'naappe@gmail.com'
   },
