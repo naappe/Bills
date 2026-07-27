@@ -97,14 +97,15 @@
   --shadow-focus:0 0 0 3px var(--focus-ring);
 
   /* Layout */
-  --sidebar-width:240px;
+  --sidebar-width:250px;
+  --sidebar-collapsed:76px;
   --header-height:70px;
   --header-mobile:60px;
   --content-max:1440px;
   --page-pad:24px;
   --control-height:40px;
   --control-height-sm:34px;
-  --nav-height:44px;
+  --nav-height:48px;
   --table-row:48px;
 
   /* Motion */
