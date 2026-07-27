@@ -27,6 +27,38 @@
   #content[data-route="bills"] .bills-table .bill-entry-time{white-space:normal}
   #content[data-route="bills"] .bills-table .empty{display:block!important;grid-column:1/-1;padding:24px!important;text-align:center!important}
   #content[data-route="bills"] .pager{margin-top:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+
+  /* Bill detail modal: use the full phone viewport and never crop the right side. */
+  .modal.bill-view-modal{place-items:stretch!important;padding:0!important;overflow:hidden!important}
+  .modal.bill-view-modal .bill-view-card{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain}
+  .modal.bill-view-modal .bill-view-head{position:sticky!important;top:0;z-index:4;align-items:flex-start!important;gap:12px!important;padding:16px!important;background:var(--surface)!important}
+  .modal.bill-view-modal .bill-view-head>div{min-width:0;flex:1}
+  .modal.bill-view-modal .bill-view-head h2{font-size:24px!important;line-height:1.15;overflow-wrap:anywhere}
+  .modal.bill-view-modal .bill-view-head p{font-size:13px;overflow-wrap:anywhere}
+  .modal.bill-view-modal .bill-view-head [data-close]{flex:0 0 auto;min-width:44px;padding:9px 11px!important}
+  .modal.bill-view-modal .bill-view-summary{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:14px 16px!important}
+  .modal.bill-view-modal .bill-view-summary div{min-width:0;padding:13px!important}
+  .modal.bill-view-modal .bill-view-summary strong{font-size:16px!important;overflow-wrap:anywhere}
+  .modal.bill-view-modal .bill-view-body{min-width:0;padding:16px!important}
+  .modal.bill-view-modal .bill-audit{align-items:flex-start!important}
+  .modal.bill-view-modal .table-wrap{width:100%!important;max-width:100%!important;overflow:visible!important}
+  .modal.bill-view-modal .bill-detail-table{display:block!important;width:100%!important;min-width:0!important;border:0!important}
+  .modal.bill-view-modal .bill-detail-table thead{display:none!important}
+  .modal.bill-view-modal .bill-detail-table tbody{display:grid!important;gap:10px!important;width:100%!important}
+  .modal.bill-view-modal .bill-detail-table tr{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px 14px!important;width:100%!important;padding:14px!important;border:1px solid var(--border)!important;border-radius:14px!important;background:var(--surface)!important}
+  .modal.bill-view-modal .bill-detail-table td{display:block!important;min-width:0!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important}
+  .modal.bill-view-modal .bill-detail-table td:first-child{grid-column:1/-1}
+  .modal.bill-view-modal .bill-detail-table td::before{display:block;margin-bottom:3px;color:var(--text-muted);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(1)::before{content:"Item"}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(2)::before{content:"Pack"}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(3)::before{content:"Qty"}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(4)::before{content:"Rate"}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(5)::before{content:"GST"}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(6)::before{content:"Total"}
+  .modal.bill-view-modal .bill-view-footer{grid-template-columns:1fr!important;gap:12px!important;margin-top:16px!important}
+  .modal.bill-view-modal .bill-notes,.modal.bill-view-modal .bill-totals{min-width:0;padding:15px!important}
+  .modal.bill-view-modal .bill-view-actions{position:sticky!important;bottom:0;z-index:4;display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;background:var(--surface)!important}
+  .modal.bill-view-modal .bill-view-actions .btn{width:100%}
 }
 
 @media (max-width:420px){
