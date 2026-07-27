@@ -1,8 +1,9 @@
-import {store,money,escapeHtml,number,billDate,vendor,status,get,amount} from './store.js';
+import {store,money,escapeHtml,billDate,vendor,status,get,amount} from './store.js';
 import {CONFIG} from './config.js';
 
 const $=selector=>document.querySelector(selector);
 const content=()=>$('#content');
+
 const kpi=(label,value,meta='')=>`
   <article class="kpi">
     <span>${escapeHtml(label)}</span>
@@ -31,7 +32,11 @@ function accountRows(accounts){
   return accounts.map(account=>`
     <tr>
       <td><strong>${escapeHtml(account.email)}</strong></td>
-      <td>${account.aliases.map(alias=>`<span class="admin-alias">${escapeHtml(alias)}</span>`).join(' ')}</td>
+      <td>
+        <div class="admin-aliases">
+          ${account.aliases.map(alias=>`<span class="admin-alias">${escapeHtml(alias)}</span>`).join('')}
+        </div>
+      </td>
       <td><span class="admin-role ${account.role}">${account.role.toUpperCase()}</span></td>
     </tr>`).join('');
 }
@@ -85,42 +90,44 @@ export function adminPage(){
       </div>
     </header>
 
-    <section class="grid-4">
-      ${kpi('Configured aliases',accounts.length.toLocaleString(),'Not a live Supabase Auth directory')}
-      ${kpi('Loaded bills',rows.length.toLocaleString(),`${paid.length} paid · ${pending} pending`)}
-      ${kpi('Supplier coverage',suppliers.size.toLocaleString(),money(total))}
-      ${kpi('Current session','ADMIN',sessionEmail)}
-    </section>
+    <section class="admin-page">
+      <div class="admin-summary-grid">
+        ${kpi('Configured aliases',accounts.length.toLocaleString(),'Not a live Supabase Auth directory')}
+        ${kpi('Loaded bills',rows.length.toLocaleString(),`${paid.length} paid · ${pending} pending`)}
+        ${kpi('Supplier coverage',suppliers.size.toLocaleString(),money(total))}
+        ${kpi('Current session','ADMIN',sessionEmail)}
+      </div>
 
-    <section class="admin-grid">
-      <article class="card admin-span-2">
-        <header class="card-head">
-          <div><h2>Configured login aliases</h2><small>Identities represented by application configuration</small></div>
-        </header>
-        <div class="table-wrap">
-          <table class="table">
-            <thead><tr><th>Email</th><th>Aliases</th><th>Configured role</th></tr></thead>
-            <tbody>${accountRows(accounts)}</tbody>
-          </table>
-        </div>
-        <div class="admin-note">
-          <strong>Important boundary</strong>
-          <p>This list is not the complete Supabase Auth user directory. Creating, disabling, listing or changing secure user roles requires a protected server-side function or Supabase dashboard access.</p>
-        </div>
-      </article>
+      <div class="admin-detail-grid">
+        <article class="card admin-card">
+          <header class="card-head">
+            <div><h2>Configured login aliases</h2><small>Identities represented by application configuration</small></div>
+          </header>
+          <div class="admin-table-wrap">
+            <table class="table admin-table">
+              <thead><tr><th>Email</th><th>Aliases</th><th>Role</th></tr></thead>
+              <tbody>${accountRows(accounts)}</tbody>
+            </table>
+          </div>
+          <div class="admin-note">
+            <strong>Important boundary</strong>
+            <p>This list is not the complete Supabase Auth user directory. Creating, disabling, listing or changing secure user roles requires a protected server-side function or Supabase dashboard access.</p>
+          </div>
+        </article>
 
-      <article class="card">
-        <header class="card-head"><div><h2>Client system information</h2><small>Current browser session</small></div></header>
-        <div class="card-body admin-detail-list">
-          <div><span>Email</span><strong>${escapeHtml(sessionEmail)}</strong></div>
-          <div><span>Deployment</span><strong>v${escapeHtml(deployment)}</strong></div>
-          <div><span>Authentication</span><strong class="admin-good">Session active</strong></div>
-          <div><span>Database snapshot</span><strong>${rows.length.toLocaleString()} bills loaded</strong></div>
-          <div><span>User administration</span><strong>Server function not configured</strong></div>
-        </div>
-      </article>
+        <article class="card admin-card">
+          <header class="card-head"><div><h2>Client system information</h2><small>Current browser session</small></div></header>
+          <div class="card-body admin-detail-list">
+            <div><span>Email</span><strong>${escapeHtml(sessionEmail)}</strong></div>
+            <div><span>Deployment</span><strong>v${escapeHtml(deployment)}</strong></div>
+            <div><span>Authentication</span><strong class="admin-good">Session active</strong></div>
+            <div><span>Database snapshot</span><strong>${rows.length.toLocaleString()} bills loaded</strong></div>
+            <div><span>User administration</span><strong>Server function not configured</strong></div>
+          </div>
+        </article>
+      </div>
 
-      <article class="card admin-span-3">
+      <article class="card admin-card admin-activity-card">
         <header class="card-head"><div><h2>Recent bill modifications</h2><small>This is record history, not a user audit log</small></div></header>
         <div class="table-wrap">
           <table class="table">
