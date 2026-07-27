@@ -144,18 +144,13 @@ index.html
 
 ## Module loading
 
-JavaScript modules are loaded directly from `index.html` and depend on exact source order:
-
-1. **Core foundation** — `main.js` initializes the application and sets up global state.
-2. **Authentication** — Supabase SDK and authentication initialization.
-3. **Page renderers** — `dashboard.js`, `bills.js`, `bill-entry.js`, `products.js`, `vendors.js`, `rates.js`, `reports.js`, `settings.js`, `admin.js`.
-4. **Routing** — `router.js` registers routes and dispatches to page renderers.
+JavaScript modules are loaded in `index.html` using ES module imports. `main.js` imports `router.js` and other core modules; `router.js` imports page renderers. The browser's ES module system evaluates all dependencies before the entry point completes. Module evaluation order depends on the import dependency graph, not HTML source order.
 
 The router enforces that only admin users can navigate to `#admin`. All other role restrictions are backend-enforced via Supabase Row Level Security.
 
 ## Bill loading protection
 
-The application prevents duplicate bill loading by tracking the current bill list request and canceling overlapping requests. When the user navigates away from `#bills` and returns, the bill list is reloaded only once.
+The application prevents duplicate simultaneous bill list loads by tracking the current bill fetch promise. When the user navigates away from `#bills` and returns, overlapping load requests are resolved to the same promise rather than creating duplicate fetches.
 
 ## Deployment
 
