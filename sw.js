@@ -1,52 +1,5 @@
-const CACHE_NAME='ws-bills-shell-v4.9.62';
-const APP_SHELL=[
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './app-icon.svg',
-  './app/css/app.css?v=4.9.62',
-  './app/css/products.css?v=4.9.62',
-  './app/css/vendors.css?v=4.9.62',
-  './app/css/rates.css?v=4.9.62',
-  './app/css/reports.css?v=4.9.62',
-  './app/css/admin.css?v=4.9.62',
-  './app/css/system.css?v=4.9.62',
-  './app/css/layout.css?v=4.9.62',
-  './app/css/consistency.css?v=4.9.62',
-  './app/css/dashboard.css?v=4.9.62',
-  './app/css/bills-mobile.css?v=4.9.62',
-  './app/js/main.js?v=4.9.62'
-];
-
-self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
-});
-
-self.addEventListener('activate',event=>{
-  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME&&key.startsWith('ws-bills-shell-')).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));
-});
-
-self.addEventListener('fetch',event=>{
-  const request=event.request;
-  if(request.method!=='GET')return;
-  const url=new URL(request.url);
-  if(url.origin!==self.location.origin)return;
-  if(url.hostname.includes('supabase'))return;
-
-  if(request.mode==='navigate'){
-    event.respondWith(fetch(request).then(response=>{
-      const copy=response.clone();
-      caches.open(CACHE_NAME).then(cache=>cache.put('./index.html',copy));
-      return response;
-    }).catch(()=>caches.match('./index.html')));
-    return;
-  }
-
-  event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{
-    if(response.ok&&['style','script','image','font'].includes(request.destination)){
-      const copy=response.clone();
-      caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));
-    }
-    return response;
-  })));
-});
+const CACHE_NAME='ws-bills-shell-v4.9.63';
+const APP_SHELL=['./','./index.html','./manifest.webmanifest','./app-icon.svg','./app/css/app.css?v=4.9.63','./app/css/products.css?v=4.9.63','./app/css/vendors.css?v=4.9.63','./app/css/rates.css?v=4.9.63','./app/css/reports.css?v=4.9.63','./app/css/admin.css?v=4.9.63','./app/css/system.css?v=4.9.63','./app/css/layout.css?v=4.9.63','./app/css/consistency.css?v=4.9.63','./app/css/dashboard.css?v=4.9.63','./app/css/bills-mobile.css?v=4.9.63','./app/js/main.js?v=4.9.63'];
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME&&key.startsWith('ws-bills-shell-')).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',event=>{const request=event.request;if(request.method!=='GET')return;const url=new URL(request.url);if(url.origin!==self.location.origin)return;if(url.hostname.includes('supabase'))return;if(request.mode==='navigate'){event.respondWith(fetch(request).then(response=>{const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put('./index.html',copy));return response}).catch(()=>caches.match('./index.html')));return}event.respondWith(caches.match(request).then(cached=>cached||fetch(request).then(response=>{if(response.ok&&['style','script','image','font'].includes(request.destination)){const copy=response.clone();caches.open(CACHE_NAME).then(cache=>cache.put(request,copy))}return response}))) });
