@@ -1,6 +1,6 @@
 import {store} from './store.js';
 import {watchSharedUI} from './ui.js?v=5.1.5-ui1';
-import {dashboardPage} from './dashboard.js?v=5.1.5';
+import {dashboardPage} from './dashboard.js?v=5.1.5-dashboard2';
 import {settingsPage} from './settings.js?v=5.1.5';
 import {newBillPage} from './bill-entry.js?v=5.1.5';
 import {billsPage} from './bills.js?v=5.1.5';
