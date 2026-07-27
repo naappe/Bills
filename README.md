@@ -2,7 +2,28 @@
 
 White Saffron Procurement ERP is a browser-based procurement system for recording supplier bills, tracking product costs, comparing vendors, and reviewing purchasing performance.
 
-**Current version:** `v5.1.4`  
+## 🤖 AI Development Rules
+
+This repository uses a strict AI development policy.
+
+Before making any code changes, read:
+
+➡️ **[AI_RULES.md](AI_RULES.md)**
+
+All contributors and AI assistants must follow those rules before modifying the project.
+
+## Project documentation
+
+| File | Purpose |
+|---|---|
+| [AI_RULES.md](AI_RULES.md) | Mandatory development and safety rules |
+| [PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md) | Application structure, modules, workflows, and data boundaries |
+| [WEBSITE_UPDATE.md](WEBSITE_UPDATE.md) | Current completed work, active work, and next priorities |
+| [CHANGELOG.md](CHANGELOG.md) | User-visible releases and significant changes |
+| [ROADMAP.md](ROADMAP.md) | Approved and proposed future capabilities |
+| [KNOWN_ISSUES.md](KNOWN_ISSUES.md) | Confirmed limitations, defects, and risks |
+
+**Current version:** `v5.1.5`  
 **Status:** Active development  
 **Platform:** GitHub Pages + Supabase  
 **Live site:** https://naappe.github.io/Bills/
@@ -13,39 +34,43 @@ The application is a static single-page app built with HTML, CSS, and JavaScript
 
 ### Main modules
 
-- **Dashboard** — procurement overview and key spending indicators.
+- **Dashboard** — operational procurement overview, recent bills, pending payments, spending trends, and category allocation.
 - **Bills** — searchable supplier bills, date and vendor filters, pagination, bill detail popup, editing, and deletion controls.
-- **Bill Entry** — one supplier bill with multiple product rows saved as one bill record.
-- **Price Intelligence** — normalized product costs, supplier comparison, price trends, and alerts for administrators.
-- **Products** — product catalogue with images, retail pricing, wholesale pricing, pack information, and case quantity.
+- **Bill Entry** — simplified supplier purchase entry with invoice-status handling and multiple product rows.
+- **Price Intelligence** — normalized product costs, supplier comparison, price trends, and administrator-only procurement analysis.
+- **Products** — static product catalogue showing latest vendor, packing, wholesale price, retail-price availability, and stock-tracking status.
 - **Vendors** — supplier directory and procurement history.
 - **Reports** — procurement value, payment status, average bill value, supplier statistics, and spending trends.
-- **Settings** — workspace configuration.
+- **Settings** — workspace configuration and account controls.
 - **Admin & Users** — administrator-only account and system controls.
 
 ## Bill workflow
 
 1. Select or type a vendor.
-2. Existing vendor TIN, mobile number, and location are filled when saved data is available.
-3. Enter the bill date, bill number, payment details, and category.
-4. Add one or more product rows.
-5. Enter pack format, unit, quantity, pack rate, and GST.
-6. Review calculated subtotal, GST, and total.
-7. Save all item rows as one bill record.
-8. Open any bill row to view the complete supplier bill in a detail popup.
-9. Edit a bill to restore all saved item rows back into Bill Entry.
+2. Enter the bill date.
+3. Select whether an invoice number is available.
+4. Enter the invoice number only when available.
+5. Add one or more products.
+6. Enter quantity, unit, purchase price, and optional packing.
+7. Review the automatic line totals, subtotal, GST, and grand total.
+8. Save the bill.
+9. Open a bill later to review or edit it.
+10. Add a missing invoice number later when the accountant receives it.
+
+Advanced vendor, payment, GST, category, and notes fields remain available as secondary details.
 
 ## Product pricing rules
 
-The Products page is intentionally simple and customer-facing:
+The Products page is intentionally a simple catalogue:
 
-- Retail price is the price for one selling unit.
-- Wholesale price is the price for one configured case.
-- Case quantity is stored separately from bill quantity.
-- Product images are displayed with `object-fit: contain`.
-- Base-unit calculations are not displayed on product cards.
+- Wholesale price is derived from the latest saved purchase rate.
+- Retail price is shown only when a compatible saved field exists.
+- Product packing comes from saved bill-item data.
+- Product cards do not open a second analytics page.
+- Technical normalized-rate analysis belongs in Price Intelligence.
+- Stock is shown as not tracked unless reliable inventory fields exist.
 
-Technical calculations such as cost per KG, G, L, ML, or PCS belong only in Price Intelligence.
+The application must not invent retail prices, stock quantities, or reorder alerts when the database does not store them.
 
 ## Bill data model
 
@@ -63,7 +88,7 @@ Each bill stores shared bill information and an `items` collection. Item rows ma
 - `unit_rate`
 - `large_unit_rate`
 
-Older records without an `items` collection are still supported through legacy single-item fields.
+Older records without an `items` collection remain supported through legacy single-item fields.
 
 ## Access rules
 
@@ -88,6 +113,12 @@ No build process or application server is required.
 
 ```text
 index.html
+├── AI_RULES.md
+├── PROJECT_ARCHITECTURE.md
+├── WEBSITE_UPDATE.md
+├── CHANGELOG.md
+├── ROADMAP.md
+├── KNOWN_ISSUES.md
 └── app/
     ├── css/
     │   ├── app.css
@@ -106,6 +137,7 @@ index.html
         ├── router.js
         ├── store.js
         ├── data.js
+        ├── ui.js
         ├── dashboard.js
         ├── bills.js
         ├── bill-entry.js
@@ -114,8 +146,7 @@ index.html
         ├── rates.js
         ├── reports.js
         ├── settings.js
-        ├── admin.js
-        └── vendor-picker.js
+        └── admin.js
 ```
 
 ## Current routes
@@ -126,7 +157,7 @@ index.html
 | `#bills` | Bill list, filters, details, edit, and delete |
 | `#new` | Create or edit a supplier bill |
 | `#rates` / `#prices` | Price Intelligence |
-| `#products` | Product catalogue |
+| `#products` | Static product catalogue |
 | `#vendors` | Vendor directory |
 | `#reports` | Procurement reports |
 | `#settings` | Workspace settings |
@@ -134,23 +165,12 @@ index.html
 
 ## UI and performance
 
-- One fixed desktop sidebar.
-- One browser scrollbar on the far right.
+- Fixed desktop sidebar and mobile drawer.
 - Shared top bar and responsive content layout.
-- Full-width application content.
-- Mobile sidebar drawer.
-- Versioned assets to prevent stale browser files.
-- Current page load is lightweight and uses browser caching for static assets.
-
-## Module loading
-
-JavaScript modules are loaded in `index.html` using ES module imports. `main.js` imports `router.js` and other core modules; `router.js` imports page renderers. The browser's ES module system evaluates all dependencies before the entry point completes. Module evaluation order depends on the import dependency graph, not HTML source order.
-
-The router enforces that only admin users can navigate to `#admin`. All other role restrictions are backend-enforced via Supabase Row Level Security.
-
-## Bill loading protection
-
-The application prevents duplicate simultaneous bill list loads by tracking the current bill fetch promise. When the user navigates away from `#bills` and returns, overlapping load requests are resolved to the same promise rather than creating duplicate fetches.
+- Versioned assets to reduce stale browser files.
+- Shared searchable-list behavior.
+- No service worker or PWA at this stage.
+- Bill data is loaded through one guarded Supabase loading workflow.
 
 ## Deployment
 
@@ -164,13 +184,12 @@ Folder: /(root)
 After a deployment:
 
 1. Wait for GitHub Pages to publish.
-2. Refresh the live site.
-3. Confirm the deployment version in `index.html`.
-4. Test authentication and session restoration.
-5. Test Dashboard, Bills, Bill Entry, Products, Vendors, Price Intelligence, Reports, Settings, and Admin.
-6. Test bill create, view, edit, and delete flows.
-7. Check desktop, tablet, and mobile layouts.
-8. Confirm there are no browser console errors or failed network requests.
+2. Hard refresh the live site.
+3. Test authentication and session restoration.
+4. Test Dashboard, Bills, Bill Entry, Products, Vendors, Price Intelligence, Reports, Settings, and Admin.
+5. Test bill create, view, edit, and delete flows.
+6. Check desktop, tablet, and mobile layouts.
+7. Confirm there are no browser console errors or failed network requests.
 
 ## Security
 
@@ -179,16 +198,16 @@ Only a Supabase publishable browser key may be present in frontend code.
 Never commit:
 
 - Supabase service-role keys
-- passwords
-- private API keys
-- access tokens
-- confidential exports
+- Passwords
+- Private API keys
+- Access tokens
+- Confidential exports
 
 Supabase Row Level Security is the security boundary. Hiding frontend controls is not sufficient authorization.
 
 ## Project status
 
-The current application foundation is operational. Active work is focused on data accuracy, consistent user experience, product and vendor intelligence, reporting quality, and database normalization. The organization and CSS structure are being consolidated to reduce stylesheet overlap and improve maintainability.
+The application foundation is operational. Current work focuses on simplifying daily procurement entry, improving data accuracy, consolidating UI behavior, and designing a safe inventory model before enabling stock calculations.
 
 ## License
 
