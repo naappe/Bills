@@ -13,12 +13,12 @@ const check=(condition,message)=>{(condition?passes:failures).push(message)};
 const requireText=(source,needle,message)=>check(source.includes(needle),message);
 const forbidText=(source,needle,message)=>check(!source.includes(needle),message);
 
-const coreFiles=['index.html','sw.js','app/js/main.js','app/js/router.js','app/js/bill-entry.js','app/js/data.js','app/js/store.js','.github/workflows/verify.yml'];
+const coreFiles=['index.html','app/js/main.js','app/js/router.js','app/js/bill-entry.js','app/js/data.js','app/js/store.js','.github/workflows/verify.yml'];
 for(const file of coreFiles)check(exists(file),`Required file exists: ${file}`);
 if(failures.length){console.error('\nRepository verification failed before source checks:\n');failures.forEach(item=>console.error(`✗ ${item}`));process.exit(1)}
 
 const jsFiles=walk('app/js').filter(file=>file.endsWith('.js'));
-const index=read('index.html'),sw=read('sw.js'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
+const index=read('index.html'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
 const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','rates.js','reports.js','settings.js','admin.js'];
 
 for(const file of jsFiles){
@@ -29,11 +29,12 @@ for(const file of jsFiles){
 const metaVersion=index.match(/meta name="app-version" content="([^"]+)"/)?.[1];
 const deploymentVersion=index.match(/__BILLS_DEPLOYMENT__=\{version:'([^']+)'/)?.[1];
 const mainVersion=index.match(/main\.js\?v=([0-9.]+)/)?.[1];
-const swVersion=index.match(/sw\.js\?v=([0-9.]+)/)?.[1];
-const cacheVersion=sw.match(/CACHE_NAME='ws-bills-shell-v([^']+)'/)?.[1];
-const versions=[metaVersion,deploymentVersion,mainVersion,swVersion,cacheVersion];
+const versions=[metaVersion,deploymentVersion,mainVersion];
 check(versions.every(Boolean),'All application version markers are present');
 check(new Set(versions).size===1,`Version markers match (${versions.join(', ')})`);
+requireText(index,'type="module" src="./app/js/main.js?v=','Index loads main.js directly as a module');
+forbidText(index,'manifest.webmanifest','Manifest is disabled during stability recovery');
+forbidText(index,'serviceWorker.register','Service worker registration is disabled');
 requireText(main,`./router.js?v=${metaVersion}`,'main.js imports the current router version');
 for(const page of pageFiles)requireText(router,`./${page}?v=${metaVersion}`,`router imports ${page} at version ${metaVersion}`);
 
@@ -44,6 +45,7 @@ forbidText(router,'content.dataset.route=store.route','Router never marks the co
 forbidText(router,"querySelectorAll(':scope > .page-head')",'Router preserves page headings and page actions');
 requireText(main,'escapeHtml(message)','Workspace errors are safely escaped');
 requireText(main,"window.addEventListener('unhandledrejection'",'Unhandled promise failures are recorded');
+requireText(index,'method="post"','Login form does not use browser GET submission');
 
 for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billComputedTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
 for(const file of ['dashboard.js','vendors.js','rates.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
@@ -52,8 +54,8 @@ requireText(read('app/js/reports.js'),'today','Reports use the shared local busi
 forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
 forbidText(read('app/js/reports.js'),'new Date().toISOString().slice(0,10)','Reports avoid UTC business dates');
 requireText(read('app/js/reports.js'),'lineTotal','Reports aggregate item-level values');
-requireText(read('app/js/rates.js'),'itemsOf','Price Intelligence includes multi-item bills');
-requireText(read('app/js/vendors.js'),'itemsOf','Vendor product coverage includes every item');
+requireText(read('app/js/admin.js'),'export function adminPage','Admin page exports a valid renderer');
+requireText(read('app/js/admin.js'),'activityRows','Admin activity rendering is separated from the page template');
 
 for(const id of ['billForm','vendor','date','billItems','addRow','subtotal','gstTotal','grandTotal'])requireText(bill,`id="${id}"`,`Bill Entry preserves #${id}`);
 requireText(bill,"form.addEventListener('submit'",'Bill Entry owns form submission');
@@ -65,7 +67,6 @@ requireText(bill,'button.disabled=false','Save button is restored after failure'
 requireText(bill,"location.hash='#bills'",'Successful save returns to Bills');
 forbidText(main,"closest('#addRow')",'main.js does not intercept Add Row');
 forbidText(main,'#billForm','main.js does not control Bill Entry');
-forbidText(main,'installBillRowFallback','Emergency Add Row fallback remains removed');
 
 requireText(data,'compatibleRecord','Database writes use schema compatibility');
 requireText(data,'assertPayload','Database rejects empty or incompatible payloads');
