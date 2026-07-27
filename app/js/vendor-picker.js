@@ -36,7 +36,7 @@ function setupVendorPicker(){
   if(!input||input.dataset.vendorPickerReady==='1')return;
   input.dataset.vendorPickerReady='1';
   input.removeAttribute('list');
-  input.setAttribute('autocomplete','new-password');
+  input.setAttribute('autocomplete','off');
   input.setAttribute('name','supplier_lookup');
   input.setAttribute('autocorrect','off');
   input.setAttribute('autocapitalize','none');
@@ -54,7 +54,9 @@ function setupVendorPicker(){
 
   const directory=vendorDirectory();
   const byName=new Map(directory.map(v=>[v.name.toLowerCase(),v]));
+  let closeTimer=0;
 
+  const close=()=>{window.clearTimeout(closeTimer);list.hidden=true};
   const fill=vendor=>{
     if(!vendor)return;
     input.value=vendor.name;
@@ -62,7 +64,7 @@ function setupVendorPicker(){
     if(tin)tin.value=vendor.tin;
     if(mobile)mobile.value=vendor.mobile;
     if(location)location.value=vendor.location;
-    list.hidden=true;
+    close();
     input.dispatchEvent(new Event('change',{bubbles:true}));
   };
 
@@ -71,20 +73,26 @@ function setupVendorPicker(){
     const matches=(query?directory.filter(v=>`${v.name} ${v.tin} ${v.mobile} ${v.location}`.toLowerCase().includes(query)):directory).slice(0,120);
     list.innerHTML=matches.length?matches.map(v=>`<button type="button" class="vendor-picker-option" data-vendor="${escape(v.name)}"><strong>${escape(v.name)}</strong><small>${escape([v.tin&&`TIN ${v.tin}`,v.mobile,v.location].filter(Boolean).join(' · ')||'No saved contact details')}</small></button>`).join(''):'<div class="vendor-picker-empty">No matching vendor. Continue typing to use a new vendor.</div>';
     list.hidden=false;
-    list.querySelectorAll('[data-vendor]').forEach(button=>button.addEventListener('mousedown',event=>{event.preventDefault();fill(byName.get(button.dataset.vendor.toLowerCase()))}));
   };
 
-  const openAll=()=>{input.select();draw(true)};
-  input.addEventListener('focus',openAll);
-  input.addEventListener('click',openAll);
+  list.addEventListener('pointerdown',event=>{
+    const button=event.target.closest('[data-vendor]');
+    if(!button)return;
+    event.preventDefault();
+    fill(byName.get(button.dataset.vendor.toLowerCase()));
+  });
+  input.addEventListener('focus',()=>{window.clearTimeout(closeTimer);if(list.hidden)draw(true)});
+  input.addEventListener('click',()=>{window.clearTimeout(closeTimer);if(list.hidden)draw(true)});
   input.addEventListener('input',()=>draw(false));
   input.addEventListener('keydown',event=>{
     if(event.key==='ArrowDown'&&!list.hidden){event.preventDefault();list.querySelector('button')?.focus()}
-    if(event.key==='Escape')list.hidden=true;
+    if(event.key==='Escape')close();
   });
-  input.addEventListener('blur',()=>setTimeout(()=>{list.hidden=true},150));
+  input.addEventListener('blur',()=>{closeTimer=window.setTimeout(close,120)});
+  document.addEventListener('pointerdown',event=>{if(!label.contains(event.target))close()});
 }
 
 installStyles();
-new MutationObserver(setupVendorPicker).observe(document.documentElement,{childList:true,subtree:true});
+const observer=new MutationObserver(()=>setupVendorPicker());
+observer.observe(document.querySelector('#content')||document.body,{childList:true,subtree:true});
 setupVendorPicker();
