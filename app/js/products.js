@@ -22,7 +22,7 @@ function buildProducts(){
   const map=new Map();
   for(const row of store.rows){
     const date=billDate(row),supplier=vendor(row);
-    for(const item of itemsOf(row)){
+    for(const [itemIndex,item] of itemsOf(row).entries()){
       const name=cleanName(get(item,'description','product','name')||get(row,'product','description'));
       const key=keyOf(name);if(!key)continue;
       const qty=firstNumber(item,'qty','quantity')||1;
@@ -30,7 +30,7 @@ function buildProducts(){
       const wholesale=firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')||(line&&qty?line/qty:0);
       if(!wholesale)continue;
       const point={
-        date,wholesale,vendor:supplier,billId:text(get(row,'id')),
+        date,wholesale,vendor:supplier,billId:text(get(row,'id')),itemIndex,
         pack:text(get(item,'pack_format','packing')),
         unit:text(get(item,'unit')).toUpperCase()||'PCS',
         retail:firstNumber(item,'retail_price','selling_price','sale_price'),
@@ -46,7 +46,7 @@ function buildProducts(){
   const products=[...map.values()].map(product=>{
     product.history=product.history.filter(point=>point.date).sort((a,b)=>a.date.localeCompare(b.date));
     const last=product.history.at(-1)||{},master=masterProducts.get(product.key)||{};
-    return {...product,productId:master.id||'',sourceBillId:last.billId||'',latest:last.wholesale||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:text(master.image_url)||last.image||'',description:last.description||'',search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
+    return {...product,productId:master.id||'',sourceBillId:last.billId||'',sourceItemIndex:Number.isInteger(last.itemIndex)?last.itemIndex:0,latest:last.wholesale||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:text(master.image_url)||last.image||'',description:last.description||'',search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
   }).sort((a,b)=>b.lastDate.localeCompare(a.lastDate)||a.name.localeCompare(b.name));
   cache={revision:store.dataRevision,products};return products;
 }
@@ -86,9 +86,37 @@ function openProductBill(product){
   if(!isAdmin()||!product?.sourceBillId)return;
   const bill=store.rows.find(row=>String(get(row,'id'))===String(product.sourceBillId));
   if(!bill){alert('The original bill could not be found.');return}
+  store.editingProduct=product.productId?{productId:product.productId,oldName:product.name,newName:product.name,itemIndex:product.sourceItemIndex,saveRequested:false}:null;
   store.editing=bill;
   location.hash='#new';
 }
+
+async function syncEditedProductName(){
+  const edit=store.editingProduct;
+  store.editingProduct=null;
+  if(!edit?.productId||!edit.saveRequested)return;
+  const newName=cleanName(edit.newName);
+  if(!newName||keyOf(newName)===keyOf(edit.oldName))return;
+  const {error}=await db.from('products').update({name:newName}).eq('id',edit.productId);
+  if(error){console.error('[products] product name sync failed',error);return}
+  await loadProductImages();
+  cache.revision=-1;
+}
+
+document.addEventListener('input',event=>{
+  const edit=store.editingProduct,target=event.target;
+  if(!edit||!target?.matches?.('[data-field="description"]'))return;
+  const row=target.closest('.bill-row'),rows=[...document.querySelectorAll('#billItems .bill-row')];
+  if(row&&rows.indexOf(row)===edit.itemIndex)edit.newName=target.value;
+},true);
+
+document.addEventListener('click',event=>{
+  if(store.editingProduct&&event.target.closest?.('[data-confirm]'))store.editingProduct.saveRequested=true;
+},true);
+
+window.addEventListener('hashchange',()=>{
+  if(location.hash==='#bills'&&store.editingProduct)syncEditedProductName().catch(error=>console.error('[products] product rename sync failed',error));
+});
 
 async function ensureMasterProduct(product){
   if(product.productId)return product.productId;
@@ -159,7 +187,7 @@ function renderList(query=''){
 }
 
 export async function productsPage(){
-  if(!masterProducts.size)await loadProductImages();
+  await loadProductImages();
   cache.revision=-1;
   renderList('');
 }
