@@ -73,6 +73,11 @@ requireText(data,'assertPayload','Database rejects empty or incompatible payload
 requireText(data,'insert(payload).select()','New bills are inserted and returned');
 requireText(data,'if(!data?.length)','Save requires a returned Supabase record');
 for(const alias of ['bill_date','payment_status','payment_method','qty','pack_rate'])requireText(data,alias,`Save compatibility covers ${alias}`);
+requireText(data,'let billsLoadPromise=null','Bill loading has a shared in-flight request');
+requireText(data,'if(!force&&billsLoaded)','Loaded bill data is reused during the session');
+requireText(data,'if(!force&&billsLoadPromise)','Concurrent bill loads share one promise');
+requireText(data,'invalidateBillsCache','Account changes explicitly invalidate loaded data');
+requireText(data,'billsFetchCount++','Bill data fetches are measurable for diagnostics');
 
 const broadIsolation="['pointerdown','mousedown','touchstart','click','focusin']";
 const isolationCount=bill.split(broadIsolation).length-1;
