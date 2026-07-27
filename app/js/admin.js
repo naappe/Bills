@@ -1,8 +1,10 @@
 import {store,money,escapeHtml,billDate,vendor,status,get,amount} from './store.js';
 import {CONFIG} from './config.js';
+import {db,deleteBill} from './data.js';
 
 const $=selector=>document.querySelector(selector);
 const content=()=>$('#content');
+const dateTime=value=>String(value||'').slice(0,16).replace('T',' ')||'Not recorded';
 
 const kpi=(label,value,meta='')=>`
   <article class="kpi">
@@ -20,10 +22,7 @@ function configuredAccounts(){
     aliases.get(key).aliases.push(alias);
   }
   return [...aliases.values()]
-    .map(account=>({
-      ...account,
-      role:account.aliases.some(alias=>['admin','naappe'].includes(String(alias).toLowerCase()))?'admin':'staff'
-    }))
+    .map(account=>({...account,role:account.aliases.some(alias=>['admin','naappe'].includes(String(alias).toLowerCase()))?'admin':'staff'}))
     .sort((a,b)=>a.role.localeCompare(b.role)||a.email.localeCompare(b.email));
 }
 
@@ -32,11 +31,7 @@ function accountRows(accounts){
   return accounts.map(account=>`
     <tr>
       <td><strong>${escapeHtml(account.email)}</strong></td>
-      <td>
-        <div class="admin-aliases">
-          ${account.aliases.map(alias=>`<span class="admin-alias">${escapeHtml(alias)}</span>`).join('')}
-        </div>
-      </td>
+      <td><div class="admin-aliases">${account.aliases.map(alias=>`<span class="admin-alias">${escapeHtml(alias)}</span>`).join('')}</div></td>
       <td><span class="admin-role ${account.role}">${account.role.toUpperCase()}</span></td>
     </tr>`).join('');
 }
@@ -45,96 +40,82 @@ function activityRows(rows){
   if(!rows.length)return '<tr><td colspan="5" class="empty">No activity records.</td></tr>';
   return rows.map(row=>{
     const payment=status(row);
-    const modified=String(get(row,'updated_at','created_at')||'').slice(0,16).replace('T',' ')||'Not recorded';
-    return `
-      <tr>
-        <td>${escapeHtml(modified)}</td>
-        <td>${escapeHtml(billDate(row)||'No date')}</td>
-        <td><strong>${escapeHtml(vendor(row))}</strong></td>
-        <td><span class="badge ${payment.toLowerCase()==='paid'?'paid':'pending'}">${escapeHtml(payment)}</span></td>
-        <td class="num"><strong>${money(amount(row))}</strong></td>
-      </tr>`;
+    return `<tr><td>${escapeHtml(dateTime(get(row,'updated_at','created_at')))}</td><td>${escapeHtml(billDate(row)||'No date')}</td><td><strong>${escapeHtml(vendor(row))}</strong></td><td><span class="badge ${payment.toLowerCase()==='paid'?'paid':'pending'}">${escapeHtml(payment)}</span></td><td class="num"><strong>${money(amount(row))}</strong></td></tr>`;
   }).join('');
 }
 
-export function adminPage(){
+function requestRows(requests){
+  if(!requests.length)return '<tr><td colspan="5" class="empty">No pending deletion requests.</td></tr>';
+  return requests.map(request=>`
+    <tr>
+      <td>${escapeHtml(dateTime(request.requested_at))}</td>
+      <td><strong>${escapeHtml(request.entity_label||`Bill ${request.entity_id}`)}</strong><small>Record ${escapeHtml(request.entity_id)}</small></td>
+      <td>${escapeHtml(request.reason||'No reason entered')}</td>
+      <td><span class="badge pending">Pending</span></td>
+      <td><div class="actions"><button class="btn small" data-approve="${request.id}" type="button">Approve</button><button class="btn secondary small" data-reject="${request.id}" type="button">Reject</button></div></td>
+    </tr>`).join('');
+}
+
+async function loadRequests(){
+  const {data,error}=await db.from('deletion_requests').select('*').eq('entity_type','bills').eq('status','pending').order('requested_at',{ascending:false});
+  if(error)throw error;
+  return data||[];
+}
+
+async function reviewRequest(request,decision){
+  if(decision==='approved')await deleteBill(request.entity_id);
+  const {error}=await db.from('deletion_requests').update({status:decision,reviewed_by:store.user?.id||null,reviewed_at:new Date().toISOString()}).eq('id',request.id);
+  if(error)throw error;
+}
+
+export async function adminPage(){
   const target=content();
   if(!target)throw new Error('Admin page container is missing.');
-
   if(store.role!=='admin'){
-    target.innerHTML=`
-      <header class="page-head">
-        <div><h1>Admin & users</h1><p>Restricted workspace.</p></div>
-      </header>
-      <section class="card"><div class="empty">You do not have permission to open administration.</div></section>`;
+    target.innerHTML='<header class="page-head"><div><h1>Admin & users</h1><p>Restricted workspace.</p></div></header><section class="card"><div class="empty">You do not have permission to open administration.</div></section>';
     return;
   }
+
+  target.innerHTML='<section class="card"><div class="empty">Loading administration…</div></section>';
+  let requests=[];
+  try{requests=await loadRequests()}catch(error){console.error('[admin] deletion requests failed',error)}
 
   const accounts=configuredAccounts();
   const rows=Array.isArray(store.rows)?store.rows:[];
   const paid=rows.filter(row=>status(row).toLowerCase()==='paid');
   const pending=rows.length-paid.length;
-  const latest=[...rows]
-    .sort((a,b)=>String(get(b,'updated_at','created_at')).localeCompare(String(get(a,'updated_at','created_at'))))
-    .slice(0,10);
+  const latest=[...rows].sort((a,b)=>String(get(b,'updated_at','created_at')).localeCompare(String(get(a,'updated_at','created_at')))).slice(0,10);
   const total=rows.reduce((sum,row)=>sum+amount(row),0);
   const suppliers=new Set(rows.map(vendor).filter(name=>name&&name!=='Unknown supplier'));
   const sessionEmail=store.user?.email||'Unknown';
   const deployment=window.__BILLS_DEPLOYMENT__?.version||window.app?.health?.version||'unknown';
 
   target.innerHTML=`
-    <header class="page-head">
-      <div>
-        <h1>Admin & users</h1>
-        <p>Configured login aliases, client access policy and recent bill modifications.</p>
-      </div>
-    </header>
-
+    <header class="page-head"><div><h1>Admin & users</h1><p>Review staff bill deletion requests and account access.</p></div></header>
     <section class="admin-page">
       <div class="admin-summary-grid">
-        ${kpi('Configured aliases',accounts.length.toLocaleString(),'Not a live Supabase Auth directory')}
+        ${kpi('Pending delete requests',requests.length.toLocaleString(),'Admin approval required')}
         ${kpi('Loaded bills',rows.length.toLocaleString(),`${paid.length} paid · ${pending} pending`)}
         ${kpi('Supplier coverage',suppliers.size.toLocaleString(),money(total))}
         ${kpi('Current session','ADMIN',sessionEmail)}
       </div>
-
-      <div class="admin-detail-grid">
-        <article class="card admin-card">
-          <header class="card-head">
-            <div><h2>Configured login aliases</h2><small>Identities represented by application configuration</small></div>
-          </header>
-          <div class="admin-table-wrap">
-            <table class="table admin-table">
-              <thead><tr><th>Email</th><th>Aliases</th><th>Role</th></tr></thead>
-              <tbody>${accountRows(accounts)}</tbody>
-            </table>
-          </div>
-          <div class="admin-note">
-            <strong>Important boundary</strong>
-            <p>This list is not the complete Supabase Auth user directory. Creating, disabling, listing or changing secure user roles requires a protected server-side function or Supabase dashboard access.</p>
-          </div>
-        </article>
-
-        <article class="card admin-card">
-          <header class="card-head"><div><h2>Client system information</h2><small>Current browser session</small></div></header>
-          <div class="card-body admin-detail-list">
-            <div><span>Email</span><strong>${escapeHtml(sessionEmail)}</strong></div>
-            <div><span>Deployment</span><strong>v${escapeHtml(deployment)}</strong></div>
-            <div><span>Authentication</span><strong class="admin-good">Session active</strong></div>
-            <div><span>Database snapshot</span><strong>${rows.length.toLocaleString()} bills loaded</strong></div>
-            <div><span>User administration</span><strong>Server function not configured</strong></div>
-          </div>
-        </article>
-      </div>
-
-      <article class="card admin-card admin-activity-card">
-        <header class="card-head"><div><h2>Recent bill modifications</h2><small>This is record history, not a user audit log</small></div></header>
-        <div class="table-wrap">
-          <table class="table">
-            <thead><tr><th>Modified</th><th>Bill date</th><th>Vendor</th><th>Payment</th><th class="num">Amount</th></tr></thead>
-            <tbody>${activityRows(latest)}</tbody>
-          </table>
-        </div>
+      <article class="card admin-card">
+        <header class="card-head"><div><h2>Pending bill deletion requests</h2><small>Approving permanently deletes the bill from Supabase</small></div></header>
+        <div class="table-wrap"><table class="table"><thead><tr><th>Requested</th><th>Bill</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>${requestRows(requests)}</tbody></table></div>
       </article>
+      <div class="admin-detail-grid">
+        <article class="card admin-card"><header class="card-head"><div><h2>Configured login aliases</h2><small>Application configuration</small></div></header><div class="admin-table-wrap"><table class="table admin-table"><thead><tr><th>Email</th><th>Aliases</th><th>Role</th></tr></thead><tbody>${accountRows(accounts)}</tbody></table></div></article>
+        <article class="card admin-card"><header class="card-head"><div><h2>Client system information</h2><small>Current browser session</small></div></header><div class="card-body admin-detail-list"><div><span>Email</span><strong>${escapeHtml(sessionEmail)}</strong></div><div><span>Deployment</span><strong>v${escapeHtml(deployment)}</strong></div><div><span>Authentication</span><strong class="admin-good">Session active</strong></div><div><span>Database snapshot</span><strong>${rows.length.toLocaleString()} bills loaded</strong></div></div></article>
+      </div>
+      <article class="card admin-card admin-activity-card"><header class="card-head"><div><h2>Recent bill modifications</h2><small>Latest records loaded from Bills</small></div></header><div class="table-wrap"><table class="table"><thead><tr><th>Modified</th><th>Bill date</th><th>Vendor</th><th>Payment</th><th class="num">Amount</th></tr></thead><tbody>${activityRows(latest)}</tbody></table></div></article>
     </section>`;
+
+  target.querySelectorAll('[data-approve],[data-reject]').forEach(button=>button.onclick=async()=>{
+    const request=requests.find(item=>String(item.id)===String(button.dataset.approve||button.dataset.reject));
+    if(!request)return;
+    const decision=button.dataset.approve?'approved':'rejected';
+    if(decision==='approved'&&!confirm(`Approve deletion of ${request.entity_label||`bill ${request.entity_id}`}?`))return;
+    button.disabled=true;
+    try{await reviewRequest(request,decision);await adminPage()}catch(error){console.error('[admin] request review failed',error);alert(error.message||'Request could not be reviewed.');button.disabled=false}
+  });
 }
