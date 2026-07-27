@@ -27,8 +27,12 @@ This file records the current implementation state for future developers and AI 
 - Supplier coverage.
 - Recent bills.
 - Pending-payment list.
+- Invoice follow-up list for bills without invoice numbers.
+- Top-supplier summary for the selected period.
+- Balanced right-side operational stack with no unused blank panel area.
 - Spend trend.
 - Category allocation.
+- Dashboard summaries use the already loaded `store.rows` data and do not add Supabase requests.
 
 ### Bills
 
