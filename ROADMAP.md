@@ -1,267 +1,265 @@
 # White Saffron Procurement ERP — Roadmap
 
-This roadmap defines the intended implementation order, module boundaries, dependencies, and completion criteria. It is a planning document; deployed behavior remains authoritative.
+This roadmap defines intended implementation order and dependencies. Deployed behavior remains authoritative.
 
 ## Current checkpoint
 
-**Version:** v4.6.0  
-**Status:** Stable procurement foundation  
+**Version:** v5.1.5  
+**Status:** Operational procurement foundation with simplified daily workflows  
 **Deployment:** GitHub Pages  
-**Database:** Supabase  
+**Database:** Supabase
 
-Completed foundation:
+## Completed foundation
 
-- authentication and session restoration
-- application shell and hash router
-- procurement dashboard
-- bill listing and entry workflows
-- product catalogue derived from bills
-- vendor directory derived from bills
-- reports, settings, and administration foundations
-- responsive design system
+- Authentication and session restoration
+- Application shell and hash router
+- Shared state and guarded bill loading
+- Operational Dashboard
+- Bills search, filtering, pagination, detail, edit, and authorized delete
+- Simplified Bill Entry with invoice-number-later workflow
+- Static Products catalogue derived from purchases
+- Vendor directory derived from purchases
+- Price Intelligence
+- Reports, Settings, and Admin foundations
+- Responsive desktop and mobile layouts
+- Shared searchable dropdown behavior
+- AI development and architecture documentation
 
-## Work order
+## Implementation order
 
 ```text
-v4.7 Price Intelligence
-  → v4.8 Users and Roles
-  → v4.9 Database Normalization
-  → v5.0 Assisted Procurement
+1. Inventory and product data design
+        ↓
+2. Product and vendor master records
+        ↓
+3. Stock transactions and alerts
+        ↓
+4. Accountant and invoice follow-up
+        ↓
+5. Roles, approvals, and audit history
+        ↓
+6. Assisted procurement and forecasting
 ```
 
-Database work may begin earlier in isolated preparation branches, but production migration must follow the documented validation and backup process.
-
-# v4.7.0 — Price Intelligence
+# Phase 1 — Inventory and Product Data Design
 
 ## Objective
 
-Turn recorded bill items into reliable, comparable purchasing intelligence that helps management identify price movements, supplier differences, and potential savings.
+Create an approved data model before enabling automatic stock behavior.
 
-## Scope
+## Required entities
 
-### Product price history
+- Products
+- Product aliases
+- Vendors
+- Vendor aliases
+- Bill headers
+- Bill items
+- Inventory transactions
+- Stock balances or calculated stock views
+- Reorder settings
+- Audit history
 
-- chronological purchase timeline
-- vendor, date, quantity, pack, line total, and calculated rate
-- comparable base-unit rates
-- latest, previous, minimum, maximum, average, and median prices
-- period filters
+## Inventory transaction types
 
-### Vendor comparison
+- Purchase receipt / stock in
+- Consumption / stock out
+- Sale / stock out, if POS is later introduced
+- Adjustment increase
+- Adjustment decrease
+- Opening balance
+- Transfer, if multiple locations are introduced
 
-- compare suppliers for the same canonical product
-- latest compatible price per vendor
-- price difference and percentage difference
-- purchase count and last-purchase date
-- highlight lowest recent compatible rate
-- exclude incompatible units and invalid conversions
+## Required inventory fields
 
-### Price movements
-
-- increase and decrease since previous purchase
-- weekly, monthly, and quarterly comparisons
-- volatility indicator
-- stale price indicator
-- configurable alert thresholds
-
-### Savings analysis
-
-- estimate potential savings using a lower compatible recent rate
-- show the source vendor and observation date
-- distinguish historical opportunity from guaranteed current availability
-- aggregate potential savings by product and period
-
-### Dashboard and reports
-
-- largest increases
-- largest decreases
-- most volatile products
-- largest estimated savings opportunities
-- suppliers with the highest current average premium
-
-### Access
-
-- detailed price intelligence is admin-only unless the role matrix is explicitly expanded
-- non-admin users must not edit thresholds or canonical mappings
-
-## Data rules
-
-- compare only equivalent base units
-- never compare a pack price directly with a kg, litre, gram, ml, or piece rate
-- retain original bill values
-- display observation dates
-- label estimates as estimates
-- exclude zero, missing, or mathematically invalid rates
-
-## Deliverables
-
-- dedicated `price-intelligence.js` module or equivalent
-- dedicated styles only where shared tokens are insufficient
-- product timeline view
-- vendor comparison table/cards
-- alert logic
-- savings summary
-- updated architecture and changelog
+- Product ID
+- Quantity
+- Unit
+- Transaction type
+- Source bill or document
+- Location
+- Transaction date
+- Created by
+- Created at
+- Notes or reason
 
 ## Definition of done
 
-- calculations validated against sample bills
-- incompatible units excluded correctly
-- date filters behave consistently
-- admin access enforced in UI and database policy where applicable
-- mobile and desktop views verified
-- no console errors
-- performance remains acceptable with the current bill volume
+- Exact SQL reviewed and approved
+- Existing data backed up
+- Rollback plan documented
+- Product and vendor mappings validated
+- Historical financial totals remain unchanged
+- Sample stock calculations verified
+- RLS policies documented and tested
 
-# v4.8.0 — Users and Roles
-
-## Objective
-
-Replace implicit frontend role classification with explicit application profiles, controlled permissions, and auditable administration.
-
-## Scope
-
-- profiles table linked to Supabase Auth
-- roles: admin, manager, staff, readonly
-- active/inactive users
-- user list and account status
-- invitation or onboarding workflow where supported
-- permission matrix
-- login/session information where available
-- audit log for sensitive actions
-- safer admin interface
-
-## Target permission model
-
-| Capability | Admin | Manager | Staff | Readonly |
-|---|---:|---:|---:|---:|
-| View procurement data | Yes | Yes | Yes | Yes |
-| Add bills | Yes | Yes | Yes | No |
-| Edit bills | Yes | Yes | Policy-limited | No |
-| Delete bills | Yes | Restricted | No | No |
-| Edit product/vendor metadata | Yes | Limited | No | No |
-| View Price Intelligence | Yes | Optional | No | No |
-| Manage users and settings | Yes | No | No | No |
-
-Final permissions must be enforced with Supabase RLS, not only hidden buttons.
-
-## Definition of done
-
-- role source is trusted database data
-- RLS policies are documented and tested
-- inactive users lose application access as intended
-- administrative actions create audit events
-- account screens are responsive and understandable
-
-# v4.9.0 — Database Normalization
+# Phase 2 — Product and Vendor Master Records
 
 ## Objective
 
-Create first-class products, vendors, bill headers, bill items, aliases, and auditable metadata without losing historical procurement evidence.
+Stop relying entirely on bill history for catalogue identity and editable metadata.
 
-## Scope
+## Product scope
 
-- `profiles`
-- `vendors`
-- `vendor_aliases`
-- `products`
-- `product_aliases`
-- normalized `bills`
-- `bill_items`
-- audit logs
-- settings
-- price views or materialized views
-- migration and rollback scripts
+- Canonical product name
+- Description
+- Image URL
+- Default packing
+- Base unit
+- Case quantity
+- Wholesale purchase reference
+- Retail price
+- Reorder level
+- Active/inactive state
 
-## Migration principles
+## Vendor scope
 
-- back up before migration
-- preserve original supplier and item text
-- migrate additively before removing compatibility fields
-- compare counts and financial totals before cutover
-- keep unresolved mappings visible
-- test restore procedures
+- Canonical vendor name
+- TIN
+- Mobile
+- Address or location
+- Aliases
+- Active/inactive state
+- Procurement history links
 
-## Definition of done
+## Rules
 
-- row counts validated
-- monthly totals match the source dataset
-- vendor totals match within explained exceptions
-- sample bill calculations match
-- rollback is documented and tested
-- application reads and writes use normalized tables
+- Preserve original text from historical bills
+- Never silently merge vendors or products
+- Show unresolved aliases for review
+- Duplicate detection must recommend, not automatically merge
 
-# v5.0.0 — Assisted Procurement
+# Phase 3 — Stock Operations
 
 ## Objective
 
-Add controlled automation and machine-assisted workflows while keeping users responsible for approval.
+Enable truthful stock visibility and purchasing alerts.
 
 ## Scope
+
+- Automatic stock-in transaction after a valid purchase bill is saved
+- Stock-out or consumption entry
+- Current quantity by product
+- In stock, low stock, and out of stock status
+- Reorder-level configuration
+- Adjustment workflow with reason and user audit
+- Inventory history by product
+- Stock summary on Dashboard and Products
+
+## Rules
+
+- Saving a bill must not double-add stock during edits
+- Deleting or changing a bill must create a controlled reversal or adjustment
+- Stock unit conversions must be deterministic
+- Every stock change requires a source and audit trail
+
+# Phase 4 — Accountant and Invoice Follow-up
+
+## Objective
+
+Support purchases received before the official invoice number is available.
+
+## Scope
+
+- Invoice status field stored explicitly
+- Missing-invoice filter in Bills
+- Accountant follow-up queue
+- Add invoice number later
+- Duplicate invoice-number detection by vendor
+- Optional attachment or scan reference
+- Completion timestamp and user audit
+
+# Phase 5 — Roles, Approvals, and Audit
+
+## Objective
+
+Replace implicit frontend role classification with trusted profiles and auditable permissions.
+
+## Proposed roles
+
+- Admin
+- Manager
+- Staff
+- Accountant
+- Readonly
+
+## Proposed controls
+
+- Add bills
+- Edit bills
+- Delete bills
+- Complete invoice details
+- Adjust stock
+- Edit product pricing
+- View Price Intelligence
+- Manage users and settings
+
+Final permissions must be enforced with Supabase RLS, not only hidden controls.
+
+# Phase 6 — Assisted Procurement
+
+## Objective
+
+Add controlled automation while keeping users responsible for approval.
+
+## Potential scope
 
 - OCR-assisted bill capture
-- suggested product matching
-- suggested vendor matching
-- duplicate-bill detection
-- unusual-price detection
-- spend forecasting
-- budget alerts
-- purchasing recommendations
-- confidence indicators and review queues
+- Suggested product and vendor matching
+- Duplicate-bill detection
+- Unusual-price detection
+- Purchase recommendations
+- Demand forecasting
+- Budget alerts
+- Supplier quotation comparison
+- Confidence indicators and review queues
 
-## Safety and accuracy rules
+## Safety rules
 
 - AI suggestions must never silently alter approved records
-- show confidence and source evidence
-- require user confirmation for mappings and imported values
-- maintain an audit trail
-- avoid presenting forecasts as guaranteed outcomes
+- Show source evidence and confidence
+- Require confirmation for imported or matched values
+- Maintain an audit trail
+- Never present forecasts as guaranteed outcomes
 
-# Backlog
+# Later backlog
 
-Potential later work:
-
-- purchase orders
-- supplier quotation comparison
-- approval workflows
-- inventory integration
-- branch/location support
-- barcode and QR support
-- camera capture
+- Purchase orders
+- Approval workflows
+- Barcode and QR support
+- Camera capture
+- POS integration
+- Multiple locations
+- Transfers
+- Supplier performance scoring
 - PDF reports
-- spreadsheet export
-- email notifications
-- offline-capable workflows
-- budget management
-- supplier performance scoring
-- public API or controlled integrations
+- Spreadsheet exports
+- Email notifications
+- Offline-capable workflows
+- Controlled external API integrations
 
-# Technical debt register
+# Technical debt
 
-Current known debt:
+- Complete bill dataset is loaded into browser memory
+- Product catalogue is inferred from purchases
+- Some vendor-product learning is browser-local
+- Role model is limited
+- Bill data remains denormalized
+- Historical alias compatibility increases complexity
+- Automated test coverage is limited
+- Some page behavior and styles remain embedded in route modules
 
-- complete bill table loaded into browser memory
-- product metadata stored locally
-- vendor alias metadata stored locally
-- limited role model
-- denormalized bill items
-- compatibility field extraction
-- shared `pages.js` responsibilities remain broad
-- automated test coverage is limited
-
-Technical debt work should be scheduled when it directly reduces correctness, security, performance, or delivery risk.
+Technical debt should be addressed when it directly improves correctness, security, performance, or delivery safety.
 
 # Release checklist
 
-For every release:
-
-1. Confirm repository integrity before editing.
-2. Update version markers.
-3. Test all changed routes.
-4. Test bill create, update, and delete behavior as applicable.
+1. Read `AI_RULES.md`.
+2. Define exact scope and excluded files.
+3. Back up before database work.
+4. Test changed workflows.
 5. Test role restrictions.
-6. Test responsive layouts.
-7. Review console errors and network failures.
-8. Verify Supabase policies for data changes.
+6. Test desktop and mobile layouts.
+7. Review console and network errors.
+8. Verify RLS for data changes.
 9. Update documentation.
-10. Create a checkpoint commit and backup before risky migrations.
+10. Record the release in `CHANGELOG.md`.
