@@ -18,67 +18,100 @@ function buildProducts(){
       const key=keyOf(name);if(!key)continue;
       const qty=firstNumber(item,'qty','quantity')||1;
       const line=firstNumber(item,'row_total','line_total','total','net_amount');
-      const rate=firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')||(line&&qty?line/qty:0);
-      if(!rate)continue;
-      const point={date,rate,vendor:supplier,bill,qty,pack:text(get(item,'pack_format','packing')),unit:text(get(item,'unit')).toUpperCase()||'PCS'};
+      const wholesale=firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')||(line&&qty?line/qty:0);
+      if(!wholesale)continue;
+      const point={
+        date,wholesale,vendor:supplier,bill,qty,
+        pack:text(get(item,'pack_format','packing')),
+        unit:text(get(item,'unit')).toUpperCase()||'PCS',
+        retail:firstNumber(item,'retail_price','selling_price','sale_price'),
+        stock:firstNumber(item,'stock','stock_qty','quantity_on_hand'),
+        reorder:firstNumber(item,'reorder_level','low_stock_level','minimum_stock'),
+        image:text(get(item,'image_url','photo_url','image')),
+        description:text(get(item,'product_description','notes','category'))
+      };
       if(!map.has(key))map.set(key,{key,name,history:[],vendors:new Set()});
       const product=map.get(key);product.history.push(point);if(supplier)product.vendors.add(supplier);
     }
   }
   const products=[...map.values()].map(product=>{
     product.history=product.history.filter(point=>point.date).sort((a,b)=>a.date.localeCompare(b.date));
-    const rates=product.history.map(point=>point.rate),first=rates[0]||0,last=product.history.at(-1)||{};
-    return {...product,records:product.history.length,vendorCount:product.vendors.size,latest:last.rate||0,lastDate:last.date||'',lastVendor:last.vendor||'',lastPack:last.pack||last.unit||'PCS',low:rates.length?Math.min(...rates):0,high:rates.length?Math.max(...rates):0,average:rates.length?rates.reduce((sum,value)=>sum+value,0)/rates.length:0,change:first?(((last.rate||0)-first)/first)*100:0,search:`${product.name} ${[...product.vendors].join(' ')}`.toLowerCase()};
+    const last=product.history.at(-1)||{},prices=product.history.map(point=>point.wholesale);
+    const vendorStats=new Map();
+    for(const point of product.history){const name=point.vendor||'Unknown vendor';if(!vendorStats.has(name))vendorStats.set(name,[]);vendorStats.get(name).push(point.wholesale)}
+    const vendors=[...vendorStats.entries()].map(([name,values])=>({name,latest:values.at(-1),low:Math.min(...values),average:values.reduce((s,v)=>s+v,0)/values.length,count:values.length})).sort((a,b)=>a.average-b.average);
+    return {...product,latest:last.wholesale||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:last.image||'',description:last.description||'',low:prices.length?Math.min(...prices):0,high:prices.length?Math.max(...prices):0,vendorRows:vendors,search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
   }).sort((a,b)=>b.lastDate.localeCompare(a.lastDate)||a.name.localeCompare(b.name));
   cache={revision:store.dataRevision,products};return products;
 }
 
-function periodStart(period){const d=new Date();if(period==='30d')d.setDate(d.getDate()-30);else if(period==='3m')d.setMonth(d.getMonth()-3);else if(period==='6m')d.setMonth(d.getMonth()-6);else if(period==='1y')d.setFullYear(d.getFullYear()-1);else return'';return d.toISOString().slice(0,10)}
-function scopedHistory(history,period){const start=periodStart(period);return start?history.filter(point=>point.date>=start):history}
-function movement(change,count){if(count<2)return'No trend yet';if(Math.abs(change)<1)return'Stable';return change>0?'Rising':'Falling'}
-function vendorRows(history){const map=new Map();for(const point of history){const name=point.vendor||'Unknown vendor';if(!map.has(name))map.set(name,{name,points:[]});map.get(name).points.push(point)}return[...map.values()].map(item=>{const rates=item.points.map(p=>p.rate),latest=item.points.at(-1);return{name:item.name,latest:latest.rate,average:rates.reduce((s,v)=>s+v,0)/rates.length,low:Math.min(...rates),count:rates.length,last:latest.date}}).sort((a,b)=>a.average-b.average)}
+function stockState(product){
+  if(!product.stock)return{label:'Not tracked',className:'unknown'};
+  if(product.reorder&&product.stock<=product.reorder)return{label:'Low stock',className:'low'};
+  return{label:'In stock',className:'good'};
+}
+
+function imageMarkup(product){
+  if(product.image)return`<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy">`;
+  return`<span>${escapeHtml(product.name.slice(0,2).toUpperCase())}</span>`;
+}
+
+function productCard(product){
+  const stock=stockState(product);
+  return `<button class="simple-product-card" data-product="${escapeHtml(product.key)}" type="button">
+    <div class="simple-product-image">${imageMarkup(product)}</div>
+    <div class="simple-product-main">
+      <div class="simple-product-title"><strong>${escapeHtml(product.name)}</strong><span class="stock-chip ${stock.className}">${stock.label}</span></div>
+      <p>${escapeHtml(product.description||`${product.lastVendor||'Unknown vendor'} · ${product.pack}`)}</p>
+      <div class="simple-product-meta"><span><b>Vendor</b>${escapeHtml(product.lastVendor||'Unknown')}</span><span><b>Pack</b>${escapeHtml(product.pack)}</span></div>
+    </div>
+    <div class="simple-product-prices">
+      <span>Wholesale</span><strong>${money(product.latest)}</strong>
+      <small>Retail: ${product.retail?money(product.retail):'Not set'}</small>
+    </div>
+  </button>`;
+}
 
 function graph(history){
-  if(history.length<2)return`<div class="product-empty"><i class="fa-solid fa-chart-line"></i><strong>More history is needed</strong><span>Another saved purchase will create a useful price trend.</span></div>`;
-  const points=history.slice(-30),width=900,height=260,pad=34,min=Math.min(...points.map(p=>p.rate)),max=Math.max(...points.map(p=>p.rate)),range=max-min||1;
-  const coords=points.map((point,index)=>({x:pad+index*(width-pad*2)/Math.max(1,points.length-1),y:height-pad-(point.rate-min)*(height-pad*2)/range,...point}));
+  if(history.length<2)return`<div class="simple-empty"><i class="fa-solid fa-chart-line"></i><strong>One saved price only</strong><span>The next purchase will create a price trend.</span></div>`;
+  const points=history.slice(-20),width=820,height=220,pad=34,min=Math.min(...points.map(p=>p.wholesale)),max=Math.max(...points.map(p=>p.wholesale)),range=max-min||1;
+  const coords=points.map((point,index)=>({x:pad+index*(width-pad*2)/Math.max(1,points.length-1),y:height-pad-(point.wholesale-min)*(height-pad*2)/range,...point}));
   const path=coords.map((point,index)=>`${index?'L':'M'} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
-  return `<div class="product-chart"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Price trend"><path d="${path}"/>${coords.map(point=>`<circle cx="${point.x}" cy="${point.y}" r="5"><title>${escapeHtml(point.date)} · ${escapeHtml(point.vendor)} · ${money(point.rate)}</title></circle>`).join('')}<text x="${pad}" y="22">High ${escapeHtml(money(max))}</text><text x="${pad}" y="${height-8}">Low ${escapeHtml(money(min))}</text></svg></div>`;
+  return `<div class="simple-product-chart"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Wholesale price history"><path d="${path}"/>${coords.map(point=>`<circle cx="${point.x}" cy="${point.y}" r="5"><title>${escapeHtml(point.date)} · ${escapeHtml(point.vendor)} · ${money(point.wholesale)}</title></circle>`).join('')}<text x="${pad}" y="22">High ${escapeHtml(money(max))}</text><text x="${pad}" y="${height-8}">Low ${escapeHtml(money(min))}</text></svg></div>`;
 }
 
-function productCards(products){
-  if(!products.length)return`<section class="card"><div class="product-empty"><i class="fa-solid fa-box-open"></i><strong>No matching products</strong><span>Try another search or save a bill with product items.</span></div></section>`;
-  return `<section class="product-grid">${products.map(product=>`<button class="product-card" data-product="${escapeHtml(product.key)}" type="button"><div class="product-card-icon"><i class="fa-solid fa-box"></i></div><div class="product-card-main"><div class="product-card-title"><strong>${escapeHtml(product.name)}</strong><span>${escapeHtml(product.lastDate||'No date')}</span></div><p>${escapeHtml(product.lastVendor||'Unknown vendor')} · ${escapeHtml(product.lastPack)}</p><div class="product-card-meta"><span>${product.records} purchase${product.records===1?'':'s'}</span><span>${product.vendorCount} vendor${product.vendorCount===1?'':'s'}</span><span class="${product.change>1?'up':product.change<-1?'down':'stable'}">${movement(product.change,product.records)}</span></div></div><div class="product-card-price"><small>Latest</small><strong>${money(product.latest)}</strong><i class="fa-solid fa-chevron-right"></i></div></button>`).join('')}</section>`;
+function detail(product){
+  const latest=product.history.at(-1),cheapest=product.vendorRows[0],stock=stockState(product);
+  content().innerHTML=`<header class="page-head"><div><button class="text-back" id="backProducts" type="button"><i class="fa-solid fa-arrow-left"></i> Products</button><h1>${escapeHtml(product.name)}</h1><p>${escapeHtml(product.description||'Purchase-price history and supplier comparison.')}</p></div></header>
+  <section class="product-focus-card">
+    <div class="simple-product-image large">${imageMarkup(product)}</div>
+    <div><span class="eyebrow">Latest supplier</span><h2>${escapeHtml(product.lastVendor||'Unknown vendor')}</h2><p>${escapeHtml(product.pack)} · Last purchased ${escapeHtml(product.lastDate||'No date')}</p></div>
+    <div class="focus-wholesale"><span>Wholesale price</span><strong>${money(product.latest)}</strong><small>Retail: ${product.retail?money(product.retail):'Not set'}</small></div>
+    <span class="stock-chip ${stock.className}">${stock.label}</span>
+  </section>
+  <section class="product-summary-grid">
+    <article><span>Latest</span><strong>${money(product.latest)}</strong><small>${escapeHtml(product.lastVendor||'Unknown vendor')}</small></article>
+    <article><span>Cheapest</span><strong>${money(cheapest?.low||product.low)}</strong><small>${escapeHtml(cheapest?.name||'Unknown vendor')}</small></article>
+    <article><span>Highest</span><strong>${money(product.high)}</strong><small>Recorded wholesale</small></article>
+    <article><span>Purchases</span><strong>${product.history.length}</strong><small>${product.vendors.size} vendor${product.vendors.size===1?'':'s'}</small></article>
+  </section>
+  <section class="simple-product-layout">
+    <article class="card"><header class="card-head"><div><h2>Wholesale price history</h2><small>Date, vendor and recorded purchase price</small></div></header><div class="card-body">${graph(product.history)}</div></article>
+    <article class="card"><header class="card-head"><div><h2>Supplier prices</h2><small>Cheapest average first</small></div></header><div class="simple-vendor-list">${product.vendorRows.map((item,index)=>`<div><span>${index===0&&product.vendorRows.length>1?'<b>Cheapest</b>':''}<strong>${escapeHtml(item.name)}</strong><small>${item.count} purchase${item.count===1?'':'s'}</small></span><em>${money(item.latest)}</em></div>`).join('')}</div></article>
+  </section>
+  <section class="card"><header class="card-head"><div><h2>Purchase history</h2><small>Latest purchases first</small></div></header><div class="simple-history">${product.history.slice().reverse().map(point=>`<div><time>${escapeHtml(point.date)}</time><span><strong>${escapeHtml(point.vendor||'Unknown vendor')}</strong><small>${escapeHtml([point.pack||point.unit,`Qty ${point.qty}`,point.bill?`Bill ${point.bill}`:''].filter(Boolean).join(' · '))}</small></span><b>${money(point.wholesale)}</b></div>`).join('')}</div></section>`;
+  $('#backProducts').onclick=()=>renderList();
 }
 
-function catalogueMarkup(products){
-  const records=products.reduce((sum,p)=>sum+p.records,0),vendors=new Set(products.flatMap(p=>[...p.vendors])).size,recent=products.filter(p=>p.lastDate).slice(0,5).length;
-  return `<section class="product-kpis"><article><i class="fa-solid fa-boxes-stacked"></i><div><span>Products</span><strong>${products.length}</strong><small>Saved catalogue</small></div></article><article><i class="fa-solid fa-receipt"></i><div><span>Purchases</span><strong>${records}</strong><small>Product records</small></div></article><article><i class="fa-solid fa-building"></i><div><span>Vendors</span><strong>${vendors}</strong><small>Across products</small></div></article><article><i class="fa-solid fa-clock-rotate-left"></i><div><span>Recently added</span><strong>${recent}</strong><small>Newest first</small></div></article></section><section class="catalogue-head"><div><h2>All products</h2><p>Newest purchased products appear first. Select a product to open its analytics.</p></div><span id="productCount">${products.length} products</span></section>${productCards(products)}`;
+function renderList(query=''){
+  const products=buildProducts(),needle=query.trim().toLowerCase(),filtered=needle?products.filter(product=>product.search.includes(needle)):products;
+  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest supplier, packing, wholesale price and retail price.</p></div></header>
+  <section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product or vendor, for example tomato"></div><span id="productCount">${filtered.length} products</span></section>
+  <section class="simple-product-list" id="productList">${filtered.map(productCard).join('')||'<div class="simple-empty card"><i class="fa-solid fa-box-open"></i><strong>No matching product</strong><span>Try another product or vendor name.</span></div>'}</section>`;
+  const search=$('#productSearch');search.focus();search.setSelectionRange(search.value.length,search.value.length);
+  let timer;search.oninput=event=>{clearTimeout(timer);timer=setTimeout(()=>renderList(event.target.value),100)};
+  content().querySelectorAll('[data-product]').forEach(button=>button.onclick=()=>{const product=products.find(item=>item.key===button.dataset.product);if(product)detail(product)});
+  if(needle&&filtered.length===1)detail(filtered[0]);
 }
 
-function detailMarkup(product,period){
-  const history=scopedHistory(product.history,period),last=history.at(-1);
-  if(!history.length)return`<section class="card"><div class="product-empty"><strong>No purchases in this period</strong><span>Select a wider period.</span></div></section>`;
-  const rates=history.map(p=>p.rate),low=Math.min(...rates),high=Math.max(...rates),average=rates.reduce((s,v)=>s+v,0)/rates.length,first=rates[0],change=first?((last.rate-first)/first)*100:0,vendors=vendorRows(history),best=vendors[0];
-  return `<section class="product-detail-head"><button class="btn secondary" id="backToProducts" type="button"><i class="fa-solid fa-arrow-left"></i> All products</button><div><span>Product analytics</span><h2>${escapeHtml(product.name)}</h2><p>${history.length} purchase${history.length===1?'':'s'} · ${vendors.length} vendor${vendors.length===1?'':'s'} · last bought ${escapeHtml(last.date)}</p></div><div class="detail-price"><small>Latest price</small><strong>${money(last.rate)}</strong><span>${escapeHtml(last.vendor||'Unknown vendor')}</span></div></section><section class="product-kpis detail-kpis"><article><div><span>Lowest</span><strong>${money(low)}</strong><small>Recorded price</small></div></article><article><div><span>Average</span><strong>${money(average)}</strong><small>Across purchases</small></div></article><article><div><span>Highest</span><strong>${money(high)}</strong><small>Recorded price</small></div></article><article><div><span>Direction</span><strong>${escapeHtml(movement(change,history.length))}</strong><small>${history.length<2?'More data needed':`${change>=0?'+':''}${change.toFixed(1)}%`}</small></div></article></section><section class="detail-grid"><section class="card"><header class="card-head"><div><h2>Price trend</h2><small>Latest 30 recorded purchases</small></div></header><div class="card-body">${graph(history)}</div></section><section class="card"><header class="card-head"><div><h2>Buying insight</h2><small>Current procurement signals</small></div></header><div class="card-body insight-list"><div><span>Best-value vendor</span><strong>${escapeHtml(best?.name||'Not available')}</strong></div><div><span>Latest vendor</span><strong>${escapeHtml(last.vendor||'Unknown vendor')}</strong></div><div><span>Latest pack</span><strong>${escapeHtml(last.pack||last.unit)}</strong></div><div><span>Purchase count</span><strong>${history.length}</strong></div></div></section></section><section class="card"><header class="card-head"><div><h2>Vendor comparison</h2><small>Lowest average price first</small></div></header><div class="table-wrap"><table class="table"><thead><tr><th>Vendor</th><th>Latest</th><th>Average</th><th>Lowest</th><th>Purchases</th></tr></thead><tbody>${vendors.map((item,index)=>`<tr><td><strong>${escapeHtml(item.name)}</strong>${index===0&&vendors.length>1?'<small class="best-label">Best value</small>':''}</td><td>${money(item.latest)}</td><td>${money(item.average)}</td><td>${money(item.low)}</td><td>${item.count}</td></tr>`).join('')}</tbody></table></div></section><section class="card"><header class="card-head"><div><h2>Purchase history</h2><small>Newest first</small></div></header><div class="purchase-list">${history.slice().reverse().map(point=>`<article><time>${escapeHtml(point.date)}</time><div><strong>${escapeHtml(point.vendor||'Unknown vendor')}</strong><span>${escapeHtml([point.pack||point.unit,`Qty ${point.qty}`,point.bill?`Bill ${point.bill}`:''].filter(Boolean).join(' · '))}</span></div><b>${money(point.rate)}</b></article>`).join('')}</div></section>`;
-}
-
-function ensureStyles(){
-  if($('#productsPageStyles'))return;
-  const style=document.createElement('style');style.id='productsPageStyles';style.textContent=`
-  .products-toolbar{display:grid;grid-template-columns:minmax(260px,1fr) auto;gap:12px;align-items:end;padding:14px 16px;position:sticky;top:0;z-index:5}.products-toolbar label{margin:0}.period-tabs{display:flex;gap:6px;flex-wrap:wrap}.period-tabs button{min-height:40px;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text-muted);font-weight:800}.period-tabs button.active{background:var(--brand-navy);border-color:var(--brand-navy);color:#fff}.product-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.product-kpis article{display:flex;gap:13px;align-items:center;min-height:94px;padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-sm)}.product-kpis i{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:var(--primary-light,#eef4ff);color:var(--brand-navy);font-size:17px}.product-kpis span,.product-kpis small{display:block;color:var(--text-muted);font-size:11px;font-weight:700}.product-kpis strong{display:block;margin:2px 0;color:var(--brand-navy);font-size:23px}.catalogue-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin:4px 2px}.catalogue-head h2{color:var(--brand-navy);font-size:21px}.catalogue-head p{margin-top:3px;color:var(--text-muted)}.catalogue-head>span{padding:7px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text-muted);font-weight:800;font-size:12px}.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product-card{width:100%;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-sm);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.product-card:hover{transform:translateY(-2px);border-color:rgba(26,60,110,.28);box-shadow:0 12px 28px rgba(16,43,78,.10)}.product-card-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#edf4ff,#f9fbff);color:var(--brand-navy);font-size:18px}.product-card-title{display:flex;justify-content:space-between;gap:10px}.product-card-title strong{color:var(--brand-navy);font-size:14px}.product-card-title span{color:var(--text-muted);font-size:11px;white-space:nowrap}.product-card-main p{margin:4px 0 9px;color:var(--text-muted);font-size:12px}.product-card-meta{display:flex;gap:6px;flex-wrap:wrap}.product-card-meta span{padding:4px 7px;border-radius:999px;background:#f3f6fa;color:var(--text-muted);font-size:10px;font-weight:800}.product-card-meta .up{background:#fff2ea;color:#a84b16}.product-card-meta .down{background:#ebfaf2;color:#147a4a}.product-card-price{text-align:right}.product-card-price small{display:block;color:var(--text-muted);font-size:10px}.product-card-price strong{display:block;margin:3px 0 8px;color:var(--brand-navy);font-size:15px}.product-card-price i{color:var(--text-muted);font-size:11px}.product-detail-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-sm)}.product-detail-head span,.detail-price small{color:var(--text-muted);font-size:11px;font-weight:800;text-transform:uppercase}.product-detail-head h2{margin:2px 0;color:var(--brand-navy);font-size:24px}.product-detail-head p{color:var(--text-muted)}.detail-price{text-align:right}.detail-price strong{display:block;margin:2px 0;color:var(--brand-navy);font-size:23px}.detail-price span{display:block;text-transform:none}.detail-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.75fr);gap:14px}.product-chart svg{display:block;width:100%;min-height:230px}.product-chart path{fill:none;stroke:var(--brand-navy);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}.product-chart circle{fill:#f5a623;stroke:#fff;stroke-width:3}.product-chart text{fill:var(--text-muted);font-size:13px}.insight-list{display:grid;gap:0}.insight-list div{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-bottom:1px solid var(--border)}.insight-list div:last-child{border-bottom:0}.insight-list span{color:var(--text-muted)}.insight-list strong{color:var(--brand-navy);text-align:right}.purchase-list article{display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:15px;align-items:center;padding:13px 18px;border-top:1px solid var(--border)}.purchase-list time,.purchase-list span{color:var(--text-muted);font-size:12px}.purchase-list strong,.purchase-list span{display:block}.purchase-list b{color:var(--brand-navy)}.best-label{display:block;color:#147a4a}.product-empty{min-height:220px;display:grid;place-items:center;align-content:center;gap:8px;text-align:center;color:var(--text-muted)}.product-empty i{font-size:28px;color:var(--brand-navy)}.product-empty strong{color:var(--brand-navy);font-size:16px}@media(max-width:980px){.product-kpis{grid-template-columns:repeat(2,1fr)}.product-grid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr}}@media(max-width:680px){.products-toolbar{grid-template-columns:1fr;position:static}.product-kpis{grid-template-columns:1fr 1fr;gap:8px}.product-kpis article{min-height:78px;padding:12px}.product-kpis i{display:none}.product-card{grid-template-columns:40px minmax(0,1fr)}.product-card-price{grid-column:2;text-align:left;display:flex;gap:8px;align-items:center}.product-card-price small,.product-card-price i{display:none}.product-detail-head{grid-template-columns:1fr}.product-detail-head .btn{justify-self:start}.detail-price{text-align:left}.purchase-list article{grid-template-columns:1fr}.catalogue-head{align-items:start;flex-direction:column}}
-  `;document.head.appendChild(style);
-}
-
-export function productsPage(){
-  ensureStyles();const products=buildProducts();let selected='',period='all';
-  content().innerHTML=`<section class="card products-toolbar"><label>Search products or vendors<input id="productSearch" autocomplete="off" placeholder="Type a product or vendor name"></label><div class="period-tabs" id="productPeriods" hidden><button data-period="30d">30D</button><button data-period="3m">3M</button><button data-period="6m">6M</button><button data-period="1y">1Y</button><button data-period="all" class="active">All</button></div></section><div id="productsView"></div>`;
-  const search=$('#productSearch'),view=$('#productsView'),periods=$('#productPeriods');
-  const render=()=>{
-    if(selected){const product=products.find(item=>item.key===selected);view.innerHTML=product?detailMarkup(product,period):catalogueMarkup(products);periods.hidden=false;search.closest('label').hidden=true;$('#backToProducts')?.addEventListener('click',()=>{selected='';period='all';search.value='';search.closest('label').hidden=false;periods.hidden=true;render()})}
-    else{const query=keyOf(search.value),filtered=query?products.filter(product=>product.search.includes(query)):products;view.innerHTML=catalogueMarkup(filtered);periods.hidden=true;search.closest('label').hidden=false;view.querySelectorAll('[data-product]').forEach(button=>button.addEventListener('click',()=>{selected=button.dataset.product;period='all';render();content().scrollTo?.({top:0,behavior:'smooth'})}))}
-  };
-  search.addEventListener('input',render);
-  periods.addEventListener('click',event=>{const button=event.target.closest('[data-period]');if(!button)return;period=button.dataset.period;periods.querySelectorAll('[data-period]').forEach(item=>item.classList.toggle('active',item===button));render()});
-  render();
-}
+export function productsPage(){renderList('')}
