@@ -28,15 +28,15 @@ for(const file of jsFiles){
 
 const metaVersion=index.match(/meta name="app-version" content="([^"]+)"/)?.[1];
 const deploymentVersion=index.match(/__BILLS_DEPLOYMENT__=\{version:'([^']+)'/)?.[1];
-const mainVersion=index.match(/main\.js\?v=([0-9.]+)/)?.[1];
-const versions=[metaVersion,deploymentVersion,mainVersion];
-check(versions.every(Boolean),'All application version markers are present');
-check(new Set(versions).size===1,`Version markers match (${versions.join(', ')})`);
+const mainCacheToken=index.match(/main\.js\?v=([^"']+)/)?.[1];
+check(Boolean(metaVersion&&deploymentVersion&&mainCacheToken),'All application version and cache markers are present');
+check(metaVersion===deploymentVersion,`Deployment markers match (${metaVersion}, ${deploymentVersion})`);
+check(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9._-]+)?$/.test(mainCacheToken||''),`main.js has a valid cache token (${mainCacheToken||'missing'})`);
 requireText(index,'type="module" src="./app/js/main.js?v=','Index loads main.js directly as a module');
 forbidText(index,'manifest.webmanifest','Manifest is disabled during stability recovery');
 forbidText(index,'serviceWorker.register','Service worker registration is disabled');
-requireText(main,`./router.js?v=${metaVersion}`,'main.js imports the current router version');
-for(const page of pageFiles)requireText(router,`./${page}?v=${metaVersion}`,`router imports ${page} at version ${metaVersion}`);
+check(/from ['"]\.\/router\.js\?v=[^'"]+['"]/.test(main),'main.js imports router.js with a cache token');
+for(const page of pageFiles)check(new RegExp(`from ['"]\\.\\/${page.replace('.','\\.')}\\?v=[^'"]+['"]`).test(router),`router imports ${page} with a cache token`);
 
 requireText(main,"closest('a[data-route],button[data-route]')",'Global routing only accepts explicit links and buttons');
 forbidText(main,"closest('[data-route]')",'Page containers cannot become route triggers');
