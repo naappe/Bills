@@ -30,7 +30,7 @@ function buildProducts(){
       const wholesale=firstNumber(item,'pack_rate','bill_rate','rate','purchase_rate','price')||(line&&qty?line/qty:0);
       if(!wholesale)continue;
       const point={
-        date,wholesale,vendor:supplier,
+        date,wholesale,vendor:supplier,billId:text(get(row,'id')),
         pack:text(get(item,'pack_format','packing')),
         unit:text(get(item,'unit')).toUpperCase()||'PCS',
         retail:firstNumber(item,'retail_price','selling_price','sale_price'),
@@ -46,7 +46,7 @@ function buildProducts(){
   const products=[...map.values()].map(product=>{
     product.history=product.history.filter(point=>point.date).sort((a,b)=>a.date.localeCompare(b.date));
     const last=product.history.at(-1)||{},master=masterProducts.get(product.key)||{};
-    return {...product,productId:master.id||'',latest:last.wholesale||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:text(master.image_url)||last.image||'',description:last.description||'',search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
+    return {...product,productId:master.id||'',sourceBillId:last.billId||'',latest:last.wholesale||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:text(master.image_url)||last.image||'',description:last.description||'',search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
   }).sort((a,b)=>b.lastDate.localeCompare(a.lastDate)||a.name.localeCompare(b.name));
   cache={revision:store.dataRevision,products};return products;
 }
@@ -65,7 +65,7 @@ function imageMarkup(product){
 
 function productCard(product){
   const stock=stockState(product);
-  return `<article class="simple-product-card" aria-label="${escapeHtml(product.name)}">
+  return `<article class="simple-product-card" aria-label="${escapeHtml(product.name)}" data-product-key="${escapeHtml(product.key)}" ${isAdmin()?'role="button" tabindex="0" title="Open original bill to edit"':''}>
     <div class="simple-product-image">${imageMarkup(product)}</div>
     <div class="simple-product-main">
       <div class="simple-product-title"><strong>${escapeHtml(product.name)}</strong><span class="stock-chip ${stock.className}">${stock.label}</span></div>
@@ -81,6 +81,14 @@ function productCard(product){
 }
 
 function findProduct(key){return buildProducts().find(product=>product.key===key)}
+
+function openProductBill(product){
+  if(!isAdmin()||!product?.sourceBillId)return;
+  const bill=store.rows.find(row=>String(get(row,'id'))===String(product.sourceBillId));
+  if(!bill){alert('The original bill could not be found.');return}
+  store.editing=bill;
+  location.hash='#new';
+}
 
 async function ensureMasterProduct(product){
   if(product.productId)return product.productId;
@@ -130,12 +138,22 @@ function bindImageActions(query){
   });
 }
 
+function bindProductCards(){
+  if(!isAdmin())return;
+  document.querySelectorAll('.simple-product-card[data-product-key]').forEach(card=>{
+    const open=()=>openProductBill(findProduct(card.dataset.productKey));
+    card.addEventListener('click',open);
+    card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}});
+  });
+}
+
 function renderList(query=''){
   const products=buildProducts(),needle=query.trim().toLowerCase(),filtered=needle?products.filter(product=>product.search.includes(needle)):products;
   content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest supplier, packing, wholesale price and retail price.</p></div></header>
   <section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product or vendor, for example tomato"></div><span id="productCount">${filtered.length} products</span></section>
   <section class="simple-product-list" id="productList">${filtered.map(productCard).join('')||'<div class="simple-empty card"><i class="fa-solid fa-box-open"></i><strong>No matching product</strong><span>Try another product or vendor name.</span></div>'}</section>`;
   bindImageActions(query);
+  bindProductCards();
   const search=$('#productSearch');search.focus();search.setSelectionRange(search.value.length,search.value.length);
   let timer;search.oninput=event=>{clearTimeout(timer);timer=setTimeout(()=>renderList(event.target.value),100)};
 }
