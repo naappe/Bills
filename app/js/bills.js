@@ -1,5 +1,5 @@
 import {store,money,escapeHtml,text,number,billDate,vendor,amount,billNo,itemOf,get} from './store.js';
-import {deleteBill} from './data.js';
+import {deleteBill,db} from './data.js';
 
 const $=selector=>document.querySelector(selector);
 const unique=values=>[...new Set(values.filter(Boolean))];
@@ -44,6 +44,18 @@ function lineTotal(item){const saved=number(get(item,'row_total','line_total','t
 function paymentStatus(row){return text(get(row,'payment_status','status'))||'Not recorded'}
 function categoryLabel(row){return text(get(row,'category'))||'Uncategorized'}
 function statusClass(value){const normalized=String(value).toLowerCase();if(normalized==='paid')return'paid';if(normalized.includes('pending')||normalized.includes('unpaid'))return'pending';return'neutral'}
+
+async function requestBillDeletion(row){
+  if(!row?.id||store.role==='admin'||!canEdit(row))return;
+  const {data:existing,error:lookupError}=await db.from('deletion_requests').select('id,status').eq('entity_type','bills').eq('entity_id',String(row.id)).eq('status','pending').maybeSingle();
+  if(lookupError)throw lookupError;
+  if(existing){alert('This bill is already waiting for Admin approval.');return}
+  const reason=prompt('Why should this bill be deleted?','');
+  if(reason===null)return;
+  const {error}=await db.from('deletion_requests').insert({entity_type:'bills',entity_id:String(row.id),entity_label:`${vendor(row)} · ${billNo(row)}`,requested_by:store.user?.id,reason:text(reason),status:'pending'});
+  if(error)throw error;
+  alert('Delete request saved. Waiting for Admin approval.');
+}
 
 function indexedRows(){
   if(indexCache.revision===store.dataRevision)return indexCache.rows;
@@ -108,7 +120,8 @@ export function billsPage(){
       const entered=formatDateTime(get(row,'created_at'));
       const numberText=billNo(row)==='—'?'No bill number':`Bill ${billNo(row)}`;
       const payment=paymentStatus(row),statusTone=statusClass(payment),category=categoryLabel(row);
-      return`<tr class="bill-row-click" data-view="${row.id}" tabindex="0"><td class="bill-date"><strong>${escapeHtml(formatBillDate(entry.date))}</strong><small>Entered ${escapeHtml(entered)}</small></td><td class="bill-vendor"><strong>${escapeHtml(vendorName)}</strong><small>${escapeHtml(numberText)} · Record #${escapeHtml(numberLabel)}</small></td><td class="bill-items"><strong>${items.length.toLocaleString('en-US')}</strong><small>${escapeHtml(category)}</small></td><td class="bill-payment"><span class="bill-status ${statusTone}">${escapeHtml(payment)}</span></td><td class="num bill-total"><strong>${money(amount(row))}</strong></td><td class="action-col"><div class="actions">${canEdit(row)?`<button class="btn secondary small" data-edit="${row.id}" type="button" aria-label="Edit bill"><i class="fa-solid fa-pen"></i></button>`:'<span class="locked" title="Editing period ended"><i class="fa-solid fa-lock"></i></span>'}${store.role==='admin'?`<button class="btn danger small" data-delete="${row.id}" type="button" aria-label="Delete bill"><i class="fa-solid fa-trash"></i></button>`:''}</div></td></tr>`;
+      const deleteAction=store.role==='admin'?`<button class="btn danger small" data-delete="${row.id}" type="button" aria-label="Delete bill"><i class="fa-solid fa-trash"></i></button>`:canEdit(row)?`<button class="btn danger small" data-request-delete="${row.id}" type="button" aria-label="Request bill deletion"><i class="fa-solid fa-trash"></i></button>`:'';
+      return`<tr class="bill-row-click" data-view="${row.id}" tabindex="0"><td class="bill-date"><strong>${escapeHtml(formatBillDate(entry.date))}</strong><small>Entered ${escapeHtml(entered)}</small></td><td class="bill-vendor"><strong>${escapeHtml(vendorName)}</strong><small>${escapeHtml(numberText)} · Record #${escapeHtml(numberLabel)}</small></td><td class="bill-items"><strong>${items.length.toLocaleString('en-US')}</strong><small>${escapeHtml(category)}</small></td><td class="bill-payment"><span class="bill-status ${statusTone}">${escapeHtml(payment)}</span></td><td class="num bill-total"><strong>${money(amount(row))}</strong></td><td class="action-col"><div class="actions">${canEdit(row)?`<button class="btn secondary small" data-edit="${row.id}" type="button" aria-label="Edit bill"><i class="fa-solid fa-pen"></i></button>`:'<span class="locked" title="Editing period ended"><i class="fa-solid fa-lock"></i></span>'}${deleteAction}</div></td></tr>`;
     }).join('')||'<tr><td colspan="6" class="empty">No bills match these filters.</td></tr>';
     $('#pageMeta').textContent=`${filtered.length?start+1:0}–${Math.min(start+store.pageSize,filtered.length)} of ${filtered.length} bills · ${range.label}`;
     $('#prevPage').disabled=store.page<=1;
@@ -117,6 +130,7 @@ export function billsPage(){
     document.querySelectorAll('[data-view]').forEach(row=>{row.onclick=event=>{if(event.target.closest('button'))return;showBill(find(row.dataset.view))};row.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();showBill(find(row.dataset.view))}}});
     document.querySelectorAll('[data-edit]').forEach(button=>button.onclick=event=>{event.stopPropagation();store.editing=find(button.dataset.edit)?.row;location.hash='#new'});
     document.querySelectorAll('[data-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();if(confirm('Delete this bill and all its items?')){await deleteBill(button.dataset.delete);billsPage()}});
+    document.querySelectorAll('[data-request-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();button.disabled=true;try{await requestBillDeletion(find(button.dataset.requestDelete)?.row)}catch(error){console.error('[bills] delete request failed',error);alert(error.message||'Delete request could not be saved.')}finally{button.disabled=false}});
   };
 
   const refresh=()=>{store.page=1;draw()};
