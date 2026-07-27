@@ -71,9 +71,9 @@ function installSearchableLists(){
     const close=()=>{menu.classList.remove('open');active=-1};
     const choose=value=>{
       input.value=value;
-      close();
       input.dispatchEvent(new Event('input',{bubbles:true}));
       input.dispatchEvent(new Event('change',{bubbles:true}));
+      close();
       input.focus();
     };
     const draw=(showAll=false)=>{
