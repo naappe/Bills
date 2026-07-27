@@ -27,18 +27,19 @@
   <style>
     .auth-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:#f4f7fb;opacity:1;visibility:visible;transform:scale(1);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1),visibility 0s linear .7s;will-change:opacity,transform}
     .auth-loader.leaving{opacity:0;visibility:hidden;transform:scale(1.025);pointer-events:none}
-    .auth-loader-card{width:min(320px,100%);display:grid;justify-items:center;gap:12px;padding:28px 24px;text-align:center;transition:transform .7s cubic-bezier(.22,1,.36,1),opacity .45s ease}
+    .auth-loader-card{width:min(320px,100%);display:grid;justify-items:center;gap:10px;padding:28px 24px;text-align:center;transition:transform .7s cubic-bezier(.22,1,.36,1),opacity .45s ease}
     .auth-loader.leaving .auth-loader-card{transform:translateY(-10px) scale(.97);opacity:0}
-    .auth-loader-mark{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(135deg,#e8bc55,#f6dc93);color:#102b4e;font:800 17px/1 system-ui}
-    .auth-loader-title{margin:2px 0 0;color:#102b4e;font-size:20px;line-height:1.25;font-weight:700;letter-spacing:-.02em}
-    .auth-loader-location{margin:-5px 0 0;color:#6b7b90;font-size:12px;line-height:1.4;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+    .auth-loader-mark{width:56px;height:56px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(135deg,#e8bc55,#f6dc93);box-shadow:0 10px 28px rgba(232,188,85,.28);color:#102b4e;font:800 18px/1 system-ui;animation:auth-logo-pulse 1.5s ease-in-out infinite;transform-origin:center}
+    @keyframes auth-logo-pulse{0%,100%{transform:scale(.98);box-shadow:0 8px 22px rgba(232,188,85,.2)}50%{transform:scale(1.035);box-shadow:0 12px 34px rgba(232,188,85,.4)}}
+    .auth-loader-title{margin:8px 0 0;color:#102b4e;font-size:20px;line-height:1.25;font-weight:700;letter-spacing:-.02em}
+    .auth-loader-location{margin:-3px 0 0;color:#6b7b90;font-size:12px;line-height:1.4;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+    .auth-progress{width:112px;height:2px;margin-top:12px;overflow:hidden;border-radius:999px;background:rgba(232,188,85,.22)}
+    .auth-progress-bar{display:block;width:100%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#d7a83c,#f2cf78);transform:scaleX(0);transform-origin:left center;animation:auth-progress-fill 3s cubic-bezier(.22,1,.36,1) forwards}
+    @keyframes auth-progress-fill{to{transform:scaleX(1)}}
     .auth-loader-signature{position:absolute;left:50%;bottom:max(30px,env(safe-area-inset-bottom));transform:translateX(-50%);margin:0;color:#7b8797;font:italic 14px/1.2 "Segoe Script","Brush Script MT",cursive;white-space:nowrap;transition:opacity .35s ease,transform .7s cubic-bezier(.22,1,.36,1)}
     .auth-loader.leaving .auth-loader-signature{opacity:0;transform:translate(-50%,8px)}
     .auth-loader-signature span{font-size:11px;font-family:Inter,system-ui,sans-serif;font-style:normal;letter-spacing:.04em;color:#9aa5b3}
-    .auth-dot-loader{position:relative;width:30px;height:30px;margin:4px 0 2px}
-    .auth-dot-loader span{position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#1a3c6e;transform:rotate(calc(var(--i)*45deg)) translateY(-12px);opacity:.16;animation:auth-dot-snake .9s linear infinite;animation-delay:calc(var(--i)*-.1125s)}
-    @keyframes auth-dot-snake{0%,100%{opacity:.16;transform:rotate(calc(var(--i)*45deg)) translateY(-12px) scale(.75)}35%{opacity:1;transform:rotate(calc(var(--i)*45deg)) translateY(-12px) scale(1.15)}65%{opacity:.4;transform:rotate(calc(var(--i)*45deg)) translateY(-12px) scale(.9)}}
-    @media(prefers-reduced-motion:reduce){.auth-loader,.auth-loader-card,.auth-loader-signature{transition-duration:.2s}.auth-dot-loader span{animation-duration:1.8s}}
+    @media(prefers-reduced-motion:reduce){.auth-loader,.auth-loader-card,.auth-loader-signature{transition-duration:.2s}.auth-loader-mark{animation:none}.auth-progress-bar{animation-timing-function:linear}}
     .sidebar-backdrop{position:fixed;inset:0;z-index:50;background:rgba(8,25,47,.48);opacity:0;pointer-events:none}
     .sidebar-backdrop.visible{opacity:1;pointer-events:auto}
     .sidebar-head-actions{margin-left:auto;display:flex;gap:6px}
@@ -72,7 +73,7 @@
   </script>
 </head>
 <body class="auth-pending">
-  <section class="auth-loader" id="authLoader" aria-live="polite" aria-busy="true"><div class="auth-loader-card"><div class="auth-loader-mark">WS</div><div class="auth-dot-loader" aria-hidden="true"><span style="--i:0"></span><span style="--i:1"></span><span style="--i:2"></span><span style="--i:3"></span><span style="--i:4"></span><span style="--i:5"></span><span style="--i:6"></span><span style="--i:7"></span></div><h1 class="auth-loader-title">Cafe' White Saffron</h1><p class="auth-loader-location">Villimale</p></div><p class="auth-loader-signature"><span>Created by</span> Naappe</p></section>
+  <section class="auth-loader" id="authLoader" aria-live="polite" aria-busy="true"><div class="auth-loader-card"><div class="auth-loader-mark">WS</div><h1 class="auth-loader-title">Cafe' White Saffron</h1><p class="auth-loader-location">Villimale</p><div class="auth-progress" aria-hidden="true"><span class="auth-progress-bar"></span></div></div><p class="auth-loader-signature"><span>Created by</span> Naappe</p></section>
   <section class="login hidden" id="loginView"><div class="login-card"><div class="login-mark">WS</div><h1>Procurement ERP</h1><p>Secure supplier bills, products, pricing and reports.</p><form class="stack" id="loginForm" method="post"><label>Username<input id="loginName" name="username" autocomplete="username" required></label><label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" required></label><button class="btn" type="submit">Sign in</button><div id="loginNotice" aria-live="polite"></div></form></div></section>
   <section class="app hidden" id="appView">
     <aside class="sidebar" id="sidebar" aria-label="Application navigation"><div class="brand"><div class="brand-mark">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div><div class="sidebar-head-actions"><button class="sidebar-icon-btn" id="collapseSidebar" type="button" aria-label="Collapse sidebar" aria-pressed="false"><i class="fa-solid fa-angles-left" aria-hidden="true"></i></button><button class="sidebar-icon-btn sidebar-close" id="sidebarClose" type="button" aria-label="Close navigation"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></div><nav class="nav" id="nav" aria-label="Primary navigation"></nav><div class="side-foot"><div class="side-account"><div class="side-avatar" id="sideAvatar">A</div><div class="side-account-copy"><strong id="sideEmail">Signed in</strong><small id="sideRole">STAFF</small></div></div><button class="btn secondary" id="logoutBtn" type="button" style="width:100%"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>Sign out</span></button></div></aside>
