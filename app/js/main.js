@@ -1,6 +1,6 @@
 import {store,escapeHtml} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter,navigate} from './router.js?v=5.1.3';
+import {startRouter,navigate} from './router.js?v=5.1.4';
 
 const $=selector=>document.querySelector(selector);
 const navGroups=[
@@ -18,7 +18,7 @@ const navGroups=[
   ]]
 ];
 
-const health={version:'5.1.3',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
+const health={version:'5.1.4',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
 window.app={store,health};
 
 function recordRuntimeError(error,source='runtime'){
@@ -31,22 +31,6 @@ function recordRuntimeError(error,source='runtime'){
 window.addEventListener('error',event=>recordRuntimeError(event.error||event.message,'window.error'));
 window.addEventListener('unhandledrejection',event=>recordRuntimeError(event.reason,'unhandledrejection'));
 
-function removeGeneratedPlaceholders(){
-  try{
-    const key='bills.productMetadata.v3';
-    const meta=JSON.parse(localStorage.getItem(key)||'{}');
-    let changed=false;
-    for(const value of Object.values(meta)){
-      if(value?.imageSource==='generated'||String(value?.photo||'').includes('Generated%20catalogue%20illustration')){
-        delete value.photo;
-        delete value.imageSource;
-        changed=true;
-      }
-    }
-    if(changed)localStorage.setItem(key,JSON.stringify(meta));
-  }catch(error){recordRuntimeError(error,'catalog-cleanup')}
-}
-
 function buildNav(){
   const nav=$('#nav');
   if(!nav)return;
@@ -58,12 +42,11 @@ function buildNav(){
 }
 
 function setSidebar(open){
-  const sidebar=$('#sidebar'),backdrop=$('#sidebarBackdrop'),button=$('#menuBtn');
-  sidebar?.classList.toggle('open',open);
-  backdrop?.classList.toggle('visible',open);
-  backdrop?.classList.toggle('hidden',!open);
+  $('#sidebar')?.classList.toggle('open',open);
+  $('#sidebarBackdrop')?.classList.toggle('visible',open);
+  $('#sidebarBackdrop')?.classList.toggle('hidden',!open);
   document.body.classList.toggle('nav-open',open);
-  button?.setAttribute('aria-expanded',String(open));
+  $('#menuBtn')?.setAttribute('aria-expanded',String(open));
 }
 const closeSidebar=()=>setSidebar(false);
 const toggleSidebar=()=>setSidebar(!$('#sidebar')?.classList.contains('open'));
@@ -86,21 +69,16 @@ function showAuthLoader(message='Checking your secure session…'){
 }
 
 function showApp(){
-  buildNav();
-  hideAuthLoader();
+  buildNav();hideAuthLoader();
   $('#loginView')?.classList.add('hidden');
   $('#appView')?.classList.remove('hidden');
-  const email=store.user?.email||'Signed in';
-  const role=String(store.role||'staff').toUpperCase();
-  const initial=email.charAt(0).toUpperCase();
-  const values=[['#roleLabel',role],['#emailLabel',email],['#avatar',initial],['#sideEmail',email],['#sideRole',role],['#sideAvatar',initial]];
-  values.forEach(([selector,value])=>{const node=$(selector);if(node)node.textContent=value});
+  const email=store.user?.email||'Signed in',role=String(store.role||'staff').toUpperCase(),initial=email.charAt(0).toUpperCase();
+  [['#roleLabel',role],['#emailLabel',email],['#avatar',initial],['#sideEmail',email],['#sideRole',role],['#sideAvatar',initial]].forEach(([selector,value])=>{const node=$(selector);if(node)node.textContent=value});
   health.authenticated=true;
 }
 
 function showLogin(message=''){
-  closeSidebar();
-  hideAuthLoader();
+  closeSidebar();hideAuthLoader();
   $('#appView')?.classList.add('hidden');
   $('#loginView')?.classList.remove('hidden');
   const notice=$('#loginNotice');if(notice)notice.textContent=message;
@@ -110,28 +88,18 @@ function showLogin(message=''){
 function showWorkspaceError(error){
   const message=error?.message||String(error||'Unknown error');
   recordRuntimeError(error,'workspace');
-  const content=$('#content');
-  if(!content)return;
-  content.innerHTML=`<section class="panel"><div class="empty"><h2>Workspace could not finish loading</h2><p>${escapeHtml(message)}</p><button class="btn" id="retryWorkspace" type="button">Retry</button></div></section>`;
+  const target=$('#content');if(!target)return;
+  target.innerHTML=`<section class="panel"><div class="empty"><h2>Workspace could not finish loading</h2><p>${escapeHtml(message)}</p><button class="btn" id="retryWorkspace" type="button">Retry</button></div></section>`;
   $('#retryWorkspace')?.addEventListener('click',()=>loadAndStart());
 }
 
 async function loadAndStart(){
-  const content=$('#content');
-  if(!content)throw new Error('Application content container was not found.');
-  content.replaceChildren();
-  content.setAttribute('aria-busy','true');
-  try{
-    await loadBills();
-    health.dataLoaded=true;
-    health.error=null;
-    health.lastLoaded=new Date().toISOString();
-    startRouter();
-  }catch(error){
-    health.dataLoaded=false;
-    showWorkspaceError(error);
-    throw error;
-  }finally{content.removeAttribute('aria-busy')}
+  const target=$('#content');
+  if(!target)throw new Error('Application content container was not found.');
+  target.replaceChildren();target.setAttribute('aria-busy','true');
+  try{await loadBills();health.dataLoaded=true;health.error=null;health.lastLoaded=new Date().toISOString();startRouter()}
+  catch(error){health.dataLoaded=false;showWorkspaceError(error);throw error}
+  finally{target.removeAttribute('aria-busy')}
 }
 
 function bindNavigation(){
@@ -142,8 +110,7 @@ function bindNavigation(){
   document.addEventListener('click',event=>{
     const trigger=event.target.closest('a[data-route],button[data-route]');
     if(!trigger)return;
-    event.preventDefault();
-    closeSidebar();
+    event.preventDefault();closeSidebar();
     if(trigger.dataset.route)navigate(trigger.dataset.route);
   });
   window.addEventListener('hashchange',closeSidebar);
@@ -152,11 +119,9 @@ function bindNavigation(){
 }
 
 function bindLogout(){
-  const button=$('#logoutBtn');
-  if(!button)return;
+  const button=$('#logoutBtn');if(!button)return;
   button.onclick=async()=>{
-    button.disabled=true;
-    showAuthLoader('Signing out securely…');
+    button.disabled=true;showAuthLoader('Signing out securely…');
     try{await signOut();health.dataLoaded=false;showLogin()}
     catch(error){recordRuntimeError(error,'sign-out');showLogin(error?.message||'Sign out failed.')}
     finally{button.disabled=false}
@@ -164,41 +129,26 @@ function bindLogout(){
 }
 
 function bindLoginForm(){
-  const form=$('#loginForm');
-  if(!form)return;
+  const form=$('#loginForm');if(!form)return;
   form.onsubmit=async event=>{
     event.preventDefault();
     const submit=event.submitter,name=$('#loginName'),password=$('#loginPassword'),notice=$('#loginNotice');
     if(!name||!password){showLogin('Login fields could not be found.');return}
-    if(notice)notice.textContent='Signing in…';
-    if(submit)submit.disabled=true;
-    try{
-      await signIn(name.value,password.value);
-      showApp();
-      if(notice)notice.textContent='';
-      await loadAndStart().catch(()=>{});
-    }catch(error){recordRuntimeError(error,'sign-in');showLogin(error?.message||'Sign in failed.')}
+    if(notice)notice.textContent='Signing in…';if(submit)submit.disabled=true;
+    try{await signIn(name.value,password.value);showApp();if(notice)notice.textContent='';await loadAndStart().catch(()=>{})}
+    catch(error){recordRuntimeError(error,'sign-in');showLogin(error?.message||'Sign in failed.')}
     finally{if(submit)submit.disabled=false}
   };
 }
 
 async function boot(){
-  removeGeneratedPlaceholders();
-  showAuthLoader();
-  buildNav();
+  showAuthLoader();buildNav();
   let collapsed=false;
   try{collapsed=localStorage.getItem('bills.sidebarCollapsed')==='1'}catch(error){recordRuntimeError(error,'sidebar-preference-read')}
-  setCollapsed(collapsed);
-  bindNavigation();
-  bindLogout();
-  bindLoginForm();
-  const footerYear=$('#footerYear');if(footerYear)footerYear.textContent=new Date().getFullYear();
-  try{
-    const user=await restoreSession();
-    if(!user){showLogin();return}
-    showApp();
-    await loadAndStart().catch(()=>{});
-  }catch(error){recordRuntimeError(error,'session-restore');showLogin('Your saved session expired. Please sign in again.')}
+  setCollapsed(collapsed);bindNavigation();bindLogout();bindLoginForm();
+  const year=$('#footerYear');if(year)year.textContent=new Date().getFullYear();
+  try{const user=await restoreSession();if(!user){showLogin();return}showApp();await loadAndStart().catch(()=>{})}
+  catch(error){recordRuntimeError(error,'session-restore');showLogin('Your saved session expired. Please sign in again.')}
   finally{health.booted=true}
 }
 
