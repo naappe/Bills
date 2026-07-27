@@ -54,7 +54,7 @@ export function dashboardPage(){
   const paidRate=total?paidTotal/total*100:0;
   const recent=[...rows].sort((a,b)=>String(billDate(b)).localeCompare(String(billDate(a)))||String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,6);
   const highestPending=[...pendingRows].sort((a,b)=>amount(b)-amount(a)).slice(0,3);
-  const missingInvoices=[...rows].filter(row=>{const value=String(billNo(row)||'').trim();return !value||value==='—'}).sort((a,b)=>String(billDate(b)).localeCompare(String(billDate(a))).slice(0,3);
+  const missingInvoices=[...rows].filter(row=>{const value=String(billNo(row)||'').trim();return !value||value==='—'}).sort((a,b)=>String(billDate(b)).localeCompare(String(billDate(a)))).slice(0,3);
   const supplierSpend=new Map();
   rows.forEach(row=>{const name=vendor(row);supplierSpend.set(name,(supplierSpend.get(name)||0)+amount(row))});
   const topSuppliers=[...supplierSpend.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3);
