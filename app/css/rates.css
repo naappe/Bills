@@ -6,3 +6,64 @@
 .supplier-offers{display:grid;gap:10px}.supplier-offer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-control);background:var(--surface)}.supplier-offer.best{border-color:var(--brand-gold);background:var(--brand-gold-100)}.supplier-offer>div:last-child{text-align:right}.supplier-offer strong,.supplier-offer small{display:block}.supplier-offer small{margin-top:3px;color:var(--text-muted);font-size:var(--fs-11)}.supplier-offer span{display:inline-flex;margin-top:5px;padding:3px 7px;border-radius:var(--radius-pill);background:var(--success-soft);color:var(--success);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
 @media(max-width:1100px){.rates-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.rate-detail-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.rates-toolbar{grid-template-columns:1fr}.rate-history-row{grid-template-columns:82px minmax(80px,1fr) 105px}.supplier-offer{align-items:flex-start;flex-direction:column}.supplier-offer>div:last-child{text-align:left}}
+
+/* Price Intelligence density and overflow repair. These rules intentionally override
+   the page-local injected styles without changing calculations or rendering logic. */
+#content[data-current-route="rates"] .pi-head,
+#content[data-current-route="prices"] .pi-head{align-items:center!important;min-height:0;padding-block:0!important}
+#content[data-current-route="rates"] .pi-head h1,
+#content[data-current-route="prices"] .pi-head h1{margin-bottom:4px}
+#content[data-current-route="rates"] .pi-kpis,
+#content[data-current-route="prices"] .pi-kpis{gap:12px}
+#content[data-current-route="rates"] .pi-kpi,
+#content[data-current-route="prices"] .pi-kpi{min-height:108px!important;padding:15px 17px!important}
+#content[data-current-route="rates"] .pi-kpi strong,
+#content[data-current-route="prices"] .pi-kpi strong{margin:7px 0 4px!important;font-size:clamp(21px,1.8vw,28px)!important}
+#content[data-current-route="rates"] .pi-filters,
+#content[data-current-route="prices"] .pi-filters{padding:13px!important;gap:10px!important}
+#content[data-current-route="rates"] .pi-table,
+#content[data-current-route="prices"] .pi-table{min-width:0!important;table-layout:auto}
+#content[data-current-route="rates"] .pi-table th,
+#content[data-current-route="rates"] .pi-table td,
+#content[data-current-route="prices"] .pi-table th,
+#content[data-current-route="prices"] .pi-table td{padding:12px 10px!important}
+#content[data-current-route="rates"] .pi-table th:nth-child(3),
+#content[data-current-route="rates"] .pi-table td:nth-child(3),
+#content[data-current-route="rates"] .pi-table th:nth-child(4),
+#content[data-current-route="rates"] .pi-table td:nth-child(4),
+#content[data-current-route="rates"] .pi-table th:nth-child(5),
+#content[data-current-route="rates"] .pi-table td:nth-child(5),
+#content[data-current-route="rates"] .pi-table th:nth-child(11),
+#content[data-current-route="rates"] .pi-table td:nth-child(11),
+#content[data-current-route="rates"] .pi-table th:nth-child(12),
+#content[data-current-route="rates"] .pi-table td:nth-child(12),
+#content[data-current-route="prices"] .pi-table th:nth-child(3),
+#content[data-current-route="prices"] .pi-table td:nth-child(3),
+#content[data-current-route="prices"] .pi-table th:nth-child(4),
+#content[data-current-route="prices"] .pi-table td:nth-child(4),
+#content[data-current-route="prices"] .pi-table th:nth-child(5),
+#content[data-current-route="prices"] .pi-table td:nth-child(5),
+#content[data-current-route="prices"] .pi-table th:nth-child(11),
+#content[data-current-route="prices"] .pi-table td:nth-child(11),
+#content[data-current-route="prices"] .pi-table th:nth-child(12),
+#content[data-current-route="prices"] .pi-table td:nth-child(12){display:none}
+#content[data-current-route="rates"] .pi-product,
+#content[data-current-route="prices"] .pi-product{min-width:190px!important}
+#content[data-current-route="rates"] .pi-table-wrap,
+#content[data-current-route="prices"] .pi-table-wrap{overflow-x:hidden!important}
+
+@media(max-width:1250px) and (min-width:769px){
+  #content[data-current-route="rates"] .pi-kpis,
+  #content[data-current-route="prices"] .pi-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  #content[data-current-route="rates"] .pi-kpi,
+  #content[data-current-route="prices"] .pi-kpi{min-height:102px!important;padding:13px!important}
+}
+
+@media(max-width:768px){
+  #content[data-current-route="rates"] .pi-head,
+  #content[data-current-route="prices"] .pi-head{align-items:stretch!important}
+  #content[data-current-route="rates"] .pi-head-actions .btn,
+  #content[data-current-route="prices"] .pi-head-actions .btn{width:100%}
+  #content[data-current-route="rates"] .pi-kpi,
+  #content[data-current-route="prices"] .pi-kpi{min-height:100px!important}
+}
