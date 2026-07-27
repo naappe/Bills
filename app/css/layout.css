@@ -20,7 +20,8 @@
   .side-account-copy{display:flex;flex-direction:column;gap:2px;align-items:center;text-align:center;width:100%}
   #sideAvatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:var(--weight-bold);font-size:var(--fs-14);flex-shrink:0}
   .main{margin-left:var(--sidebar-width);min-height:100vh;width:calc(100% - var(--sidebar-width));transition:margin-left .2s ease,width .2s ease}
-  .topbar{left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));transition:left .2s ease,width .2s ease}
+  /* The topbar lives inside .main, so a second sidebar offset created the blank desktop gutter. */
+  .topbar{left:0;width:100%;transition:width .2s ease}
   .content{max-width:none;margin:0;padding:22px 24px;gap:20px}
   .app-footer>div{max-width:none}
   
@@ -37,7 +38,7 @@
   .sidebar-collapsed .side-foot{padding:var(--sp-1-5) 8px;gap:var(--sp-1)}
   .sidebar-collapsed .side-account-copy{display:none}
   .sidebar-collapsed .main{margin-left:var(--sidebar-collapsed);width:calc(100% - var(--sidebar-collapsed))}
-  .sidebar-collapsed .topbar{left:var(--sidebar-collapsed);width:calc(100% - var(--sidebar-collapsed))}
+  .sidebar-collapsed .topbar{left:0;width:100%}
 }
 
 /* Keep the workspace visually tight and remove unnecessary gutters. */
