@@ -7,9 +7,9 @@
 .content>section,.content>article,.content>.grid-4,.content>.grid-2,.content>.catalog,.content>.admin-grid,.content>.report-grid{min-width:0}
 
 /* One shared surface language. */
-.card,.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar,.product-filters,.vendor-filters,.kpi{border:1px solid var(--border);border-radius:var(--radius-card);background:var(--surface);box-shadow:var(--shadow-sm)}
+.card,.toolbar,.date-toolbar,.bills-toolbar,.rates-toolbar,.report-toolbar,.product-filters,.vendor-filters,.kpi{border:1px solid var(--border);border-radius:var(--radius-card);background:var(--surface)}
 .card-head{min-height:58px;padding:var(--sp-1-5) var(--sp-2);gap:var(--sp-2)}
-.card-head>div{min-width:0}.card-head h2{margin:0;font-size:var(--fs-18);font-weight:var(--weight-semibold);line-height:1.25}.card-head small{margin-top:3px;color:var(--text-muted);font-size:var(--fs-11);line-height:1.4}
+.card-head>div{min-width:0}.card-head h2{margin:0;font-size:var(--fs-18);font-weight:var(--weight-semibold);line-height:1.25}.card-head small{margin-top:3px;color:var(--text-muted);font-size:var(--fs-11)}
 .card-body{padding:var(--sp-2)}
 
 /* Common controls and action alignment. */
@@ -34,7 +34,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .table tbody tr:last-child td{border-bottom:0}
 .pager{min-height:58px;padding:var(--sp-1-5) var(--sp-2)}
 
-/* Current Bills table has six columns; remove stale eight-column sizing. */
+/* Bills table sizing. */
 .bills-table{width:100%;min-width:920px;table-layout:fixed}
 .bills-table th:nth-child(1),.bills-table td:nth-child(1){width:120px}
 .bills-table th:nth-child(2),.bills-table td:nth-child(2){width:130px}
