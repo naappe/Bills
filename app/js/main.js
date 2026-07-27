@@ -1,6 +1,6 @@
 import {store,escapeHtml} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter,navigate} from './router.js?v=5.1.4';
+import {startRouter,navigate} from './router.js?v=5.1.5';
 
 const $=selector=>document.querySelector(selector);
 const navGroups=[
@@ -18,7 +18,7 @@ const navGroups=[
   ]]
 ];
 
-const health={version:'5.1.4',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
+const health={version:'5.1.5',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
 window.app={store,health};
 
 function recordRuntimeError(error,source='runtime'){
