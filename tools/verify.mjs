@@ -33,11 +33,17 @@ check(versions.every(Boolean),'All application version markers are present');
 check(new Set(versions).size===1,`Version markers match (${versions.join(', ')})`);
 requireText(main,`./router.js?v=${metaVersion}`,'main.js imports the router at the current application version');
 
+// Master interaction contract: only explicit links and buttons may navigate.
+requireText(main,"closest('a[data-route],button[data-route]')",'Global routing only accepts explicit navigation controls');
+forbidText(main,"closest('[data-route]')",'Global routing cannot treat page containers as navigation controls');
+requireText(router,'content.dataset.currentRoute=store.route','Router stores current route without using data-route');
+forbidText(router,'content.dataset.route=store.route','Page container is never marked as a navigation control');
+
 for(const id of ['billForm','vendor','date','billItems','addRow','subtotal','gstTotal','grandTotal'])requireText(bill,`id="${id}"`,`Bill Entry preserves #${id}`);
 requireText(bill,"form.addEventListener('submit'",'Bill Entry owns form submission');
-requireText(bill,"event.preventDefault()",'Bill Entry prevents native form navigation');
-requireText(bill,"saveBillRecords([record])",'New bill save calls saveBillRecords');
-requireText(bill,"updateBill(editing.id,record)",'Edit bill save calls updateBill');
+requireText(bill,'event.preventDefault()','Bill Entry prevents native form navigation');
+requireText(bill,'saveBillRecords([record])','New bill save calls saveBillRecords');
+requireText(bill,'updateBill(editing.id,record)','Edit bill save calls updateBill');
 requireText(bill,'data-confirm','Review modal has explicit confirmation control');
 requireText(bill,'button.disabled=true','Save button is locked during database request');
 requireText(bill,'button.disabled=false','Save button is restored after failure');
