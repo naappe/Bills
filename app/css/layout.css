@@ -2,21 +2,41 @@
 @media (min-width:821px){
   html,body{min-height:100%;overflow-x:hidden}
   .app{display:block;min-height:100vh}
-  .sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:var(--sidebar-width);height:100vh;overflow:hidden}
-  .nav{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none}
+  .sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:var(--sidebar-width);height:100vh;overflow:hidden;transition:width .2s ease}
+  .nav{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;padding:14px 10px 10px}
   .nav::-webkit-scrollbar{width:0;height:0;display:none}
-  .side-foot{flex:0 0 auto}
-  .main{margin-left:var(--sidebar-width);min-height:100vh;width:calc(100% - var(--sidebar-width))}
+  .nav-group{padding:0 0 12px;margin:0 0 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav-group:last-child{margin-bottom:0;border-bottom:0}
+  .nav-label{padding:8px 12px 6px;font-size:10px;letter-spacing:.12em}
+  .nav a{height:42px;margin:3px 0;padding:0 12px;border-left:0;border-radius:10px;gap:12px}
+  .nav a i{width:20px;flex:0 0 20px;font-size:15px}
+  .nav a.active{box-shadow:inset 3px 0 0 var(--brand-gold)}
+  .side-foot{flex:0 0 auto;padding:14px 12px}
+  .main{margin-left:var(--sidebar-width);min-height:100vh;width:calc(100% - var(--sidebar-width));transition:margin-left .2s ease,width .2s ease}
   .topbar{left:var(--sidebar-width);width:100%}
   .content{max-width:none;margin:0;padding:22px 24px;gap:20px}
   .app-footer>div{max-width:none}
+  .sidebar-collapsed .sidebar{width:76px}
+  .sidebar-collapsed .main{margin-left:76px;width:calc(100% - 76px)}
+  .sidebar-collapsed .nav{padding:12px 8px}
+  .sidebar-collapsed .nav-group{padding-bottom:8px;margin-bottom:8px}
+  .sidebar-collapsed .nav a{height:44px;padding:0;justify-content:center;margin:4px 0}
+  .sidebar-collapsed .nav a i{width:auto;flex:0 0 auto;font-size:17px}
+  .sidebar-collapsed .side-foot{padding:12px 8px}
 }
 
 /* Keep the workspace visually tight and remove unnecessary gutters. */
 .content>.page-head:first-child{margin-bottom:0}
 .card,.toolbar,.bills-toolbar{width:100%}
+.bills-toolbar{align-items:end}
+.bills-toolbar-actions{justify-content:flex-start!important;margin-bottom:2px}
+.bills-toolbar-actions .btn{min-width:108px}
 
 @media (max-width:820px){
   .main{margin-left:0;width:100%}
   .content{max-width:none;margin:0}
+  .nav{padding:12px 10px}
+  .nav-group{padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .nav-label{padding:8px 12px 5px}
+  .nav a{margin:3px 0}
 }
