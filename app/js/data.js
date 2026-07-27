@@ -3,15 +3,50 @@ import {store} from './store.js';
 
 export const db=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey);
 
+let billsLoadPromise=null;
+let billsLoaded=false;
+let billsLoadedAt=0;
+let billsFetchCount=0;
+
+export const billsLoadState=()=>({
+  loading:Boolean(billsLoadPromise),
+  loaded:billsLoaded,
+  loadedAt:billsLoadedAt||null,
+  fetchCount:billsFetchCount,
+  rows:store.rows.length
+});
+
+export function invalidateBillsCache({clearRows=false}={}){
+  billsLoadPromise=null;
+  billsLoaded=false;
+  billsLoadedAt=0;
+  if(clearRows)store.set({rows:[]});
+}
+
 export async function signIn(username,password){
   const email=CONFIG.loginAliases[String(username||'').trim().toLowerCase()]||String(username||'').trim();
   const {data,error}=await db.auth.signInWithPassword({email,password});
   if(error)throw error;
+  invalidateBillsCache({clearRows:true});
   store.set({user:data.user,role:CONFIG.adminIds.includes(data.user?.id)?'admin':'staff'});
   return data.user;
 }
-export async function signOut(){await db.auth.signOut();store.set({user:null,rows:[]})}
-export async function restoreSession(){const {data}=await db.auth.getSession();const user=data.session?.user||null;store.set({user,role:CONFIG.adminIds.includes(user?.id)?'admin':'staff'});return user}
+
+export async function signOut(){
+  await db.auth.signOut();
+  invalidateBillsCache({clearRows:true});
+  store.set({user:null});
+}
+
+export async function restoreSession(){
+  const {data}=await db.auth.getSession();
+  const user=data.session?.user||null;
+  const changedUser=String(store.user?.id||'')!==String(user?.id||'');
+  if(changedUser)invalidateBillsCache({clearRows:true});
+  store.set({user,role:CONFIG.adminIds.includes(user?.id)?'admin':'staff'});
+  return user;
+}
+
 export async function sendPasswordReset(email=store.user?.email){
   const target=String(email||'').trim();
   if(!target)throw new Error('No account email is available.');
@@ -20,6 +55,7 @@ export async function sendPasswordReset(email=store.user?.email){
   if(error)throw error;
   return target;
 }
+
 export async function updatePassword(password){
   const value=String(password||'');
   if(value.length<8)throw new Error('Password must contain at least 8 characters.');
@@ -28,8 +64,13 @@ export async function updatePassword(password){
   if(data?.user)store.set({user:data.user});
   return data?.user||null;
 }
-export async function loadBills(){
-  const all=[];let from=0;const step=1000;
+
+async function fetchAllBills(){
+  const all=[];
+  let from=0;
+  const step=1000;
+  billsFetchCount++;
+
   while(true){
     const {data,error}=await db.from(CONFIG.table).select('*').range(from,from+step-1);
     if(error)throw error;
@@ -37,7 +78,22 @@ export async function loadBills(){
     if(!data||data.length<step)break;
     from+=step;
   }
-  store.set({rows:all});return all;
+
+  store.set({rows:all});
+  billsLoaded=true;
+  billsLoadedAt=Date.now();
+  return all;
+}
+
+export function loadBills({force=false}={}){
+  if(!force&&billsLoaded)return Promise.resolve(store.rows);
+  if(!force&&billsLoadPromise)return billsLoadPromise;
+
+  billsLoadPromise=fetchAllBills().finally(()=>{
+    billsLoadPromise=null;
+  });
+
+  return billsLoadPromise;
 }
 
 const protectedColumns=new Set(['id','created_at','updated_at']);
@@ -102,13 +158,27 @@ export async function saveBillRecords(records){
   const {data,error}=await db.from(CONFIG.table).insert(payload).select();
   if(error)throw new Error(`Bill save failed: ${error.message}${error.details?` — ${error.details}`:''}`);
   if(!data?.length)throw new Error('Supabase accepted the request but returned no saved bill.');
-  store.set({rows:[...data,...store.rows]});return data;
+  store.set({rows:[...data,...store.rows]});
+  billsLoaded=true;
+  billsLoadedAt=Date.now();
+  return data;
 }
+
 export async function updateBill(id,record){
   const payload=compatibleRecord(record);
   assertPayload([payload]);
   const {data,error}=await db.from(CONFIG.table).update(payload).eq('id',id).select().single();
   if(error)throw new Error(`Bill update failed: ${error.message}${error.details?` — ${error.details}`:''}`);
-  store.set({rows:store.rows.map(row=>String(row.id)===String(id)?data:row)});return data;
+  store.set({rows:store.rows.map(row=>String(row.id)===String(id)?data:row)});
+  billsLoaded=true;
+  billsLoadedAt=Date.now();
+  return data;
 }
-export async function deleteBill(id){const {error}=await db.from(CONFIG.table).delete().eq('id',id);if(error)throw error;store.set({rows:store.rows.filter(row=>String(row.id)!==String(id))})}
+
+export async function deleteBill(id){
+  const {error}=await db.from(CONFIG.table).delete().eq('id',id);
+  if(error)throw error;
+  store.set({rows:store.rows.filter(row=>String(row.id)!==String(id))});
+  billsLoaded=true;
+  billsLoadedAt=Date.now();
+}
