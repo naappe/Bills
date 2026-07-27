@@ -2,7 +2,7 @@
 
 White Saffron Procurement ERP is a browser-based procurement system for recording supplier bills, tracking product costs, comparing vendors, and reviewing purchasing performance.
 
-**Current version:** `v4.9.37`  
+**Current version:** `v5.1.4`  
 **Status:** Active development  
 **Platform:** GitHub Pages + Supabase  
 **Live site:** https://naappe.github.io/Bills/
@@ -90,30 +90,32 @@ No build process or application server is required.
 index.html
 └── app/
     ├── css/
-    │   ├── tokens.css
     │   ├── app.css
+    │   ├── system.css
     │   ├── layout.css
+    │   ├── consistency.css
     │   ├── products.css
     │   ├── vendors.css
     │   ├── rates.css
     │   ├── reports.css
     │   ├── admin.css
-    │   └── system.css
+    │   ├── dashboard.css
+    │   └── bills-mobile.css
     └── js/
         ├── main.js
         ├── router.js
         ├── store.js
         ├── data.js
-        ├── pages.js
+        ├── dashboard.js
         ├── bills.js
         ├── bill-entry.js
         ├── products.js
         ├── vendors.js
         ├── rates.js
         ├── reports.js
+        ├── settings.js
         ├── admin.js
-        ├── vendor-picker.js
-        └── bill-entry-cleanup.js
+        └── vendor-picker.js
 ```
 
 ## Current routes
@@ -138,8 +140,22 @@ index.html
 - Full-width application content.
 - Mobile sidebar drawer.
 - Versioned assets to prevent stale browser files.
-- Browser service workers and old application caches are cleared during startup.
 - Current page load is lightweight and uses browser caching for static assets.
+
+## Module loading
+
+JavaScript modules are loaded directly from `index.html` and depend on exact source order:
+
+1. **Core foundation** — `main.js` initializes the application and sets up global state.
+2. **Authentication** — Supabase SDK and authentication initialization.
+3. **Page renderers** — `dashboard.js`, `bills.js`, `bill-entry.js`, `products.js`, `vendors.js`, `rates.js`, `reports.js`, `settings.js`, `admin.js`.
+4. **Routing** — `router.js` registers routes and dispatches to page renderers.
+
+The router enforces that only admin users can navigate to `#admin`. All other role restrictions are backend-enforced via Supabase Row Level Security.
+
+## Bill loading protection
+
+The application prevents duplicate bill loading by tracking the current bill list request and canceling overlapping requests. When the user navigates away from `#bills` and returns, the bill list is reloaded only once.
 
 ## Deployment
 
@@ -177,7 +193,7 @@ Supabase Row Level Security is the security boundary. Hiding frontend controls i
 
 ## Project status
 
-The current application foundation is operational. Active work is focused on data accuracy, consistent user experience, product and vendor intelligence, reporting quality, and database normalization.
+The current application foundation is operational. Active work is focused on data accuracy, consistent user experience, product and vendor intelligence, reporting quality, and database normalization. The organization and CSS structure are being consolidated to reduce stylesheet overlap and improve maintainability.
 
 ## License
 
