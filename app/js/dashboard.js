@@ -1,4 +1,4 @@
-import {store,money,escapeHtml,billDate,vendor,amount,status,itemsOf,productName,itemCategory,today} from './store.js';
+import {store,money,escapeHtml,billDate,billNo,vendor,amount,status,itemsOf,productName,itemCategory,today} from './store.js';
 
 const $=selector=>document.querySelector(selector);
 const content=()=>$('#content');
@@ -53,7 +53,11 @@ export function dashboardPage(){
   const average=rows.length?total/rows.length:0;
   const paidRate=total?paidTotal/total*100:0;
   const recent=[...rows].sort((a,b)=>String(billDate(b)).localeCompare(String(billDate(a)))||String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,6);
-  const highestPending=[...pendingRows].sort((a,b)=>amount(b)-amount(a)).slice(0,5);
+  const highestPending=[...pendingRows].sort((a,b)=>amount(b)-amount(a)).slice(0,3);
+  const missingInvoices=[...rows].filter(row=>{const value=String(billNo(row)||'').trim();return !value||value==='—'}).sort((a,b)=>String(billDate(b)).localeCompare(String(billDate(a))).slice(0,3);
+  const supplierSpend=new Map();
+  rows.forEach(row=>{const name=vendor(row);supplierSpend.set(name,(supplierSpend.get(name)||0)+amount(row))});
+  const topSuppliers=[...supplierSpend.entries()].sort((a,b)=>b[1]-a[1]).slice(0,3);
   const trend=groupSpend(rows,range),trendRows=trend.list.slice(-8),maxTrend=Math.max(1,...trendRows.map(([,value])=>value));
   const categories=new Map();
   rows.forEach(row=>{const items=itemsOf(row);if(!items.length){categories.set('Other',(categories.get('Other')||0)+amount(row));return}const billTotal=amount(row),known=items.reduce((sum,item)=>sum+(Number(item.row_total)||Number(item.line_total)||Number(item.qty||item.quantity||0)*Number(item.pack_rate||item.rate||0)),0);items.forEach(item=>{const line=Number(item.row_total)||Number(item.line_total)||Number(item.qty||item.quantity||0)*Number(item.pack_rate||item.rate||0),share=known?billTotal*line/known:billTotal/items.length,key=itemCategory(item,row);categories.set(key,(categories.get(key)||0)+share)})});
@@ -86,10 +90,22 @@ export function dashboardPage(){
         <div class="dashboard-record-list">${recent.map(row=>`<button class="dashboard-record" data-route="bills" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')} · ${itemsOf(row).length||1} item${itemsOf(row).length===1?'':'s'}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status ${status(row).toLowerCase()==='paid'?'paid':'pending'}">${escapeHtml(status(row))}</small></span></button>`).join('')||'<div class="empty">No bills in this period.</div>'}</div>
       </article>
 
-      <article class="card dashboard-panel dashboard-attention">
-        <header class="card-head"><div><h2>Needs attention</h2><small>Largest pending payments</small></div></header>
-        <div class="dashboard-record-list">${highestPending.map(row=>`<button class="dashboard-record" data-route="bills" data-filter="Pending" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status pending">Pending</small></span></button>`).join('')||'<div class="dashboard-clear"><i class="fa-solid fa-circle-check"></i><strong>No pending bills</strong><small>Everything in this period is marked paid.</small></div>'}</div>
-      </article>
+      <aside class="dashboard-attention-stack">
+        <article class="card dashboard-panel dashboard-attention">
+          <header class="card-head"><div><h2>Needs attention</h2><small>Largest pending payments</small></div></header>
+          <div class="dashboard-record-list compact">${highestPending.map(row=>`<button class="dashboard-record" data-route="bills" data-filter="Pending" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status pending">Pending</small></span></button>`).join('')||'<div class="dashboard-clear compact-clear"><i class="fa-solid fa-circle-check"></i><strong>No pending bills</strong><small>Everything is marked paid.</small></div>'}</div>
+        </article>
+
+        <article class="card dashboard-panel">
+          <header class="card-head"><div><h2>Invoice follow-up</h2><small>Bills without an invoice number</small></div><button class="btn secondary small" data-route="bills" type="button">Open bills</button></header>
+          <div class="dashboard-record-list compact">${missingInvoices.map(row=>`<button class="dashboard-record" data-route="bills" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')} · Invoice not added</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong></span></button>`).join('')||'<div class="dashboard-clear compact-clear"><i class="fa-solid fa-receipt"></i><strong>Invoices complete</strong><small>No missing invoice numbers.</small></div>'}</div>
+        </article>
+
+        <article class="card dashboard-panel">
+          <header class="card-head"><div><h2>Top suppliers</h2><small>Highest spend in this period</small></div><button class="btn secondary small" data-route="vendors" type="button">View vendors</button></header>
+          <div class="dashboard-supplier-list">${topSuppliers.map(([name,value],index)=>`<button data-route="vendors" type="button"><span class="dashboard-rank">${index+1}</span><strong>${escapeHtml(name)}</strong><b>${money(value)}</b></button>`).join('')||'<div class="empty">No supplier activity.</div>'}</div>
+        </article>
+      </aside>
     </section>
 
     <section class="dashboard-secondary-grid">
