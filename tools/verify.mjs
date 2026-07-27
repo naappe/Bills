@@ -21,13 +21,11 @@ const jsFiles=walk('app/js').filter(file=>file.endsWith('.js'));
 const index=read('index.html'),sw=read('sw.js'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
 const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','rates.js','reports.js','settings.js','admin.js'];
 
-// Syntax gate for every application module, not only core files.
 for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'pipe'});passes.push(`JavaScript syntax: ${file}`)}
   catch(error){failures.push(`JavaScript syntax: ${file}\n${error.stderr?.toString()||error.message}`)}
 }
 
-// Version and cache consistency.
 const metaVersion=index.match(/meta name="app-version" content="([^"]+)"/)?.[1];
 const deploymentVersion=index.match(/__BILLS_DEPLOYMENT__=\{version:'([^']+)'/)?.[1];
 const mainVersion=index.match(/main\.js\?v=([0-9.]+)/)?.[1];
@@ -39,7 +37,6 @@ check(new Set(versions).size===1,`Version markers match (${versions.join(', ')})
 requireText(main,`./router.js?v=${metaVersion}`,'main.js imports the current router version');
 for(const page of pageFiles)requireText(router,`./${page}?v=${metaVersion}`,`router imports ${page} at version ${metaVersion}`);
 
-// Master routing and page-rendering contract.
 requireText(main,"closest('a[data-route],button[data-route]')",'Global routing only accepts explicit links and buttons');
 forbidText(main,"closest('[data-route]')",'Page containers cannot become route triggers');
 requireText(router,'content.dataset.currentRoute=store.route','Router stores current route without data-route');
@@ -48,12 +45,8 @@ forbidText(router,"querySelectorAll(':scope > .page-head')",'Router preserves pa
 requireText(main,'escapeHtml(message)','Workspace errors are safely escaped');
 requireText(main,"window.addEventListener('unhandledrejection'",'Unhandled promise failures are recorded');
 
-// Shared business-data contract.
-for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
-for(const file of ['dashboard.js','vendors.js','rates.js','reports.js']){
-  const source=read(`app/js/${file}`);
-  requireText(source,'itemsOf',`${file} processes every item in a bill`);
-}
+for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billComputedTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
+for(const file of ['dashboard.js','vendors.js','rates.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
 requireText(read('app/js/dashboard.js'),'today','Dashboard uses the shared local business date');
 requireText(read('app/js/reports.js'),'today','Reports use the shared local business date');
 forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
@@ -62,7 +55,6 @@ requireText(read('app/js/reports.js'),'lineTotal','Reports aggregate item-level 
 requireText(read('app/js/rates.js'),'itemsOf','Price Intelligence includes multi-item bills');
 requireText(read('app/js/vendors.js'),'itemsOf','Vendor product coverage includes every item');
 
-// Bill Entry DOM, interaction and save contract.
 for(const id of ['billForm','vendor','date','billItems','addRow','subtotal','gstTotal','grandTotal'])requireText(bill,`id="${id}"`,`Bill Entry preserves #${id}`);
 requireText(bill,"form.addEventListener('submit'",'Bill Entry owns form submission');
 requireText(bill,'saveBillRecords([record])','New bill save calls saveBillRecords');
@@ -75,14 +67,12 @@ forbidText(main,"closest('#addRow')",'main.js does not intercept Add Row');
 forbidText(main,'#billForm','main.js does not control Bill Entry');
 forbidText(main,'installBillRowFallback','Emergency Add Row fallback remains removed');
 
-// Database write contract.
 requireText(data,'compatibleRecord','Database writes use schema compatibility');
 requireText(data,'assertPayload','Database rejects empty or incompatible payloads');
 requireText(data,'insert(payload).select()','New bills are inserted and returned');
 requireText(data,'if(!data?.length)','Save requires a returned Supabase record');
 for(const alias of ['bill_date','payment_status','payment_method','qty','pack_rate'])requireText(data,alias,`Save compatibility covers ${alias}`);
 
-// Known debt is visible until safely removed.
 const broadIsolation="['pointerdown','mousedown','touchstart','click','focusin']";
 const isolationCount=bill.split(broadIsolation).length-1;
 check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolationCount}/1)`);
