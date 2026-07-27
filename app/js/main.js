@@ -18,8 +18,17 @@ const navGroups=[
   ]]
 ];
 
-const health={version:'5.1.8',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
+const health={version:'5.1.9',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
 window.app={store,health};
+
+const SESSION_TIMEOUT_MS=15*60*1000;
+const SESSION_WARNING_MS=60*1000;
+let inactivityTimer=0;
+let warningTimer=0;
+let countdownTimer=0;
+let sessionDeadline=0;
+let lastActivityAt=0;
+let sessionEnding=false;
 
 function recordRuntimeError(error,source='runtime'){
   const message=error?.message||String(error||'Unknown error');
@@ -153,17 +162,73 @@ function showAuthLoader(message='Checking your secure session…'){
   document.body.classList.add('auth-pending');
 }
 
+function clearSessionTimers(){
+  window.clearTimeout(inactivityTimer);window.clearTimeout(warningTimer);window.clearInterval(countdownTimer);
+  inactivityTimer=0;warningTimer=0;countdownTimer=0;sessionDeadline=0;
+  $('#sessionWarning')?.classList.add('hidden');
+}
+
+function appIsBusy(){
+  return Boolean(document.querySelector('#content[aria-busy="true"],form[aria-busy="true"],button[type="submit"]:disabled,[data-session-busy="true"]'));
+}
+
+function updateSessionCountdown(){
+  const remaining=Math.max(0,Math.ceil((sessionDeadline-Date.now())/1000));
+  const node=$('#sessionCountdown');if(node)node.textContent=String(remaining);
+  if(remaining<=0)finishInactiveSession();
+}
+
+function showSessionWarning(){
+  if(!health.authenticated||sessionEnding)return;
+  if(appIsBusy()){resetSessionTimer();return}
+  $('#sessionWarning')?.classList.remove('hidden');
+  sessionDeadline=Date.now()+SESSION_WARNING_MS;
+  updateSessionCountdown();
+  window.clearInterval(countdownTimer);
+  countdownTimer=window.setInterval(updateSessionCountdown,1000);
+}
+
+function resetSessionTimer(){
+  if(!health.authenticated||sessionEnding)return;
+  clearSessionTimers();
+  sessionDeadline=Date.now()+SESSION_TIMEOUT_MS;
+  warningTimer=window.setTimeout(showSessionWarning,SESSION_TIMEOUT_MS-SESSION_WARNING_MS);
+  inactivityTimer=window.setTimeout(finishInactiveSession,SESSION_TIMEOUT_MS);
+}
+
+function registerSessionActivity(){
+  const now=Date.now();
+  if(now-lastActivityAt<1000)return;
+  lastActivityAt=now;
+  resetSessionTimer();
+}
+
+async function finishInactiveSession(){
+  if(sessionEnding||!health.authenticated)return;
+  if(appIsBusy()){resetSessionTimer();return}
+  sessionEnding=true;clearSessionTimers();showAuthLoader('Signing out securely…');
+  try{await signOut();health.dataLoaded=false;showLogin('Your session expired after 15 minutes of inactivity. Please sign in again.')}
+  catch(error){recordRuntimeError(error,'inactivity-sign-out');showLogin('Your session expired. Please sign in again.')}
+  finally{sessionEnding=false}
+}
+
+function bindSessionSecurity(){
+  ['pointerdown','keydown','touchstart','scroll'].forEach(type=>document.addEventListener(type,registerSessionActivity,{passive:true,capture:true}));
+  $('#sessionStaySignedIn')?.addEventListener('click',()=>{lastActivityAt=Date.now();resetSessionTimer()});
+  $('#sessionSignOut')?.addEventListener('click',finishInactiveSession);
+}
+
 function showApp(){
   buildNav();hideAuthLoader();
   $('#loginView')?.classList.add('hidden');
   $('#appView')?.classList.remove('hidden');
   const email=store.user?.email||'Signed in',role=String(store.role||'staff').toUpperCase(),initial=email.charAt(0).toUpperCase();
   [['#roleLabel',role],['#emailLabel',email],['#avatar',initial],['#sideEmail',email],['#sideRole',role],['#sideAvatar',initial]].forEach(([selector,value])=>{const node=$(selector);if(node)node.textContent=value});
-  health.authenticated=true;
+  health.authenticated=true;lastActivityAt=Date.now();resetSessionTimer();
 }
 
 function showLogin(message=''){
-  closeSidebar();hideAuthLoader();
+  clearSessionTimers();closeSidebar();hideAuthLoader();
   $('#appView')?.classList.add('hidden');
   $('#loginView')?.classList.remove('hidden');
   const notice=$('#loginNotice');if(notice)notice.textContent=message;
@@ -182,7 +247,7 @@ async function loadAndStart(){
   const target=$('#content');
   if(!target)throw new Error('Application content container was not found.');
   target.replaceChildren();target.setAttribute('aria-busy','true');
-  try{await loadBills();health.dataLoaded=true;health.error=null;health.lastLoaded=new Date().toISOString();startRouter();watchSearchableLists()}
+  try{await loadBills();health.dataLoaded=true;health.error=null;health.lastLoaded=new Date().toISOString();startRouter();watchSearchableLists();registerSessionActivity()}
   catch(error){health.dataLoaded=false;showWorkspaceError(error);throw error}
   finally{target.removeAttribute('aria-busy')}
 }
@@ -195,10 +260,10 @@ function bindNavigation(){
   document.addEventListener('click',event=>{
     const trigger=event.target.closest('a[data-route],button[data-route]');
     if(!trigger)return;
-    event.preventDefault();closeSidebar();
+    event.preventDefault();closeSidebar();registerSessionActivity();
     if(trigger.dataset.route)navigate(trigger.dataset.route);
   });
-  window.addEventListener('hashchange',closeSidebar);
+  window.addEventListener('hashchange',()=>{closeSidebar();registerSessionActivity()});
   window.addEventListener('resize',()=>{if(window.innerWidth>820)closeSidebar()});
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar()});
 }
@@ -206,10 +271,10 @@ function bindNavigation(){
 function bindLogout(){
   const button=$('#logoutBtn');if(!button)return;
   button.onclick=async()=>{
-    button.disabled=true;showAuthLoader('Signing out securely…');
+    button.disabled=true;sessionEnding=true;clearSessionTimers();showAuthLoader('Signing out securely…');
     try{await signOut();health.dataLoaded=false;showLogin()}
     catch(error){recordRuntimeError(error,'sign-out');showLogin(error?.message||'Sign out failed.')}
-    finally{button.disabled=false}
+    finally{button.disabled=false;sessionEnding=false}
   };
 }
 
@@ -230,7 +295,7 @@ async function boot(){
   showAuthLoader();buildNav();
   let collapsed=false;
   try{collapsed=localStorage.getItem('bills.sidebarCollapsed')==='1'}catch(error){recordRuntimeError(error,'sidebar-preference-read')}
-  setCollapsed(collapsed);bindNavigation();bindLogout();bindLoginForm();
+  setCollapsed(collapsed);bindNavigation();bindLogout();bindLoginForm();bindSessionSecurity();
   const year=$('#footerYear');if(year)year.textContent=new Date().getFullYear();
   try{const user=await restoreSession();if(!user){showLogin();return}showApp();await loadAndStart().catch(()=>{})}
   catch(error){recordRuntimeError(error,'session-restore');showLogin('Your saved session expired. Please sign in again.')}
