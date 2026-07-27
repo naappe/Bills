@@ -1,4 +1,4 @@
-/* Mobile Bills layout: convert the wide desktop table into compact bill cards. */
+/* Mobile Bills layout: compact, readable bill cards and full-screen detail modal. */
 @media (max-width:700px){
   #content[data-route="bills"] .bills-toolbar{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:14px!important}
   #content[data-route="bills"] .bills-toolbar-actions{grid-column:1!important;justify-content:stretch!important}
@@ -8,23 +8,31 @@
   #content[data-route="bills"] .bills-table{display:block!important;width:100%!important;min-width:0!important;table-layout:auto!important;border:0!important}
   #content[data-route="bills"] .bills-table thead{display:none!important}
   #content[data-route="bills"] .bills-table tbody{display:grid!important;gap:12px!important;width:100%!important}
-  #content[data-route="bills"] .bills-table tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px 16px!important;width:100%!important;min-height:0!important;height:auto!important;padding:16px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:14px!important;box-shadow:var(--shadow-sm)!important}
+  #content[data-route="bills"] .bills-table tr{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)!important;grid-template-areas:"record vendor" "total created" "actions actions"!important;gap:16px 18px!important;width:100%!important;min-height:0!important;height:auto!important;padding:18px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:16px!important;box-shadow:var(--shadow-sm)!important}
   #content[data-route="bills"] .bills-table td{display:block!important;width:auto!important;min-width:0!important;height:auto!important;padding:0!important;border:0!important;text-align:left!important;white-space:normal!important;overflow:visible!important}
-  #content[data-route="bills"] .bills-table td::before{display:block;margin-bottom:4px;color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  #content[data-route="bills"] .bills-table td::before{display:block;margin-bottom:5px;color:var(--text-muted);font-size:9px;font-weight:800;letter-spacing:.075em;text-transform:uppercase}
+  #content[data-route="bills"] .bills-table td:nth-child(1){grid-area:record}
   #content[data-route="bills"] .bills-table td:nth-child(1)::before{content:"Record"}
-  #content[data-route="bills"] .bills-table td:nth-child(2)::before{content:"Bill date"}
+  #content[data-route="bills"] .bills-table td:nth-child(2){display:none!important}
+  #content[data-route="bills"] .bills-table td:nth-child(3){grid-area:created}
   #content[data-route="bills"] .bills-table td:nth-child(3)::before{content:"Created"}
+  #content[data-route="bills"] .bills-table td:nth-child(4){grid-area:vendor}
   #content[data-route="bills"] .bills-table td:nth-child(4)::before{content:"Vendor"}
+  #content[data-route="bills"] .bills-table td:nth-child(5){grid-area:total}
   #content[data-route="bills"] .bills-table td:nth-child(5)::before{content:"Bill total"}
+  #content[data-route="bills"] .bills-table td:nth-child(6){grid-area:actions;padding-top:14px!important;border-top:1px solid var(--border)!important}
   #content[data-route="bills"] .bills-table td:nth-child(6)::before{content:"Actions"}
-  #content[data-route="bills"] .bills-table .bill-record,
-  #content[data-route="bills"] .bills-table .bill-vendor{grid-column:1/-1}
-  #content[data-route="bills"] .bills-table .bill-total{grid-column:1/2}
-  #content[data-route="bills"] .bills-table .action-col{grid-column:2/3;align-self:end}
-  #content[data-route="bills"] .bills-table .action-col .actions{justify-content:flex-end;gap:8px;flex-wrap:wrap}
-  #content[data-route="bills"] .bills-table .action-col .btn{min-height:34px;padding:6px 10px}
+  #content[data-route="bills"] .bills-table .bill-record strong{font-size:18px;line-height:1.2;color:var(--brand-navy)}
+  #content[data-route="bills"] .bills-table .bill-record small{margin-top:5px;font-size:12px;overflow-wrap:anywhere}
   #content[data-route="bills"] .bills-table .bill-vendor{min-width:0}
-  #content[data-route="bills"] .bills-table .bill-entry-time{white-space:normal}
+  #content[data-route="bills"] .bills-table .bill-vendor strong{font-size:16px;line-height:1.25;overflow-wrap:anywhere}
+  #content[data-route="bills"] .bills-table .bill-vendor small{display:none}
+  #content[data-route="bills"] .bills-table .bill-total{text-align:left!important;white-space:normal!important}
+  #content[data-route="bills"] .bills-table .bill-total strong{font-size:18px;line-height:1.25;color:var(--brand-navy)}
+  #content[data-route="bills"] .bills-table .bill-entry-time{white-space:normal;color:var(--text)}
+  #content[data-route="bills"] .bills-table .bill-entry-time strong{font-size:13px;line-height:1.4;font-weight:700}
+  #content[data-route="bills"] .bills-table .action-col .actions{justify-content:flex-start;gap:8px;flex-wrap:wrap}
+  #content[data-route="bills"] .bills-table .action-col .btn{min-height:36px;padding:7px 13px}
   #content[data-route="bills"] .bills-table .empty{display:block!important;grid-column:1/-1;padding:24px!important;text-align:center!important}
   #content[data-route="bills"] .pager{margin-top:12px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
 
@@ -62,10 +70,5 @@
 }
 
 @media (max-width:420px){
-  #content[data-route="bills"] .bills-table tr{grid-template-columns:1fr!important}
-  #content[data-route="bills"] .bills-table .bill-record,
-  #content[data-route="bills"] .bills-table .bill-vendor,
-  #content[data-route="bills"] .bills-table .bill-total,
-  #content[data-route="bills"] .bills-table .action-col{grid-column:1!important}
-  #content[data-route="bills"] .bills-table .action-col .actions{justify-content:flex-start}
+  #content[data-route="bills"] .bills-table tr{grid-template-columns:1fr 1fr!important;grid-template-areas:"record vendor" "total created" "actions actions"!important}
 }
