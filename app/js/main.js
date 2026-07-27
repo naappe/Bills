@@ -1,11 +1,10 @@
 import {store} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter,navigate} from './router.js?v=5.0.5';
-import './vendor-picker.js?v=5.0.5';
+import {startRouter,navigate} from './router.js?v=5.0.6';
 
 const $=s=>document.querySelector(s);
 const navGroups=[['Overview',[['dashboard','Dashboard','fa-table-cells-large']]],['Procurement',[['bills','Bills','fa-file-invoice'],['rates','Price Intelligence','fa-chart-line','admin'],['products','Products','fa-box'],['vendors','Vendors','fa-building']]],['Analytics',[['reports','Reports','fa-chart-pie']]],['Administration',[['settings','Settings','fa-gear'],['admin','Admin & users','fa-users-gear','admin']]]];
-const health={version:'5.0.5',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};window.app={store,health};
+const health={version:'5.0.6',booted:false,authenticated:false,dataLoaded:false,error:null,startedAt:new Date().toISOString()};window.app={store,health};
 function removeGeneratedPlaceholders(){try{const key='bills.productMetadata.v3',meta=JSON.parse(localStorage.getItem(key)||'{}');let changed=false;for(const value of Object.values(meta)){if(value?.imageSource==='generated'||String(value?.photo||'').includes('Generated%20catalogue%20illustration')){delete value.photo;delete value.imageSource;changed=true}}if(changed)localStorage.setItem(key,JSON.stringify(meta))}catch{}}
 function buildNav(){$('#nav').innerHTML=navGroups.map(([group,items])=>{const visible=items.filter(([, , ,requiredRole])=>!requiredRole||store.role===requiredRole);if(!visible.length)return'';return `<div class="nav-group"><div class="nav-label">${group}</div>${visible.map(([route,label,icon])=>`<a href="#${route}" data-route="${route}" title="${label}"><i class="fa-solid ${icon}" aria-hidden="true"></i><span>${label}</span></a>`).join('')}</div>`}).join('')}
 function setSidebar(open){const sidebar=$('#sidebar'),backdrop=$('#sidebarBackdrop'),button=$('#menuBtn');sidebar?.classList.toggle('open',open);backdrop?.classList.toggle('visible',open);backdrop?.classList.toggle('hidden',!open);document.body.classList.toggle('nav-open',open);button?.setAttribute('aria-expanded',String(open))}
