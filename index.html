@@ -46,6 +46,12 @@
     .session-warning-card h2{margin:0 0 8px;color:#102b4e;font-size:21px}.session-warning-card p{margin:0;color:#64748b;font-size:14px;line-height:1.55}
     .session-warning-time{display:block;margin:18px 0;color:#b7791f;font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
     .session-warning-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+    .bill-row{grid-template-columns:minmax(260px,1.8fr) 70px 80px 100px 110px 90px 38px!important;gap:12px!important;align-items:end!important}
+    .bill-row .item-name small{margin-top:6px!important;font-size:11px!important;line-height:1.35}
+    .line-total{display:flex!important;min-height:42px;flex-direction:column;justify-content:flex-end;align-items:flex-end;padding-bottom:2px;text-align:right;white-space:nowrap}
+    .line-total strong{font-size:16px!important;line-height:1.2;color:var(--text-strong)}
+    .remove-row{width:38px!important;height:38px;min-width:38px!important;align-self:end}
+    @media(max-width:1000px) and (min-width:761px){.bill-row{grid-template-columns:minmax(180px,1fr) 70px 80px 90px 100px 80px 38px!important}}
     @media(prefers-reduced-motion:reduce){.auth-loader,.auth-loader-card,.auth-loader-signature{transition-duration:.2s}.auth-loader-mark{animation:none}.auth-progress-bar{animation-timing-function:linear}}
     .sidebar-backdrop{position:fixed;inset:0;z-index:50;background:rgba(8,25,47,.48);opacity:0;pointer-events:none}
     .sidebar-backdrop.visible{opacity:1;pointer-events:auto}
