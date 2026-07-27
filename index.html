@@ -79,6 +79,29 @@
     <button class="sidebar-backdrop hidden" id="sidebarBackdrop" type="button" aria-label="Close navigation"></button>
     <main class="main"><header class="topbar"><div class="top-left"><button class="btn secondary menu-btn" id="menuBtn" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button><div class="top-title"><strong id="topTitle">Dashboard</strong><small id="topSubtitle">Procurement performance overview</small></div></div><div class="user"><div class="user-copy"><strong id="roleLabel">STAFF</strong><small id="emailLabel">Signed in</small></div><div class="avatar" id="avatar">A</div></div></header><div class="content" id="content"></div><footer class="app-footer"><div><span>White Saffron Procurement ERP</span><span>Secure MVR workspace · © <span id="footerYear"></span></span></div></footer></main>
   </section>
+  <script>
+    (()=>{
+      const loader=document.getElementById('authLoader');
+      if(!loader)return;
+      const minimumVisibleUntil=performance.now()+3000;
+      let releaseStarted=false;
+      const observer=new MutationObserver(()=>{
+        if(releaseStarted||!loader.classList.contains('hidden'))return;
+        releaseStarted=true;
+        loader.classList.remove('hidden');
+        const wait=Math.max(0,minimumVisibleUntil-performance.now());
+        window.setTimeout(()=>{
+          loader.classList.add('leaving');
+          window.setTimeout(()=>{
+            loader.classList.add('hidden');
+            loader.setAttribute('aria-busy','false');
+            observer.disconnect();
+          },720);
+        },wait);
+      });
+      observer.observe(loader,{attributes:true,attributeFilter:['class']});
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8" crossorigin="anonymous"></script>
   <script type="module" src="./app/js/main.js?v=5.1.8-loader"></script>
 </body>
