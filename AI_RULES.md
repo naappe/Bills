@@ -35,6 +35,75 @@ Preserve working behavior over rewriting. The objective is to fix or extend the 
 
 ---
 
+# Protected Website Baseline
+
+The current production website is the protected baseline.
+
+When a page already contains working fields, controls, calculations, actions, layout regions, responsive behavior, or navigation:
+
+- Keep them in place.
+- Do not replace them with a newly invented page or component.
+- Do not restore an older page version.
+- Do not copy a different page frame over the existing page.
+- Do not remove a field merely because a simplified design looks cleaner.
+- Do not change a working workflow while fixing spacing, typography, alignment, or color.
+- Do not combine a visual correction with structural or functional changes.
+
+Existing page structure is authoritative unless the user explicitly approves a redesign or upgrade.
+
+Future work must be incremental. Additions must extend the existing page rather than replace it.
+
+Before editing a page, inventory and preserve:
+
+- Existing fields and field IDs
+- Buttons and actions
+- Event handlers
+- Validation
+- Calculations
+- Save and edit wiring
+- Routes and links
+- Role restrictions
+- Responsive layout
+- Data attributes and DOM contracts
+- Existing user-visible information
+
+A visual update must not cause any of these to disappear, move into a different workflow, or become disconnected.
+
+---
+
+# Master Styling Contract
+
+Typography, spacing, field height, padding, card geometry, buttons, inputs, labels, tables, badges, modals, and responsive behavior must be controlled by the shared master CSS layers.
+
+Page-specific CSS may only handle layout or behavior unique to that page.
+
+Do not redefine shared visual properties inside individual page files when a master token or shared component already exists.
+
+The master styling contract must provide consistent:
+
+- Font family
+- Font sizes
+- Font weights
+- Line heights
+- Input and select heights
+- Label spacing
+- Field padding
+- Button sizes
+- Card padding
+- Section gaps
+- Border radii
+- Borders and shadows
+- Table density
+- Mobile spacing
+- Focus states
+- Disabled states
+
+When one page looks inconsistent, fix or extend the shared master rule only after confirming the change is safe for all pages. Do not overwrite individual page structure to force consistency.
+
+Shared CSS changes require cross-page review because they can affect every route.
+
+---
+
 # Permission Required
 
 Before changing any existing working function, logic, workflow, UI component, database behavior, or architecture, always ask permission.
