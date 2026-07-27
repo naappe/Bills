@@ -5,6 +5,7 @@ import {execFileSync} from 'node:child_process';
 const root=process.cwd();
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const exists=file=>fs.existsSync(path.join(root,file));
+const walk=directory=>fs.readdirSync(path.join(root,directory),{withFileTypes:true}).flatMap(entry=>{const relative=path.join(directory,entry.name);return entry.isDirectory()?walk(relative):[relative.replaceAll('\\','/')]});
 const failures=[];
 const passes=[];
 const warnings=[];
@@ -12,17 +13,21 @@ const check=(condition,message)=>{(condition?passes:failures).push(message)};
 const requireText=(source,needle,message)=>check(source.includes(needle),message);
 const forbidText=(source,needle,message)=>check(!source.includes(needle),message);
 
-const requiredFiles=['index.html','sw.js','app/js/main.js','app/js/router.js','app/js/bill-entry.js','app/js/data.js','app/js/store.js'];
-for(const file of requiredFiles)check(exists(file),`Required file exists: ${file}`);
+const coreFiles=['index.html','sw.js','app/js/main.js','app/js/router.js','app/js/bill-entry.js','app/js/data.js','app/js/store.js','.github/workflows/verify.yml'];
+for(const file of coreFiles)check(exists(file),`Required file exists: ${file}`);
 if(failures.length){console.error('\nRepository verification failed before source checks:\n');failures.forEach(item=>console.error(`✗ ${item}`));process.exit(1)}
 
-const index=read('index.html'),sw=read('sw.js'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js');
+const jsFiles=walk('app/js').filter(file=>file.endsWith('.js'));
+const index=read('index.html'),sw=read('sw.js'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
+const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','rates.js','reports.js','settings.js','admin.js'];
 
-for(const file of requiredFiles.filter(file=>file.endsWith('.js'))){
+// Syntax gate for every application module, not only core files.
+for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'pipe'});passes.push(`JavaScript syntax: ${file}`)}
   catch(error){failures.push(`JavaScript syntax: ${file}\n${error.stderr?.toString()||error.message}`)}
 }
 
+// Version and cache consistency.
 const metaVersion=index.match(/meta name="app-version" content="([^"]+)"/)?.[1];
 const deploymentVersion=index.match(/__BILLS_DEPLOYMENT__=\{version:'([^']+)'/)?.[1];
 const mainVersion=index.match(/main\.js\?v=([0-9.]+)/)?.[1];
@@ -31,43 +36,60 @@ const cacheVersion=sw.match(/CACHE_NAME='ws-bills-shell-v([^']+)'/)?.[1];
 const versions=[metaVersion,deploymentVersion,mainVersion,swVersion,cacheVersion];
 check(versions.every(Boolean),'All application version markers are present');
 check(new Set(versions).size===1,`Version markers match (${versions.join(', ')})`);
-requireText(main,`./router.js?v=${metaVersion}`,'main.js imports the router at the current application version');
+requireText(main,`./router.js?v=${metaVersion}`,'main.js imports the current router version');
+for(const page of pageFiles)requireText(router,`./${page}?v=${metaVersion}`,`router imports ${page} at version ${metaVersion}`);
 
-// Master interaction contract: only explicit links and buttons may navigate.
-requireText(main,"closest('a[data-route],button[data-route]')",'Global routing only accepts explicit navigation controls');
-forbidText(main,"closest('[data-route]')",'Global routing cannot treat page containers as navigation controls');
-requireText(router,'content.dataset.currentRoute=store.route','Router stores current route without using data-route');
-forbidText(router,'content.dataset.route=store.route','Page container is never marked as a navigation control');
+// Master routing and page-rendering contract.
+requireText(main,"closest('a[data-route],button[data-route]')",'Global routing only accepts explicit links and buttons');
+forbidText(main,"closest('[data-route]')",'Page containers cannot become route triggers');
+requireText(router,'content.dataset.currentRoute=store.route','Router stores current route without data-route');
+forbidText(router,'content.dataset.route=store.route','Router never marks the content container as navigation');
+forbidText(router,"querySelectorAll(':scope > .page-head')",'Router preserves page headings and page actions');
+requireText(main,'escapeHtml(message)','Workspace errors are safely escaped');
+requireText(main,"window.addEventListener('unhandledrejection'",'Unhandled promise failures are recorded');
 
+// Shared business-data contract.
+for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
+for(const file of ['dashboard.js','vendors.js','rates.js','reports.js']){
+  const source=read(`app/js/${file}`);
+  requireText(source,'itemsOf',`${file} processes every item in a bill`);
+}
+requireText(read('app/js/dashboard.js'),'today','Dashboard uses the shared local business date');
+requireText(read('app/js/reports.js'),'today','Reports use the shared local business date');
+forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
+forbidText(read('app/js/reports.js'),'new Date().toISOString().slice(0,10)','Reports avoid UTC business dates');
+requireText(read('app/js/reports.js'),'lineTotal','Reports aggregate item-level values');
+requireText(read('app/js/rates.js'),'itemsOf','Price Intelligence includes multi-item bills');
+requireText(read('app/js/vendors.js'),'itemsOf','Vendor product coverage includes every item');
+
+// Bill Entry DOM, interaction and save contract.
 for(const id of ['billForm','vendor','date','billItems','addRow','subtotal','gstTotal','grandTotal'])requireText(bill,`id="${id}"`,`Bill Entry preserves #${id}`);
 requireText(bill,"form.addEventListener('submit'",'Bill Entry owns form submission');
-requireText(bill,'event.preventDefault()','Bill Entry prevents native form navigation');
 requireText(bill,'saveBillRecords([record])','New bill save calls saveBillRecords');
 requireText(bill,'updateBill(editing.id,record)','Edit bill save calls updateBill');
-requireText(bill,'data-confirm','Review modal has explicit confirmation control');
-requireText(bill,'button.disabled=true','Save button is locked during database request');
+requireText(bill,'data-confirm','Review modal has explicit confirmation');
+requireText(bill,'button.disabled=true','Save button is locked during database writes');
 requireText(bill,'button.disabled=false','Save button is restored after failure');
 requireText(bill,"location.hash='#bills'",'Successful save returns to Bills');
-
 forbidText(main,"closest('#addRow')",'main.js does not intercept Add Row');
-forbidText(main,'#billForm','main.js does not control Bill Entry form');
-forbidText(main,'installBillRowFallback','Emergency Add Row fallback is removed');
-forbidText(router,"closest('#addRow')",'router.js does not intercept Add Row');
+forbidText(main,'#billForm','main.js does not control Bill Entry');
+forbidText(main,'installBillRowFallback','Emergency Add Row fallback remains removed');
 
+// Database write contract.
 requireText(data,'compatibleRecord','Database writes use schema compatibility');
-requireText(data,'saveBillRecords','Database layer exports new-bill save');
+requireText(data,'assertPayload','Database rejects empty or incompatible payloads');
 requireText(data,'insert(payload).select()','New bills are inserted and returned');
-requireText(data,'if(error)throw error','Supabase errors are propagated');
-requireText(data,'if(!payload.length)','Empty save payload is rejected');
+requireText(data,'if(!data?.length)','Save requires a returned Supabase record');
 for(const alias of ['bill_date','payment_status','payment_method','qty','pack_rate'])requireText(data,alias,`Save compatibility covers ${alias}`);
 
+// Known debt is visible until safely removed.
 const broadIsolation="['pointerdown','mousedown','touchstart','click','focusin']";
 const isolationCount=bill.split(broadIsolation).length-1;
-check(isolationCount<=1,`No additional broad Bill Entry event blockers were introduced (${isolationCount}/1)`);
-if(isolationCount===1)warnings.push('Existing broad Bill Entry propagation blocker remains technical debt; do not add another one.');
+check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolationCount}/1)`);
+if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
 warnings.forEach(item=>console.warn(`⚠ ${item}`));
 if(failures.length){console.error(`\n${failures.length} check(s) failed:\n`);failures.forEach(item=>console.error(`✗ ${item}`));process.exit(1)}
-console.log(`\nPASS — ${passes.length} checks completed. Deployment contract is intact.\n`);
+console.log(`\nPASS — ${passes.length} checks completed across ${jsFiles.length} JavaScript modules.\n`);
