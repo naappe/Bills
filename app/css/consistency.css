@@ -24,6 +24,9 @@ label{gap:6px;color:var(--text-strong);font-size:var(--fs-12);font-weight:var(--
 input,select,textarea{min-height:var(--control-height);font-size:var(--fs-13)}
 input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:0;box-shadow:var(--shadow-focus)}
 
+/* Keep forms compact: guidance belongs in placeholders, labels or validation messages. */
+form label>small,form [data-product-hint],form .field-help,form .form-help,form .input-help,form .control-help,form .hint-text{display:none!important}
+
 /* Grids use the same breakpoints and gaps on every route. */
 .grid-4,.catalog,.admin-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:var(--sp-2)}
 .grid-2,.report-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:var(--sp-2)}
