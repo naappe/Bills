@@ -67,16 +67,19 @@ function installSearchableLists(){
     menu.setAttribute('role','listbox');
     wrap.appendChild(menu);
     let active=-1;
+    let selecting=false;
 
     const close=()=>{menu.classList.remove('open');active=-1};
     const choose=value=>{
+      selecting=true;
       input.value=value;
       input.dispatchEvent(new Event('input',{bubbles:true}));
       input.dispatchEvent(new Event('change',{bubbles:true}));
       close();
-      input.focus();
+      requestAnimationFrame(()=>{close();selecting=false});
     };
     const draw=(showAll=false)=>{
+      if(selecting)return;
       const query=showAll?'':input.value.trim().toLowerCase();
       const matches=values.filter(value=>!query||value.toLowerCase().includes(query));
       active=-1;
