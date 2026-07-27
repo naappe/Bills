@@ -1,47 +1,103 @@
-/* Mobile Bills layout: compact, readable bill cards and full-screen detail modal. */
-@media (max-width:768px){
-  #content[data-current-route="bills"] .bills-toolbar{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;padding:12px!important}
-  #content[data-current-route="bills"] .bills-toolbar>*{width:100%!important;min-width:0!important}
-  #content[data-current-route="bills"] .bills-toolbar input,
-  #content[data-current-route="bills"] .bills-toolbar select,
-  #content[data-current-route="bills"] .bills-toolbar .btn{min-height:44px}
-  #content[data-current-route="bills"] .bills-toolbar-actions{grid-column:1!important;justify-content:stretch!important}
-  #content[data-current-route="bills"] .bills-toolbar-actions .btn{width:100%}
-  #content[data-current-route="bills"] .bill-custom{display:grid;gap:5px;width:100%}
-  #content[data-current-route="bills"] .card{border:0;background:transparent;box-shadow:none;overflow:visible}
+/* Bills workspace: operational desktop table, compact summary and mobile record cards. */
+#content[data-current-route="bills"] .bills-page-head{min-height:auto}
+#content[data-current-route="bills"] .bills-toolbar{display:grid;grid-template-columns:minmax(240px,1.5fr) repeat(2,minmax(150px,.7fr)) repeat(2,minmax(138px,.62fr)) minmax(130px,.55fr) auto;gap:10px;align-items:end;padding:14px}
+#content[data-current-route="bills"] .bill-search-field{position:relative;min-width:0}
+#content[data-current-route="bills"] .bill-search-field i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+#content[data-current-route="bills"] .bill-search-field input{width:100%;padding-left:38px}
+#content[data-current-route="bills"] .bills-toolbar select,
+#content[data-current-route="bills"] .bills-toolbar input,
+#content[data-current-route="bills"] .bills-toolbar .btn{width:100%}
+#content[data-current-route="bills"] .bill-custom{display:grid;gap:5px;margin:0}
+#content[data-current-route="bills"] .bills-summary{display:grid;grid-template-columns:repeat(3,minmax(140px,.7fr)) minmax(200px,1fr);gap:0;border:1px solid var(--border);border-radius:var(--radius-card);background:var(--surface);overflow:hidden}
+#content[data-current-route="bills"] .bills-summary>div{min-width:0;padding:14px 16px;border-right:1px solid var(--border)}
+#content[data-current-route="bills"] .bills-summary>div:last-child{border-right:0}
+#content[data-current-route="bills"] .bills-summary span{display:block;color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:.055em;text-transform:uppercase}
+#content[data-current-route="bills"] .bills-summary strong{display:block;margin-top:4px;color:var(--text-strong);font-size:17px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#content[data-current-route="bills"] .bills-summary-range{text-align:right}
+#content[data-current-route="bills"] .bills-list-card{overflow:hidden}
+#content[data-current-route="bills"] .bills-table{width:100%;min-width:900px;table-layout:fixed}
+#content[data-current-route="bills"] .bills-table th{height:44px;padding:10px 14px;color:var(--text-muted);font-size:10px;font-weight:700;letter-spacing:.055em;text-transform:uppercase}
+#content[data-current-route="bills"] .bills-table td{height:68px;padding:12px 14px;vertical-align:middle}
+#content[data-current-route="bills"] .bills-table th:nth-child(1),#content[data-current-route="bills"] .bills-table td:nth-child(1){width:155px}
+#content[data-current-route="bills"] .bills-table th:nth-child(2),#content[data-current-route="bills"] .bills-table td:nth-child(2){width:auto}
+#content[data-current-route="bills"] .bills-table th:nth-child(3),#content[data-current-route="bills"] .bills-table td:nth-child(3){width:130px}
+#content[data-current-route="bills"] .bills-table th:nth-child(4),#content[data-current-route="bills"] .bills-table td:nth-child(4){width:130px}
+#content[data-current-route="bills"] .bills-table th:nth-child(5),#content[data-current-route="bills"] .bills-table td:nth-child(5){width:145px}
+#content[data-current-route="bills"] .bills-table th:nth-child(6),#content[data-current-route="bills"] .bills-table td:nth-child(6){width:104px}
+#content[data-current-route="bills"] .bill-date strong,
+#content[data-current-route="bills"] .bill-date small,
+#content[data-current-route="bills"] .bill-vendor strong,
+#content[data-current-route="bills"] .bill-vendor small,
+#content[data-current-route="bills"] .bill-items strong,
+#content[data-current-route="bills"] .bill-items small{display:block}
+#content[data-current-route="bills"] .bill-date strong{font-size:13px;color:var(--text-strong)}
+#content[data-current-route="bills"] .bill-date small,
+#content[data-current-route="bills"] .bill-vendor small,
+#content[data-current-route="bills"] .bill-items small{margin-top:3px;color:var(--text-muted);font-size:10px;line-height:1.35}
+#content[data-current-route="bills"] .bill-vendor{min-width:0}
+#content[data-current-route="bills"] .bill-vendor strong{overflow:hidden;color:var(--brand-navy);font-size:14px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+#content[data-current-route="bills"] .bill-vendor small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#content[data-current-route="bills"] .bill-items strong{font-size:14px;color:var(--text-strong)}
+#content[data-current-route="bills"] .bill-status{display:inline-flex;align-items:center;min-height:26px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface-muted);color:var(--text-muted);font-size:10px;font-weight:700;white-space:nowrap}
+#content[data-current-route="bills"] .bill-status.paid{border-color:color-mix(in srgb,var(--success) 24%,var(--border));background:color-mix(in srgb,var(--success) 8%,var(--surface));color:var(--success)}
+#content[data-current-route="bills"] .bill-status.pending{border-color:color-mix(in srgb,var(--warning) 24%,var(--border));background:color-mix(in srgb,var(--warning) 8%,var(--surface));color:var(--warning)}
+#content[data-current-route="bills"] .bill-total{white-space:nowrap}
+#content[data-current-route="bills"] .bill-total strong{font-size:14px;color:var(--text-strong);font-variant-numeric:tabular-nums}
+#content[data-current-route="bills"] .action-col .actions{justify-content:flex-end;gap:6px}
+#content[data-current-route="bills"] .action-col .btn{width:34px;min-width:34px;min-height:34px;padding:0}
+#content[data-current-route="bills"] .locked{display:grid;width:34px;height:34px;place-items:center;color:var(--text-muted)}
+
+@media(max-width:1180px){
+  #content[data-current-route="bills"] .bills-toolbar{grid-template-columns:minmax(220px,1.5fr) repeat(2,minmax(145px,.8fr)) auto}
+  #content[data-current-route="bills"] .bill-custom{grid-row:2}
+  #content[data-current-route="bills"] #billPageSize{grid-row:2}
+  #content[data-current-route="bills"] #resetBills{grid-row:2}
+}
+
+@media(max-width:768px){
+  #content[data-current-route="bills"] .bills-page-head{gap:12px}
+  #content[data-current-route="bills"] .bills-page-head .actions,#content[data-current-route="bills"] .bills-page-head .btn{width:100%}
+  #content[data-current-route="bills"] .bills-toolbar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;padding:12px!important}
+  #content[data-current-route="bills"] .bill-search-field{grid-column:1/-1}
+  #content[data-current-route="bills"] .bill-custom,#content[data-current-route="bills"] #billPageSize,#content[data-current-route="bills"] #resetBills{grid-row:auto}
+  #content[data-current-route="bills"] #resetBills{grid-column:1/-1}
+  #content[data-current-route="bills"] .bills-toolbar input,#content[data-current-route="bills"] .bills-toolbar select,#content[data-current-route="bills"] .bills-toolbar .btn{min-height:44px}
+  #content[data-current-route="bills"] .bills-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #content[data-current-route="bills"] .bills-summary>div{border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+  #content[data-current-route="bills"] .bills-summary>div:nth-child(2n){border-right:0}
+  #content[data-current-route="bills"] .bills-summary>div:nth-last-child(-n+2){border-bottom:0}
+  #content[data-current-route="bills"] .bills-summary-range{text-align:left}
+  #content[data-current-route="bills"] .bills-list-card{border:0;background:transparent;box-shadow:none;overflow:visible}
   #content[data-current-route="bills"] .table-wrap{overflow:visible}
   #content[data-current-route="bills"] .bills-table{display:block!important;width:100%!important;min-width:0!important;table-layout:auto!important;border:0!important}
   #content[data-current-route="bills"] .bills-table thead{display:none!important}
   #content[data-current-route="bills"] .bills-table tbody{display:grid!important;gap:10px!important;width:100%!important;min-height:180px}
-  #content[data-current-route="bills"] .bills-table tr{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(112px,.62fr)!important;grid-template-areas:"vendor total" "record created" "actions actions"!important;gap:14px!important;width:100%!important;max-width:100%!important;min-height:0!important;height:auto!important;padding:16px!important;background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:16px!important;box-shadow:var(--shadow-sm)!important;overflow:hidden!important}
-  #content[data-current-route="bills"] .bills-table td{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;height:auto!important;padding:0!important;border:0!important;text-align:left!important;white-space:normal!important;overflow:hidden!important}
-  #content[data-current-route="bills"] .bills-table td::before{display:block;margin-bottom:5px;color:var(--text-muted);font-size:9px;font-weight:800;letter-spacing:.075em;text-transform:uppercase}
-  #content[data-current-route="bills"] .bills-table td:nth-child(1){grid-area:record}
-  #content[data-current-route="bills"] .bills-table td:nth-child(1)::before{content:"Record"}
-  #content[data-current-route="bills"] .bills-table td:nth-child(2){display:none!important}
-  #content[data-current-route="bills"] .bills-table td:nth-child(3){grid-area:created}
-  #content[data-current-route="bills"] .bills-table td:nth-child(3)::before{content:"Created"}
-  #content[data-current-route="bills"] .bills-table td:nth-child(4){grid-area:vendor}
-  #content[data-current-route="bills"] .bills-table td:nth-child(4)::before{content:"Vendor"}
+  #content[data-current-route="bills"] .bills-table tr{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"vendor total" "date payment" "items items" "actions actions"!important;gap:12px 16px!important;width:100%!important;height:auto!important;padding:16px!important;border:1px solid var(--border)!important;border-radius:16px!important;background:var(--surface)!important;box-shadow:var(--shadow-sm)!important;overflow:hidden!important}
+  #content[data-current-route="bills"] .bills-table td{display:block!important;width:auto!important;min-width:0!important;height:auto!important;padding:0!important;border:0!important;text-align:left!important;white-space:normal!important;overflow:hidden!important}
+  #content[data-current-route="bills"] .bills-table td::before{display:block;margin-bottom:4px;color:var(--text-muted);font-size:9px;font-weight:800;letter-spacing:.065em;text-transform:uppercase}
+  #content[data-current-route="bills"] .bills-table td:nth-child(1){grid-area:date}
+  #content[data-current-route="bills"] .bills-table td:nth-child(1)::before{content:"Bill date"}
+  #content[data-current-route="bills"] .bills-table td:nth-child(2){grid-area:vendor}
+  #content[data-current-route="bills"] .bills-table td:nth-child(2)::before{content:"Vendor"}
+  #content[data-current-route="bills"] .bills-table td:nth-child(3){grid-area:items}
+  #content[data-current-route="bills"] .bills-table td:nth-child(3)::before{content:"Items and category"}
+  #content[data-current-route="bills"] .bills-table td:nth-child(4){grid-area:payment;text-align:right!important}
+  #content[data-current-route="bills"] .bills-table td:nth-child(4)::before{content:"Payment"}
   #content[data-current-route="bills"] .bills-table td:nth-child(5){grid-area:total;text-align:right!important}
-  #content[data-current-route="bills"] .bills-table td:nth-child(5)::before{content:"Bill total"}
+  #content[data-current-route="bills"] .bills-table td:nth-child(5)::before{content:"Amount"}
   #content[data-current-route="bills"] .bills-table td:nth-child(6){grid-area:actions;padding-top:12px!important;border-top:1px solid var(--border)!important;overflow:visible!important}
-  #content[data-current-route="bills"] .bills-table td:nth-child(6)::before{content:"Actions"}
-  #content[data-current-route="bills"] .bills-table .bill-vendor{min-width:0;overflow:hidden!important}
-  #content[data-current-route="bills"] .bills-table .bill-vendor strong{display:block;max-width:100%;font-size:20px!important;line-height:1.2!important;font-weight:800!important;color:var(--brand-navy)!important;letter-spacing:-.01em;overflow-wrap:anywhere;word-break:normal}
-  #content[data-current-route="bills"] .bills-table .bill-vendor small{display:none}
-  #content[data-current-route="bills"] .bills-table .bill-total{white-space:normal!important;overflow:hidden!important}
-  #content[data-current-route="bills"] .bills-table .bill-total strong{display:block;max-width:100%;font-size:18px!important;line-height:1.25!important;font-weight:800!important;color:var(--brand-navy)!important;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;word-break:normal}
-  #content[data-current-route="bills"] .bills-table .bill-record strong{display:block;max-width:100%;font-size:13px!important;line-height:1.25!important;font-weight:700!important;color:var(--text)!important;overflow-wrap:anywhere}
-  #content[data-current-route="bills"] .bills-table .bill-record small{display:block;max-width:100%;margin-top:4px;font-size:12px!important;line-height:1.35;color:var(--text-muted);overflow-wrap:anywhere;word-break:normal}
-  #content[data-current-route="bills"] .bills-table .bill-entry-time{white-space:normal;color:var(--text-muted)!important}
-  #content[data-current-route="bills"] .bills-table .bill-entry-time strong{display:block;max-width:100%;font-size:12px!important;line-height:1.4!important;font-weight:600!important;color:var(--text-muted)!important;overflow-wrap:anywhere}
-  #content[data-current-route="bills"] .bills-table .action-col .actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch;gap:8px;width:100%;max-width:240px}
-  #content[data-current-route="bills"] .bills-table .action-col .btn{width:100%;min-width:0;min-height:38px;padding:7px 11px}
+  #content[data-current-route="bills"] .bills-table td:nth-child(6)::before{display:none}
+  #content[data-current-route="bills"] .bill-vendor strong{font-size:18px!important;white-space:normal;overflow-wrap:anywhere}
+  #content[data-current-route="bills"] .bill-vendor small{white-space:normal}
+  #content[data-current-route="bills"] .bill-total strong{font-size:18px!important;color:var(--brand-navy)}
+  #content[data-current-route="bills"] .bill-items{display:flex!important;align-items:center;gap:8px}
+  #content[data-current-route="bills"] .bill-items strong{font-size:13px}
+  #content[data-current-route="bills"] .bill-items small{margin:0}
+  #content[data-current-route="bills"] .action-col .actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:8px}
+  #content[data-current-route="bills"] .action-col .btn,#content[data-current-route="bills"] .locked{width:100%;min-height:38px}
   #content[data-current-route="bills"] .bills-table .empty{display:block!important;grid-column:1/-1;padding:24px!important;text-align:center!important}
   #content[data-current-route="bills"] .pager{margin-top:10px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
 
-  /* Bill detail modal: use the full phone viewport and never crop the right side. */
   .modal.bill-view-modal{place-items:stretch!important;padding:0!important;overflow:hidden!important}
   .modal.bill-view-modal .bill-view-card{width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain}
   .modal.bill-view-modal .bill-view-head{position:sticky!important;top:0;z-index:4;align-items:flex-start!important;gap:12px!important;padding:16px!important;background:var(--surface)!important}
@@ -53,7 +109,6 @@
   .modal.bill-view-modal .bill-view-summary div{min-width:0;padding:13px!important}
   .modal.bill-view-modal .bill-view-summary strong{font-size:16px!important;overflow-wrap:anywhere}
   .modal.bill-view-modal .bill-view-body{min-width:0;padding:16px!important}
-  .modal.bill-view-modal .bill-audit{align-items:flex-start!important}
   .modal.bill-view-modal .table-wrap{width:100%!important;max-width:100%!important;overflow:visible!important}
   .modal.bill-view-modal .bill-detail-table{display:block!important;width:100%!important;min-width:0!important;border:0!important}
   .modal.bill-view-modal .bill-detail-table thead{display:none!important}
@@ -62,25 +117,20 @@
   .modal.bill-view-modal .bill-detail-table td{display:block!important;min-width:0!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important}
   .modal.bill-view-modal .bill-detail-table td:first-child{grid-column:1/-1}
   .modal.bill-view-modal .bill-detail-table td::before{display:block;margin-bottom:3px;color:var(--text-muted);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-  .modal.bill-view-modal .bill-detail-table td:nth-child(1)::before{content:"Item"}
-  .modal.bill-view-modal .bill-detail-table td:nth-child(2)::before{content:"Pack"}
-  .modal.bill-view-modal .bill-detail-table td:nth-child(3)::before{content:"Qty"}
-  .modal.bill-view-modal .bill-detail-table td:nth-child(4)::before{content:"Rate"}
-  .modal.bill-view-modal .bill-detail-table td:nth-child(5)::before{content:"GST"}
-  .modal.bill-view-modal .bill-detail-table td:nth-child(6)::before{content:"Total"}
+  .modal.bill-view-modal .bill-detail-table td:nth-child(1)::before{content:"Item"}.modal.bill-view-modal .bill-detail-table td:nth-child(2)::before{content:"Pack"}.modal.bill-view-modal .bill-detail-table td:nth-child(3)::before{content:"Qty"}.modal.bill-view-modal .bill-detail-table td:nth-child(4)::before{content:"Rate"}.modal.bill-view-modal .bill-detail-table td:nth-child(5)::before{content:"GST"}.modal.bill-view-modal .bill-detail-table td:nth-child(6)::before{content:"Total"}
   .modal.bill-view-modal .bill-view-footer{grid-template-columns:1fr!important;gap:12px!important;margin-top:16px!important}
-  .modal.bill-view-modal .bill-notes,.modal.bill-view-modal .bill-totals{min-width:0;padding:15px!important}
   .modal.bill-view-modal .bill-view-actions{position:sticky!important;bottom:0;z-index:4;display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;background:var(--surface)!important}
-  .modal.bill-view-modal .bill-view-actions .btn{width:100%}
 }
 
-@media (max-width:420px){
-  #content[data-current-route="bills"] .bills-table tr{grid-template-columns:minmax(0,1fr) minmax(104px,.58fr)!important;grid-template-areas:"vendor total" "record created" "actions actions"!important;padding:15px!important;gap:12px!important}
-  #content[data-current-route="bills"] .bills-table .bill-vendor strong{font-size:18px!important}
-  #content[data-current-route="bills"] .bills-table .bill-total strong{font-size:17px!important}
+@media(max-width:480px){
+  #content[data-current-route="bills"] .bills-toolbar{grid-template-columns:1fr!important}
+  #content[data-current-route="bills"] .bill-search-field,#content[data-current-route="bills"] #resetBills{grid-column:1}
+  #content[data-current-route="bills"] .bills-summary{grid-template-columns:1fr 1fr}
+  #content[data-current-route="bills"] .bills-summary strong{font-size:15px}
+  #content[data-current-route="bills"] .bills-table tr{grid-template-columns:1fr auto!important;grid-template-areas:"vendor total" "date payment" "items items" "actions actions"!important;padding:15px!important}
 }
 
-@media (max-width:360px){
-  #content[data-current-route="bills"] .bills-table tr{grid-template-columns:1fr!important;grid-template-areas:"vendor" "total" "record" "created" "actions"!important}
-  #content[data-current-route="bills"] .bills-table td:nth-child(5){text-align:left!important}
+@media(max-width:360px){
+  #content[data-current-route="bills"] .bills-table tr{grid-template-columns:1fr!important;grid-template-areas:"vendor" "total" "date" "payment" "items" "actions"!important}
+  #content[data-current-route="bills"] .bills-table td:nth-child(4),#content[data-current-route="bills"] .bills-table td:nth-child(5){text-align:left!important}
 }
