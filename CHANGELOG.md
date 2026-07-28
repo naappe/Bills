@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.3.2] — Packing-only Cost products
+
+### Fixed
+
+- Cost excludes products and purchase points where Bill Entry packing was left empty
+
 ## [5.3.1] — Entered packing correction
 
 ### Fixed
