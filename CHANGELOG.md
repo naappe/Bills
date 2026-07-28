@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.2.0] — Cost workspace
+
+### Added
+
+- Dedicated admin-only Cost page
+- Purchase cost totals by product, vendor, category, and period
+- Responsive product-cost table and mobile cards
+- Filtered Cost CSV export
+
+### Removed
+
+- Price History and Price Intelligence routes
+- Legacy rates JavaScript and stylesheet files
+- Price movement, volatility, supplier-ranking, savings, sparkline, and historical-price page logic
+
 All notable changes to White Saffron Procurement ERP are recorded here.
 
 The project uses semantic-style version numbers for checkpoints. Dates and exact feature boundaries before v4.6.0 are reconstructed from repository history and should be corrected when authoritative release notes are available.

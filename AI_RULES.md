@@ -190,7 +190,7 @@ The following require explicit approval before modification:
 - Stock logic
 - Vendor logic
 - Product logic
-- Price Intelligence logic
+- Cost logic
 
 A protected file may still receive an approved isolated fix, but no broad rewrite is allowed.
 
@@ -266,7 +266,7 @@ Every change must preserve:
 - Per-KG, per-G, per-L, per-ML, and per-PCS calculations
 - Vendor management
 - Product management
-- Price Intelligence
+- Cost
 - Stock updates
 - User roles
 - Authentication

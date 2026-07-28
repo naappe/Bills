@@ -37,7 +37,7 @@ The application is a static single-page app built with HTML, CSS, and JavaScript
 - **Dashboard** — operational procurement overview, recent bills, pending payments, spending trends, and category allocation.
 - **Bills** — searchable supplier bills, date and vendor filters, pagination, bill detail popup, editing, and deletion controls.
 - **Bill Entry** — simplified supplier purchase entry with invoice-status handling and multiple product rows.
-- **Price Intelligence** — normalized product costs, supplier comparison, price trends, and administrator-only procurement analysis.
+- **Cost** — administrator-only purchase cost totals by product, vendor, category, and period, with filtered CSV export.
 - **Products** — static product catalogue showing latest vendor, packing, wholesale price, retail-price availability, and stock-tracking status.
 - **Vendors** — supplier directory and procurement history.
 - **Reports** — procurement value, payment status, average bill value, supplier statistics, and spending trends.
@@ -67,7 +67,7 @@ The Products page is intentionally a simple catalogue:
 - Retail price is shown only when a compatible saved field exists.
 - Product packing comes from saved bill-item data.
 - Product cards do not open a second analytics page.
-- Technical normalized-rate analysis belongs in Price Intelligence.
+- Technical normalized-rate analysis belongs in Cost.
 - Stock is shown as not tracked unless reliable inventory fields exist.
 
 The application must not invent retail prices, stock quantities, or reorder alerts when the database does not store them.
@@ -92,7 +92,7 @@ Older records without an `items` collection remain supported through legacy sing
 
 ## Access rules
 
-- **Admin** — full application controls, including Price Intelligence and delete operations.
+- **Admin** — full application controls, including Cost and delete operations.
 - **Staff** — standard procurement access with bill editing and deletion requests available without a time limit.
 
 Frontend role checks improve usability, but Supabase Row Level Security must enforce actual permissions.
@@ -152,7 +152,7 @@ index.html
     │   ├── consistency.css
     │   ├── products.css
     │   ├── vendors.css
-    │   ├── rates.css
+    │   ├── cost.css
     │   ├── reports.css
     │   ├── admin.css
     │   ├── dashboard.css
@@ -168,7 +168,7 @@ index.html
         ├── bill-entry.js
         ├── products.js
         ├── vendors.js
-        ├── rates.js
+        ├── cost.js
         ├── reports.js
         ├── settings.js
         └── admin.js
@@ -181,7 +181,7 @@ index.html
 | `#dashboard` | Procurement overview |
 | `#bills` | Bill list, filters, details, edit, and delete |
 | `#new` | Create or edit a supplier bill |
-| `#rates` / `#prices` | Price Intelligence |
+| `#cost` | Purchase cost totals, filters, product costs, and CSV export |
 | `#products` | Static product catalogue |
 | `#vendors` | Vendor directory |
 | `#reports` | Procurement reports |
@@ -211,7 +211,7 @@ After a deployment:
 1. Wait for GitHub Pages to publish.
 2. Hard refresh the live site.
 3. Test authentication and session restoration.
-4. Test Dashboard, Bills, Bill Entry, Products, Vendors, Price Intelligence, Reports, Settings, and Admin.
+4. Test Dashboard, Bills, Bill Entry, Products, Vendors, Cost, Reports, Settings, and Admin.
 5. Test bill create, view, edit, and delete flows.
 6. Check desktop, tablet, and mobile layouts.
 7. Confirm there are no browser console errors or failed network requests.

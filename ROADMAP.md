@@ -19,7 +19,7 @@ This roadmap defines intended implementation order and dependencies. Deployed be
 - Simplified Bill Entry with invoice-number-later workflow
 - Static Products catalogue derived from purchases
 - Vendor directory derived from purchases
-- Price Intelligence
+- Cost
 - Reports, Settings, and Admin foundations
 - Responsive desktop and mobile layouts
 - Shared searchable dropdown behavior
@@ -191,7 +191,7 @@ Replace implicit frontend role classification with trusted profiles and auditabl
 - Complete invoice details
 - Adjust stock
 - Edit product pricing
-- View Price Intelligence
+- View Cost
 - Manage users and settings
 
 Final permissions must be enforced with Supabase RLS, not only hidden controls.

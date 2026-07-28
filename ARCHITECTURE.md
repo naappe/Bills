@@ -83,8 +83,7 @@ Current routes:
 | `#dashboard` | `dashboardPage` |
 | `#bills` | `billsPage` |
 | `#new` | `newBillPage` |
-| `#rates` | `ratesPage` |
-| `#prices` | alias of `ratesPage` |
+| `#cost` | `costPage` |
 | `#products` | `productsPage` |
 | `#vendors` | `vendorsPage` |
 | `#reports` | `reportsPage` |
@@ -92,20 +91,6 @@ Current routes:
 | `#admin` | `adminPage` |
 
 Unknown hashes fall back to Dashboard.
-
-### `app/js/pages.js`
-
-Shared page-rendering module for:
-
-- Dashboard
-- Bills
-- New Bill
-- Price Intelligence
-- Reports
-- Settings
-- Admin
-
-This file currently retains multiple business functions and should not be replaced without validating every exported renderer.
 
 ### `app/js/products.js`
 
@@ -243,7 +228,7 @@ Consequences:
 - historical bills remain the source of truth
 - catalogue corrections must not silently change historical records
 - duplicate supplier names require canonical grouping
-- normalized products, vendors, aliases, and price history remain planned database work
+- normalized products, vendors, aliases, and cost workspace remain planned database work
 
 See `DATABASE.md` for the target schema.
 
@@ -291,7 +276,7 @@ Before changing architecture:
 
 ## Planned architecture evolution
 
-### v4.7 — Price Intelligence
+### v4.7 — Cost
 
 - dedicated price-intelligence module
 - product timeline aggregation
@@ -315,7 +300,7 @@ Before changing architecture:
 - vendor aliases
 - bills
 - bill items
-- price history or derived price views
+- cost workspace or derived price views
 
 ### v5.0 — Assisted procurement
 

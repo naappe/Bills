@@ -19,7 +19,7 @@ if(failures.length){console.error('\nRepository verification failed before sourc
 
 const jsFiles=walk('app/js').filter(file=>file.endsWith('.js'));
 const index=read('index.html'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
-const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','rates.js','reports.js','settings.js','admin.js'];
+const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','cost.js','reports.js','settings.js','admin.js'];
 
 for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'pipe'});passes.push(`JavaScript syntax: ${file}`)}
@@ -48,7 +48,7 @@ requireText(main,"window.addEventListener('unhandledrejection'",'Unhandled promi
 requireText(index,'method="post"','Login form does not use browser GET submission');
 
 for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billComputedTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
-for(const file of ['dashboard.js','vendors.js','rates.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
+for(const file of ['dashboard.js','vendors.js','cost.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
 requireText(read('app/js/dashboard.js'),'today','Dashboard uses the shared local business date');
 requireText(read('app/js/reports.js'),'today','Reports use the shared local business date');
 forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
@@ -83,6 +83,11 @@ const broadIsolation="['pointerdown','mousedown','touchstart','click','focusin']
 const isolationCount=bill.split(broadIsolation).length-1;
 check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolationCount}/1)`);
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
+
+
+for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
+forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));

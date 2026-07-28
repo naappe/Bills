@@ -199,7 +199,7 @@ Do not:
   - Dashboard
 - Procurement
   - Bills
-  - Price Intelligence — admin only
+  - Cost — admin only
   - Products
   - Vendors
 - Analytics
