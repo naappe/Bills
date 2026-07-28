@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.4.2] — Visible Cost example control
+
+- Moved the 10-product example control into the visible Cost search card
+- Added a clear live/example data label and mobile full-width action
+- Preserved the read-only demo behavior with no Supabase writes
+
 ## [5.4.1] — Ten-product example mode
 
 ### Added
