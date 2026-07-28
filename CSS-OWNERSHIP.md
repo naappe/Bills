@@ -174,20 +174,20 @@ input, select, textarea { height, font, focus state }
 ---
 
 ### `cost.css`
-**Scope:** Cost page—tables, filters, trends  
-**Likely contains:**
+**Scope:** Cost summary cards, filters, product-cost table, and mobile cost cards
+
+**Owns:**
 ```css
-.rate-table { sortable product pricing }
-.rate-filter { supplier, product, date range }
-.trend-chart { sparkline or chart }
-.alert-badge { price alerts for admin }
-.rate-comparison { side-by-side table }
+.cost-summary { filtered cost KPIs }
+.cost-filters { product, vendor, category, and date controls }
+.cost-table { desktop product-cost table }
+.cost-mobile { responsive cost cards }
 ```
 
-**Known issues:**
-- Page content may overflow right edge
-- Sidebar may clip at certain widths
-- Content grid may not fill full width
+**Rules:**
+- Keep cost values aligned and readable.
+- Use the shared card, control, and table tokens.
+- Switch to mobile cards below 768px without horizontal overflow.
 
 ---
 
@@ -300,8 +300,8 @@ input, select, textarea { height, font, focus state }
 
 ### Phase 2: Cost (High priority)
 - Fix sidebar clipping — may need to widen content area
-- Verify table doesn't overflow — check `.rates-table` min-width
-- Improve filter layout — may need to redesign `.rates-toolbar`
+- Verify the desktop table and mobile cards at their responsive breakpoints
+- Keep the cost filters readable at desktop, tablet, and mobile widths
 - Ensure full page width is used — check `.content` max-width
 
 ### Phase 3: Bills Page
