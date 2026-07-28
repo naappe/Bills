@@ -19,7 +19,7 @@ if(failures.length){console.error('\nRepository verification failed before sourc
 
 const jsFiles=walk('app/js').filter(file=>file.endsWith('.js'));
 const index=read('index.html'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
-const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','cost.js','reports.js','settings.js','admin.js'];
+const pageFiles=['dashboard.js','bills.js','bill-entry.js','supply.js','cost.js','reports.js','settings.js','admin.js'];
 
 for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'pipe'});passes.push(`JavaScript syntax: ${file}`)}
@@ -31,6 +31,7 @@ const deploymentVersion=index.match(/__BILLS_DEPLOYMENT__=\{version:'([^']+)'/)?
 const mainCacheToken=index.match(/main\.js\?v=([^"']+)/)?.[1];
 check(Boolean(metaVersion&&deploymentVersion&&mainCacheToken),'All application version and cache markers are present');
 check(metaVersion===deploymentVersion,`Deployment markers match (${metaVersion}, ${deploymentVersion})`);
+check(metaVersion===mainCacheToken,`Deployment and main.js cache versions match (${metaVersion}, ${mainCacheToken})`);
 check(/^[0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9._-]+)?$/.test(mainCacheToken||''),`main.js has a valid cache token (${mainCacheToken||'missing'})`);
 requireText(index,'type="module" src="./app/js/main.js?v=','Index loads main.js directly as a module');
 forbidText(index,'manifest.webmanifest','Manifest is disabled during stability recovery');
@@ -118,7 +119,7 @@ requireText(cost,"demoMode?demoProducts():liveProducts",'Example mode can return
 requireText(cost,'`${keyOf(product.category)}|${product.pack.baseUnit}`','Cost comparison prevents unrelated category ranking');
 requireText(cost,'data-edit-source','Cost page can open the original bill for editing');
 const professional=read('app/css/professional.css');
-requireText(index,'professional.css?v=5.7.1','Professional workspace layer is loaded after route styles');
+requireText(index,`professional.css?v=${metaVersion}`,'Professional workspace layer is loaded after route styles');
 for(const route of ['bills','dashboard','vendors','products','product-merge','new','reports','settings','admin'])requireText(professional,`data-current-route="${route}"`,`Professional workspace styles cover ${route}`);
 requireText(professional,'@media(max-width:820px)','Professional workspace supports tablet and mobile layouts');
 requireText(professional,'.content:not([data-current-route="cost"])','Cost remains the reference design while other routes are aligned');
