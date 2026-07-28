@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.3.0] — Product Cost analysis
+
+### Added
+
+- Searchable product cost summary with product images and price-change indicators
+- Latest and highest purchase cost including GST
+- Packing weight shown consistently in grams when a weight-based pack is recorded
+- Purchase-cost history graph and direct access to the original bill
+
 ## [5.2.1] — Empty Cost workspace
 
 ### Removed
