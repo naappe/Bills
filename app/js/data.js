@@ -23,12 +23,27 @@ export function invalidateBillsCache({clearRows=false}={}){
   if(clearRows)store.set({rows:[]});
 }
 
+async function resolveUserAccess(user){
+  if(!user)return{role:'staff',active:false};
+  const {data,error}=await db.from('user_roles').select('role,is_active').eq('user_id',user.id).maybeSingle();
+  if(error)throw new Error(`Account access could not be verified: ${error.message}`);
+  const fallbackRole=CONFIG.adminIds.includes(user.id)?'admin':'staff';
+  const role=String(data?.role||fallbackRole).toLowerCase();
+  const active=data?.is_active!==false;
+  if(!active){
+    await db.auth.signOut();
+    throw new Error('Your account has been deactivated. Contact an administrator.');
+  }
+  return{role:role==='admin'?'admin':'staff',active};
+}
+
 export async function signIn(username,password){
   const email=CONFIG.loginAliases[String(username||'').trim().toLowerCase()]||String(username||'').trim();
   const {data,error}=await db.auth.signInWithPassword({email,password});
   if(error)throw error;
+  const access=await resolveUserAccess(data.user);
   invalidateBillsCache({clearRows:true});
-  store.set({user:data.user,role:CONFIG.adminIds.includes(data.user?.id)?'admin':'staff'});
+  store.set({user:data.user,role:access.role});
   return data.user;
 }
 
@@ -43,7 +58,8 @@ export async function restoreSession(){
   const user=data.session?.user||null;
   const changedUser=String(store.user?.id||'')!==String(user?.id||'');
   if(changedUser)invalidateBillsCache({clearRows:true});
-  store.set({user,role:CONFIG.adminIds.includes(user?.id)?'admin':'staff'});
+  const access=await resolveUserAccess(user);
+  store.set({user,role:access.role});
   return user;
 }
 
