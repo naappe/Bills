@@ -37,7 +37,7 @@ The application is a static single-page app built with HTML, CSS, and JavaScript
 - **Dashboard** — operational procurement overview, recent bills, pending payments, spending trends, and category allocation.
 - **Bills** — searchable supplier bills, date and vendor filters, pagination, bill detail popup, editing, and deletion controls.
 - **Bill Entry** — simplified supplier purchase entry with invoice-status handling and multiple product rows.
-- **Cost** — administrator-only purchase cost totals by product, vendor, category, and period, with filtered CSV export.
+- **Cost** — administrator-only empty workspace reserved for future development.
 - **Products** — static product catalogue showing latest vendor, packing, wholesale price, retail-price availability, and stock-tracking status.
 - **Vendors** — supplier directory and procurement history.
 - **Reports** — procurement value, payment status, average bill value, supplier statistics, and spending trends.
@@ -152,7 +152,6 @@ index.html
     │   ├── consistency.css
     │   ├── products.css
     │   ├── vendors.css
-    │   ├── cost.css
     │   ├── reports.css
     │   ├── admin.css
     │   ├── dashboard.css
@@ -181,7 +180,7 @@ index.html
 | `#dashboard` | Procurement overview |
 | `#bills` | Bill list, filters, details, edit, and delete |
 | `#new` | Create or edit a supplier bill |
-| `#cost` | Purchase cost totals, filters, product costs, and CSV export |
+| `#cost` | Empty administrator Cost workspace |
 | `#products` | Static product catalogue |
 | `#vendors` | Vendor directory |
 | `#reports` | Procurement reports |

@@ -211,7 +211,6 @@ Purpose:
 - `dashboard.css`
 - `products.css`
 - `vendors.css`
-- `cost.css`
 - `reports.css`
 - `admin.css`
 - `bills-mobile.css`

@@ -7,11 +7,11 @@ import {billsPage} from './bills.js?v=5.1.8';
 import {productsPage} from './products.js?v=5.1.8';
 import {productMergePage} from './product-merge.js?v=5.1.8';
 import {vendorsPage} from './vendors.js?v=5.1.8';
-import {costPage} from './cost.js?v=5.2.0';
+import {costPage} from './cost.js?v=5.2.1';
 import {reportsPage} from './reports.js?v=5.1.8';
 import {adminPage} from './admin.js?v=5.1.8';
 const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:productsPage,'product-merge':productMergePage,cost:costPage,vendors:vendorsPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
-const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Search, review and manage supplier purchases'],new:['Bill entry','Quickly record supplier purchases and invoice status'],products:['Products','Wholesale prices, suppliers and stock visibility'],'product-merge':['Merge Products','Combine duplicate products into the correct master'],cost:['Cost','Review purchase costs by product, vendor and period'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace preferences and account security'],admin:['Admin & users','Configured access and system information']};
+const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Search, review and manage supplier purchases'],new:['Bill entry','Quickly record supplier purchases and invoice status'],products:['Products','Wholesale prices, suppliers and stock visibility'],'product-merge':['Merge Products','Combine duplicate products into the correct master'],cost:['Cost','Cost workspace'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace preferences and account security'],admin:['Admin & users','Configured access and system information']};
 const staffRoutes=new Set(['bills','new','products','vendors']);
 let started=false;
 function allowedRoute(route){return store.role==='admin'||staffRoutes.has(route)}

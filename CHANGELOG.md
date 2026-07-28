@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.2.1] — Empty Cost workspace
+
+### Removed
+
+- All Cost data, calculations, filters, tables, responsive cards, and CSV export
+- Dedicated Cost stylesheet
+
+### Changed
+
+- Cost remains only as a clean empty administrator route
+
 ## [5.2.0] — Cost workspace
 
 ### Added

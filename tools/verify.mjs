@@ -48,7 +48,7 @@ requireText(main,"window.addEventListener('unhandledrejection'",'Unhandled promi
 requireText(index,'method="post"','Login form does not use browser GET submission');
 
 for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billComputedTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
-for(const file of ['dashboard.js','vendors.js','cost.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
+for(const file of ['dashboard.js','vendors.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
 requireText(read('app/js/dashboard.js'),'today','Dashboard uses the shared local business date');
 requireText(read('app/js/reports.js'),'today','Reports use the shared local business date');
 forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
@@ -85,9 +85,11 @@ check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolati
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
 
-for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','app/css/cost.css','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
 forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
 forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
+const cost=read('app/js/cost.js');
+for(const legacy of ['store.rows','itemsOf','money(','db.','Export','filter','table'])forbidText(cost,legacy,`Cost page contains no data feature: ${legacy}`);
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
