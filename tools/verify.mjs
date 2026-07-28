@@ -100,6 +100,10 @@ requireText(cost,"largeLabel:'MVR per 1 litre'",'Cost comparison shows MVR per l
 requireText(cost,"smallLabel:'MVR per 1 ml'",'Cost comparison shows MVR per millilitre');
 requireText(cost,'maximumFractionDigits:6','Small-unit prices preserve useful precision');
 requireText(cost,'points.length===1','Cost graph shows a single latest price point');
+requireText(cost,'function demoProducts()','Cost page provides isolated example products');
+requireText(cost,'View 10-product example','Cost page exposes the example-mode control');
+requireText(cost,'Nothing was added to Supabase','Example mode is clearly separated from live data');
+requireText(cost,"demoMode?demoProducts():liveProducts",'Example mode can return to live products');
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
