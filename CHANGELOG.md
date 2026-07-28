@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.4.1] — Ten-product example mode
+
+### Added
+
+- Optional 10-product milk comparison example on Cost
+- Clear switch between temporary example data and live bill data
+- Example warning confirming that sample records are not stored in Supabase
+
 ## [5.4.0] — Search category cost comparison
 
 ### Added

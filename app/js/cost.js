@@ -6,6 +6,7 @@ const content=()=>$('#content');
 const keyOf=value=>text(value).toLowerCase().replace(/\s+/g,' ');
 const formatDate=value=>value?new Date(`${value}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
 const preciseMoney=value=>`MVR ${number(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:6})}`;
+let liveProducts=[],demoMode=false;
 
 function packInfo(item){
   const packing=text(get(item,'pack_format','packing')),pack=packing.toLowerCase().replace(/[×*]/g,'x').replace(/\s+/g,'');
@@ -55,6 +56,27 @@ function buildProducts(images){
   }).sort((a,b)=>b.latest.date.localeCompare(a.latest.date)||a.name.localeCompare(b.name));
 }
 
+function demoProducts(){
+  const samples=[
+    ['Lacnor Full Cream Milk','Grow Shop','1 ltr',[32,34,35]],
+    ['Dutch Lady Full Cream Milk','Happy Market','1 ltr',[33,34]],
+    ['Devondale Full Cream Milk','Jamna Fish','1 ltr',[35,37]],
+    ['Rainbow Evaporated Milk','S&O Corner','410 ml',[17,18]],
+    ['Anchor Full Cream Milk','Cyprea FNB','1 ltr',[36,38.5]],
+    ['Almarai Full Cream Milk','Neo','1 ltr',[37,39]],
+    ['Lacnor Low Fat Milk','Grow Shop','1 ltr',[34,36.5]],
+    ['Devondale Full Cream Milk','Happy Market','500 ml',[19,20]],
+    ['Anchor Full Cream Milk','A.K. Traders','500 ml',[18.5,19.5]],
+    ['Dutch Lady Chocolate Milk','Maruhaba','250 ml',[9.5,10.5]]
+  ];
+  return samples.map(([name,supplier,packing,costs],index)=>{
+    const pack=packInfo({pack_format:packing});
+    const history=costs.map((cost,point)=>({date:`2026-0${5+point}-${String(8+index).padStart(2,'0')}`,cost,rate:cost,gstRate:0,pack,packing,vendor:supplier,billId:'',itemIndex:0}));
+    const latest=history.at(-1),previous=history.at(-2),highest=history.reduce((best,point)=>point.cost>best.cost?point:best,history[0]),change=previous?latest.cost-previous.cost:0;
+    return{key:`demo-${index}`,name,image:'',pack,history,latest,previous,highest,change,changePercent:previous?.cost?change/previous.cost*100:0,prices:unitPrices(latest.cost,pack),search:`${name} milk ${packing} ${supplier}`.toLowerCase(),demo:true};
+  });
+}
+
 function graph(product){
   const points=product.history.slice(-12),width=720,height=210,pad=26;
   if(points.length===1){
@@ -89,7 +111,8 @@ function comparison(products,selectedKey){
 function render(products,selectedKey='',query=''){
   const target=content(),needle=text(query).toLowerCase(),filtered=products.filter(product=>!needle||product.search.includes(needle));
   const selected=filtered.find(product=>product.key===selectedKey)||filtered[0]||(!needle?products[0]:null);
-  target.innerHTML=`<header class="page-head"><div><h1>Cost</h1><p>Find the cheapest product using the same weight, volume or piece cost.</p></div></header><section class="cost-overview"><div class="cost-search"><i class="fa-solid fa-magnifying-glass"></i><input id="costSearch" value="${escapeHtml(query)}" placeholder="Search milk, tuna, rice or vendor" aria-label="Search product category or vendor"><strong>${filtered.length} results</strong></div>${filtered.length?`<div class="cost-bubbles" aria-label="Product cost summary">${filtered.slice(0,18).map(bubble).join('')}</div>`:'<div class="empty"><h2>No matching products</h2><p>Try another product category or vendor.</p></div>'}</section>${comparison(filtered,selected?.key)}${selected?detail(selected):'<section class="panel"><div class="empty"><h2>No cost data yet</h2><p>Enter a bill with product packing and price to begin.</p></div></section>'}`;
+  target.innerHTML=`<header class="page-head"><div><h1>Cost</h1><p>Find the cheapest product using the same weight, volume or piece cost.</p></div><button class="btn ${demoMode?'':'secondary'}" data-demo-toggle type="button"><i class="fa-solid ${demoMode?'fa-database':'fa-flask'}"></i> ${demoMode?'Back to live data':'View 10-product example'}</button></header>${demoMode?'<div class="cost-demo-note"><i class="fa-solid fa-circle-info"></i><div><strong>Example mode</strong><span>These 10 milk products are temporary examples only. Nothing was added to Supabase.</span></div></div>':''}<section class="cost-overview"><div class="cost-search"><i class="fa-solid fa-magnifying-glass"></i><input id="costSearch" value="${escapeHtml(query)}" placeholder="Search milk, tuna, rice or vendor" aria-label="Search product category or vendor"><strong>${filtered.length} results</strong></div>${filtered.length?`<div class="cost-bubbles" aria-label="Product cost summary">${filtered.slice(0,18).map(bubble).join('')}</div>`:'<div class="empty"><h2>No matching products</h2><p>Try another product category or vendor.</p></div>'}</section>${comparison(filtered,selected?.key)}${selected?detail(selected):'<section class="panel"><div class="empty"><h2>No cost data yet</h2><p>Enter a bill with product packing and price to begin.</p></div></section>'}`;
+  target.querySelector('[data-demo-toggle]')?.addEventListener('click',()=>{demoMode=!demoMode;render(demoMode?demoProducts():liveProducts,'',demoMode?'milk':'')});
   $('#costSearch')?.addEventListener('input',event=>{const value=event.target.value;render(products,selected?.key,value);const input=$('#costSearch');input.focus();input.setSelectionRange(value.length,value.length)});
   target.querySelectorAll('[data-product]').forEach(control=>{const choose=()=>render(products,control.dataset.product,needle);control.addEventListener('click',choose);control.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose()}})});
 }
@@ -101,5 +124,5 @@ export async function costPage(){
   try{const {data,error}=await db.from('products').select('name,image_url').eq('is_active',true).is('deleted_at',null);if(error)throw error;for(const product of data||[])if(product.image_url)images.set(keyOf(product.name),product.image_url)}
   catch(error){console.warn('[cost] product images unavailable',error)}
   if(store.route!=='cost')return;
-  render(buildProducts(images));
+  liveProducts=buildProducts(images);demoMode=false;render(liveProducts);
 }
