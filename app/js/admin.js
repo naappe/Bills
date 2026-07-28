@@ -1,6 +1,6 @@
 import {store,money,escapeHtml,billDate,vendor,status,get,amount} from './store.js';
 import {CONFIG} from './config.js';
-import {db} from './data.js';
+import {db,loadBills} from './data.js';
 
 const $=selector=>document.querySelector(selector);
 const content=()=>$('#content');
@@ -56,10 +56,32 @@ function requestRows(requests){
     </tr>`).join('');
 }
 
+function trashRows(items){
+  if(!items.length)return '<tr><td colspan="5" class="empty">Trash is empty.</td></tr>';
+  return items.map(item=>{
+    const snapshot=item.snapshot||{};
+    const expires=new Date(new Date(item.deleted_at).getTime()+30*86400000);
+    const days=Math.max(0,Math.ceil((expires-Date.now())/86400000));
+    return `<tr><td>${escapeHtml(dateTime(item.deleted_at))}</td><td><strong>${escapeHtml(vendor(snapshot))}</strong><small>Record ${escapeHtml(item.entity_id)}</small></td><td>${escapeHtml(billDate(snapshot)||'No date')}</td><td><span class="badge pending">${days} day${days===1?'':'s'} left</span></td><td><button class="btn small" data-restore="${item.id}" type="button">Restore</button></td></tr>`;
+  }).join('');
+}
+
 async function loadRequests(){
   const {data,error}=await db.from('deletion_requests').select('*').eq('entity_type','bill').eq('status','pending').order('requested_at',{ascending:false});
   if(error)throw error;
   return data||[];
+}
+
+async function loadTrash(){
+  const {data,error}=await db.from('restore_bin').select('*').eq('entity_type','bill').is('restored_at',null).order('deleted_at',{ascending:false});
+  if(error)throw error;
+  return data||[];
+}
+
+async function restoreBill(item){
+  const {error}=await db.rpc('restore_bill_from_trash',{p_restore_id:item.id});
+  if(error)throw error;
+  await loadBills({force:true});
 }
 
 async function reviewRequest(request,decision){
@@ -82,8 +104,8 @@ export async function adminPage(){
   }
 
   target.innerHTML='<section class="card"><div class="empty">Loading administration…</div></section>';
-  let requests=[];
-  try{requests=await loadRequests()}catch(error){console.error('[admin] deletion requests failed',error)}
+  let requests=[],trash=[];
+  try{[requests,trash]=await Promise.all([loadRequests(),loadTrash()])}catch(error){console.error('[admin] administration data failed',error)}
 
   const accounts=configuredAccounts();
   const rows=Array.isArray(store.rows)?store.rows:[];
@@ -100,13 +122,17 @@ export async function adminPage(){
     <section class="admin-page">
       <div class="admin-summary-grid">
         ${kpi('Pending delete requests',requests.length.toLocaleString(),'Admin approval required')}
+        ${kpi('Trash',trash.length.toLocaleString(),'Restorable for 30 days')}
         ${kpi('Loaded bills',rows.length.toLocaleString(),`${paid.length} paid · ${pending} pending`)}
-        ${kpi('Supplier coverage',suppliers.size.toLocaleString(),money(total))}
         ${kpi('Current session','ADMIN',sessionEmail)}
       </div>
       <article class="card admin-card">
-        <header class="card-head"><div><h2>Pending bill deletion requests</h2><small>Approving permanently deletes the bill from Supabase</small></div></header>
+        <header class="card-head"><div><h2>Pending bill deletion requests</h2><small>Approving moves the bill to recoverable Trash</small></div></header>
         <div class="table-wrap"><table class="table"><thead><tr><th>Requested</th><th>Bill</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>${requestRows(requests)}</tbody></table></div>
+      </article>
+      <article class="card admin-card">
+        <header class="card-head"><div><h2>Bill Trash</h2><small>Deleted bills can be restored for 30 days</small></div></header>
+        <div class="table-wrap"><table class="table"><thead><tr><th>Deleted</th><th>Bill</th><th>Bill date</th><th>Recovery</th><th>Action</th></tr></thead><tbody>${trashRows(trash)}</tbody></table></div>
       </article>
       <div class="admin-detail-grid">
         <article class="card admin-card"><header class="card-head"><div><h2>Configured login aliases</h2><small>Application configuration</small></div></header><div class="admin-table-wrap"><table class="table admin-table"><thead><tr><th>Email</th><th>Aliases</th><th>Role</th></tr></thead><tbody>${accountRows(accounts)}</tbody></table></div></article>
@@ -114,6 +140,13 @@ export async function adminPage(){
       </div>
       <article class="card admin-card admin-activity-card"><header class="card-head"><div><h2>Recent bill modifications</h2><small>Latest records loaded from Bills</small></div></header><div class="table-wrap"><table class="table"><thead><tr><th>Modified</th><th>Bill date</th><th>Vendor</th><th>Payment</th><th class="num">Amount</th></tr></thead><tbody>${activityRows(latest)}</tbody></table></div></article>
     </section>`;
+
+  target.querySelectorAll('[data-restore]').forEach(button=>button.onclick=async()=>{
+    const item=trash.find(entry=>String(entry.id)===String(button.dataset.restore));
+    if(!item||!confirm('Restore this bill to the Bills page?'))return;
+    button.disabled=true;
+    try{await restoreBill(item);await adminPage()}catch(error){console.error('[admin] restore failed',error);alert(error.message||'Bill could not be restored.');button.disabled=false}
+  });
 
   target.querySelectorAll('[data-approve],[data-reject]').forEach(button=>button.onclick=async()=>{
     const request=requests.find(item=>String(item.id)===String(button.dataset.approve||button.dataset.reject));
