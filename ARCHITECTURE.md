@@ -83,8 +83,7 @@ Current routes:
 | `#dashboard` | `dashboardPage` |
 | `#bills` | `billsPage` |
 | `#new` | `newBillPage` |
-| `#rates` | `ratesPage` |
-| `#prices` | alias of `ratesPage` |
+| `#cost` | `costPage` |
 | `#products` | `productsPage` |
 | `#vendors` | `vendorsPage` |
 | `#reports` | `reportsPage` |
