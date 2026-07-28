@@ -84,11 +84,13 @@ const isolationCount=bill.split(broadIsolation).length-1;
 check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolationCount}/1)`);
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
+
+for(const legacy of ['app/js/rates.js','app/css/rates.css'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
+forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
+
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
 warnings.forEach(item=>console.warn(`⚠ ${item}`));
 if(failures.length){console.error(`\n${failures.length} check(s) failed:\n`);failures.forEach(item=>console.error(`✗ ${item}`));process.exit(1)}
 console.log(`\nPASS — ${passes.length} checks completed across ${jsFiles.length} JavaScript modules.\n`);
-for(const legacy of ['app/js/rates.js','app/css/rates.css'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
-forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
-forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
