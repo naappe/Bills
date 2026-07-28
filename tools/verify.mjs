@@ -92,6 +92,7 @@ const cost=read('app/js/cost.js');
 for(const feature of ['store.rows','itemsOf','base_quantity','Packing weight','data-edit-bill','costSearch'])requireText(cost,feature,`Cost page includes ${feature}`);
 requireText(cost,"savedUnit==='G'",'Cost page displays saved gram packing');
 requireText(cost,"match[3]==='kg'?1000:1",'Cost page converts kilograms to grams');
+requireText(cost,'return count*size*factor;','Cost page shows entered pack weight without multiplying bill quantity');
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
