@@ -85,11 +85,13 @@ check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolati
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
 
-for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','app/css/cost.css','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
 forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
 forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
 const cost=read('app/js/cost.js');
-for(const legacy of ['store.rows','itemsOf','money(','db.','Export','filter','table'])forbidText(cost,legacy,`Cost page contains no data feature: ${legacy}`);
+for(const feature of ['store.rows','itemsOf','base_quantity','Packing weight','data-edit-bill','costSearch'])requireText(cost,feature,`Cost page includes ${feature}`);
+requireText(cost,"savedUnit==='G'",'Cost page displays saved gram packing');
+requireText(cost,"match[3]==='kg'?1000:1",'Cost page converts kilograms to grams');
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
