@@ -56,6 +56,10 @@ forbidText(read('app/js/reports.js'),'new Date().toISOString().slice(0,10)','Rep
 requireText(read('app/js/reports.js'),'lineTotal','Reports aggregate item-level values');
 check(/export\s+(?:async\s+)?function\s+adminPage\s*\(/.test(read('app/js/admin.js')),'Admin page exports a valid renderer');
 requireText(read('app/js/admin.js'),'activityRows','Admin activity rendering is separated from the page template');
+requireText(read('app/js/admin.js'),"db.rpc('admin_user_overview')",'Admin loads authenticated users through the protected overview RPC');
+requireText(read('app/js/admin.js'),"db.rpc('admin_update_user_role'",'Admin updates user access through the protected RPC');
+requireText(read('app/js/admin.js'),'data-toggle-user','Admin exposes active and inactive account controls');
+requireText(read('app/js/admin.js'),'data-user-role','Admin exposes user access levels');
 
 for(const id of ['billForm','vendor','date','billItems','addRow','subtotal','gstTotal','grandTotal'])requireText(bill,`id="${id}"`,`Bill Entry preserves #${id}`);
 requireText(bill,"form.addEventListener('submit'",'Bill Entry owns form submission');
@@ -78,6 +82,11 @@ requireText(data,'if(!force&&billsLoaded)','Loaded bill data is reused during th
 requireText(data,'if(!force&&billsLoadPromise)','Concurrent bill loads share one promise');
 requireText(data,'invalidateBillsCache','Account changes explicitly invalidate loaded data');
 requireText(data,'billsFetchCount++','Bill data fetches are measurable for diagnostics');
+requireText(data,"from('user_roles').select('role,is_active')",'Sign-in verifies the database-backed account role and status');
+requireText(data,'Your account has been deactivated','Inactive accounts are rejected during authentication');
+const adminAccessMigration=read('supabase/migrations/20260728140000_align_bills_admin_with_user_roles.sql');
+requireText(adminAccessMigration,"r.role = 'admin'",'Bill-level administration follows the managed database role');
+requireText(adminAccessMigration,'r.is_active = true','Inactive admins cannot retain bill-level administration');
 
 const broadIsolation="['pointerdown','mousedown','touchstart','click','focusin']";
 const isolationCount=bill.split(broadIsolation).length-1;
