@@ -152,7 +152,7 @@ index.html
     │   ├── consistency.css
     │   ├── products.css
     │   ├── vendors.css
-    │   ├── rates.css
+    │   ├── cost.css
     │   ├── reports.css
     │   ├── admin.css
     │   ├── dashboard.css
@@ -168,7 +168,7 @@ index.html
         ├── bill-entry.js
         ├── products.js
         ├── vendors.js
-        ├── rates.js
+        ├── cost.js
         ├── reports.js
         ├── settings.js
         └── admin.js
@@ -181,7 +181,7 @@ index.html
 | `#dashboard` | Procurement overview |
 | `#bills` | Bill list, filters, details, edit, and delete |
 | `#new` | Create or edit a supplier bill |
-| `#rates` / `#prices` | Cost |
+| `#cost` | Cost |
 | `#products` | Static product catalogue |
 | `#vendors` | Vendor directory |
 | `#reports` | Procurement reports |
