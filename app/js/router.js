@@ -4,18 +4,24 @@ import {dashboardPage} from './dashboard.js?v=5.1.8';
 import {settingsPage} from './settings.js?v=5.7.0';
 import {newBillPage} from './bill-entry.js?v=5.1.8';
 import {billsPage} from './bills.js?v=5.1.8';
-import {productsPage} from './products.js?v=5.1.8';
-import {productMergePage} from './product-merge.js?v=5.1.8';
-import {vendorsPage} from './vendors.js?v=5.1.8';
+import {supplyPage,inventoryPage} from './supply.js?v=5.8.0';
 import {costPage} from './cost.js?v=5.6.0';
 import {reportsPage} from './reports.js?v=5.1.8';
 import {adminPage} from './admin.js?v=5.5.0';
-const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:productsPage,'product-merge':productMergePage,cost:costPage,vendors:vendorsPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
-const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Search, review and manage supplier purchases'],new:['Bill entry','Quickly record supplier purchases and invoice status'],products:['Products','Wholesale prices, suppliers and stock visibility'],'product-merge':['Merge Products','Combine duplicate products into the correct master'],cost:['Cost','Product packing and purchase-cost intelligence'],vendors:['Vendors','Supplier directory and spend intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace preferences and account security'],admin:['Admin & users','Configured access and system information']};
+const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:supplyPage,vendors:inventoryPage,cost:costPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
+const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Search, review and manage supplier purchases'],new:['Bill entry','Record purchases and automatically increase stock'],products:['Supply','Products, vendors, prices and stock in one master list'],vendors:['Inventory','Current stock, minimum levels and stock adjustments'],cost:['Cost','Product packing and purchase-cost intelligence'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace preferences and account security'],admin:['Admin & users','Configured access and system information']};
 const staffRoutes=new Set(['bills','new','products','vendors']);
 let started=false;
 function allowedRoute(route){return store.role==='admin'||staffRoutes.has(route)}
-function applyRoleNavigation(){document.querySelectorAll('.nav a[data-route]').forEach(link=>{const allowed=allowedRoute(link.dataset.route);link.hidden=!allowed;link.setAttribute('aria-hidden',String(!allowed));link.tabIndex=allowed?0:-1});document.querySelectorAll('.nav-group').forEach(group=>{group.hidden=![...group.querySelectorAll('a[data-route]')].some(link=>!link.hidden)})}
+function relabelNavigation(){
+  const supply=document.querySelector('.nav a[data-route="products"] span');
+  const inventory=document.querySelector('.nav a[data-route="vendors"] span');
+  if(supply)supply.textContent='Supply';
+  if(inventory)inventory.textContent='Inventory';
+  document.querySelector('.nav a[data-route="products"]')?.setAttribute('title','Supply');
+  document.querySelector('.nav a[data-route="vendors"]')?.setAttribute('title','Inventory');
+}
+function applyRoleNavigation(){relabelNavigation();document.querySelectorAll('.nav a[data-route]').forEach(link=>{const allowed=allowedRoute(link.dataset.route);link.hidden=!allowed;link.setAttribute('aria-hidden',String(!allowed));link.tabIndex=allowed?0:-1});document.querySelectorAll('.nav-group').forEach(group=>{group.hidden=![...group.querySelectorAll('a[data-route]')].some(link=>!link.hidden)})}
 export function navigate(route){const normalized=String(route||'').replace(/^#/,'').toLowerCase(),requested=routes[normalized]?normalized:(store.role==='admin'?'dashboard':'bills'),target=allowedRoute(requested)?requested:'bills';if(location.hash===`#${target}`)renderRoute();else location.hash=`#${target}`}
 export function renderRoute(){let route=(location.hash||'').slice(1).toLowerCase();if(!route)route=store.role==='admin'?'dashboard':'bills';if(!routes[route]||!allowedRoute(route)){route='bills';if(location.hash!=='#bills'){history.replaceState(null,'','#bills')}}applyRoleNavigation();const page=routes[route]||billsPage;store.route=route;document.querySelectorAll('.nav a[data-route]').forEach(link=>{const active=link.dataset.route===store.route;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});const [title,subtitle]=meta[store.route]||meta.bills;const titleNode=document.querySelector('#topTitle'),subtitleNode=document.querySelector('#topSubtitle'),sidebar=document.querySelector('#sidebar'),content=document.querySelector('#content');if(titleNode)titleNode.textContent=title;if(subtitleNode)subtitleNode.textContent=subtitle;sidebar?.classList.remove('open');if(!content)throw new Error('Application content container is missing.');content.dataset.currentRoute=store.route;content.replaceChildren();try{page();watchSharedUI(content)}catch(error){console.error(`[route:${store.route}]`,error);const message=String(error?.message||error||'Unknown error').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));content.innerHTML=`<section class="card"><div class="empty"><h2>This page could not open</h2><p>${message}</p><button class="btn" id="retryRoute" type="button">Retry page</button></div></section>`;content.querySelector('#retryRoute')?.addEventListener('click',renderRoute)}}
 export function startRouter(){if(!started){window.addEventListener('hashchange',renderRoute);started=true}renderRoute()}
