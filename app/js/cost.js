@@ -26,13 +26,15 @@ function buildProducts(images){
   for(const row of store.rows){
     const date=billDate(row);
     for(const [itemIndex,item] of itemsOf(row).entries()){
+      const packing=text(get(item,'pack_format','packing'));
+      if(!packing)continue;
       const name=productName(item,row),key=keyOf(name);
       if(!key||name==='Unspecified item')continue;
       const qty=number(get(item,'qty','quantity'))||1,rate=number(get(item,'pack_rate','rate','price'))||(lineTotal(item)/qty);
       const gstRate=number(get(item,'gst','gst_rate')),cost=rate+(rate*gstRate/100);
       if(!cost)continue;
       if(!map.has(key))map.set(key,{key,name,image:images.get(key)||'',history:[]});
-      map.get(key).history.push({date,cost,rate,gstRate,grams:gramsOf(item),packing:text(get(item,'pack_format','packing')),vendor:vendor(row),billId:text(get(row,'id')),itemIndex});
+      map.get(key).history.push({date,cost,rate,gstRate,grams:gramsOf(item),packing,vendor:vendor(row),billId:text(get(row,'id')),itemIndex});
     }
   }
   return [...map.values()].map(product=>{
