@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.7.0] — Professional workspace consistency
+
+- Extended the Cost page's compact professional design language across Dashboard, Bills, Bill Entry, Products, Product Merge, Vendors, Reports, Settings, and Admin
+- Standardized workspace cards, filters, KPI summaries, tables, responsive spacing, borders, and shadows without changing route behaviour
+- Preserved mobile bill cards, product image tools, merge selection, administrative approvals, user access controls, and Supabase-backed workflows
+- Updated Settings to point administrators to the existing protected Admin & users controls
+
 ## [5.6.0] — Professional Cost intelligence
 
 - Reorganized Cost into a procurement-analysis workflow with filters, category navigation, KPIs, selected-product analysis, graph, and comparison table
