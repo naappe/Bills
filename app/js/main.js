@@ -1,13 +1,13 @@
 import {store,escapeHtml} from './store.js';
 import {signIn,signOut,restoreSession,loadBills} from './data.js';
-import {startRouter,navigate} from './router.js?v=5.1.8';
+import {startRouter,navigate} from './router.js?v=5.2.0';
 
 const $=selector=>document.querySelector(selector);
 const navGroups=[
   ['Overview',[['dashboard','Dashboard','fa-table-cells-large']]],
   ['Procurement',[
     ['bills','Bills','fa-file-invoice'],
-    ['rates','Price Intelligence','fa-chart-line','admin'],
+    ['cost','Cost','fa-calculator','admin'],
     ['products','Products','fa-box'],
     ['vendors','Vendors','fa-building']
   ]],
@@ -18,7 +18,7 @@ const navGroups=[
   ]]
 ];
 
-const health={version:'5.1.9',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
+const health={version:'5.2.0',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
 window.app={store,health};
 
 const SESSION_TIMEOUT_MS=15*60*1000;
