@@ -189,7 +189,7 @@ function bindProductCards(){
 function renderList(query=''){
   const products=buildProducts(),needle=query.trim().toLowerCase(),filtered=needle?products.filter(product=>product.search.includes(needle)):products;
   content().innerHTML=`<header class="page-head"><div><h1>Master products</h1><p>One correct product name and image shared across every vendor and bill.</p></div>${isAdmin()?'<button class="btn" id="mergeProducts" type="button">Merge products</button>':''}</header>
-  <section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product or vendor, for example tomato"></div><span id="productCount">${filtered.length} products</span></section>
+  <section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product or vendor, for example tomato"></div><span id="productCount">${filtered.length} products</span>${isAdmin()?'<button class="btn" id="mergeProducts" type="button">Merge products</button>':''}</section>
   <section class="simple-product-list" id="productList">${filtered.map(productCard).join('')||'<div class="simple-empty card"><i class="fa-solid fa-box-open"></i><strong>No matching product</strong><span>Try another product or vendor name.</span></div>'}</section>`;
   bindImageActions(query);
   bindProductCards();
