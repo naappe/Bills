@@ -7,15 +7,16 @@ const keyOf=value=>text(value).toLowerCase().replace(/\s+/g,' ');
 const formatDate=value=>value?new Date(`${value}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
 
 function gramsOf(item){
-  const saved=number(get(item,'base_quantity','total_quantity')),savedUnit=text(get(item,'base_unit','small_unit')).toUpperCase();
-  if(saved&&savedUnit==='G')return saved;
-  if(saved&&savedUnit==='KG')return saved*1000;
-  const qty=number(get(item,'qty','quantity'))||1;
   const pack=text(get(item,'pack_format','packing')).toLowerCase().replace(/[×*]/g,'x').replace(/\s+/g,'');
   const match=pack.match(/(?:(\d+(?:\.\d+)?)x)?(\d+(?:\.\d+)?)(kg|g)\b/);
-  if(!match)return 0;
-  const count=number(match[1])||1,size=number(match[2]),factor=match[3]==='kg'?1000:1;
-  return count*size*factor*qty;
+  if(match){
+    const count=number(match[1])||1,size=number(match[2]),factor=match[3]==='kg'?1000:1;
+    return count*size*factor;
+  }
+  const saved=number(get(item,'base_quantity','total_quantity')),savedUnit=text(get(item,'base_unit','small_unit')).toUpperCase(),qty=number(get(item,'qty','quantity'))||1;
+  if(saved&&savedUnit==='G')return saved/qty;
+  if(saved&&savedUnit==='KG')return saved*1000/qty;
+  return 0;
 }
 
 const gramsLabel=value=>value?`${Math.round(value).toLocaleString('en-US')} g`:'Not recorded';
