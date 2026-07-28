@@ -85,7 +85,7 @@ check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolati
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
 
-for(const legacy of ['app/js/rates.js','app/css/rates.css'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
 forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
 forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
 
