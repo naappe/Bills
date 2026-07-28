@@ -101,7 +101,9 @@ requireText(cost,"smallLabel:'MVR per 1 ml'",'Cost comparison shows MVR per mill
 requireText(cost,'maximumFractionDigits:6','Small-unit prices preserve useful precision');
 requireText(cost,'points.length===1','Cost graph shows a single latest price point');
 requireText(cost,'function demoProducts()','Cost page provides isolated example products');
-requireText(cost,'View 10-product example','Cost page exposes the example-mode control');
+requireText(cost,'View 5-category example','Cost page exposes the example-mode control');
+requireText(cost,'50-product example','Cost page identifies all example products');
+for(const category of ['Milk','Tuna / Fish','Rice','Cooking Oil','Water'])requireText(cost,category,`Cost example includes ${category}`);
 requireText(cost,'Nothing was added to Supabase','Example mode is clearly separated from live data');
 requireText(cost,"demoMode?demoProducts():liveProducts",'Example mode can return to live products');
 
