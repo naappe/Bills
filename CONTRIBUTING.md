@@ -472,7 +472,7 @@ Include:
 - Dashboard
 - Bills
 - New Bill
-- Price Intelligence
+- Cost
 - Products
 - Vendors
 - Reports
