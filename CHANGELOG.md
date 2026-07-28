@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.6.0] — Professional Cost intelligence
+
+- Reorganized Cost into a procurement-analysis workflow with filters, category navigation, KPIs, selected-product analysis, graph, and comparison table
+- Prevented unrelated products from being ranked together by grouping cheapest results by category and normalized base unit
+- Replaced ambiguous large/small-unit labels with pack price, entered packing, pack contents, cost per kg/litre, and cost per gram/ml
+- Added vendor and purchase-date filters, category-safe savings analysis, price-change indicators, and source-bill editing
+- Preserved the isolated 50-product professional example without writing examples to Supabase
+
 ## [5.5.0] — User access administration
 
 - Connected Admin & users to the secure Supabase user administration RPCs
