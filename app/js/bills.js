@@ -24,7 +24,7 @@ function rangeFor(period,from='',to=''){
 }
 
 function inRange(entry,range){return Boolean(entry.date)&&(!range.from||entry.date>=range.from)&&(!range.to||entry.date<=range.to)}
-function canEdit(row){if(store.role==='admin')return true;const time=new Date(get(row,'created_at','updated_at')).getTime();return Number.isFinite(time)&&Date.now()-time<=86400000}
+function canEdit(){return store.role==='admin'||store.role==='staff'}
 function formatDateTime(value){
   const date=new Date(value);
   if(!value||Number.isNaN(date.getTime()))return'Not recorded';
