@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.7.1] — Professional navigation
+
+- Restyled the sidebar and top bar to match the professional Cost workspace
+- Improved navigation spacing, icon treatment, section labels, active-page emphasis, and account controls
+- Refined collapsed desktop navigation and mobile drawer presentation without changing routes or permissions
+
 ## [5.7.0] — Professional workspace consistency
 
 - Extended the Cost page's compact professional design language across Dashboard, Bills, Bill Entry, Products, Product Merge, Vendors, Reports, Settings, and Admin
