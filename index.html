@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#1A3C6E">
-  <meta name="app-version" content="5.3.1">
+  <meta name="app-version" content="5.3.2">
   <title>White Saffron Procurement ERP</title>
   <link rel="icon" href="./app-icon.svg?v=5.1.5" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="./app/css/admin.css?v=5.1.5">
   <link rel="stylesheet" href="./app/css/dashboard.css?v=5.1.5-dashboard3">
   <link rel="stylesheet" href="./app/css/bills-mobile.css?v=5.1.5-bills2">
-  <link rel="stylesheet" href="./app/css/cost.css?v=5.3.1">
+  <link rel="stylesheet" href="./app/css/cost.css?v=5.3.2">
   <style>
     .auth-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:#f4f7fb;opacity:1;visibility:visible;transform:scale(1);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1),visibility 0s linear .7s;will-change:opacity,transform}
     .auth-loader.leaving{opacity:0;visibility:hidden;transform:scale(1.025);pointer-events:none}
@@ -62,7 +62,7 @@
     @media(max-width:820px){#collapseSidebar{display:none}.sidebar-close{display:grid}.session-warning-actions{flex-direction:column-reverse}.session-warning-actions .btn{width:100%}}
   </style>
   <script>
-    window.__BILLS_DEPLOYMENT__={version:'5.3.1',loadedAt:new Date().toISOString()};
+    window.__BILLS_DEPLOYMENT__={version:'5.3.2',loadedAt:new Date().toISOString()};
     window.addEventListener('error',event=>console.error('[startup]',{message:event.error?.message||event.message||'Unknown startup error',file:event.filename,line:event.lineno,column:event.colno}));
     window.addEventListener('unhandledrejection',event=>console.error('[startup promise rejection]',event.reason));
     const closeSearchableMenu=input=>{const menu=input?.closest('.searchable-list-wrap')?.querySelector('.searchable-list-menu');if(!menu)return;menu.classList.remove('open');menu.replaceChildren()};
@@ -90,6 +90,6 @@
     })();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8" crossorigin="anonymous"></script>
-  <script type="module" src="./app/js/main.js?v=5.3.1"></script>
+  <script type="module" src="./app/js/main.js?v=5.3.2"></script>
 </body>
 </html>
