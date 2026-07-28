@@ -92,20 +92,6 @@ Current routes:
 
 Unknown hashes fall back to Dashboard.
 
-### `app/js/pages.js`
-
-Shared page-rendering module for:
-
-- Dashboard
-- Bills
-- New Bill
-- Cost
-- Reports
-- Settings
-- Admin
-
-This file currently retains multiple business functions and should not be replaced without validating every exported renderer.
-
 ### `app/js/products.js`
 
 Product catalogue owner.
