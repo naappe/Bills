@@ -14,9 +14,11 @@ create policy product_aliases_read_active on public.product_aliases for select t
 using (exists(select 1 from public.user_roles ur where ur.user_id=auth.uid() and ur.is_active));
 create policy product_aliases_manage_admin on public.product_aliases for all to authenticated
 using (public.is_app_admin()) with check (public.is_app_admin());
+create policy products_insert_active_users on public.products for insert to authenticated
+with check (exists(select 1 from public.user_roles ur where ur.user_id=auth.uid() and ur.is_active));
 
 create or replace function public.create_master_product(p_name text)
-returns public.products language plpgsql security definer set search_path=public as $$
+returns public.products language plpgsql security invoker set search_path=public as $$
 declare v_name text:=regexp_replace(btrim(coalesce(p_name,'')),'\s+',' ','g'); v_product public.products;
 begin
  if not exists(select 1 from public.user_roles ur where ur.user_id=auth.uid() and ur.is_active) then raise exception 'Active user required'; end if;
@@ -31,7 +33,7 @@ revoke all on function public.create_master_product(text) from public,anon;
 grant execute on function public.create_master_product(text) to authenticated;
 
 create or replace function public.merge_master_products(p_source_id uuid,p_target_id uuid)
-returns void language plpgsql security definer set search_path=public as $$
+returns void language plpgsql security invoker set search_path=public as $$
 declare v_source_name text; v_target_name text;
 begin
  if not public.is_app_admin() then raise exception 'Admin access required'; end if;
