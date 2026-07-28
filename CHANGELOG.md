@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.3.3] — Comparable pack-size costs
+
+### Added
+
+- Milk and other liquid packing recognizes `l`, `ltr`, `litre`, `liter`, and `ml`
+- Different pack sizes of the same product have separate cost histories
+- Liquid costs normalize to one litre, weight costs to one kilogram, and count packs to one piece
+
 ## [5.3.2] — Packing-only Cost products
 
 ### Fixed
