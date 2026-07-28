@@ -181,7 +181,7 @@ index.html
 | `#dashboard` | Procurement overview |
 | `#bills` | Bill list, filters, details, edit, and delete |
 | `#new` | Create or edit a supplier bill |
-| `#cost` | Cost |
+| `#cost` | Purchase cost totals, filters, product costs, and CSV export |
 | `#products` | Static product catalogue |
 | `#vendors` | Vendor directory |
 | `#reports` | Procurement reports |
