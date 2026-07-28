@@ -19,7 +19,7 @@ if(failures.length){console.error('\nRepository verification failed before sourc
 
 const jsFiles=walk('app/js').filter(file=>file.endsWith('.js'));
 const index=read('index.html'),main=read('app/js/main.js'),router=read('app/js/router.js'),bill=read('app/js/bill-entry.js'),data=read('app/js/data.js'),store=read('app/js/store.js');
-const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','rates.js','reports.js','settings.js','admin.js'];
+const pageFiles=['dashboard.js','bills.js','bill-entry.js','products.js','vendors.js','cost.js','reports.js','settings.js','admin.js'];
 
 for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',path.join(root,file)],{stdio:'pipe'});passes.push(`JavaScript syntax: ${file}`)}
@@ -48,7 +48,7 @@ requireText(main,"window.addEventListener('unhandledrejection'",'Unhandled promi
 requireText(index,'method="post"','Login form does not use browser GET submission');
 
 for(const helper of ['itemsOf','productName','itemCategory','lineTotal','billComputedTotal','today'])requireText(store,`export const ${helper}`,`Shared store exports ${helper}`);
-for(const file of ['dashboard.js','vendors.js','rates.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
+for(const file of ['dashboard.js','vendors.js','cost.js','reports.js'])requireText(read(`app/js/${file}`),'itemsOf',`${file} processes every item in a bill`);
 requireText(read('app/js/dashboard.js'),'today','Dashboard uses the shared local business date');
 requireText(read('app/js/reports.js'),'today','Reports use the shared local business date');
 forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
@@ -89,3 +89,6 @@ passes.forEach(item=>console.log(`✓ ${item}`));
 warnings.forEach(item=>console.warn(`⚠ ${item}`));
 if(failures.length){console.error(`\n${failures.length} check(s) failed:\n`);failures.forEach(item=>console.error(`✗ ${item}`));process.exit(1)}
 console.log(`\nPASS — ${passes.length} checks completed across ${jsFiles.length} JavaScript modules.\n`);
+for(const legacy of ['app/js/rates.js','app/css/rates.css'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
+forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
