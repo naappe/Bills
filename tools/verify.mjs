@@ -118,10 +118,11 @@ requireText(cost,"demoMode?demoProducts():liveProducts",'Example mode can return
 requireText(cost,'`${keyOf(product.category)}|${product.pack.baseUnit}`','Cost comparison prevents unrelated category ranking');
 requireText(cost,'data-edit-source','Cost page can open the original bill for editing');
 const professional=read('app/css/professional.css');
-requireText(index,'professional.css?v=5.7.0','Professional workspace layer is loaded after route styles');
+requireText(index,'professional.css?v=5.7.1','Professional workspace layer is loaded after route styles');
 for(const route of ['bills','dashboard','vendors','products','product-merge','new','reports','settings','admin'])requireText(professional,`data-current-route="${route}"`,`Professional workspace styles cover ${route}`);
 requireText(professional,'@media(max-width:820px)','Professional workspace supports tablet and mobile layouts');
 requireText(professional,'.content:not([data-current-route="cost"])','Cost remains the reference design while other routes are aligned');
+for(const selector of ['.sidebar{','.nav a.active{','.topbar{','.sidebar-collapsed .nav','.side-account{'])requireText(professional,selector,`Professional navigation includes ${selector}`);
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
