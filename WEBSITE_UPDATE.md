@@ -134,7 +134,7 @@ This file records the current implementation state for future developers and AI 
 - Invoice-number-later workflow.
 - Product suggestions.
 - Unit and pack calculations.
-- Cost totals and filters.
+- Cost route opens without loading or displaying data.
 - Browser console and network errors.
 - Chrome, Edge, Firefox, Safari, and mobile browsers.
 
