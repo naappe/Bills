@@ -47,12 +47,12 @@ function statusClass(value){const normalized=String(value).toLowerCase();if(norm
 
 async function requestBillDeletion(row){
   if(!row?.id||store.role==='admin'||!canEdit(row))return;
-  const {data:existing,error:lookupError}=await db.from('deletion_requests').select('id,status').eq('entity_type','bills').eq('entity_id',String(row.id)).eq('status','pending').maybeSingle();
+  const {data:existing,error:lookupError}=await db.from('deletion_requests').select('id,status').eq('entity_type','bill').eq('entity_id',String(row.id)).eq('status','pending').maybeSingle();
   if(lookupError)throw lookupError;
   if(existing){alert('This bill is already waiting for Admin approval.');return}
   const reason=prompt('Why should this bill be deleted?','');
   if(reason===null)return;
-  const {error}=await db.from('deletion_requests').insert({entity_type:'bills',entity_id:String(row.id),entity_label:`${vendor(row)} · ${billNo(row)}`,requested_by:store.user?.id,reason:text(reason),status:'pending'});
+  const {error}=await db.from('deletion_requests').insert({entity_type:'bill',entity_id:String(row.id),entity_label:`${vendor(row)} · ${billNo(row)}`,requested_by:store.user?.id,reason:text(reason),status:'pending'});
   if(error)throw error;
   alert('Delete request saved. Waiting for Admin approval.');
 }
@@ -129,7 +129,7 @@ export function billsPage(){
     const find=id=>all.find(entry=>String(entry.row.id)===String(id));
     document.querySelectorAll('[data-view]').forEach(row=>{row.onclick=event=>{if(event.target.closest('button'))return;showBill(find(row.dataset.view))};row.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();showBill(find(row.dataset.view))}}});
     document.querySelectorAll('[data-edit]').forEach(button=>button.onclick=event=>{event.stopPropagation();store.editing=find(button.dataset.edit)?.row;location.hash='#new'});
-    document.querySelectorAll('[data-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();if(confirm('Delete this bill and all its items?')){await deleteBill(button.dataset.delete);billsPage()}});
+    document.querySelectorAll('[data-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();if(confirm('Move this bill to Trash? You can restore it for 30 days.')){await deleteBill(button.dataset.delete);billsPage()}});
     document.querySelectorAll('[data-request-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();button.disabled=true;try{await requestBillDeletion(find(button.dataset.requestDelete)?.row)}catch(error){console.error('[bills] delete request failed',error);alert(error.message||'Delete request could not be saved.')}finally{button.disabled=false}});
   };
 
