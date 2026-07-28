@@ -118,7 +118,7 @@ Add an approved invoice-status field and follow-up workflow after database revie
 ### Current behavior
 
 - `data.js` loads the configured bill table in pages of 1,000 rows.
-- Dashboard, Bills, Products, Vendors, Reports, and Price Intelligence reuse the loaded dataset.
+- Dashboard, Bills, Products, Vendors, Reports, and Cost reuse the loaded dataset.
 
 ### Impact
 
