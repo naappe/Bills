@@ -100,7 +100,7 @@ Shared page-rendering module for:
 - Dashboard
 - Bills
 - New Bill
-- Price Intelligence
+- Cost
 - Reports
 - Settings
 - Admin
@@ -243,7 +243,7 @@ Consequences:
 - historical bills remain the source of truth
 - catalogue corrections must not silently change historical records
 - duplicate supplier names require canonical grouping
-- normalized products, vendors, aliases, and price history remain planned database work
+- normalized products, vendors, aliases, and cost workspace remain planned database work
 
 See `DATABASE.md` for the target schema.
 
@@ -291,7 +291,7 @@ Before changing architecture:
 
 ## Planned architecture evolution
 
-### v4.7 — Price Intelligence
+### v4.7 — Cost
 
 - dedicated price-intelligence module
 - product timeline aggregation
@@ -315,7 +315,7 @@ Before changing architecture:
 - vendor aliases
 - bills
 - bill items
-- price history or derived price views
+- cost workspace or derived price views
 
 ### v5.0 — Assisted procurement
 
