@@ -79,10 +79,18 @@ async function fetchAllBills(){
     from+=step;
   }
 
-  store.set({rows:all});
+  let visible=all;
+  if(store.role!=='admin'){
+    const {data:requests,error}=await db.from('deletion_requests').select('entity_id').eq('entity_type','bill').eq('status','pending');
+    if(error)throw error;
+    const hiddenIds=new Set((requests||[]).map(request=>String(request.entity_id)));
+    visible=all.filter(row=>!hiddenIds.has(String(row.id)));
+  }
+
+  store.set({rows:visible});
   billsLoaded=true;
   billsLoadedAt=Date.now();
-  return all;
+  return visible;
 }
 
 export function loadBills({force=false}={}){

@@ -46,15 +46,18 @@ function categoryLabel(row){return text(get(row,'category'))||'Uncategorized'}
 function statusClass(value){const normalized=String(value).toLowerCase();if(normalized==='paid')return'paid';if(normalized.includes('pending')||normalized.includes('unpaid'))return'pending';return'neutral'}
 
 async function requestBillDeletion(row){
-  if(!row?.id||store.role==='admin'||!canEdit(row))return;
+  if(!row?.id||store.role==='admin'||!canEdit(row))return false;
+  if(!confirm('Delete this bill?'))return false;
   const {data:existing,error:lookupError}=await db.from('deletion_requests').select('id,status').eq('entity_type','bill').eq('entity_id',String(row.id)).eq('status','pending').maybeSingle();
   if(lookupError)throw lookupError;
-  if(existing){alert('This bill is already waiting for Admin approval.');return}
-  const reason=prompt('Why should this bill be deleted?','');
-  if(reason===null)return;
-  const {error}=await db.from('deletion_requests').insert({entity_type:'bill',entity_id:String(row.id),entity_label:`${vendor(row)} · ${billNo(row)}`,requested_by:store.user?.id,reason:text(reason),status:'pending'});
-  if(error)throw error;
-  alert('Delete request saved. Waiting for Admin approval.');
+  if(!existing){
+    const reason=prompt('Why should this bill be deleted?','');
+    if(reason===null)return false;
+    const {error}=await db.from('deletion_requests').insert({entity_type:'bill',entity_id:String(row.id),entity_label:`${vendor(row)} · ${billNo(row)}`,requested_by:store.user?.id,reason:text(reason),status:'pending'});
+    if(error)throw error;
+  }
+  store.set({rows:store.rows.filter(item=>String(item.id)!==String(row.id))});
+  return true;
 }
 
 function indexedRows(){
@@ -130,7 +133,7 @@ export function billsPage(){
     document.querySelectorAll('[data-view]').forEach(row=>{row.onclick=event=>{if(event.target.closest('button'))return;showBill(find(row.dataset.view))};row.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();showBill(find(row.dataset.view))}}});
     document.querySelectorAll('[data-edit]').forEach(button=>button.onclick=event=>{event.stopPropagation();store.editing=find(button.dataset.edit)?.row;location.hash='#new'});
     document.querySelectorAll('[data-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();if(confirm('Move this bill to Trash? You can restore it for 30 days.')){await deleteBill(button.dataset.delete);billsPage()}});
-    document.querySelectorAll('[data-request-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();button.disabled=true;try{await requestBillDeletion(find(button.dataset.requestDelete)?.row)}catch(error){console.error('[bills] delete request failed',error);alert(error.message||'Delete request could not be saved.')}finally{button.disabled=false}});
+    document.querySelectorAll('[data-request-delete]').forEach(button=>button.onclick=async event=>{event.stopPropagation();button.disabled=true;try{if(await requestBillDeletion(find(button.dataset.requestDelete)?.row))billsPage()}catch(error){console.error('[bills] delete request failed',error);alert(error.message||'Bill could not be deleted.')}finally{button.disabled=false}});
   };
 
   const refresh=()=>{store.page=1;draw()};
