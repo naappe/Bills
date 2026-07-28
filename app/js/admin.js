@@ -36,6 +36,23 @@ function accountRows(accounts){
     </tr>`).join('');
 }
 
+function userAccessRows(users){
+  if(!users.length)return '<tr><td colspan="6" class="empty">No authenticated users were returned.</td></tr>';
+  return users.map(user=>{
+    const id=String(user.user_id||''),email=String(user.email||'No email'),role=String(user.role||'staff').toLowerCase(),active=user.is_active!==false;
+    const primary=CONFIG.adminIds.includes(id),current=id===String(store.user?.id||''),locked=primary||current;
+    const lastSeen=user.is_online?'Online now':dateTime(user.last_seen_at||user.last_sign_in_at);
+    return `<tr>
+      <td><div class="admin-user"><span>${escapeHtml((user.display_name||email).charAt(0).toUpperCase())}</span><div><strong>${escapeHtml(user.display_name||email.split('@')[0])}</strong><small>${escapeHtml(email)}${current?' · Current session':''}</small></div></div></td>
+      <td><select class="admin-role-select" data-user-role="${escapeHtml(id)}" ${locked?'disabled':''} aria-label="Role for ${escapeHtml(email)}"><option value="staff" ${role==='staff'?'selected':''}>Staff</option><option value="admin" ${role==='admin'?'selected':''}>Admin</option></select></td>
+      <td><span class="admin-status ${active?'active':'inactive'}"><i class="fa-solid ${active?'fa-circle-check':'fa-circle-minus'}"></i>${active?'Active':'Inactive'}</span></td>
+      <td><span class="${user.is_online?'admin-online':''}">${escapeHtml(lastSeen)}</span></td>
+      <td>${escapeHtml(dateTime(user.created_at))}</td>
+      <td><div class="admin-user-actions">${locked?`<span class="admin-protected">${primary?'Primary admin':'Current user'}</span>`:`<button class="btn secondary small" data-save-user="${escapeHtml(id)}" type="button">Save role</button><button class="btn small ${active?'danger':''}" data-toggle-user="${escapeHtml(id)}" type="button">${active?'Deactivate':'Activate'}</button>`}</div></td>
+    </tr>`;
+  }).join('');
+}
+
 function activityRows(rows){
   if(!rows.length)return '<tr><td colspan="5" class="empty">No activity records.</td></tr>';
   return rows.map(row=>{
@@ -78,6 +95,22 @@ async function loadTrash(){
   return data||[];
 }
 
+async function loadAdminUsers(){
+  const {data,error}=await db.rpc('admin_user_overview');
+  if(error)throw error;
+  return data||[];
+}
+
+async function updateAdminUser(user,{role=user.role,active=user.is_active}={}){
+  const {error}=await db.rpc('admin_update_user_role',{
+    target_user:user.user_id,
+    new_role:role,
+    new_active:active,
+    new_display_name:user.display_name||null
+  });
+  if(error)throw error;
+}
+
 async function restoreBill(item){
   const {error}=await db.rpc('restore_bill_from_trash',{p_restore_id:item.id});
   if(error)throw error;
@@ -104,8 +137,11 @@ export async function adminPage(){
   }
 
   target.innerHTML='<section class="card"><div class="empty">Loading administration…</div></section>';
-  let requests=[],trash=[];
-  try{[requests,trash]=await Promise.all([loadRequests(),loadTrash()])}catch(error){console.error('[admin] administration data failed',error)}
+  let requests=[],trash=[],users=[],usersError='';
+  const results=await Promise.allSettled([loadRequests(),loadTrash(),loadAdminUsers()]);
+  if(results[0].status==='fulfilled')requests=results[0].value;else console.error('[admin] deletion requests failed',results[0].reason);
+  if(results[1].status==='fulfilled')trash=results[1].value;else console.error('[admin] trash failed',results[1].reason);
+  if(results[2].status==='fulfilled')users=results[2].value;else{usersError=results[2].reason?.message||'User access could not be loaded.';console.error('[admin] user access failed',results[2].reason)}
 
   const accounts=configuredAccounts();
   const rows=Array.isArray(store.rows)?store.rows:[];
@@ -114,6 +150,7 @@ export async function adminPage(){
   const latest=[...rows].sort((a,b)=>String(get(b,'updated_at','created_at')).localeCompare(String(get(a,'updated_at','created_at')))).slice(0,10);
   const total=rows.reduce((sum,row)=>sum+amount(row),0);
   const suppliers=new Set(rows.map(vendor).filter(name=>name&&name!=='Unknown supplier'));
+  const activeUsers=users.filter(user=>user.is_active!==false).length;
   const sessionEmail=store.user?.email||'Unknown';
   const deployment=window.__BILLS_DEPLOYMENT__?.version||window.app?.health?.version||'unknown';
 
@@ -123,9 +160,13 @@ export async function adminPage(){
       <div class="admin-summary-grid">
         ${kpi('Pending delete requests',requests.length.toLocaleString(),'Admin approval required')}
         ${kpi('Trash',trash.length.toLocaleString(),'Restorable for 30 days')}
-        ${kpi('Loaded bills',rows.length.toLocaleString(),`${paid.length} paid · ${pending} pending`)}
+        ${kpi('Active users',activeUsers.toLocaleString(),`${users.length-activeUsers} inactive`)}
         ${kpi('Current session','ADMIN',sessionEmail)}
       </div>
+      <article class="card admin-card admin-users-card">
+        <header class="card-head"><div><h2>User access management</h2><small>Activate accounts and assign Admin or Staff access</small></div><span class="admin-user-count">${users.length} user${users.length===1?'':'s'}</span></header>
+        ${usersError?`<div class="admin-access-error"><strong>User management is unavailable</strong><span>${escapeHtml(usersError)}</span></div>`:`<div class="table-wrap"><table class="table admin-users-table"><thead><tr><th>User</th><th>Access level</th><th>Status</th><th>Last active</th><th>Created</th><th>Action</th></tr></thead><tbody>${userAccessRows(users)}</tbody></table></div>`}
+      </article>
       <article class="card admin-card">
         <header class="card-head"><div><h2>Pending bill deletion requests</h2><small>Approving moves the bill to recoverable Trash</small></div></header>
         <div class="table-wrap"><table class="table"><thead><tr><th>Requested</th><th>Bill</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>${requestRows(requests)}</tbody></table></div>
@@ -155,5 +196,23 @@ export async function adminPage(){
     if(decision==='approved'&&!confirm(`Approve deletion of ${request.entity_label||`bill ${request.entity_id}`}?`))return;
     button.disabled=true;
     try{await reviewRequest(request,decision);await adminPage()}catch(error){console.error('[admin] request review failed',error);alert(error.message||'Request could not be reviewed.');button.disabled=false}
+  });
+
+  target.querySelectorAll('[data-save-user]').forEach(button=>button.onclick=async()=>{
+    const user=users.find(item=>String(item.user_id)===String(button.dataset.saveUser));
+    const select=target.querySelector(`[data-user-role="${CSS.escape(String(button.dataset.saveUser))}"]`);
+    if(!user||!select||select.value===user.role)return;
+    if(!confirm(`Change ${user.email} access from ${String(user.role).toUpperCase()} to ${select.value.toUpperCase()}?`))return;
+    button.disabled=true;
+    try{await updateAdminUser(user,{role:select.value});await adminPage()}catch(error){console.error('[admin] role update failed',error);alert(error.message||'User role could not be updated.');button.disabled=false}
+  });
+
+  target.querySelectorAll('[data-toggle-user]').forEach(button=>button.onclick=async()=>{
+    const user=users.find(item=>String(item.user_id)===String(button.dataset.toggleUser));
+    if(!user)return;
+    const activate=user.is_active===false;
+    if(!confirm(`${activate?'Activate':'Deactivate'} ${user.email}?${activate?'':' They will no longer be able to use procurement data.'}`))return;
+    button.disabled=true;
+    try{await updateAdminUser(user,{active:activate});await adminPage()}catch(error){console.error('[admin] active status update failed',error);alert(error.message||'User status could not be updated.');button.disabled=false}
   });
 }

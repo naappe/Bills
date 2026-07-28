@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.5.0] — User access administration
+
+- Connected Admin & users to the secure Supabase user administration RPCs
+- Added real authenticated-user listing with Admin and Staff access levels
+- Added activate and deactivate controls with confirmation and primary-admin protection
+- Added account status checks during sign-in and saved-session restoration
+- Aligned bill-level admin permissions with the role managed on the Admin page
+- Kept privileged credentials out of the browser
+
 ## [5.4.3] — Five-category Cost example
 
 - Expanded Cost example mode to 50 products across five categories
