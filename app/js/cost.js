@@ -58,22 +58,62 @@ function buildProducts(images){
 
 function demoProducts(){
   const samples=[
-    ['Lacnor Full Cream Milk','Grow Shop','1 ltr',[32,34,35]],
-    ['Dutch Lady Full Cream Milk','Happy Market','1 ltr',[33,34]],
-    ['Devondale Full Cream Milk','Jamna Fish','1 ltr',[35,37]],
-    ['Rainbow Evaporated Milk','S&O Corner','410 ml',[17,18]],
-    ['Anchor Full Cream Milk','Cyprea FNB','1 ltr',[36,38.5]],
-    ['Almarai Full Cream Milk','Neo','1 ltr',[37,39]],
-    ['Lacnor Low Fat Milk','Grow Shop','1 ltr',[34,36.5]],
-    ['Devondale Full Cream Milk','Happy Market','500 ml',[19,20]],
-    ['Anchor Full Cream Milk','A.K. Traders','500 ml',[18.5,19.5]],
-    ['Dutch Lady Chocolate Milk','Maruhaba','250 ml',[9.5,10.5]]
+    ['Milk','Lacnor Full Cream Milk','Grow Shop','1 ltr',[32,34,35]],
+    ['Milk','Dutch Lady Full Cream Milk','Happy Market','1 ltr',[33,34]],
+    ['Milk','Devondale Full Cream Milk','Jamna Fish','1 ltr',[35,37]],
+    ['Milk','Rainbow Evaporated Milk','S&O Corner','410 ml',[17,18]],
+    ['Milk','Anchor Full Cream Milk','Cyprea FNB','1 ltr',[36,38.5]],
+    ['Milk','Almarai Full Cream Milk','Neo','1 ltr',[37,39]],
+    ['Milk','Lacnor Low Fat Milk','Grow Shop','1 ltr',[34,36.5]],
+    ['Milk','Devondale Full Cream Milk Small','Happy Market','500 ml',[19,20]],
+    ['Milk','Anchor Full Cream Milk Small','A.K. Traders','500 ml',[18.5,19.5]],
+    ['Milk','Dutch Lady Chocolate Milk','Maruhaba','250 ml',[9.5,10.5]],
+    ['Tuna / Fish','Valhomus Smoked Tuna','Jamna Fish','500 g',[39,41.67]],
+    ['Tuna / Fish','Roamus Tuna Loin','Jamna Fish','1 kg',[78,82]],
+    ['Tuna / Fish','Yellowfin Tuna Cubes','Manik Fish','1 kg',[92,96]],
+    ['Tuna / Fish','Skipjack Tuna Steak','Ocean Trade','1 kg',[68,72]],
+    ['Tuna / Fish','Smoked Fish Fillet','Jamna Fish','250 g',[27,29]],
+    ['Tuna / Fish','Reef Fish Fillet','Fresh Catch','1 kg',[84,88]],
+    ['Tuna / Fish','Tuna Mince','Manik Fish','500 g',[34,36]],
+    ['Tuna / Fish','Frozen Tuna Loin','Ocean Trade','2 kg',[146,152]],
+    ['Tuna / Fish','Tuna Chunks','Fresh Catch','750 g',[54,57]],
+    ['Tuna / Fish','Smoked Tuna Slices','Jamna Fish','300 g',[31,33]],
+    ['Rice','India Gate Basmati Rice','A.K. Traders','5 kg',[148,155]],
+    ['Rice','Tilda Basmati Rice','Happy Market','5 kg',[165,172]],
+    ['Rice','Sunwhite Calrose Rice','Grow Shop','5 kg',[122,128]],
+    ['Rice','Daawat Basmati Rice','Cyprea FNB','5 kg',[158,163]],
+    ['Rice','Royal Umbrella Jasmine Rice','Neo','5 kg',[135,141]],
+    ['Rice','White Sella Rice','A.K. Traders','10 kg',[238,245]],
+    ['Rice','Thai Hom Mali Rice','Maruhaba','5 kg',[132,138]],
+    ['Rice','Brown Rice','Grow Shop','1 kg',[39,42]],
+    ['Rice','Jeera Samba Rice','Happy Market','5 kg',[118,124]],
+    ['Rice','Ponni Rice','S&O Corner','10 kg',[215,224]],
+    ['Cooking Oil','Sunflower Cooking Oil','Grow Shop','5 ltr',[188,195]],
+    ['Cooking Oil','Canola Cooking Oil','Happy Market','5 ltr',[202,208]],
+    ['Cooking Oil','Corn Cooking Oil','A.K. Traders','5 ltr',[210,218]],
+    ['Cooking Oil','Vegetable Cooking Oil','S&O Corner','5 ltr',[170,178]],
+    ['Cooking Oil','Olive Pomace Oil','Cyprea FNB','1 ltr',[92,98]],
+    ['Cooking Oil','Extra Virgin Olive Oil','Neo','1 ltr',[138,145]],
+    ['Cooking Oil','Coconut Cooking Oil','Maruhaba','1 ltr',[75,79]],
+    ['Cooking Oil','Soybean Cooking Oil','Happy Market','5 ltr',[182,189]],
+    ['Cooking Oil','Palm Olein Cooking Oil','Grow Shop','5 ltr',[164,171]],
+    ['Cooking Oil','Rice Bran Cooking Oil','A.K. Traders','2 ltr',[92,97]],
+    ['Water','Life Mineral Water','Happy Market','24x500 ml',[48,50]],
+    ['Water','Taza Mineral Water','Grow Shop','24x500 ml',[46,49]],
+    ['Water','Aquafina Drinking Water','Cyprea FNB','12x1.5 ltr',[82,86]],
+    ['Water','Bon Aqua Drinking Water','Neo','12x1.5 ltr',[84,88]],
+    ['Water','Life Water Large','Happy Market','6x5 ltr',[72,76]],
+    ['Water','Taza Water Large','Grow Shop','6x5 ltr',[69,73]],
+    ['Water','Sparkling Mineral Water','Maruhaba','12x330 ml',[96,102]],
+    ['Water','Still Glass Water','Cyprea FNB','12x750 ml',[108,114]],
+    ['Water','Life Water Small','Happy Market','24x330 ml',[42,45]],
+    ['Water','Taza Water Small','Grow Shop','24x330 ml',[40,43]]
   ];
-  return samples.map(([name,supplier,packing,costs],index)=>{
+  return samples.map(([category,name,supplier,packing,costs],index)=>{
     const pack=packInfo({pack_format:packing});
-    const history=costs.map((cost,point)=>({date:`2026-0${5+point}-${String(8+index).padStart(2,'0')}`,cost,rate:cost,gstRate:0,pack,packing,vendor:supplier,billId:'',itemIndex:0}));
+    const history=costs.map((cost,point)=>({date:`2026-0${6+point}-${String(1+(index%27)).padStart(2,'0')}`,cost,rate:cost,gstRate:0,pack,packing,vendor:supplier,billId:'',itemIndex:0}));
     const latest=history.at(-1),previous=history.at(-2),highest=history.reduce((best,point)=>point.cost>best.cost?point:best,history[0]),change=previous?latest.cost-previous.cost:0;
-    return{key:`demo-${index}`,name,image:'',pack,history,latest,previous,highest,change,changePercent:previous?.cost?change/previous.cost*100:0,prices:unitPrices(latest.cost,pack),search:`${name} milk ${packing} ${supplier}`.toLowerCase(),demo:true};
+    return{key:`demo-${index}`,category,name,image:'',pack,history,latest,previous,highest,change,changePercent:previous?.cost?change/previous.cost*100:0,prices:unitPrices(latest.cost,pack),search:`${category} ${name} ${packing} ${supplier}`.toLowerCase(),demo:true};
   });
 }
 
@@ -111,8 +151,10 @@ function comparison(products,selectedKey){
 function render(products,selectedKey='',query=''){
   const target=content(),needle=text(query).toLowerCase(),filtered=products.filter(product=>!needle||product.search.includes(needle));
   const selected=filtered.find(product=>product.key===selectedKey)||filtered[0]||(!needle?products[0]:null);
-  target.innerHTML=`<header class="page-head"><div><h1>Cost</h1><p>Find the cheapest product using the same weight, volume or piece cost.</p></div></header><section class="cost-overview"><div class="cost-overview-head"><div><strong>${demoMode?'10-product example':'Live cost data'}</strong><span>${demoMode?'Review the milk comparison concept':'Compare products entered in your bills'}</span></div><button class="btn ${demoMode?'secondary':''}" data-demo-toggle type="button"><i class="fa-solid ${demoMode?'fa-database':'fa-flask'}"></i> ${demoMode?'Back to live data':'View 10-product example'}</button></div>${demoMode?'<div class="cost-demo-note"><i class="fa-solid fa-circle-info"></i><div><strong>Example mode</strong><span>These 10 milk products are temporary examples only. Nothing was added to Supabase.</span></div></div>':''}<div class="cost-search"><i class="fa-solid fa-magnifying-glass"></i><input id="costSearch" value="${escapeHtml(query)}" placeholder="Search milk, tuna, rice or vendor" aria-label="Search product category or vendor"><strong>${filtered.length} results</strong></div>${filtered.length?`<div class="cost-bubbles" aria-label="Product cost summary">${filtered.slice(0,18).map(bubble).join('')}</div>`:'<div class="empty"><h2>No matching products</h2><p>Try another product category or vendor.</p></div>'}</section>${comparison(filtered,selected?.key)}${selected?detail(selected):'<section class="panel"><div class="empty"><h2>No cost data yet</h2><p>Enter a bill with product packing and price to begin.</p></div></section>'}`;
-  target.querySelector('[data-demo-toggle]')?.addEventListener('click',()=>{demoMode=!demoMode;render(demoMode?demoProducts():liveProducts,'',demoMode?'milk':'')});
+  const categoryFilters=demoMode?`<div class="cost-demo-categories" aria-label="Example categories"><button type="button" data-demo-category="">All 50</button>${['Milk','Tuna / Fish','Rice','Cooking Oil','Water'].map(category=>`<button type="button" data-demo-category="${escapeHtml(category.toLowerCase())}">${escapeHtml(category)} · 10</button>`).join('')}</div>`:'';
+  target.innerHTML=`<header class="page-head"><div><h1>Cost</h1><p>Find the cheapest product using the same weight, volume or piece cost.</p></div></header><section class="cost-overview"><div class="cost-overview-head"><div><strong>${demoMode?'50-product example':'Live cost data'}</strong><span>${demoMode?'5 categories with 10 products each':'Compare products entered in your bills'}</span></div><button class="btn ${demoMode?'secondary':''}" data-demo-toggle type="button"><i class="fa-solid ${demoMode?'fa-database':'fa-flask'}"></i> ${demoMode?'Back to live data':'View 5-category example'}</button></div>${demoMode?'<div class="cost-demo-note"><i class="fa-solid fa-circle-info"></i><div><strong>Example mode</strong><span>These 50 products are temporary examples only. Nothing was added to Supabase.</span></div></div>':''}${categoryFilters}<div class="cost-search"><i class="fa-solid fa-magnifying-glass"></i><input id="costSearch" value="${escapeHtml(query)}" placeholder="Search milk, tuna, rice, oil, water or vendor" aria-label="Search product category or vendor"><strong>${filtered.length} results</strong></div>${filtered.length?`<div class="cost-bubbles" aria-label="Product cost summary">${filtered.slice(0,demoMode?50:18).map(bubble).join('')}</div>`:'<div class="empty"><h2>No matching products</h2><p>Try another product category or vendor.</p></div>'}</section>${comparison(filtered,selected?.key)}${selected?detail(selected):'<section class="panel"><div class="empty"><h2>No cost data yet</h2><p>Enter a bill with product packing and price to begin.</p></div></section>'}`;
+  target.querySelector('[data-demo-toggle]')?.addEventListener('click',()=>{demoMode=!demoMode;render(demoMode?demoProducts():liveProducts)});
+  target.querySelectorAll('[data-demo-category]').forEach(button=>button.addEventListener('click',()=>render(products,'',button.dataset.demoCategory)));
   $('#costSearch')?.addEventListener('input',event=>{const value=event.target.value;render(products,selected?.key,value);const input=$('#costSearch');input.focus();input.setSelectionRange(value.length,value.length)});
   target.querySelectorAll('[data-product]').forEach(control=>{const choose=()=>render(products,control.dataset.product,needle);control.addEventListener('click',choose);control.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose()}})});
 }
