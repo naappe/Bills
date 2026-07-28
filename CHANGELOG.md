@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.3] — Five-category Cost example
+
+- Expanded Cost example mode to 50 products across five categories
+- Added 10 examples each for Milk, Tuna/Fish, Rice, Cooking Oil, and Water
+- Added quick category filters and preserved category-aware unit comparisons
+- Kept all example data temporary and separate from Supabase
+
 ## [5.4.2] — Visible Cost example control
 
 - Moved the 10-product example control into the visible Cost search card
