@@ -54,7 +54,7 @@ requireText(read('app/js/reports.js'),'today','Reports use the shared local busi
 forbidText(read('app/js/dashboard.js'),'new Date().toISOString().slice(0,10)','Dashboard avoids UTC business dates');
 forbidText(read('app/js/reports.js'),'new Date().toISOString().slice(0,10)','Reports avoid UTC business dates');
 requireText(read('app/js/reports.js'),'lineTotal','Reports aggregate item-level values');
-requireText(read('app/js/admin.js'),'export function adminPage','Admin page exports a valid renderer');
+check(/export\s+(?:async\s+)?function\s+adminPage\s*\(/.test(read('app/js/admin.js')),'Admin page exports a valid renderer');
 requireText(read('app/js/admin.js'),'activityRows','Admin activity rendering is separated from the page template');
 
 for(const id of ['billForm','vendor','date','billItems','addRow','subtotal','gstTotal','grandTotal'])requireText(bill,`id="${id}"`,`Bill Entry preserves #${id}`);
