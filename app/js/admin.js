@@ -1,6 +1,6 @@
 import {store,money,escapeHtml,billDate,vendor,status,get,amount} from './store.js';
 import {CONFIG} from './config.js';
-import {db,deleteBill} from './data.js';
+import {db} from './data.js';
 
 const $=selector=>document.querySelector(selector);
 const content=()=>$('#content');
@@ -57,15 +57,20 @@ function requestRows(requests){
 }
 
 async function loadRequests(){
-  const {data,error}=await db.from('deletion_requests').select('*').eq('entity_type','bills').eq('status','pending').order('requested_at',{ascending:false});
+  const {data,error}=await db.from('deletion_requests').select('*').eq('entity_type','bill').eq('status','pending').order('requested_at',{ascending:false});
   if(error)throw error;
   return data||[];
 }
 
 async function reviewRequest(request,decision){
-  if(decision==='approved')await deleteBill(request.entity_id);
-  const {error}=await db.from('deletion_requests').update({status:decision,reviewed_by:store.user?.id||null,reviewed_at:new Date().toISOString()}).eq('id',request.id);
+  const {error}=await db.rpc('review_bill_deletion_request',{
+    p_request_id:request.id,
+    p_decision:decision
+  });
   if(error)throw error;
+  if(decision==='approved'){
+    store.set({rows:store.rows.filter(row=>String(row.id)!==String(request.entity_id))});
+  }
 }
 
 export async function adminPage(){
