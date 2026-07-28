@@ -97,6 +97,31 @@ Older records without an `items` collection remain supported through legacy sing
 
 Frontend role checks improve usability, but Supabase Row Level Security must enforce actual permissions.
 
+## Bill deletion workflow
+
+### Staff
+
+- Staff may request deletion only during the permitted 24-hour window.
+- Clicking Delete creates a pending `deletion_requests` record with entity type `bill`.
+- The bill remains active and visible until Admin reviews the request.
+
+### Admin review
+
+- **Approve** moves the bill to recoverable Trash by setting `deleted_at`.
+- **Reject** leaves the bill unchanged and marks the request rejected.
+- Both outcomes are handled atomically by `review_bill_deletion_request`.
+
+### Direct Admin deletion
+
+Admin Delete calls `trash_bill` and moves the bill directly to Trash. It does not permanently delete the bill immediately.
+
+### Restore and permanent deletion
+
+- Admin can restore a bill from **Admin & users → Bill Trash** for 30 days.
+- Restoring calls `restore_bill_from_trash`, clears `deleted_at`, and returns the bill to the active Bills view.
+- The scheduled `purge_expired_bill_trash` database function runs daily and permanently removes bills after the 30-day recovery window.
+- Production RPC calls must not be tested against arbitrary real IDs because trash and approval operations modify live data.
+
 ## Technology
 
 - HTML5
