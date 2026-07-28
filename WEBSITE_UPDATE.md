@@ -79,16 +79,14 @@ This file records the current implementation state for future developers and AI 
 - Stock status displayed as not tracked when inventory data is unavailable.
 - Product cards no longer open a second analytics page.
 
-### Price Intelligence
+### Cost
 
 - Admin-only navigation.
-- Product and supplier comparison.
-- Current and previous normalized prices.
-- Price movement.
-- Best supplier.
-- Potential savings.
-- Supplier averages and volatility.
-- Price history and ranking details.
+- Purchase cost totals by product, vendor, category, and period.
+- Latest recorded cost and total purchasing value.
+- Desktop and mobile cost views.
+- Filtered CSV export.
+- No legacy price-history or price-movement analysis.
 
 ### Documentation
 
@@ -136,7 +134,7 @@ This file records the current implementation state for future developers and AI 
 - Invoice-number-later workflow.
 - Product suggestions.
 - Unit and pack calculations.
-- Price Intelligence accuracy.
+- Cost totals and filters.
 - Browser console and network errors.
 - Chrome, Edge, Firefox, Safari, and mobile browsers.
 
@@ -156,6 +154,6 @@ The following are not complete and must not be described as working production f
 
 ## Current operational boundary
 
-The loaded supplier-bill dataset remains the source for Dashboard, Bills, Products, Vendors, Reports, and Price Intelligence.
+The loaded supplier-bill dataset remains the source for Dashboard, Bills, Products, Vendors, Reports, and Cost.
 
 No page should issue an additional Supabase bill request when the required data already exists in `store.rows`.
