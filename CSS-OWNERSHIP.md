@@ -173,8 +173,8 @@ input, select, textarea { height, font, focus state }
 
 ---
 
-### `rates.css`
-**Scope:** Price Intelligence page—tables, filters, trends  
+### `cost.css`
+**Scope:** Cost page—tables, filters, trends  
 **Likely contains:**
 ```css
 .rate-table { sortable product pricing }
@@ -298,7 +298,7 @@ input, select, textarea { height, font, focus state }
 - Fix sidebar footer layout (update `layout.css`)
 - Verify all pages inherit correct `--sidebar-width`
 
-### Phase 2: Price Intelligence (High priority)
+### Phase 2: Cost (High priority)
 - Fix sidebar clipping — may need to widen content area
 - Verify table doesn't overflow — check `.rates-table` min-width
 - Improve filter layout — may need to redesign `.rates-toolbar`
@@ -327,7 +327,7 @@ After any CSS change:
 3. Tablet (520px–820px): Sidebar drawer opens/closes, content is readable
 4. Mobile (0–519px): All content readable, no horizontal scroll
 5. Bills page: Table columns visible, filters wrap correctly
-6. Price Intelligence: No overflow, full width used
+6. Cost: No overflow, full width used
 7. Dashboard: KPI cards responsive, layout doesn't break
 8. Admin: Two-column layout maintained, scrollbars manageable
 
@@ -335,7 +335,7 @@ After any CSS change:
 
 ## Files to Review Next
 
-1. `rates.css` — Check for overflow and width issues
+1. `cost.css` — Check for overflow and width issues
 2. `bills-mobile.css` — Verify responsive rules work correctly
 3. `layout.css` — Sidebar width and collapsed state
 4. `consistency.css` — `.bills-table` column widths
