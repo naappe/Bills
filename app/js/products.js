@@ -9,7 +9,9 @@ const itemsOf=row=>Array.isArray(row?.items)&&row.items.length?row.items:[itemOf
 const firstNumber=(source,...fields)=>{for(const field of fields){const value=number(get(source,field));if(value>0)return value}return 0};
 const isAdmin=()=>store.role==='admin';
 let cache={revision:-1,products:[]};
-let masterProducts=new Map();
+let masterProducts=new Map(),selectedProductKey='';
+const editDistance=(a,b)=>{a=keyOf(a);b=keyOf(b);const r=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=r[0];r[0]=i;for(let j=1;j<=b.length;j++){const h=r[j];r[j]=Math.min(r[j]+1,r[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=h}}return r[b.length]};
+const productScore=(q,p)=>{q=keyOf(q);const n=keyOf(p.name);if(!q)return 100;if(n===q)return 120;if(n.includes(q)||p.search.includes(q))return 100;return Math.max(0,75-editDistance(q,n)*8)};
 
 async function loadProductImages(){
   const {data,error}=await db.from('products').select('id,name,image_url,is_active,deleted_at,current_rate').eq('is_active',true).is('deleted_at',null);
@@ -167,35 +169,23 @@ function bindImageActions(query){
   });
 }
 
+function productOverview(products){
+ const selected=products.find(p=>p.key===selectedProductKey),vendors=new Set(products.flatMap(p=>[...p.vendors])),records=products.reduce((s,p)=>s+p.history.length,0);
+ if(!selected){const top=products.filter(p=>p.latest>0).sort((a,b)=>b.latest-a.latest).slice(0,10),max=Math.max(...top.map(p=>p.latest),1);return `<section class="card" style="padding:18px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px"><div><small>MASTER PRODUCTS</small><h2>${products.length}</h2></div><div><small>VENDORS</small><h2>${vendors.size}</h2></div><div><small>PURCHASE RECORDS</small><h2>${records}</h2></div></div><h2>All product price summary</h2><p>Click a bar or product to view its full pricing history.</p><div style="display:flex;align-items:end;gap:12px;height:190px;overflow-x:auto">${top.map(p=>`<button data-pick="${escapeHtml(p.key)}" title="${escapeHtml(p.name)} ${money(p.latest)}" style="border:0;background:var(--brand-gold);min-width:58px;height:${Math.max(24,p.latest/max*135)}px;border-radius:8px 8px 0 0;cursor:pointer"><span style="writing-mode:vertical-rl;font-size:9px">${escapeHtml(p.name.slice(0,16))}</span></button>`).join('')}</div></section>`;}
+ const latest=new Map();[...selected.history].reverse().forEach(x=>{if(!latest.has(x.vendor))latest.set(x.vendor,x)});return `<section class="card" style="padding:18px"><div style="display:flex;justify-content:space-between;gap:12px"><div><h2>${escapeHtml(selected.name)}</h2><p>${selected.history.length} purchases · ${selected.vendors.size} vendors · same master product</p></div><button class="btn secondary" id="allProducts">All products</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px"><div><h3>Price history</h3>${[...selected.history].reverse().slice(0,12).map(x=>`<div style="display:grid;grid-template-columns:90px 1fr auto;gap:10px;padding:9px;border-bottom:1px solid var(--border)"><span>${escapeHtml(x.date)}</span><span>${escapeHtml(x.vendor)}</span><strong>${money(x.wholesale)}</strong></div>`).join('')||'<p>No history yet.</p>'}</div><div><h3>Latest vendor prices</h3>${[...latest.values()].sort((a,b)=>a.wholesale-b.wholesale).map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:11px;border:1px solid var(--border);border-radius:10px;margin-bottom:8px"><span>${i===0?'★ ':''}${escapeHtml(x.vendor)}</span><strong>${money(x.wholesale)}</strong></div>`).join('')||'<p>No vendor prices yet.</p>'}</div></div></section>`;
+}
 function openMergeProducts(){
-  const products=[...masterProducts.values()].sort((a,b)=>a.name.localeCompare(b.name));
-  if(products.length<2){alert('At least two master products are required.');return}
-  const options=products.map(product=>`<option value="${product.id}">${escapeHtml(product.name)}</option>`).join('');
-  const modal=document.createElement('div');modal.className='modal';modal.innerHTML=`<section class="modal-card"><header class="card-head"><h2>Merge products</h2><button class="btn secondary small" data-close type="button">Close</button></header><div class="card-body"><p>All old bills will use the correct master name and image. Vendor names will not change.</p><label>Old duplicate product<select id="mergeSource">${options}</select></label><label style="margin-top:12px">Correct master product<select id="mergeTarget">${options}</select></label><div class="actions" style="margin-top:18px"><button class="btn danger" id="confirmMerge" type="button">Merge into correct product</button></div></div></section>`;document.body.appendChild(modal);
-  modal.querySelector('[data-close]').onclick=()=>modal.remove();
-  const source=modal.querySelector('#mergeSource'),target=modal.querySelector('#mergeTarget');target.selectedIndex=Math.min(1,products.length-1);
-  modal.querySelector('#confirmMerge').onclick=async event=>{if(source.value===target.value){alert('Choose two different products.');return}const oldName=products.find(item=>item.id===source.value)?.name,newName=products.find(item=>item.id===target.value)?.name;if(!confirm(`Merge “${oldName}” into “${newName}”? This updates historical bills and removes the old master name.`))return;event.currentTarget.disabled=true;const {error}=await db.rpc('merge_master_products',{p_source_id:source.value,p_target_id:target.value});if(error){event.currentTarget.disabled=false;alert(error.message||'Products could not be merged.');return}modal.remove();location.reload()};
+ const ps=[...masterProducts.values()].sort((a,b)=>a.name.localeCompare(b.name)),opts=ps.map(p=>`<option value="${escapeHtml(p.name)}"></option>`).join(''),chosen=findProduct(selectedProductKey);
+ const modal=document.createElement('div');modal.className='modal';modal.innerHTML=`<section class="modal-card" style="width:min(900px,95vw)"><header class="card-head"><h2>Merge products</h2><button class="btn secondary small" data-close>Close</button></header><div class="card-body"><datalist id="masterNames">${opts}</datalist><div style="display:grid;grid-template-columns:1fr 60px 1fr;gap:14px;align-items:center"><label><strong>Wrong product</strong><input id="wrongProduct" list="masterNames" value="${escapeHtml(chosen?.name||'')}" placeholder="Select wrong product"></label><div style="font-size:28px;text-align:center">→</div><label><strong>Correct product name</strong><input id="correctProduct" list="masterNames" placeholder="Search or write correct name"></label></div><p>Old bills, images and price history will use the correct master product. Vendors will not change.</p><button class="btn danger" id="doMerge">Merge products</button></div></section>`;document.body.appendChild(modal);modal.querySelector('[data-close]').onclick=()=>modal.remove();
+ const exact=v=>ps.find(p=>keyOf(p.name)===keyOf(v));modal.querySelector('#doMerge').onclick=async e=>{const source=exact(modal.querySelector('#wrongProduct').value),name=text(modal.querySelector('#correctProduct').value);if(!source){alert('Select the wrong product.');return}if(!name||keyOf(name)===keyOf(source.name)){alert('Write or select a different correct product name.');return}if(!confirm(`Merge “${source.name}” into “${name}”?`))return;e.currentTarget.disabled=true;try{let target=exact(name);if(!target){const {data,error}=await db.rpc('create_master_product',{p_name:name});if(error)throw error;target=Array.isArray(data)?data[0]:data}const {error}=await db.rpc('merge_master_products',{p_source_id:source.id,p_target_id:target.id});if(error)throw error;location.reload()}catch(error){e.currentTarget.disabled=false;alert(error.message||'Merge failed.')}};
 }
 
-function bindProductCards(){
-  if(!isAdmin())return;
-  document.querySelectorAll('.simple-product-card[data-product-key]').forEach(card=>{
-    const open=()=>openProductBill(findProduct(card.dataset.productKey));
-    card.addEventListener('click',open);
-    card.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open()}});
-  });
-}
+function bindProductCards(query){document.querySelectorAll('.simple-product-card[data-product-key]').forEach(card=>{card.style.cursor='pointer';const pick=()=>{selectedProductKey=card.dataset.productKey;renderList(query);window.scrollTo({top:0,behavior:'smooth'})};card.addEventListener('click',e=>{if(!e.target.closest('button'))pick()});card.addEventListener('keydown',e=>{if(e.key==='Enter'){pick()}})})}
 
 function renderList(query=''){
-  const products=buildProducts(),needle=query.trim().toLowerCase(),filtered=needle?products.filter(product=>product.search.includes(needle)):products;
-  content().innerHTML=`<header class="page-head"><div><h1>Master products</h1><p>One correct product name and image shared across every vendor and bill.</p></div>${isAdmin()?'<button class="btn" id="mergeProducts" type="button">Merge products</button>':''}</header>
-  <section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product or vendor, for example tomato"></div><span id="productCount">${filtered.length} products</span>${isAdmin()?'<button class="btn" id="mergeProducts" type="button">Merge products</button>':''}</section>
-  <section class="simple-product-list" id="productList">${filtered.map(productCard).join('')||'<div class="simple-empty card"><i class="fa-solid fa-box-open"></i><strong>No matching product</strong><span>Try another product or vendor name.</span></div>'}</section>`;
-  bindImageActions(query);
-  bindProductCards();
-  const mergeButton=$('#mergeProducts');if(mergeButton)mergeButton.onclick=openMergeProducts;
-  const search=$('#productSearch');search.focus();search.setSelectionRange(search.value.length,search.value.length);
-  let timer;search.oninput=event=>{clearTimeout(timer);timer=setTimeout(()=>renderList(event.target.value),100)};
+ const products=buildProducts(),filtered=products.map(p=>({...p,score:productScore(query,p)})).filter(p=>p.score>20).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name));
+ content().innerHTML=`<header class="page-head"><div><h1>Master products</h1></div></header>${productOverview(products)}<section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product — spelling mistakes accepted"></div><span>${filtered.length} products</span>${isAdmin()?'<button class="btn" id="mergeProducts">Merge products</button>':''}</section><section class="simple-product-list">${filtered.map(productCard).join('')||'<div class="empty">No matching product.</div>'}</section>`;
+ bindImageActions(query);bindProductCards(query);$('#mergeProducts')?.addEventListener('click',openMergeProducts);$('#allProducts')?.addEventListener('click',()=>{selectedProductKey='';renderList(query)});document.querySelectorAll('[data-pick]').forEach(x=>x.addEventListener('click',()=>{selectedProductKey=x.dataset.pick;renderList(query)}));let timer;$('#productSearch').oninput=e=>{clearTimeout(timer);timer=setTimeout(()=>renderList(e.target.value),100)};
 }
 
 export async function productsPage(){
