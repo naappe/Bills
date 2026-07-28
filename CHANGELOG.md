@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.4.0] — Search category cost comparison
+
+### Added
+
+- Search results compare matching products as one category, such as all milk products
+- Cheapest result is marked using a like-for-like base-unit cost
+- Comparison rows show product, vendor, last entry, last price, packing, and large/small unit costs
+- Selected product shows a focused last-price graph
+- Small-unit prices retain up to six decimal places
+
+### Changed
+
+- Cost product details now show only the requested purchasing information
+
 ## [5.3.3] — Comparable pack-size costs
 
 ### Added

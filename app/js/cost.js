@@ -5,6 +5,7 @@ const $=selector=>document.querySelector(selector);
 const content=()=>$('#content');
 const keyOf=value=>text(value).toLowerCase().replace(/\s+/g,' ');
 const formatDate=value=>value?new Date(`${value}T00:00:00`).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const preciseMoney=value=>`MVR ${number(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:6})}`;
 
 function packInfo(item){
   const packing=text(get(item,'pack_format','packing')),pack=packing.toLowerCase().replace(/[×*]/g,'x').replace(/\s+/g,'');
@@ -22,12 +23,12 @@ function packInfo(item){
   return{packing,amount:0,baseUnit:'PACK',signature:`PACK:${keyOf(packing)}`,label:packing};
 }
 
-function referenceCost(cost,pack){
-  if(!pack.amount)return{label:'Cost per pack',value:cost};
-  if(pack.baseUnit==='G')return{label:'Cost per 1 kg',value:cost*1000/pack.amount};
-  if(pack.baseUnit==='ML')return{label:'Cost per 1 litre',value:cost*1000/pack.amount};
-  if(pack.baseUnit==='PCS')return{label:'Cost per piece',value:cost/pack.amount};
-  return{label:'Cost per pack',value:cost};
+function unitPrices(cost,pack){
+  if(!pack.amount)return{largeLabel:'Pack price',large:cost,smallLabel:'Pack price',small:cost};
+  if(pack.baseUnit==='G')return{largeLabel:'MVR per 1 kg',large:cost*1000/pack.amount,smallLabel:'MVR per 1 g',small:cost/pack.amount};
+  if(pack.baseUnit==='ML')return{largeLabel:'MVR per 1 litre',large:cost*1000/pack.amount,smallLabel:'MVR per 1 ml',small:cost/pack.amount};
+  if(pack.baseUnit==='PCS')return{largeLabel:'MVR per piece',large:cost/pack.amount,smallLabel:'MVR per piece',small:cost/pack.amount};
+  return{largeLabel:'Pack price',large:cost,smallLabel:'Pack price',small:cost};
 }
 
 function buildProducts(images){
@@ -50,13 +51,16 @@ function buildProducts(images){
     product.history.sort((a,b)=>a.date.localeCompare(b.date));
     const latest=product.history.at(-1),previous=product.history.at(-2),highest=product.history.reduce((best,point)=>point.cost>best.cost?point:best,product.history[0]);
     const change=previous?latest.cost-previous.cost:0,changePercent=previous?.cost?change/previous.cost*100:0;
-    return {...product,latest,highest,previous,change,changePercent,unitCost:referenceCost(latest.cost,latest.pack),search:`${product.name} ${product.pack.packing} ${product.history.map(point=>point.vendor).join(' ')}`.toLowerCase()};
+    return {...product,latest,highest,previous,change,changePercent,prices:unitPrices(latest.cost,latest.pack),search:`${product.name} ${product.pack.packing} ${product.history.map(point=>point.vendor).join(' ')}`.toLowerCase()};
   }).sort((a,b)=>b.latest.date.localeCompare(a.latest.date)||a.name.localeCompare(b.name));
 }
 
 function graph(product){
   const points=product.history.slice(-12),width=720,height=210,pad=26;
-  if(points.length<2)return '<div class="cost-no-chart"><i class="fa-solid fa-chart-line"></i><p>Add another bill price to create a trend graph.</p></div>';
+  if(points.length===1){
+    const point=points[0];
+    return `<div class="cost-chart-scroll"><svg class="cost-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(product.name)} latest price"><line class="cost-chart-guide" x1="${pad}" y1="105" x2="${width-pad}" y2="105"/><circle cx="${width/2}" cy="105" r="7"/><text class="cost-chart-value" x="${width/2}" y="82" text-anchor="middle">${escapeHtml(money(point.cost))}</text><text x="${width/2}" y="${height-18}" text-anchor="middle">${escapeHtml(formatDate(point.date))}</text></svg></div>`;
+  }
   const values=points.map(point=>point.cost),min=Math.min(...values),max=Math.max(...values),span=max-min||1;
   const coords=points.map((point,index)=>({x:pad+index*(width-pad*2)/(points.length-1),y:height-pad-(point.cost-min)*(height-pad*2)/span,...point}));
   const path=coords.map((point,index)=>`${index?'L':'M'} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(' ');
@@ -65,23 +69,29 @@ function graph(product){
 
 function bubble(product){
   const trend=product.change>0?'up':product.change<0?'down':'same';
-  return `<button class="cost-bubble ${trend}" type="button" data-product="${escapeHtml(product.key)}" aria-label="View ${escapeHtml(product.name)} ${escapeHtml(product.pack.packing)}"><span class="cost-bubble-image">${product.image?`<img src="${escapeHtml(product.image)}" alt="">`:'<i class="fa-solid fa-box-open"></i>'}</span><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(product.pack.packing)}</small><small>${money(product.latest.cost)}</small></button>`;
+  return `<button class="cost-bubble ${trend}" type="button" data-product="${escapeHtml(product.key)}" aria-label="View ${escapeHtml(product.name)} ${escapeHtml(product.pack.packing)}"><span class="cost-bubble-image">${product.image?`<img src="${escapeHtml(product.image)}" alt="">`:'<i class="fa-solid fa-box-open"></i>'}</span><strong>${escapeHtml(product.name)}</strong><small>${escapeHtml(product.latest.vendor)}</small><small>${money(product.latest.cost)}</small></button>`;
 }
 
 function detail(product){
-  const sign=product.change>0?'+':'';
-  return `<section class="cost-detail"><header class="cost-detail-head"><div class="cost-product-title">${product.image?`<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}">`:'<span><i class="fa-solid fa-box-open"></i></span>'}<div><small>Selected product</small><h2>${escapeHtml(product.name)}</h2><p>${escapeHtml(product.pack.packing)} · ${product.history.length} purchase${product.history.length===1?'':'s'} · ${new Set(product.history.map(point=>point.vendor)).size} vendor${new Set(product.history.map(point=>point.vendor)).size===1?'':'s'}</p></div></div><button class="btn secondary" data-edit-bill="${escapeHtml(product.latest.billId)}" data-item-index="${product.latest.itemIndex}" type="button"><i class="fa-solid fa-pen"></i> Modify original bill</button></header>
-    <div class="cost-metrics"><article><span>Latest pack cost incl. GST</span><strong>${money(product.latest.cost)}</strong><small>${formatDate(product.latest.date)}</small></article><article><span>Highest pack cost</span><strong>${money(product.highest.cost)}</strong><small>${formatDate(product.highest.date)}</small></article><article><span>Pack size</span><strong>${escapeHtml(product.latest.pack.label)}</strong><small>${escapeHtml(product.latest.packing)}</small></article><article><span>${escapeHtml(product.unitCost.label)}</span><strong>${money(product.unitCost.value)}</strong><small>Like-for-like comparison</small></article></div>
-    <div class="cost-analysis-grid"><article class="cost-chart-card"><header><div><span>Cost movement</span><h3>Purchase price history</h3></div><small>Same pack · including GST</small></header>${graph(product)}</article><article class="cost-latest-card"><span>Latest purchase</span><h3>${escapeHtml(product.latest.vendor)}</h3><dl><div><dt>Pack entered</dt><dd>${escapeHtml(product.latest.packing)}</dd></div><div><dt>Normalized size</dt><dd>${escapeHtml(product.latest.pack.label)}</dd></div><div><dt>${escapeHtml(product.unitCost.label)}</dt><dd>${money(product.unitCost.value)}</dd></div><div><dt>Before GST</dt><dd>${money(product.latest.rate)}</dd></div><div><dt>GST</dt><dd>${product.latest.gstRate}%</dd></div><div><dt>Latest change</dt><dd>${product.previous?`${sign}${product.changePercent.toFixed(1)}%`:'No previous price'}</dd></div></dl></article></div></section>`;
+  return `<section class="cost-detail"><header class="cost-detail-head"><div class="cost-product-title">${product.image?`<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}">`:'<span><i class="fa-solid fa-box-open"></i></span>'}<div><small>Selected product</small><h2>${escapeHtml(product.name)}</h2><p>${escapeHtml(product.latest.vendor)} · ${escapeHtml(product.pack.packing)} · Last entry ${escapeHtml(formatDate(product.latest.date))}</p></div></div></header>
+    <div class="cost-metrics cost-metrics-simple"><article><span>Last price incl. GST</span><strong>${money(product.latest.cost)}</strong><small>${formatDate(product.latest.date)}</small></article><article><span>${escapeHtml(product.prices.largeLabel)}</span><strong>${money(product.prices.large)}</strong><small>${escapeHtml(product.pack.label)}</small></article><article><span>${escapeHtml(product.prices.smallLabel)}</span><strong>${preciseMoney(product.prices.small)}</strong><small>${escapeHtml(product.latest.vendor)}</small></article></div>
+    <article class="cost-chart-card"><header><div><span>Last price graph</span><h3>${escapeHtml(product.name)}</h3></div><small>${escapeHtml(product.pack.packing)} · including GST</small></header>${graph(product)}</article></section>`;
+}
+
+function comparison(products,selectedKey){
+  if(!products.length)return'';
+  const cheapest=new Map();
+  for(const product of products){const group=product.pack.baseUnit,current=cheapest.get(group);if(!current||product.prices.large<current.prices.large)cheapest.set(group,product)}
+  const rows=[...products].sort((a,b)=>a.pack.baseUnit.localeCompare(b.pack.baseUnit)||a.prices.large-b.prices.large||a.name.localeCompare(b.name));
+  return `<section class="cost-compare"><header><div><span>Search comparison</span><h2>Which product is cheapest?</h2></div><small>Compared using the same base unit</small></header><div class="table-wrap"><table class="cost-compare-table"><thead><tr><th>Product</th><th>Vendor</th><th>Last entry</th><th>Last price</th><th>Pack</th><th>Large unit</th><th>Small unit</th></tr></thead><tbody>${rows.map(product=>`<tr class="${product.key===selectedKey?'selected':''}" data-product="${escapeHtml(product.key)}" tabindex="0"><td><div class="cost-table-product">${product.image?`<img src="${escapeHtml(product.image)}" alt="">`:''}<div><strong>${escapeHtml(product.name)}</strong>${cheapest.get(product.pack.baseUnit)?.key===product.key?'<span class="cost-cheapest">Cheapest</span>':''}</div></div></td><td>${escapeHtml(product.latest.vendor)}</td><td>${escapeHtml(formatDate(product.latest.date))}</td><td><strong>${money(product.latest.cost)}</strong></td><td>${escapeHtml(product.latest.packing)}</td><td><span>${escapeHtml(product.prices.largeLabel)}</span><strong>${money(product.prices.large)}</strong></td><td><span>${escapeHtml(product.prices.smallLabel)}</span><strong>${preciseMoney(product.prices.small)}</strong></td></tr>`).join('')}</tbody></table></div></section>`;
 }
 
 function render(products,selectedKey='',query=''){
   const target=content(),needle=text(query).toLowerCase(),filtered=products.filter(product=>!needle||product.search.includes(needle));
-  const selected=filtered.find(product=>product.key===selectedKey)||filtered[0]||products[0];
-  target.innerHTML=`<header class="page-head"><div><h1>Cost</h1><p>Compare product packing, landed cost and price changes from saved bills.</p></div></header><section class="cost-overview"><div class="cost-search"><i class="fa-solid fa-magnifying-glass"></i><input id="costSearch" value="${escapeHtml(query)}" placeholder="Find a product, packing or vendor" aria-label="Find a product, packing or vendor"><strong>${filtered.length} pack prices</strong></div>${filtered.length?`<div class="cost-bubbles" aria-label="Product cost summary">${filtered.slice(0,18).map(bubble).join('')}</div>`:'<div class="empty"><h2>No matching products</h2><p>Try another product, packing or vendor.</p></div>'}</section>${selected?detail(selected):'<section class="panel"><div class="empty"><h2>No cost data yet</h2><p>Enter a bill with product packing and price to begin.</p></div></section>'}`;
+  const selected=filtered.find(product=>product.key===selectedKey)||filtered[0]||(!needle?products[0]:null);
+  target.innerHTML=`<header class="page-head"><div><h1>Cost</h1><p>Find the cheapest product using the same weight, volume or piece cost.</p></div></header><section class="cost-overview"><div class="cost-search"><i class="fa-solid fa-magnifying-glass"></i><input id="costSearch" value="${escapeHtml(query)}" placeholder="Search milk, tuna, rice or vendor" aria-label="Search product category or vendor"><strong>${filtered.length} results</strong></div>${filtered.length?`<div class="cost-bubbles" aria-label="Product cost summary">${filtered.slice(0,18).map(bubble).join('')}</div>`:'<div class="empty"><h2>No matching products</h2><p>Try another product category or vendor.</p></div>'}</section>${comparison(filtered,selected?.key)}${selected?detail(selected):'<section class="panel"><div class="empty"><h2>No cost data yet</h2><p>Enter a bill with product packing and price to begin.</p></div></section>'}`;
   $('#costSearch')?.addEventListener('input',event=>{const value=event.target.value;render(products,selected?.key,value);const input=$('#costSearch');input.focus();input.setSelectionRange(value.length,value.length)});
-  target.querySelectorAll('[data-product]').forEach(button=>button.addEventListener('click',()=>render(products,button.dataset.product,needle)));
-  target.querySelector('[data-edit-bill]')?.addEventListener('click',event=>{const bill=store.rows.find(row=>String(row.id)===event.currentTarget.dataset.editBill);if(!bill)return;store.editing=bill;location.hash='#new'});
+  target.querySelectorAll('[data-product]').forEach(control=>{const choose=()=>render(products,control.dataset.product,needle);control.addEventListener('click',choose);control.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();choose()}})});
 }
 
 export async function costPage(){
