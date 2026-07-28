@@ -72,7 +72,7 @@ async function fetchAllBills(){
   billsFetchCount++;
 
   while(true){
-    const {data,error}=await db.from(CONFIG.table).select('*').range(from,from+step-1);
+    const {data,error}=await db.from(CONFIG.table).select('*').is('deleted_at',null).range(from,from+step-1);
     if(error)throw error;
     all.push(...(data||[]));
     if(!data||data.length<step)break;
@@ -176,7 +176,7 @@ export async function updateBill(id,record){
 }
 
 export async function deleteBill(id){
-  const {error}=await db.from(CONFIG.table).delete().eq('id',id);
+  const {error}=await db.rpc('trash_bill',{p_bill_id:id});
   if(error)throw error;
   store.set({rows:store.rows.filter(row=>String(row.id)!==String(id))});
   billsLoaded=true;
