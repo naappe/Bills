@@ -89,10 +89,12 @@ for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','as
 forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
 forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
 const cost=read('app/js/cost.js');
-for(const feature of ['store.rows','itemsOf','base_quantity','Packing weight','data-edit-bill','costSearch'])requireText(cost,feature,`Cost page includes ${feature}`);
-requireText(cost,"savedUnit==='G'",'Cost page displays saved gram packing');
-requireText(cost,"match[3]==='kg'?1000:1",'Cost page converts kilograms to grams');
-requireText(cost,'return count*size*factor;','Cost page shows entered pack weight without multiplying bill quantity');
+for(const feature of ['store.rows','itemsOf','base_quantity','Pack size','data-edit-bill','costSearch'])requireText(cost,feature,`Cost page includes ${feature}`);
+requireText(cost,"baseUnit=weight?'G':volume?'ML':'PCS'",'Cost page separates weight, volume and count packing');
+requireText(cost,"/^(l|ltr|litres?|liters?|ml)$/.test(unit)",'Cost page recognizes litre and millilitre packing');
+requireText(cost,'signature:`${baseUnit}:${amount}`','Cost page separates product histories by normalized pack size');
+requireText(cost,"label:'Cost per 1 litre'",'Cost page calculates comparable one-litre cost');
+requireText(cost,"label:'Cost per 1 kg'",'Cost page calculates comparable one-kilogram cost');
 requireText(cost,'if(!packing)continue;','Cost page excludes products without entered packing');
 
 console.log('\nBills repository verification\n');
