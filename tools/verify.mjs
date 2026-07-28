@@ -85,7 +85,7 @@ check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolati
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
 
-for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
+for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
 forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
 forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
 
