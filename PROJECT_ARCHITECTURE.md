@@ -166,13 +166,13 @@ Purpose:
 - Show vendor details and procurement history.
 - Support supplier-oriented analysis without duplicating bill loading.
 
-### Price Intelligence — `app/js/rates.js`
+### Cost — `app/js/cost.js`
 
 Purpose:
 
-- Normalize purchase costs across KG, G, L, ML, PCS, and pack formats.
-- Compare suppliers.
-- Identify price movement, cheapest supplier, volatility, and savings opportunities.
+- Show purchase cost totals by product, vendor, category, and period.
+- Show the latest recorded item cost without retaining price-history analysis.
+- Export the filtered cost view to CSV.
 - Restrict access to administrators through navigation and route policy.
 
 ### Reports — `app/js/reports.js`
@@ -211,7 +211,7 @@ Purpose:
 - `dashboard.css`
 - `products.css`
 - `vendors.css`
-- `rates.css`
+- `cost.css`
 - `reports.css`
 - `admin.css`
 - `bills-mobile.css`
@@ -235,7 +235,7 @@ Supabase insert/update
       ↓
 Returned row replaces or extends `store.rows`
       ↓
-Bills, Products, Vendors, Dashboard, Reports, and Price Intelligence update from shared data
+Bills, Products, Vendors, Dashboard, Reports, and Cost update from shared data
 ```
 
 ## Bill record structure
