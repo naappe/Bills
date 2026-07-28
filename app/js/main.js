@@ -18,7 +18,7 @@ const navGroups=[
   ]]
 ];
 
-const health={version:'5.7.0',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
+const health={version:'5.7.1',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
 window.app={store,health};
 
 const SESSION_TIMEOUT_MS=15*60*1000;
