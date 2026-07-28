@@ -12,7 +12,7 @@ let cache={revision:-1,products:[]};
 let masterProducts=new Map();
 
 async function loadProductImages(){
-  const {data,error}=await db.from('products').select('id,name,image_url,is_active');
+  const {data,error}=await db.from('products').select('id,name,image_url,is_active,deleted_at,current_rate').eq('is_active',true).is('deleted_at',null);
   if(error){console.warn('[products] product image lookup failed',error);return}
   masterProducts=new Map((data||[]).map(product=>[keyOf(product.name),product]));
 }
@@ -20,6 +20,7 @@ async function loadProductImages(){
 function buildProducts(){
   if(cache.revision===store.dataRevision)return cache.products;
   const map=new Map();
+  for(const master of masterProducts.values()){const key=keyOf(master.name);if(key)map.set(key,{key,name:master.name,history:[],vendors:new Set()})}
   for(const row of store.rows){
     const date=billDate(row),supplier=vendor(row);
     for(const [itemIndex,item] of itemsOf(row).entries()){
@@ -46,7 +47,7 @@ function buildProducts(){
   const products=[...map.values()].map(product=>{
     product.history=product.history.filter(point=>point.date).sort((a,b)=>a.date.localeCompare(b.date));
     const last=product.history.at(-1)||{},master=masterProducts.get(product.key)||{};
-    return {...product,productId:master.id||'',sourceBillId:last.billId||'',sourceItemIndex:Number.isInteger(last.itemIndex)?last.itemIndex:0,latest:last.wholesale||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:text(master.image_url)||last.image||'',description:last.description||'',search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
+    return {...product,productId:master.id||'',sourceBillId:last.billId||'',sourceItemIndex:Number.isInteger(last.itemIndex)?last.itemIndex:0,latest:last.wholesale||number(master.current_rate)||0,retail:last.retail||0,lastDate:last.date||'',lastVendor:last.vendor||'',pack:last.pack||last.unit||'PCS',stock:last.stock||0,reorder:last.reorder||0,image:text(master.image_url)||last.image||'',description:last.description||'',search:`${product.name} ${[...product.vendors].join(' ')} ${last.description||''}`.toLowerCase()};
   }).sort((a,b)=>b.lastDate.localeCompare(a.lastDate)||a.name.localeCompare(b.name));
   cache={revision:store.dataRevision,products};return products;
 }
@@ -166,6 +167,16 @@ function bindImageActions(query){
   });
 }
 
+function openMergeProducts(){
+  const products=[...masterProducts.values()].sort((a,b)=>a.name.localeCompare(b.name));
+  if(products.length<2){alert('At least two master products are required.');return}
+  const options=products.map(product=>`<option value="${product.id}">${escapeHtml(product.name)}</option>`).join('');
+  const modal=document.createElement('div');modal.className='modal';modal.innerHTML=`<section class="modal-card"><header class="card-head"><h2>Merge products</h2><button class="btn secondary small" data-close type="button">Close</button></header><div class="card-body"><p>All old bills will use the correct master name and image. Vendor names will not change.</p><label>Old duplicate product<select id="mergeSource">${options}</select></label><label style="margin-top:12px">Correct master product<select id="mergeTarget">${options}</select></label><div class="actions" style="margin-top:18px"><button class="btn danger" id="confirmMerge" type="button">Merge into correct product</button></div></div></section>`;document.body.appendChild(modal);
+  modal.querySelector('[data-close]').onclick=()=>modal.remove();
+  const source=modal.querySelector('#mergeSource'),target=modal.querySelector('#mergeTarget');target.selectedIndex=Math.min(1,products.length-1);
+  modal.querySelector('#confirmMerge').onclick=async event=>{if(source.value===target.value){alert('Choose two different products.');return}const oldName=products.find(item=>item.id===source.value)?.name,newName=products.find(item=>item.id===target.value)?.name;if(!confirm(`Merge “${oldName}” into “${newName}”? This updates historical bills and removes the old master name.`))return;event.currentTarget.disabled=true;const {error}=await db.rpc('merge_master_products',{p_source_id:source.value,p_target_id:target.value});if(error){event.currentTarget.disabled=false;alert(error.message||'Products could not be merged.');return}modal.remove();await loadProductImages();cache.revision=-1;renderList('')};
+}
+
 function bindProductCards(){
   if(!isAdmin())return;
   document.querySelectorAll('.simple-product-card[data-product-key]').forEach(card=>{
@@ -177,11 +188,12 @@ function bindProductCards(){
 
 function renderList(query=''){
   const products=buildProducts(),needle=query.trim().toLowerCase(),filtered=needle?products.filter(product=>product.search.includes(needle)):products;
-  content().innerHTML=`<header class="page-head"><div><h1>Products</h1><p>Latest supplier, packing, wholesale price and retail price.</p></div></header>
+  content().innerHTML=`<header class="page-head"><div><h1>Master products</h1><p>One correct product name and image shared across every vendor and bill.</p></div>${isAdmin()?'<button class="btn" id="mergeProducts" type="button">Merge products</button>':''}</header>
   <section class="product-simple-toolbar"><div class="product-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="productSearch" value="${escapeHtml(query)}" placeholder="Search product or vendor, for example tomato"></div><span id="productCount">${filtered.length} products</span></section>
   <section class="simple-product-list" id="productList">${filtered.map(productCard).join('')||'<div class="simple-empty card"><i class="fa-solid fa-box-open"></i><strong>No matching product</strong><span>Try another product or vendor name.</span></div>'}</section>`;
   bindImageActions(query);
   bindProductCards();
+  const mergeButton=$('#mergeProducts');if(mergeButton)mergeButton.onclick=openMergeProducts;
   const search=$('#productSearch');search.focus();search.setSelectionRange(search.value.length,search.value.length);
   let timer;search.oninput=event=>{clearTimeout(timer);timer=setTimeout(()=>renderList(event.target.value),100)};
 }
