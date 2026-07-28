@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.1] — Entered packing correction
+
+### Fixed
+
+- Cost now shows the weight of one packing value entered in Bill Entry
+- Bill quantity no longer multiplies the displayed packing weight
+
 ## [5.3.0] — Product Cost analysis
 
 ### Added
