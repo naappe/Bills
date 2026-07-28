@@ -93,7 +93,7 @@ Older records without an `items` collection remain supported through legacy sing
 ## Access rules
 
 - **Admin** — full application controls, including Price Intelligence and delete operations.
-- **Staff** — standard procurement access; editing is restricted to the allowed time window where implemented.
+- **Staff** — standard procurement access with bill editing and deletion requests available without a time limit.
 
 Frontend role checks improve usability, but Supabase Row Level Security must enforce actual permissions.
 
@@ -101,7 +101,7 @@ Frontend role checks improve usability, but Supabase Row Level Security must enf
 
 ### Staff
 
-- Staff may request deletion only during the permitted 24-hour window.
+- Staff may request deletion at any time; there is no 24-hour lock.
 - Clicking Delete creates a pending `deletion_requests` record with entity type `bill`.
 - The bill remains active and visible until Admin reviews the request.
 
