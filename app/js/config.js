@@ -1,4 +1,5 @@
 export const CONFIG={
+  designMode:true,
   supabaseUrl:'https://tmupbruwmwlrmewhoodn.supabase.co',
   supabaseKey:'sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1',
   table:'bills',
