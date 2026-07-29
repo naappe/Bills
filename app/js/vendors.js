@@ -8,6 +8,7 @@ const clean=value=>text(value).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const digits=value=>text(value).replace(/\D/g,'');
 const initials=name=>name.split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase()||'V';
 const manualKey=()=>`manual:${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
+const kpi=(icon,label,value,meta)=>`<article class="kpi-card"><span class="kpi-card__icon"><i class="fa-solid ${icon}" aria-hidden="true"></i></span><div class="kpi-card__content"><span class="kpi-card__label">${escapeHtml(label)}</span><strong class="kpi-card__value">${value}</strong><small class="kpi-card__meta">${escapeHtml(meta)}</small></div></article>`;
 
 const vendorKey=row=>{
   const tin=digits(get(row,'tin','vendor_tin'));
@@ -143,11 +144,11 @@ function vendorFormMarkup(record={}){
 export function vendorsPage(){
   const vendors=buildVendors();
   content().innerHTML=`<header class="page-head"><div><h1>Vendors</h1><p>Supplier directory, spend, contacts and duplicate review.</p></div>${store.role==='admin'?'<button class="btn" id="createVendor" type="button">Create new vendor</button>':''}</header>
-    <section class="grid-4">
-      <article class="kpi"><span>Vendors</span><strong>${vendors.length}</strong><small>${vendors.filter(item=>item.active).length} active</small></article>
-      <article class="kpi"><span>Total spend</span><strong>${money(vendors.reduce((sum,item)=>sum+item.total,0))}</strong><small>All bills</small></article>
-      <article class="kpi"><span>Pending</span><strong>${money(vendors.reduce((sum,item)=>sum+item.pending,0))}</strong><small>Not marked paid</small></article>
-      <article class="kpi"><span>Possible duplicates</span><strong>${vendors.filter(item=>item.possibleDuplicate).length}</strong><small>Review contacts and aliases</small></article>
+    <section class="kpi-summary">
+      ${kpi('fa-building','Vendors',vendors.length,`${vendors.filter(item=>item.active).length} active`)}
+      ${kpi('fa-wallet','Total spend',money(vendors.reduce((sum,item)=>sum+item.total,0)),'All bills')}
+      ${kpi('fa-clock','Pending',money(vendors.reduce((sum,item)=>sum+item.pending,0)),'Not marked paid')}
+      ${kpi('fa-code-compare','Possible duplicates',vendors.filter(item=>item.possibleDuplicate).length,'Review contacts and aliases')}
     </section>
     <section class="toolbar vendor-filters"><input id="vendorSearch" placeholder="Search vendor, TIN, mobile or product"><select id="vendorStatus"><option value="active">Active vendors</option><option value="all">All vendors</option><option value="inactive">Inactive vendors</option></select><select id="vendorDuplicates"><option value="all">All records</option><option value="duplicates">Possible duplicates</option></select><span id="vendorCount"></span></section>
     <section class="vendor-grid" id="vendorGrid"></section>`;
