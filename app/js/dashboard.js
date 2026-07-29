@@ -64,25 +64,34 @@ export function dashboardPage(){
   const topCategories=[...categories.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5),maxCategory=Math.max(1,...topCategories.map(([,value])=>value));
 
   content().innerHTML=`
-    <header class="page-head dashboard-head">
+    <header class="page-head dashboard-head" data-layout-area="page-header">
       <div><h1>Procurement Dashboard</h1><p>What needs attention and how purchasing is performing for ${escapeHtml(range.label)}.</p></div>
       <div class="actions"><button class="btn dashboard-add" data-route="new" type="button"><i class="fa-solid fa-plus"></i> Add Bill</button></div>
     </header>
 
     <aside class="dashboard-layout-note" id="dashboardLayoutNote">
-      <div><strong><i class="fa-solid fa-note-sticky"></i> Dashboard layout names</strong><small>Development note only — these names are not page headings.</small></div>
-      <div class="dashboard-layout-tags"><span>Page Header</span><span>Filter Bar</span><span>KPI Row</span><span>KPI Cards</span><span>Primary Data Panel</span><span>Secondary Panels</span><span>Card Header</span><span>Card Body</span></div>
-      <button type="button" aria-label="Hide layout note" id="hideDashboardLayoutNote"><i class="fa-solid fa-xmark"></i></button>
+      <div><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Dashboard helper</strong><small>Click a name to jump to that area and highlight it.</small></div>
+      <div class="dashboard-layout-tags">
+        <button type="button" data-layout-target="page-header">Page Header</button>
+        <button type="button" data-layout-target="filter-bar">Filter Bar</button>
+        <button type="button" data-layout-target="kpi-row">KPI Row</button>
+        <button type="button" data-layout-target="kpi-card">KPI Cards</button>
+        <button type="button" data-layout-target="primary-panel">Primary Data Panel</button>
+        <button type="button" data-layout-target="secondary-panels">Secondary Panels</button>
+        <button type="button" data-layout-target="card-header">Card Header</button>
+        <button type="button" data-layout-target="card-body">Card Body</button>
+      </div>
+      <button type="button" aria-label="Hide layout helper" id="hideDashboardLayoutNote"><i class="fa-solid fa-xmark"></i></button>
     </aside>
 
-    <section class="dashboard-commandbar">
+    <section class="dashboard-commandbar" data-layout-area="filter-bar">
       <label>Period<select id="dashPeriod"><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastMonth">Last Month</option><option value="threeMonths">Last 3 Months</option><option value="year">This Year</option><option value="custom">Custom Range</option><option value="all">All Time</option></select></label>
       <label class="custom-date">From<input id="dashFrom" type="date" value="${escapeHtml(state.from)}"></label>
       <label class="custom-date">To<input id="dashTo" type="date" value="${escapeHtml(state.to)}"></label>
       <div class="dashboard-period-summary"><span>${rows.length.toLocaleString()} bills</span><strong>${escapeHtml(range.from||'First record')} → ${escapeHtml(range.to||'Latest record')}</strong></div>
     </section>
 
-    <section class="dashboard-metrics">
+    <section class="dashboard-metrics" data-layout-area="kpi-row">
       ${metric('fa-wallet','Spend',money(total),`${rows.length} bills`,'bills')}
       ${metric('fa-file-invoice','Bills',rows.length.toLocaleString(),`${money(average)} average`,'bills')}
       ${metric('fa-clock','Pending',money(pendingTotal),`${pendingRows.length} bills`,'bills','Pending')}
@@ -91,41 +100,42 @@ export function dashboardPage(){
     </section>
 
     <section class="dashboard-primary-grid">
-      <article class="card dashboard-panel dashboard-recent">
-        <header class="card-head"><div><h2>Recent bills</h2><small>Latest purchases in this period</small></div><button class="btn secondary small" data-route="bills" type="button">View all</button></header>
-        <div class="dashboard-record-list">${recent.map(row=>`<button class="dashboard-record" data-route="bills" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')} · ${itemsOf(row).length||1} item${itemsOf(row).length===1?'':'s'}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status ${status(row).toLowerCase()==='paid'?'paid':'pending'}">${escapeHtml(status(row))}</small></span></button>`).join('')||'<div class="empty">No bills in this period.</div>'}</div>
+      <article class="card dashboard-panel dashboard-recent" data-layout-area="primary-panel">
+        <header class="card-head" data-layout-area="card-header"><div><h2>Recent bills</h2><small>Latest purchases in this period</small></div><button class="btn secondary small" data-route="bills" type="button">View all</button></header>
+        <div class="dashboard-record-list" data-layout-area="card-body">${recent.map(row=>`<button class="dashboard-record" data-route="bills" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')} · ${itemsOf(row).length||1} item${itemsOf(row).length===1?'':'s'}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status ${status(row).toLowerCase()==='paid'?'paid':'pending'}">${escapeHtml(status(row))}</small></span></button>`).join('')||'<div class="empty">No bills in this period.</div>'}</div>
       </article>
 
-      <aside class="dashboard-attention-stack">
+      <aside class="dashboard-attention-stack" data-layout-area="secondary-panels">
         <article class="card dashboard-panel dashboard-attention">
-          <header class="card-head"><div><h2>Needs attention</h2><small>Largest pending payments</small></div></header>
-          <div class="dashboard-record-list compact">${highestPending.map(row=>`<button class="dashboard-record" data-route="bills" data-filter="Pending" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status pending">Pending</small></span></button>`).join('')||'<div class="dashboard-clear compact-clear"><i class="fa-solid fa-circle-check"></i><strong>No pending bills</strong><small>Everything is marked paid.</small></div>'}</div>
+          <header class="card-head" data-layout-area="card-header"><div><h2>Needs attention</h2><small>Largest pending payments</small></div></header>
+          <div class="dashboard-record-list compact" data-layout-area="card-body">${highestPending.map(row=>`<button class="dashboard-record" data-route="bills" data-filter="Pending" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')}</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong><small class="dashboard-status pending">Pending</small></span></button>`).join('')||'<div class="dashboard-clear compact-clear"><i class="fa-solid fa-circle-check"></i><strong>No pending bills</strong><small>Everything is marked paid.</small></div>'}</div>
         </article>
 
         <article class="card dashboard-panel">
-          <header class="card-head"><div><h2>Invoice follow-up</h2><small>Bills without an invoice number</small></div><button class="btn secondary small" data-route="bills" type="button">Open bills</button></header>
-          <div class="dashboard-record-list compact">${missingInvoices.map(row=>`<button class="dashboard-record" data-route="bills" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')} · Invoice not added</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong></span></button>`).join('')||'<div class="dashboard-clear compact-clear"><i class="fa-solid fa-receipt"></i><strong>Invoices complete</strong><small>No missing invoice numbers.</small></div>'}</div>
+          <header class="card-head" data-layout-area="card-header"><div><h2>Invoice follow-up</h2><small>Bills without an invoice number</small></div><button class="btn secondary small" data-route="bills" type="button">Open bills</button></header>
+          <div class="dashboard-record-list compact" data-layout-area="card-body">${missingInvoices.map(row=>`<button class="dashboard-record" data-route="bills" type="button"><span class="dashboard-record-main"><strong>${escapeHtml(vendor(row))}</strong><small>${escapeHtml(billDate(row)||'No date')} · Invoice not added</small></span><span class="dashboard-record-side"><strong>${money(amount(row))}</strong></span></button>`).join('')||'<div class="dashboard-clear compact-clear"><i class="fa-solid fa-receipt"></i><strong>Invoices complete</strong><small>No missing invoice numbers.</small></div>'}</div>
         </article>
 
         <article class="card dashboard-panel">
-          <header class="card-head"><div><h2>Top suppliers</h2><small>Highest spend in this period</small></div><button class="btn secondary small" data-route="vendors" type="button">View vendors</button></header>
-          <div class="dashboard-supplier-list">${topSuppliers.map(([name,value],index)=>`<button data-route="vendors" type="button"><span class="dashboard-rank">${index+1}</span><strong>${escapeHtml(name)}</strong><b>${money(value)}</b></button>`).join('')||'<div class="empty">No supplier activity.</div>'}</div>
+          <header class="card-head" data-layout-area="card-header"><div><h2>Top suppliers</h2><small>Highest spend in this period</small></div><button class="btn secondary small" data-route="vendors" type="button">View vendors</button></header>
+          <div class="dashboard-supplier-list" data-layout-area="card-body">${topSuppliers.map(([name,value],index)=>`<button data-route="vendors" type="button"><span class="dashboard-rank">${index+1}</span><strong>${escapeHtml(name)}</strong><b>${money(value)}</b></button>`).join('')||'<div class="empty">No supplier activity.</div>'}</div>
         </article>
       </aside>
     </section>
 
     <section class="dashboard-secondary-grid">
       <article class="card dashboard-panel">
-        <header class="card-head"><div><h2>Spend trend</h2><small>${trend.mode==='day'?'Daily':trend.mode==='month'?'Monthly':'Yearly'} purchasing movement</small></div></header>
-        <div class="card-body dashboard-trend">${trendRows.map(([label,value])=>`<div class="dashboard-trend-row"><span>${escapeHtml(formatLabel(label,trend.mode))}</span><div class="dashboard-trend-track"><i style="width:${Math.max(3,value/maxTrend*100)}%"></i></div><strong>${money(value)}</strong></div>`).join('')||'<div class="empty">No spending recorded.</div>'}</div>
+        <header class="card-head" data-layout-area="card-header"><div><h2>Spend trend</h2><small>${trend.mode==='day'?'Daily':trend.mode==='month'?'Monthly':'Yearly'} purchasing movement</small></div></header>
+        <div class="card-body dashboard-trend" data-layout-area="card-body">${trendRows.map(([label,value])=>`<div class="dashboard-trend-row"><span>${escapeHtml(formatLabel(label,trend.mode))}</span><div class="dashboard-trend-track"><i style="width:${Math.max(3,value/maxTrend*100)}%"></i></div><strong>${money(value)}</strong></div>`).join('')||'<div class="empty">No spending recorded.</div>'}</div>
       </article>
 
       <article class="card dashboard-panel">
-        <header class="card-head"><div><h2>Spend by category</h2><small>Where procurement value is concentrated</small></div></header>
-        <div class="card-body dashboard-categories">${topCategories.map(([label,value])=>`<div class="dashboard-category"><div><strong>${escapeHtml(label)}</strong><span>${total?(value/total*100).toFixed(1):'0.0'}%</span></div><div class="dashboard-category-track"><i style="width:${Math.max(3,value/maxCategory*100)}%"></i></div><small>${money(value)}</small></div>`).join('')||'<div class="empty">No category data.</div>'}</div>
+        <header class="card-head" data-layout-area="card-header"><div><h2>Spend by category</h2><small>Where procurement value is concentrated</small></div></header>
+        <div class="card-body dashboard-categories" data-layout-area="card-body">${topCategories.map(([label,value])=>`<div class="dashboard-category"><div><strong>${escapeHtml(label)}</strong><span>${total?(value/total*100).toFixed(1):'0.0'}%</span></div><div class="dashboard-category-track"><i style="width:${Math.max(3,value/maxCategory*100)}%"></i></div><small>${money(value)}</small></div>`).join('')||'<div class="empty">No category data.</div>'}</div>
       </article>
     </section>`;
 
+  content().querySelectorAll('.dashboard-metric').forEach(element=>element.dataset.layoutArea='kpi-card');
   $('#dashPeriod').value=state.period;
   const custom=()=>document.querySelectorAll('.custom-date').forEach(element=>element.hidden=$('#dashPeriod').value!=='custom');
   custom();
@@ -133,5 +143,17 @@ export function dashboardPage(){
   $('#dashFrom').onchange=event=>{state.from=event.target.value;if(state.period==='custom')dashboardPage()};
   $('#dashTo').onchange=event=>{state.to=event.target.value;if(state.period==='custom')dashboardPage()};
   $('#hideDashboardLayoutNote')?.addEventListener('click',()=>$('#dashboardLayoutNote')?.remove());
+  content().querySelectorAll('[data-layout-target]').forEach(button=>button.addEventListener('click',()=>{
+    const targetName=button.dataset.layoutTarget;
+    const targets=[...content().querySelectorAll(`[data-layout-area="${targetName}"]`)];
+    if(!targets.length)return;
+    content().querySelectorAll('.layout-helper-active').forEach(element=>element.classList.remove('layout-helper-active'));
+    targets.forEach(element=>element.classList.add('layout-helper-active'));
+    targets[0].scrollIntoView({behavior:'smooth',block:'center'});
+    button.classList.add('is-active');
+    content().querySelectorAll('[data-layout-target]').forEach(other=>{if(other!==button)other.classList.remove('is-active')});
+    window.clearTimeout(window.__dashboardLayoutTimer);
+    window.__dashboardLayoutTimer=window.setTimeout(()=>targets.forEach(element=>element.classList.remove('layout-helper-active')),2600);
+  }));
   content().querySelectorAll('[data-route]').forEach(element=>{element.onclick=()=>{if(element.dataset.filter){store.filters.bills||={};store.filters.bills.status=element.dataset.filter}location.hash=`#${element.dataset.route}`}});
 }
