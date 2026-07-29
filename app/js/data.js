@@ -2,7 +2,10 @@ import {CONFIG} from './config.js';
 import {store} from './store.js';
 import {createDesignDb,DESIGN_ROWS,DESIGN_USER} from './design-mode.js';
 
-export const db=CONFIG.designMode?createDesignDb():window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey);
+const clientKey='__WHITE_SAFFRON_SUPABASE_CLIENT__';
+export const db=CONFIG.designMode
+  ?createDesignDb()
+  :(globalThis[clientKey]||(globalThis[clientKey]=window.supabase.createClient(CONFIG.supabaseUrl,CONFIG.supabaseKey)));
 
 let billsLoadPromise=null;
 let billsLoaded=false;
