@@ -1,181 +1,215 @@
-# Design Rules for Visual Redesign
+# White Saffron Procurement ERP — Design Rules
 
-This document protects critical HTML identifiers, CSS selectors, and JavaScript entry points that **must not change** during visual redesigns. These are the borders between styling, layout, and functional code.
+This document defines the visual and DOM contracts that must be preserved while implementing the canonical architecture in `ARCHITECTURE.md`.
 
-## Critical HTML Element IDs
+The target shell is a desktop top-header navigation with a full-width content area and a mobile navigation drawer. The legacy permanent sidebar is not a protected design requirement.
 
-These IDs are referenced directly by JavaScript and must be preserved exactly:
+## 1. Design objective
 
-### Authentication and Shell
+The interface must be:
 
-| ID | Module | Purpose | Impact if changed |
-|---|---|---|---|
-| `authLoader` | `main.js` | Splash screen during session check | Auth UI would not show during boot |
-| `loginView` | `main.js` | Login card container | Sign-in flow broken |
-| `loginForm` | `main.js` | Email/password form element | Login submission fails |
-| `loginName` | `main.js` | Email input field | Cannot enter username |
-| `loginPassword` | `main.js` | Password input field | Cannot enter password |
-| `loginNotice` | `main.js` | Error/status message below form | Status messages don't display |
-| `logoutBtn` | `main.js` | Logout button in sidebar | Sign-out breaks |
-| `appView` | `main.js` | Main app container (hidden during login) | App-show/hide flow broken |
-| `sidebar` | `main.js`, `router.js` | Left navigation drawer | Navigation breaks |
-| `sidebarBackdrop` | `main.js` | Mobile overlay behind sidebar | Mobile nav doesn't close |
-| `sidebarClose` | `main.js` | Close button inside sidebar | Mobile close button doesn't work |
-| `content` | `main.js`, all page modules | Main content area where pages render | All page rendering fails |
-| `authMessage` | `main.js` | Loading message text node | Status messages hidden |
+- professional and calm
+- consistent across every route
+- full-width on desktop
+- responsive without horizontal shell overflow
+- based on shared components rather than page patches
+- visually modern without changing business workflows
 
-### Navigation
+## 2. Protected functional contracts
 
-| ID | Module | Purpose | Impact if changed |
-|---|---|---|---|
-| `nav` | `main.js` | Navigation items container | Sidebar items don't render |
-| `menuBtn` | `main.js` | Mobile menu toggle button | Mobile menu can't open |
-| `collapseSidebar` | `main.js` | Desktop sidebar collapse button | Desktop collapse doesn't work |
-| `footer` | `main.js` | Footer container | Version/year doesn't appear |
-| `footerYear` | `main.js` | Year text in footer | Doesn't update to current year |
+These elements are functionally significant and must remain available, although their position inside the canonical shell may change.
 
-### User Profile Display
+### Authentication and application
 
-| ID | Module | Purpose | Impact if changed |
-|---|---|---|---|
-| `emailLabel` | `main.js` | Email display in sidebar | User email hidden |
-| `roleLabel` | `main.js` | Role badge (ADMIN/STAFF) | User role hidden |
-| `avatar` | `main.js` | User initial circle (top right) | User avatar not shown |
-| `sideEmail` | `main.js` | Email in sidebar footer | User email hidden in mobile |
-| `sideRole` | `main.js` | Role in sidebar footer | User role hidden in mobile |
-| `sideAvatar` | `main.js` | User initial in sidebar footer | User avatar hidden in mobile |
+| ID | Purpose |
+|---|---|
+| `authLoader` | Session restoration loader |
+| `loginView` | Login view |
+| `loginForm` | Login submission |
+| `loginName` | Username or email field |
+| `loginPassword` | Password field |
+| `loginNotice` | Authentication status |
+| `appView` | Authenticated application root |
+| `logoutBtn` | Sign out |
+| `content` | Route rendering mount |
 
-### Page-Specific Content
+### Shell and navigation
 
-| ID | Module | Purpose | Impact if changed |
-|---|---|---|---|
-| `billSearch` | `bills.js` | Bill search input | Search input broken |
-| `billPeriod` | `bills.js` | Date range dropdown | Can't filter by period |
-| `billFrom` | `bills.js` | Start date picker (custom range) | Custom range start doesn't work |
-| `billTo` | `bills.js` | End date picker (custom range) | Custom range end doesn't work |
-| `billVendor` | `bills.js` | Vendor filter dropdown | Can't filter by vendor |
-| `billPageSize` | `bills.js` | Rows per page dropdown | Pagination size doesn't change |
-| `billRows` | `bills.js` | Table body | Bills list won't render |
-| `pageMeta` | `bills.js` | Pagination info text | Pagination numbers hidden |
-| `prevPage` | `bills.js` | Previous page button | Can't navigate pages |
-| `nextPage` | `bills.js` | Next page button | Can't navigate pages |
-| `retryWorkspace` | `main.js` | Retry button on workspace error | Can't retry failed startup |
-| `bill-custom` (class) | `bills.js` | Custom date range controls | Hidden/shown state breaks |
+| Contract | Purpose |
+|---|---|
+| `nav` | Authoritative desktop navigation mount |
+| `menuBtn` | Mobile navigation trigger |
+| `sidebarBackdrop` | Temporary mobile drawer backdrop; may be renamed only with corresponding JavaScript migration |
+| `sidebarClose` | Mobile drawer close action; may be renamed only with corresponding JavaScript migration |
+| `topTitle` | Current route title |
+| `topSubtitle` | Current route subtitle |
+| `footer` | Global footer |
+| `footerYear` | Current year |
+| `data-route` | Route action contract |
 
-## Protected CSS Selectors
+`collapseSidebar` is a legacy desktop-sidebar contract. It must not be carried into the canonical top-navigation shell. Its JavaScript and styling must be removed as one coordinated migration.
 
-These selectors are targeted by JavaScript and must not be removed or renamed:
+### User display
 
-### Layout Classes
+Preserve the functional account outputs:
+
+- `emailLabel`
+- `roleLabel`
+- `avatar`
+
+Legacy sidebar duplicates such as `sideEmail`, `sideRole`, and `sideAvatar` may be removed after account information is rendered correctly in the canonical header and mobile drawer.
+
+## 3. Route-page contracts
+
+Page-specific IDs and data attributes used by JavaScript must be preserved unless their owning module is updated in the same change.
+
+Examples include:
+
+```text
+billSearch
+billPeriod
+billFrom
+billTo
+billVendor
+billPageSize
+billRows
+pageMeta
+prevPage
+nextPage
+```
+
+Protected data attributes include:
 
 ```css
-/* Sidebar state */
-.sidebar.open                    /* Mobile sidebar visibility */
-.sidebar-collapsed               /* Desktop sidebar collapse state */
-.sidebar-backdrop.visible        /* Mobile backdrop visibility */
-
-/* Navigation state */
-.nav-open                        /* Body class for open mobile nav */
-.nav-group                       /* Navigation group container */
-.nav-label                       /* Group header */
-
-/* Auth state */
-.auth-pending                    /* Body class during auth check */
-.auth-loader                     /* Loading splash screen */
-.login.hidden                    /* Hidden login view */
-.app.hidden                      /* Hidden app view */
-
-/* Page rendering */
-.modal                           /* Bill detail modal */
-.bill-view-modal                 /* Specific bill modal styling */
-.bill-view-card                  /* Modal content card */
+[data-route]
+[data-view]
+[data-edit]
+[data-delete]
+[data-edit-modal]
+[data-close]
+[data-auth-message]
 ```
 
-### Data-Attribute Selectors (Must Preserve)
+## 4. Canonical visual hierarchy
 
-JavaScript searches for these data attributes and will break if removed:
+Every route should follow this structure where applicable:
 
-```javascript
-/* Navigation */
-a[data-route]                    /* Route link in any element */
-button[data-route]               /* Route button in any element */
+```text
+Page header
+  → title
+  → description or context
+  → primary action
 
-/* Bill management */
-[data-view]                      /* Clickable bill row (view detail) */
-[data-edit]                      /* Edit bill button */
-[data-delete]                    /* Delete bill button */
-[data-edit-modal]                /* Edit from bill detail modal */
-[data-close]                     /* Close button in modal */
+Filter or action toolbar
 
-/* Auth status messages */
-[data-auth-message]              /* Auth loader message text node */
+KPI summary
+
+Primary content
+  → table, card grid, form, report, or analysis
+
+Secondary information
 ```
 
-## Protected Event Handlers
+Do not invent a separate visual language for individual pages.
 
-These elements must remain interactive:
+## 5. Shared component rules
 
-| Selector | Event | Purpose |
-|---|---|---|
-| `#menuBtn` | `click` | Mobile menu toggle |
-| `#collapseSidebar` | `click` | Desktop sidebar collapse |
-| `#sidebarBackdrop` | `click` | Close sidebar on overlay click |
-| `#logoutBtn` | `click` | Sign out (async) |
-| `#loginForm` | `submit` | Sign in (async) |
-| `#billSearch` | `input` | Real-time search (debounced) |
-| `#billPeriod` | `change` | Date range filter |
-| `#billFrom`, `#billTo` | `change` | Custom range dates |
-| `#billVendor` | `change` | Vendor filter |
-| `#billPageSize` | `change` | Pagination size |
-| `#prevPage`, `#nextPage` | `click` | Page navigation |
-| `[data-view]` rows | `click`, `keydown` (Enter) | View bill detail |
-| `[data-edit]` buttons | `click` | Edit bill |
-| `[data-delete]` buttons | `click` | Delete bill (with confirm) |
-| `.modal` | `click` (target===modal) | Close modal on backdrop |
-| `document` | `click` (data-route bubbles) | Route navigation bubbling |
-| `document` | `hashchange` | Route rendering on hash change |
-| `document` | `error`, `unhandledrejection` | Error logging |
-| `window` | `keydown` (Escape) | Close sidebar and modals |
-| `window` | `resize` | Close mobile sidebar on desktop view |
+Shared components must use the master component layer.
 
-## Safe Design Changes
+### KPI
 
-These aspects **can** be changed safely:
+```css
+.kpi-summary
+.kpi-card
+.kpi-card__icon
+.kpi-card__content
+.kpi-card__label
+.kpi-card__value
+.kpi-card__meta
+```
 
-✓ CSS colors, gradients, borders, shadows  
-✓ Font sizes, weights, line heights  
-✓ Padding, margins, gaps (within layout bounds)  
-✓ Border radius, animations, transitions  
-✓ Background patterns and fills  
-✓ Icon sizes and rotation  
-✓ Flex/grid direction and alignment (if IDs stay)  
-✓ Media query breakpoints (if interaction stays the same)  
-✓ Class names (as long as data-attributes and IDs remain)  
+### Shared families
 
-## Dangerous Changes
+The same shared ownership applies to:
 
-✗ Removing or renaming an ID listed above  
-✗ Removing `[data-route]`, `[data-view]`, `[data-edit]`, `[data-delete]` attributes  
-✗ Removing `.modal`, `.sidebar`, `.nav-group` classes from their elements  
-✗ Hiding an element with `display:none` that JavaScript expects to find and manipulate  
-✗ Moving form inputs (`#billSearch`, `#billFrom`, etc.) to different elements  
-✗ Removing `#content` or changing its parent in the HTML tree  
-✗ Changing how modals are created (currently `document.createElement('div')`) without updating `bills.js`  
+- `.btn`
+- form inputs, selects, and textareas
+- cards and card headers
+- toolbars and filter groups
+- tables
+- badges
+- modals
+- pagination
+- empty and error states
 
-## Testing After Design Changes
+Page CSS may arrange these components but must not redefine their base appearance.
 
-After CSS or layout updates, always verify:
+## 6. Layout rules
 
-1. **Authentication flow** — Login, session restore, logout all work.
-2. **Navigation** — All sidebar routes accessible, mobile menu opens/closes.
-3. **Bill list filtering** — Search, date range, vendor, page size all filter correctly.
-4. **Bill detail modal** — View, edit, delete buttons respond; escape key closes.
-5. **Mobile responsiveness** — Sidebar drawer opens/closes at breakpoint; elements remain clickable.
-6. **Console** — No errors about "cannot find element" or "undefined" references.
-7. **Dark/light theme** — If theme changes, verify all elements remain visible and legible.
+### Desktop
 
-## Supabase Row Level Security
+- Global navigation is horizontal.
+- There is no permanent left content offset.
+- Content width is controlled by the main shell, not by individual pages.
+- The header remains readable when navigation contains all permitted routes.
+- Navigation may scroll horizontally or use a controlled overflow menu if required; it must not wrap into an unstable multi-row shell.
 
-Supabase RLS rules are **not** in this repository — they live in the Supabase project. Changes to RLS are independent of frontend design but must be coordinated during feature work.
+### Tablet and mobile
 
-Frontend role checks (`if (store.role !== 'admin')`) are a usability convenience only. RLS is the actual authorization boundary.
+- The desktop navigation is replaced by a menu trigger.
+- The mobile drawer overlays content rather than reducing content width.
+- The drawer must close using its close button, backdrop, route selection, and Escape key.
+- Interactive controls must remain comfortably tappable.
+- Tables may transform to cards where an existing mobile renderer provides that behavior.
+
+## 7. Styling boundaries
+
+Safe visual changes include:
+
+- colors from approved tokens
+- spacing from approved tokens
+- typography from approved tokens
+- component radius, borders, and shadows
+- responsive arrangement
+- icon presentation
+
+Structural changes are allowed only when implementing the approved canonical architecture and preserving all functional contracts.
+
+## 8. Prohibited patching
+
+Do not:
+
+- turn the sidebar into a top bar using isolated positioning overrides
+- keep both old and new navigation systems active
+- add repeated inline fixes to `index.html`
+- redefine global components in page CSS
+- add a new stylesheet merely to override another stylesheet
+- use cache-version changes as a substitute for correcting source ownership
+- leave obsolete sidebar rules after the shell migration
+
+## 9. Accessibility
+
+- Navigation must use semantic landmarks.
+- Buttons must remain buttons and links must remain links where appropriate.
+- Active navigation must be visually distinct and programmatically identifiable.
+- Focus states must remain visible.
+- Mobile drawer state must update `aria-expanded`.
+- Icons must not be the only accessible label.
+- Color alone must not communicate status.
+
+## 10. Verification checklist
+
+After shell or design changes, verify:
+
+1. Authentication loader, login, session restoration, and logout.
+2. Every permitted desktop navigation route.
+3. Mobile drawer open, close, focus, backdrop, Escape, and route selection.
+4. Active navigation state after direct hash load, click, back, and forward.
+5. Page titles and subtitles.
+6. All page filters and actions.
+7. Bill detail, editing, deletion, and modal behavior.
+8. Admin-only controls.
+9. Desktop, tablet, and mobile rendering.
+10. No missing-element, duplicate-declaration, or uncaught runtime errors.
+
+`ARCHITECTURE.md` is authoritative when this file and the implementation differ.
