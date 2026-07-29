@@ -1,312 +1,286 @@
-# White Saffron Procurement ERP — Architecture
+# White Saffron Procurement ERP — Canonical Architecture
 
-This document describes the deployed v4.6.0 architecture. It replaces the previous transition-layer description and should be updated whenever routing, state, data access, or module ownership changes.
+This document is the authoritative architecture contract for the White Saffron Procurement ERP. It defines the structure that all future implementation work must follow.
 
-## System overview
+The current production code may still contain legacy sidebar-era structure. That legacy structure is not the target architecture and must not be extended with additional patches. Migration work must move the application toward this document while preserving business logic, routes, permissions, IDs, data attributes, calculations, and database behavior.
 
-White Saffron Procurement ERP is a static single-page application hosted on GitHub Pages. Supabase provides authentication and persistent bill records. The browser contains the application shell, router, state store, page renderers, formatting utilities, and data-access layer.
+## 1. System model
+
+White Saffron Procurement ERP is a static single-page application hosted on GitHub Pages.
 
 ```text
 GitHub Pages
   → index.html application shell
-  → app/js/main.js boot sequence
-  → Supabase session restoration
-  → paginated bill loading
-  → hash router
-  → route renderer
-  → #content
+  → app/js/main.js bootstrap
+  → Supabase authentication
+  → app/js/data.js data access
+  → app/js/store.js shared state
+  → app/js/router.js route selection
+  → route page renderer
+  → #content page mount
 ```
 
-No build step, server-side renderer, or application server is required.
+There is no required application server or build step.
 
-## Application shell
+## 2. Canonical application shell
 
-`index.html` owns the permanent document structure:
+The authenticated application must use one shared shell:
 
+```text
+Application
+├── Global top header
+│   ├── Brand
+│   ├── Desktop navigation
+│   ├── Page context
+│   └── Account controls
+├── Mobile navigation drawer
+├── Full-width main content
+│   └── #content route mount
+└── Global footer
+```
+
+### Desktop
+
+- Navigation is horizontal inside the global top header.
+- There is no permanent left sidebar.
+- Main content uses the full available viewport width.
+- Page title and context remain visible without duplicating navigation.
+- Account controls remain in the global header.
+
+### Mobile
+
+- The same route model is used.
+- A menu button opens a temporary navigation drawer.
+- The drawer is an interaction mode, not the desktop architecture.
+- The backdrop and Escape key must close the drawer.
+
+## 3. Shell ownership
+
+### `index.html`
+
+Owns permanent document structure only:
+
+- authentication loader
 - login view
-- authenticated application view
-- sidebar navigation
-- top bar
-- route title and subtitle
-- `#content` page mount point
-- application footer
-- Supabase browser client script
-- application stylesheet imports
-- `app/js/main.js` module entry point
+- authenticated application root
+- global header
+- desktop navigation mount
+- mobile navigation drawer
+- page title and subtitle
+- `#content` route mount
+- footer
+- stylesheet imports
+- JavaScript module entry point
 
-All route renderers mount into:
+It must not contain temporary production patches when the correct source module can own the behavior.
+
+### `app/js/main.js`
+
+Owns application bootstrap and shell interaction:
+
+- restore Supabase session
+- show login or application view
+- build navigation from one route definition
+- populate account information
+- open and close mobile navigation
+- sign in and sign out
+- load initial application data
+- start the router
+
+It must not contain page-specific rendering or duplicated route definitions.
+
+### `app/js/router.js`
+
+Owns routing:
+
+- normalize hashes
+- resolve routes
+- enforce route visibility by role
+- update active navigation state
+- update page title and subtitle
+- render into `#content`
+
+### `app/js/store.js`
+
+Owns shared browser state and shared record-formatting helpers.
+
+### `app/js/data.js`
+
+Owns all Supabase access used by application modules. UI modules must not introduce unrelated direct Supabase clients.
+
+## 4. Navigation contract
+
+Navigation must have one authoritative route definition used by desktop and mobile presentations.
+
+Each route definition should provide:
+
+```js
+{
+  id,
+  hash,
+  label,
+  icon,
+  title,
+  subtitle,
+  roles
+}
+```
+
+Rules:
+
+1. Do not maintain separate desktop and mobile route lists.
+2. Preserve `data-route` as the routing contract.
+3. Active state must be derived from the current route.
+4. Role filtering must happen before navigation items render.
+5. Navigation presentation may differ by breakpoint, but route behavior must remain identical.
+6. Legacy sidebar collapse behavior must be removed during the shell migration rather than preserved as hidden dead code.
+
+## 5. Route mount contract
+
+All pages render into:
 
 ```html
 <div class="content" id="content"></div>
 ```
 
-The shell also exposes the deployed version through:
+Page modules may replace the contents of `#content`, but they must not replace the application shell.
 
-```js
-window.__BILLS_DEPLOYMENT__
-```
+A route renderer owns only its route content. It must not create another global header, sidebar, footer, or account panel.
 
-## JavaScript modules
+## 6. CSS architecture
 
-### `app/js/main.js`
-
-Application bootstrap and lifecycle owner.
-
-Responsibilities:
-
-- build navigation
-- restore the Supabase session
-- show login or application views
-- load all bill records
-- start the router
-- handle sign-in and sign-out
-- expose `window.app`
-- maintain basic boot health information
-
-### `app/js/router.js`
-
-Hash-based routing owner.
-
-Responsibilities:
-
-- normalize route names
-- map hashes to page renderers
-- update active navigation state
-- update page title and subtitle
-- clear `#content` before rendering
-- expose `window.show()` and `window.router`
-
-Current routes:
-
-| Hash | Renderer |
-|---|---|
-| `#dashboard` | `dashboardPage` |
-| `#bills` | `billsPage` |
-| `#new` | `newBillPage` |
-| `#cost` | `costPage` |
-| `#products` | `productsPage` |
-| `#vendors` | `vendorsPage` |
-| `#reports` | `reportsPage` |
-| `#settings` | `settingsPage` |
-| `#admin` | `adminPage` |
-
-Unknown hashes fall back to Dashboard.
-
-### `app/js/products.js`
-
-Product catalogue owner.
-
-Responsibilities:
-
-- derive products from recorded bill items
-- product search and filtering
-- card/list presentation
-- price and purchase summaries
-- purchase-history modal
-- catalogue metadata overrides
-
-Until a normalized `products` table exists, catalogue-only metadata remains browser-local and must not rewrite historical bill records.
-
-### `app/js/vendors.js`
-
-Vendor directory owner.
-
-Responsibilities:
-
-- derive vendors from bill records
-- canonical grouping by TIN, mobile, then normalized name
-- supplier search and filtering
-- spend, paid, pending, average bill, product, and purchase summaries
-- duplicate and alias indicators
-- bill-history modal
-- vendor metadata overrides
-
-Until normalized vendor tables exist, merge and alias metadata remains browser-local.
-
-### `app/js/store.js`
-
-Small shared state container.
-
-Current state:
-
-```js
-{
-  user,
-  role,
-  rows,
-  route,
-  page,
-  pageSize,
-  editing
-}
-```
-
-`store.set()` merges patches and dispatches a `store:change` custom event.
-
-This module also owns common formatting and record-normalization helpers, including MVR formatting, bill date, vendor, amount, status, bill number, and product extraction.
-
-### `app/js/data.js`
-
-Supabase data-access layer.
-
-Responsibilities:
-
-- create the Supabase client
-- sign in and sign out
-- restore the current session
-- classify the current user as `admin` or `staff`
-- load bills in pages of 1,000 rows
-- insert bill records
-- update bill records
-- delete bill records
-- synchronize successful mutations into the browser store
-
-UI modules should use this layer rather than issuing unrelated Supabase calls directly.
-
-### `app/js/config.js`
-
-Runtime configuration owner.
-
-Typical responsibilities:
-
-- Supabase URL
-- Supabase publishable key
-- source table name
-- login aliases
-- administrator user IDs
-
-Never place service-role keys or other privileged secrets in this browser-delivered file.
-
-## CSS ownership
-
-Current stylesheets are loaded in this order:
-
-1. `app/css/app.css`
-2. `app/css/products.css`
-3. `app/css/vendors.css`
-
-`app.css` owns the application shell, design tokens, shared controls, page layout, tables, forms, and responsive foundation.
-
-`products.css` and `vendors.css` should contain only module-specific presentation and must reuse tokens from `app.css` wherever possible.
-
-## Runtime data flow
+CSS must follow a strict ownership hierarchy:
 
 ```text
-Supabase bills table
-  → data.js loadBills()
-  → store.rows
-  → page aggregation and filtering
-  → HTML renderer
-  → #content
+app/css/tokens.css
+  design tokens only
+
+app/css/app.css
+  reset, base elements, authentication foundation
+
+app/css/layout.css
+  application shell, global header, navigation, content geometry, responsive shell
+
+app/css/master-components.css
+  reusable buttons, cards, forms, tables, filters, KPI components, badges, modals
+
+app/css/<page>.css
+  page-specific structures only
+
+app/css/professional.css
+  compatibility import entry point only
 ```
 
-Mutations follow the reverse path:
+Rules:
 
-```text
-Form action
-  → data.js insert/update/delete
-  → Supabase
-  → store.rows update
-  → route refresh or local UI update
+- A shared component has one authoritative owner.
+- Page styles must not redefine global buttons, fields, cards, tables, typography, or navigation.
+- `professional.css` must not accumulate overrides.
+- `marketplace-theme.css` must not operate as a competing global design system. Its reusable rules must be migrated into tokens, layout, or master components, then the legacy file can be retired.
+- New `!important` rules are prohibited unless a documented third-party constraint requires them.
+- Inline CSS and inline JavaScript patches are temporary migration tools only and must be removed after the owning source file is updated.
+
+## 7. Shared component contract
+
+Canonical KPI classes:
+
+```css
+.kpi-summary
+.kpi-card
+.kpi-card__icon
+.kpi-card__content
+.kpi-card__label
+.kpi-card__value
+.kpi-card__meta
 ```
 
-## Authentication and authorization
+The same principle applies to:
 
-Supabase Auth provides authentication. The frontend currently assigns:
+- buttons
+- form controls
+- cards
+- toolbars
+- tables
+- empty states
+- badges
+- modals
+- pagination
 
-- `admin` when the authenticated user ID exists in `CONFIG.adminIds`
-- `staff` otherwise
+Legacy selectors may be mapped during migration, but new pages must use canonical shared components directly.
 
-Frontend checks improve usability but are not a security boundary. Supabase Row Level Security policies must enforce actual read, insert, update, and delete permissions.
+## 8. Functional preservation boundary
 
-## Product and vendor derivation
+Architecture migration may change shell markup and styling, but it must preserve:
 
-Products and vendors are currently analytical views derived from bills rather than first-class database entities.
+- authentication
+- route hashes
+- route permissions
+- role behavior
+- page renderer entry points
+- `#content`
+- required IDs and data attributes
+- bill entry and editing
+- vendor and product selection
+- unit conversion
+- pack parsing
+- price calculations
+- stock behavior
+- deletion workflows
+- Supabase queries and persistence behavior unless separately approved
 
-Consequences:
+The shell migration is not permission to rewrite business logic.
 
-- historical bills remain the source of truth
-- catalogue corrections must not silently change historical records
-- duplicate supplier names require canonical grouping
-- normalized products, vendors, aliases, and cost workspace remain planned database work
+## 9. Migration sequence
 
-See `DATABASE.md` for the target schema.
+The required order is:
 
-## Performance model
+1. Update canonical documentation.
+2. Inventory shell IDs, event handlers, route definitions, and CSS dependencies.
+3. Create the new top-header shell structure.
+4. Move navigation rendering to one shared route definition.
+5. Implement desktop horizontal navigation.
+6. Implement mobile drawer navigation using the same route definition.
+7. Convert layout geometry to full-width content.
+8. Remove sidebar collapse logic and obsolete sidebar CSS.
+9. Consolidate shared component ownership.
+10. Remove temporary compatibility mappings only after all routes use canonical components.
+11. Update cache versions once the migration is complete.
+12. Verify every route, role, breakpoint, and critical workflow.
 
-Current bill loading requests the complete table in 1,000-row pages and stores all records in memory. This is acceptable for the current data volume but has a practical limit.
+Do not perform this migration as disconnected CSS patches.
 
-Future optimization should introduce:
+## 10. Verification requirements
 
-- date-bounded default queries
-- server-side filtering and pagination
-- aggregate views or RPC functions
-- normalized bill-item indexes
-- lazy detail loading
-- cached catalogue summaries
+Before the shell migration is considered complete, verify:
 
-Performance changes must preserve accurate totals and date filters.
+- login and restored sessions
+- logout
+- desktop navigation
+- mobile drawer open and close
+- active route state
+- role-restricted routes
+- browser back and forward navigation
+- all route renderers
+- bill search and filters
+- bill creation and editing
+- vendor and product controls
+- price and unit calculations
+- admin workflows
+- desktop, tablet, and mobile layouts
+- no horizontal shell overflow
+- no duplicate listeners
+- no console errors
+- hard refresh loads the current asset versions
 
-## Global diagnostics
+## 11. Documentation authority
 
-Available runtime diagnostics include:
+When documents conflict, use this order:
 
-```js
-window.__BILLS_DEPLOYMENT__
-window.app
-window.router
-```
+1. `ARCHITECTURE.md`
+2. `DESIGN-RULES.md`
+3. `CSS-OWNERSHIP.md`
+4. `AI_RULES.md`
+5. `README.md`
+6. historical implementation notes
 
-`window.app.health` records boot, authentication, data-loading, and error state.
-
-## Change-safety rules
-
-Before changing architecture:
-
-1. Fetch and inspect the current file from the default branch.
-2. Never replace a large file with a partial payload.
-3. Keep one authoritative renderer per route.
-4. Preserve the `main.js → data load → router` lifecycle.
-5. Use `data.js` for Supabase bill mutations.
-6. Test all routes after changes.
-7. Test sign-in, session restoration, and sign-out.
-8. Test bill creation, editing, and deletion with permitted roles.
-9. Test desktop, tablet, and mobile layouts.
-10. Update this document, `README.md`, and `CHANGELOG.md` when ownership changes.
-
-## Planned architecture evolution
-
-### v4.7 — Cost
-
-- dedicated price-intelligence module
-- product timeline aggregation
-- comparable base-unit rates
-- supplier comparison
-- alert thresholds
-- savings estimates
-
-### v4.8 — Users and Roles
-
-- normalized user profiles
-- explicit role and permission data
-- audit events
-- administration workflows
-
-### v4.9 — Database normalization
-
-- products
-- product aliases
-- vendors
-- vendor aliases
-- bills
-- bill items
-- cost workspace or derived price views
-
-### v5.0 — Assisted procurement
-
-- controlled OCR ingestion
-- product and vendor matching suggestions
-- anomaly detection
-- forecasting and purchasing recommendations
-
-All future migrations must preserve original supplier bill evidence and provide a documented rollback path.
+Documentation must be updated when ownership changes. A legacy implementation does not override this canonical architecture.
