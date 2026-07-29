@@ -118,11 +118,11 @@ requireText(cost,"demoMode?demoProducts():liveProducts",'Example mode can return
 requireText(cost,'`${keyOf(product.category)}|${product.pack.baseUnit}`','Cost comparison prevents unrelated category ranking');
 requireText(cost,'data-edit-source','Cost page can open the original bill for editing');
 
-const professional=read('app/css/professional.css');
 const masterComponents=read('app/css/master-components.css');
 const layout=read('app/css/layout.css');
-check(/professional\.css\?v=[^"']+/.test(index),'Professional compatibility layer is loaded with a cache token');
-requireText(professional,"@import url('./master-components.css",'Professional compatibility layer delegates reusable components to master-components.css');
+check(/master-components\.css\?v=[^"']+/.test(index),'Master component layer is loaded directly with a cache token');
+forbidText(index,'professional.css','Retired professional compatibility layer is not loaded');
+check(!exists('app/css/professional.css'),'Retired professional compatibility file is removed');
 for(const selector of ['.kpi-summary{','.kpi-card{','.kpi-card__icon{','.kpi-card__content{','.kpi-card__label{','.kpi-card__value{','.kpi-card__meta{'])requireText(masterComponents,selector,`Master components include canonical KPI selector ${selector}`);
 requireText(masterComponents,'@media(max-width:820px)','Master components support tablet and mobile layouts');
 
