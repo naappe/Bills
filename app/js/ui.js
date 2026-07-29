@@ -55,7 +55,7 @@ function isHidden(element){
 }
 
 function hasMeaningfulContent(element){
-  return Boolean(element.querySelector('input,select,textarea,button,a,table,canvas,svg,img')||element.textContent.trim());
+  return Boolean(element.querySelector('input,select,textarea,button,a,table,canvas,svg,img,[role="img"],i[class*="fa-"]')||element.textContent.trim());
 }
 
 function inspectPage(root){
