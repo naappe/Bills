@@ -24,6 +24,11 @@ const helperAreas=[
   ['Pagination','.pagination,.pager,[data-pagination]']
 ];
 
+const legacyAreas=[
+  ['Legacy KPI summary','.dashboard-metrics,.bills-summary,.grid-4,.cost-kpis,.admin-summary-grid,.px-kpis'],
+  ['Legacy KPI card','.dashboard-metric,.kpi,.cost-kpis>article,.bills-summary>div,.px-kpi']
+];
+
 function installStyles(){
   if($('#searchableListStyles'))return;
   const style=document.createElement('style');
@@ -37,24 +42,75 @@ function installStyles(){
     .searchable-list-empty{padding:12px;color:#6f7f94;font-size:12px;text-align:center}
     .page-helper{position:fixed;right:22px;bottom:22px;z-index:3500;display:grid;justify-items:end;gap:9px;font-family:Inter,system-ui,sans-serif}
     .page-helper-toggle{min-height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border:1px solid #e7b844;border-radius:999px;background:#fff8e5;color:#694700;box-shadow:0 9px 28px rgba(15,42,69,.18);font-weight:800;cursor:pointer}
-    .page-helper-panel{width:min(390px,calc(100vw - 28px));max-height:min(560px,72vh);overflow:auto;padding:14px;border:1px solid #e7c86f;border-radius:16px;background:#fffdf7;box-shadow:0 18px 48px rgba(15,42,69,.22)}
+    .page-helper-toggle.has-warning{border-color:#d92d20;background:#fff1f0;color:#9f2018}
+    .page-helper-panel{width:min(430px,calc(100vw - 28px));max-height:min(600px,76vh);overflow:auto;padding:14px;border:1px solid #e7c86f;border-radius:16px;background:#fffdf7;box-shadow:0 18px 48px rgba(15,42,69,.22)}
     .page-helper-panel[hidden]{display:none}
     .page-helper-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}
     .page-helper-head strong,.page-helper-head small{display:block}.page-helper-head strong{color:#142f54;font-size:13px}.page-helper-head small{margin-top:3px;color:#6c7889;font-size:10px;line-height:1.4}
     .page-helper-close{width:30px;height:30px;padding:0;border:0;border-radius:8px;background:transparent;color:#68768a;cursor:pointer}.page-helper-close:hover{background:#f5ead0;color:#142f54}
+    .page-helper-section{margin-top:12px;padding-top:12px;border-top:1px solid #ead8aa}.page-helper-section-title{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;color:#142f54;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
     .page-helper-items{display:flex;flex-wrap:wrap;gap:7px}
     .page-helper-item{padding:7px 10px;border:1px solid #ead8aa;border-radius:999px;background:#fff;color:#75510b;font:800 10px/1 Inter,system-ui,sans-serif;cursor:pointer}.page-helper-item:hover,.page-helper-item.active{border-color:#d89b0b;background:#fff1c7;color:#5a3b00}
+    .page-helper-item.warning{border-color:#f3a8a3;background:#fff4f3;color:#a4241b}.page-helper-item.missing{border-color:#f0c36d;background:#fff8e5;color:#7a5100}.page-helper-item.info{border-color:#b9c9dc;background:#f4f7fb;color:#294766}
+    .page-helper-ok{padding:9px 10px;border:1px solid #a9dbc6;border-radius:10px;background:#eefbf5;color:#13795b;font-size:10px;font-weight:800}
     .page-helper-target{position:relative;z-index:1;outline:3px solid #f0ad20!important;outline-offset:4px!important;box-shadow:0 0 0 7px rgba(240,173,32,.18)!important;animation:pageHelperPulse .9s ease 2}
+    .page-helper-target-warning{outline-color:#d92d20!important;box-shadow:0 0 0 7px rgba(217,45,32,.16)!important}
     @keyframes pageHelperPulse{0%,100%{outline-color:#f0ad20}50%{outline-color:#173d70}}
-    @media(max-width:700px){.page-helper{right:12px;bottom:12px}.page-helper-toggle{min-height:40px}.page-helper-panel{max-height:64vh}}
+    @media(max-width:700px){.page-helper{right:12px;bottom:12px}.page-helper-toggle{min-height:40px}.page-helper-panel{max-height:68vh}}
   `;
   document.head.appendChild(style);
 }
 
 function clearHelperTargets(){
-  document.querySelectorAll('.page-helper-target').forEach(element=>element.classList.remove('page-helper-target'));
+  document.querySelectorAll('.page-helper-target,.page-helper-target-warning').forEach(element=>element.classList.remove('page-helper-target','page-helper-target-warning'));
   document.querySelectorAll('.page-helper-item.active').forEach(element=>element.classList.remove('active'));
   if(helperTimer){clearTimeout(helperTimer);helperTimer=null}
+}
+
+function visibleHiddenTargets(root){
+  return [...root.querySelectorAll('section[hidden],article[hidden],div[hidden],section.hidden,article.hidden,div.hidden')]
+    .filter(element=>!element.closest('.modal,#globalPageHelper')&&element.textContent.trim());
+}
+
+function emptyTargets(root){
+  return [...root.querySelectorAll('section,article')].filter(element=>{
+    if(element.closest('.modal,#globalPageHelper')||element.hidden)return false;
+    if(element.matches('.kpi-card'))return false;
+    return !element.children.length&&!element.textContent.trim();
+  });
+}
+
+function auditKpi(root){
+  const issues=[];
+  const summaries=[...root.querySelectorAll('.kpi-summary')];
+  summaries.forEach((summary,summaryIndex)=>{
+    const cards=[...summary.querySelectorAll(':scope > .kpi-card')];
+    if(!cards.length)issues.push({label:`KPI Summary ${summaryIndex+1}: no cards`,targets:[summary],tone:'missing'});
+    cards.forEach((card,index)=>{
+      const missing=[];
+      if(!card.querySelector('.kpi-card__icon'))missing.push('icon');
+      if(!card.querySelector('.kpi-card__content'))missing.push('content');
+      if(!card.querySelector('.kpi-card__label'))missing.push('label');
+      if(!card.querySelector('.kpi-card__value'))missing.push('value');
+      if(!card.querySelector('.kpi-card__meta'))missing.push('meta');
+      if(missing.length)issues.push({label:`KPI Card ${index+1}: missing ${missing.join(', ')}`,targets:[card],tone:'missing'});
+    });
+  });
+  return issues;
+}
+
+function diagnostics(root){
+  const warnings=[];
+  legacyAreas.forEach(([label,selector])=>{
+    const targets=[...root.querySelectorAll(selector)].filter(element=>!element.closest('.modal'));
+    if(targets.length)warnings.push({label:`${label} · ${targets.length}`,targets,tone:'warning'});
+  });
+  warnings.push(...auditKpi(root));
+  const hidden=visibleHiddenTargets(root);
+  if(hidden.length)warnings.push({label:`Hidden populated sections · ${hidden.length}`,targets:hidden,tone:'info'});
+  const empty=emptyTargets(root);
+  if(empty.length)warnings.push({label:`Empty sections · ${empty.length}`,targets:empty,tone:'info'});
+  return warnings;
 }
 
 function installPageHelper(root=document.querySelector('#content')){
@@ -62,26 +118,28 @@ function installPageHelper(root=document.querySelector('#content')){
   root.querySelector('.dashboard-layout-note')?.remove();
   $('#globalPageHelper')?.remove();
   const available=helperAreas.map(([label,selector])=>({label,selector,targets:[...root.querySelectorAll(selector)].filter(element=>!element.closest('.modal'))})).filter(area=>area.targets.length);
-  if(!available.length)return;
+  const audit=diagnostics(root);
+  if(!available.length&&!audit.length)return;
   const route=root.dataset.currentRoute||'page';
   const helper=document.createElement('aside');
   helper.className='page-helper';
   helper.id='globalPageHelper';
-  helper.innerHTML=`<section class="page-helper-panel" id="pageHelperPanel" hidden><div class="page-helper-head"><div><strong><i class="fa-solid fa-wand-magic-sparkles"></i> ${escapeHtml(route.replace(/-/g,' '))} page helper</strong><small>Click a component name to jump to and highlight every matching area on this page.</small></div><button class="page-helper-close" type="button" aria-label="Close helper"><i class="fa-solid fa-xmark"></i></button></div><div class="page-helper-items">${available.map((area,index)=>`<button class="page-helper-item" type="button" data-helper-index="${index}">${escapeHtml(area.label)}${area.targets.length>1?` · ${area.targets.length}`:''}</button>`).join('')}</div></section><button class="page-helper-toggle" type="button" aria-expanded="false"><i class="fa-solid fa-circle-question"></i><span>Page helper</span></button>`;
+  const auditMarkup=audit.length?`<div class="page-helper-section"><div class="page-helper-section-title"><span>Page audit</span><span>${audit.length} issue${audit.length===1?'':'s'}</span></div><div class="page-helper-items">${audit.map((item,index)=>`<button class="page-helper-item ${item.tone}" type="button" data-audit-index="${index}">${escapeHtml(item.label)}</button>`).join('')}</div></div>`:`<div class="page-helper-section"><div class="page-helper-ok"><i class="fa-solid fa-circle-check"></i> No old KPI, missing KPI parts, hidden populated sections, or empty sections found.</div></div>`;
+  helper.innerHTML=`<section class="page-helper-panel" id="pageHelperPanel" hidden><div class="page-helper-head"><div><strong><i class="fa-solid fa-wand-magic-sparkles"></i> ${escapeHtml(route.replace(/-/g,' '))} page helper</strong><small>Find page areas and audit old, missing, hidden, or empty components.</small></div><button class="page-helper-close" type="button" aria-label="Close helper"><i class="fa-solid fa-xmark"></i></button></div><div class="page-helper-items">${available.map((area,index)=>`<button class="page-helper-item" type="button" data-helper-index="${index}">${escapeHtml(area.label)}${area.targets.length>1?` · ${area.targets.length}`:''}</button>`).join('')}</div>${auditMarkup}</section><button class="page-helper-toggle ${audit.some(item=>item.tone==='warning'||item.tone==='missing')?'has-warning':''}" type="button" aria-expanded="false"><i class="fa-solid ${audit.length?'fa-triangle-exclamation':'fa-circle-question'}"></i><span>Page helper${audit.length?` · ${audit.length}`:''}</span></button>`;
   document.body.appendChild(helper);
   const panel=helper.querySelector('.page-helper-panel'),toggle=helper.querySelector('.page-helper-toggle');
   const setOpen=open=>{panel.hidden=!open;toggle.setAttribute('aria-expanded',String(open))};
+  const highlight=(button,item,warning=false)=>{
+    clearHelperTargets();
+    button.classList.add('active');
+    item.targets.forEach(target=>target.classList.add('page-helper-target',...(warning?['page-helper-target-warning']:[])));
+    item.targets[0]?.scrollIntoView({behavior:'smooth',block:'center'});
+    helperTimer=setTimeout(clearHelperTargets,4200);
+  };
   toggle.addEventListener('click',()=>setOpen(panel.hidden));
   helper.querySelector('.page-helper-close').addEventListener('click',()=>setOpen(false));
-  helper.querySelectorAll('[data-helper-index]').forEach(button=>button.addEventListener('click',()=>{
-    clearHelperTargets();
-    const area=available[Number(button.dataset.helperIndex)];
-    if(!area)return;
-    button.classList.add('active');
-    area.targets.forEach(target=>target.classList.add('page-helper-target'));
-    area.targets[0]?.scrollIntoView({behavior:'smooth',block:'center'});
-    helperTimer=setTimeout(clearHelperTargets,4200);
-  }));
+  helper.querySelectorAll('[data-helper-index]').forEach(button=>button.addEventListener('click',()=>{const area=available[Number(button.dataset.helperIndex)];if(area)highlight(button,area)}));
+  helper.querySelectorAll('[data-audit-index]').forEach(button=>button.addEventListener('click',()=>{const item=audit[Number(button.dataset.auditIndex)];if(item)highlight(button,item,item.tone==='warning'||item.tone==='missing')}));
 }
 
 function enhanceInput(input){
@@ -130,5 +188,5 @@ export function watchSharedUI(root=document.querySelector('#content')){
     clearTimeout(observer.helperRefreshTimer);
     observer.helperRefreshTimer=setTimeout(()=>installPageHelper(root),80);
   });
-  observer.observe(root,{childList:true,subtree:true});
+  observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden','style']});
 }
