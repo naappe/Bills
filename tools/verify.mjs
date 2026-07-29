@@ -94,7 +94,6 @@ const isolationCount=bill.split(broadIsolation).length-1;
 check(isolationCount<=1,`No duplicate broad Bill Entry event blockers (${isolationCount}/1)`);
 if(isolationCount===1)warnings.push('Bill Entry still contains one legacy propagation blocker. Remove it only with authenticated browser regression testing.');
 
-
 for(const legacy of ['app/js/rates.js','app/css/rates.css','app/js/pages.js','assets/js/core/rates-page.js','assets/js/core/rates-legacy-compatibility.js','assets/js/core/product-pricing-v10.js','assets/js/core/catalog-list-redesign.js','assets/js/core/procurement-rebuild-v3.js','assets/js/core/inventory-rebuild.js','assets/js/core/hash-router.js','assets/js/core/ui-foundation.js','assets/css/breathing-room.css','tools/apply_stable_build.py','assets/js/core/view-registry.js','assets/js/core/product-editor-v8.js','assets/js/core/view-renderers.js'])check(!exists(legacy),`Legacy price-history file removed: ${legacy}`);
 forbidText(router,"ratesPage",'Router contains no legacy rates renderer');
 forbidText(router,"Price Intelligence",'Router contains no legacy Price Intelligence label');
@@ -118,12 +117,23 @@ requireText(cost,'Nothing was added to Supabase','Example mode is clearly separa
 requireText(cost,"demoMode?demoProducts():liveProducts",'Example mode can return to live products');
 requireText(cost,'`${keyOf(product.category)}|${product.pack.baseUnit}`','Cost comparison prevents unrelated category ranking');
 requireText(cost,'data-edit-source','Cost page can open the original bill for editing');
+
 const professional=read('app/css/professional.css');
+const layout=read('app/css/layout.css');
 requireText(index,`professional.css?v=${metaVersion}`,'Professional workspace layer is loaded after route styles');
 for(const route of ['bills','dashboard','vendors','products','product-merge','new','reports','settings','admin'])requireText(professional,`data-current-route="${route}"`,`Professional workspace styles cover ${route}`);
 requireText(professional,'@media(max-width:820px)','Professional workspace supports tablet and mobile layouts');
 requireText(professional,'.content:not([data-current-route="cost"])','Cost remains the reference design while other routes are aligned');
-for(const selector of ['.sidebar{','.nav a.active{','.topbar{','.sidebar-collapsed .nav','.side-account{'])requireText(professional,selector,`Professional navigation includes ${selector}`);
+
+for(const contract of ['id="desktopNav"','id="mobileNav"','class="app-header"','class="mobile-drawer"','id="menuBtn"','id="sidebarClose"','id="sidebarBackdrop"'])requireText(index,contract,`Semantic shell includes ${contract}`);
+forbidText(index,'id="collapseSidebar"','Retired desktop collapse control is removed');
+forbidText(index,'id="nav"','Legacy shared navigation container is removed');
+for(const contract of ["$('#desktopNav')","$('#mobileNav')","$('#sidebar')","$('#sidebarBackdrop')","$('#menuBtn')","$('#sidebarClose')"])requireText(main,contract,`main.js binds semantic shell target ${contract}`);
+forbidText(main,'setCollapsed(','Desktop collapse behavior is removed from main.js');
+forbidText(main,'bills.sidebarCollapsed','Legacy sidebar preference is removed');
+for(const selector of ['.app-header{','.app-nav{','.mobile-drawer{','.mobile-nav{','.mobile-drawer.open{'])requireText(layout,selector,`Layout includes semantic shell selector ${selector}`);
+forbidText(layout,'@@ -','Layout contains no diff markers');
+check((layout.match(/\{/g)||[]).length===(layout.match(/\}/g)||[]).length,'Layout CSS braces are balanced');
 
 console.log('\nBills repository verification\n');
 passes.forEach(item=>console.log(`✓ ${item}`));
