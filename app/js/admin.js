@@ -155,8 +155,8 @@ export async function adminPage(){
   const deployment=window.__BILLS_DEPLOYMENT__?.version||window.app?.health?.version||'unknown';
 
   target.innerHTML=`
-    <header class="page-head"><div><h1>Admin & users</h1><p>Review staff bill deletion requests and account access.</p></div></header>
     <section class="admin-page">
+      <header class="page-head"><div><h1>Admin & users</h1><p>Review staff bill deletion requests and account access.</p></div></header>
       <div class="admin-summary-grid">
         ${kpi('Pending delete requests',requests.length.toLocaleString(),'Admin approval required')}
         ${kpi('Trash',trash.length.toLocaleString(),'Restorable for 30 days')}
