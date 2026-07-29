@@ -20,25 +20,25 @@
   .side-account-copy{display:flex;flex-direction:column;gap:2px;align-items:center;text-align:center;width:100%}
   #sideAvatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:var(--weight-bold);font-size:var(--fs-14);flex-shrink:0}
   .main{margin-left:var(--sidebar-width);min-height:100vh;width:calc(100% - var(--sidebar-width));transition:margin-left .2s ease,width .2s ease}
-  /* The topbar lives inside .main, so a second sidebar offset created the blank desktop gutter. */
   .topbar{left:0;width:100%;transition:width .2s ease}
   .content{max-width:none;margin:0;padding:22px 24px;gap:20px}
   .app-footer>div{max-width:none}
-  
-  /* Collapsed sidebar state */
-  .sidebar-collapsed .sidebar{width:var(--sidebar-collapsed)}
-  .sidebar-collapsed .brand strong{display:none}
-  .sidebar-collapsed .brand>div:nth-child(2){display:none}
-  .sidebar-collapsed .nav{padding:var(--sp-1-5) 8px}
-  .sidebar-collapsed .nav-group{padding-bottom:8px;margin-bottom:8px}
-  .sidebar-collapsed .nav-label{display:none}
-  .sidebar-collapsed .nav a{height:var(--nav-height);padding:0;justify-content:center;margin:var(--sp-0) 0;gap:0}
-  .sidebar-collapsed .nav a i{width:auto;flex:0 0 auto;font-size:18px}
-  .sidebar-collapsed .nav a span{display:none}
-  .sidebar-collapsed .side-foot{padding:var(--sp-1-5) 8px;gap:var(--sp-1)}
-  .sidebar-collapsed .side-account-copy{display:none}
-  .sidebar-collapsed .main{margin-left:var(--sidebar-collapsed);width:calc(100% - var(--sidebar-collapsed))}
-  .sidebar-collapsed .topbar{left:0;width:100%}
+
+  /* Always-readable navigation: neutralize stale collapsed state from localStorage. */
+  .app.sidebar-collapsed .sidebar{width:var(--sidebar-width)!important}
+  .app.sidebar-collapsed .main{margin-left:var(--sidebar-width)!important;width:calc(100% - var(--sidebar-width))!important}
+  .app.sidebar-collapsed .brand{justify-content:flex-start!important;padding:var(--sp-2)!important}
+  .app.sidebar-collapsed .brand>div:nth-child(2),
+  .app.sidebar-collapsed .brand strong,
+  .app.sidebar-collapsed .brand small,
+  .app.sidebar-collapsed .nav-label,
+  .app.sidebar-collapsed .nav a span,
+  .app.sidebar-collapsed .side-account-copy,
+  .app.sidebar-collapsed .side-foot .btn span{display:revert!important;visibility:visible!important;opacity:1!important}
+  .app.sidebar-collapsed .nav{padding:var(--sp-2) 10px!important}
+  .app.sidebar-collapsed .nav a{justify-content:flex-start!important;padding:0 var(--sp-2)!important;gap:var(--sp-1-5)!important}
+  .app.sidebar-collapsed .nav a i{width:20px!important;flex:0 0 20px!important;font-size:16px!important}
+  .app.sidebar-collapsed .side-foot{padding:var(--sp-2)!important}
 }
 
 /* Keep the workspace visually tight and remove unnecessary gutters. */
