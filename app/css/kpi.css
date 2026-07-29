@@ -1,18 +1,13 @@
 /* White Saffron master KPI system.
-   KPI Summary is the layout container; KPI Card is the single reusable component.
-   Legacy selectors remain as compatibility aliases while all pages migrate. */
+   KPI Summary is the layout container; KPI Card is the only KPI component. */
 
-.kpi-summary,
-.grid-4,
-.dashboard-metrics{
+.kpi-summary{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:var(--sp-2);
 }
 
-.kpi-card,
-.kpi,
-.dashboard-metric{
+.kpi-card{
   min-width:0;
   min-height:118px;
   padding:var(--sp-2);
@@ -26,8 +21,7 @@
   box-shadow:var(--shadow-sm);
 }
 
-.kpi-card__icon,
-.dashboard-metric-icon{
+.kpi-card__icon{
   width:40px;
   height:40px;
   display:grid;
@@ -38,16 +32,9 @@
   color:var(--brand-navy);
 }
 
-.kpi-card__content,
-.kpi-card>div,
-.dashboard-metric>div{
-  min-width:0;
-}
+.kpi-card__content{min-width:0}
 
-.kpi-card__label,
-.kpi-card>span:not(.kpi-card__icon),
-.kpi>span,
-.dashboard-metric>div>span{
+.kpi-card__label{
   display:block;
   color:var(--text-muted);
   font-family:var(--font-body);
@@ -58,10 +45,7 @@
   text-transform:uppercase;
 }
 
-.kpi-card__value,
-.kpi-card>strong,
-.kpi strong,
-.dashboard-metric strong{
+.kpi-card__value{
   display:block;
   margin-top:var(--sp-1);
   color:var(--text-strong);
@@ -77,10 +61,7 @@
   white-space:normal;
 }
 
-.kpi-card__meta,
-.kpi-card>small,
-.kpi small,
-.dashboard-metric small{
+.kpi-card__meta{
   display:block;
   margin-top:var(--sp-0);
   color:var(--text-muted);
@@ -89,55 +70,32 @@
   line-height:var(--line-normal);
 }
 
-.kpi-card.is-clickable,
-.kpi-card.clickable,
-.dashboard-metric.clickable{
+.kpi-card.is-clickable{
   cursor:pointer;
   transition:border-color var(--duration-fast),box-shadow var(--duration-fast),transform var(--duration-fast);
 }
 
-.kpi-card.is-clickable:hover,
-.kpi-card.clickable:hover,
-.dashboard-metric.clickable:hover{
+.kpi-card.is-clickable:hover{
   transform:translateY(-1px);
   border-color:var(--brand-navy-100);
   box-shadow:var(--shadow-md);
 }
 
-.kpi-card.is-clickable:focus-visible,
-.kpi-card.clickable:focus-visible,
-.dashboard-metric.clickable:focus-visible{
+.kpi-card.is-clickable:focus-visible{
   outline:0;
   border-color:var(--brand-navy);
   box-shadow:var(--shadow-focus),var(--shadow-md);
 }
 
-/* Compatibility: older plain KPI cards did not include an icon column. */
-.kpi:not(:has(.kpi-card__icon)):not(:has(.dashboard-metric-icon)){
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:stretch;
-}
-
 @media(max-width:1280px){
-  .kpi-summary,
-  .grid-4,
-  .dashboard-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .kpi-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
 @media(max-width:980px){
-  .kpi-summary,
-  .grid-4,
-  .dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 @media(max-width:700px){
-  .kpi-summary,
-  .grid-4,
-  .dashboard-metrics{grid-template-columns:1fr}
-
-  .kpi-card,
-  .kpi,
-  .dashboard-metric{min-height:96px}
+  .kpi-summary{grid-template-columns:1fr}
+  .kpi-card{min-height:96px}
 }
