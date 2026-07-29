@@ -69,6 +69,12 @@ export function dashboardPage(){
       <div class="actions"><button class="btn dashboard-add" data-route="new" type="button"><i class="fa-solid fa-plus"></i> Add Bill</button></div>
     </header>
 
+    <aside class="dashboard-layout-note" id="dashboardLayoutNote">
+      <div><strong><i class="fa-solid fa-note-sticky"></i> Dashboard layout names</strong><small>Development note only — these names are not page headings.</small></div>
+      <div class="dashboard-layout-tags"><span>Page Header</span><span>Filter Bar</span><span>KPI Row</span><span>KPI Cards</span><span>Primary Data Panel</span><span>Secondary Panels</span><span>Card Header</span><span>Card Body</span></div>
+      <button type="button" aria-label="Hide layout note" id="hideDashboardLayoutNote"><i class="fa-solid fa-xmark"></i></button>
+    </aside>
+
     <section class="dashboard-commandbar">
       <label>Period<select id="dashPeriod"><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastMonth">Last Month</option><option value="threeMonths">Last 3 Months</option><option value="year">This Year</option><option value="custom">Custom Range</option><option value="all">All Time</option></select></label>
       <label class="custom-date">From<input id="dashFrom" type="date" value="${escapeHtml(state.from)}"></label>
@@ -126,5 +132,6 @@ export function dashboardPage(){
   $('#dashPeriod').onchange=event=>{state.period=event.target.value;dashboardPage()};
   $('#dashFrom').onchange=event=>{state.from=event.target.value;if(state.period==='custom')dashboardPage()};
   $('#dashTo').onchange=event=>{state.to=event.target.value;if(state.period==='custom')dashboardPage()};
+  $('#hideDashboardLayoutNote')?.addEventListener('click',()=>$('#dashboardLayoutNote')?.remove());
   content().querySelectorAll('[data-route]').forEach(element=>{element.onclick=()=>{if(element.dataset.filter){store.filters.bills||={};store.filters.bills.status=element.dataset.filter}location.hash=`#${element.dataset.route}`}});
 }
