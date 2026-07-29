@@ -37,7 +37,8 @@ function formatLabel(value,mode){
 }
 
 function metric(icon,label,value,meta,route='',filter=''){
-  return `<article class="dashboard-metric${route?' clickable':''}" ${route?`data-route="${route}"`:''} ${filter?`data-filter="${filter}"`:''} tabindex="${route?'0':'-1'}"><span class="dashboard-metric-icon"><i class="fa-solid ${icon}" aria-hidden="true"></i></span><div><span>${escapeHtml(label)}</span><strong>${value}</strong><small>${escapeHtml(meta)}</small></div></article>`;
+  const clickable=Boolean(route);
+  return `<article class="kpi-card${clickable?' is-clickable':''}" ${route?`data-route="${route}"`:''} ${filter?`data-filter="${filter}"`:''} data-layout-area="kpi-card" tabindex="${clickable?'0':'-1'}"><span class="kpi-card__icon"><i class="fa-solid ${icon}" aria-hidden="true"></i></span><div class="kpi-card__content"><span class="kpi-card__label">${escapeHtml(label)}</span><strong class="kpi-card__value">${value}</strong><small class="kpi-card__meta">${escapeHtml(meta)}</small></div></article>`;
 }
 
 export function dashboardPage(){
@@ -91,7 +92,7 @@ export function dashboardPage(){
       <div class="dashboard-period-summary"><span>${rows.length.toLocaleString()} bills</span><strong>${escapeHtml(range.from||'First record')} → ${escapeHtml(range.to||'Latest record')}</strong></div>
     </section>
 
-    <section class="dashboard-metrics" data-layout-area="kpi-row">
+    <section class="kpi-summary" data-layout-area="kpi-row">
       ${metric('fa-wallet','Spend',money(total),`${rows.length} bills`,'bills')}
       ${metric('fa-file-invoice','Bills',rows.length.toLocaleString(),`${money(average)} average`,'bills')}
       ${metric('fa-clock','Pending',money(pendingTotal),`${pendingRows.length} bills`,'bills','Pending')}
@@ -135,7 +136,6 @@ export function dashboardPage(){
       </article>
     </section>`;
 
-  content().querySelectorAll('.dashboard-metric').forEach(element=>element.dataset.layoutArea='kpi-card');
   $('#dashPeriod').value=state.period;
   const custom=()=>document.querySelectorAll('.custom-date').forEach(element=>element.hidden=$('#dashPeriod').value!=='custom');
   custom();
