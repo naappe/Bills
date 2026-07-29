@@ -43,7 +43,7 @@ async function render(inventory=false){
   styles();
   content().innerHTML='<section class="panel"><div class="supply-empty">Loading supply…</div></section>';
   await load();
-  content().innerHTML=`<section class="panel"><div class="card-head"><div><h1>${inventory?'Inventory':'Supply'}</h1><small>${inventory?'Current stock, minimum levels and stock adjustments':'Products, vendors, prices and stock in one master list'}</small></div></div><div class="card-body"><div class="supply-toolbar"><label>Search<input id="supplySearch" placeholder="Search item, vendor or category"></label><button class="btn" id="addSupply" type="button">Add supply item</button></div><div class="supply-grid" id="supplyGrid"></div></div></section>`;
+  content().innerHTML=`<section class="panel"><div class="card-body"><div class="supply-toolbar"><label>Search<input id="supplySearch" placeholder="Search item, vendor or category"></label><button class="btn" id="addSupply" type="button">Add supply item</button></div><div class="supply-grid" id="supplyGrid"></div></div></section>`;
   const grid=document.querySelector('#supplyGrid'),search=document.querySelector('#supplySearch');
   const draw=()=>{const list=filterRows(search.value);grid.innerHTML=list.length?list.map(row=>card(row,inventory)).join(''):'<div class="supply-empty">No matching supply items.</div>'};
   search.addEventListener('input',draw);draw();
