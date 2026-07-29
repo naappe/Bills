@@ -8,8 +8,8 @@ const navGroups=[
   ['Procurement',[
     ['bills','Bills','fa-file-invoice'],
     ['cost','Cost','fa-calculator','admin'],
-    ['products','Products','fa-box'],
-    ['vendors','Vendors','fa-building']
+    ['products','Supply','fa-box'],
+    ['vendors','Inventory','fa-warehouse']
   ]],
   ['Analytics',[['reports','Reports','fa-chart-pie']]],
   ['Administration',[
@@ -18,7 +18,7 @@ const navGroups=[
   ]]
 ];
 
-const health={version:'5.8.1',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
+const health={version:'5.8.9',booted:false,authenticated:false,dataLoaded:false,error:null,runtimeErrors:[],startedAt:new Date().toISOString()};
 window.app={store,health};
 
 const SESSION_TIMEOUT_MS=15*60*1000;
@@ -125,33 +125,30 @@ function watchSearchableLists(){
   new MutationObserver(()=>installSearchableLists()).observe(target,{childList:true,subtree:true});
 }
 
-function buildNav(){
-  const nav=$('#nav');
-  if(!nav)return;
-  nav.innerHTML=navGroups.map(([group,items])=>{
+function renderNavigation(target,{grouped=false}={}){
+  if(!target)return;
+  target.innerHTML=navGroups.map(([group,items])=>{
     const visible=items.filter(([, , ,role])=>!role||store.role===role);
     if(!visible.length)return'';
-    return `<div class="nav-group"><div class="nav-label">${group}</div>${visible.map(([route,label,icon])=>`<a href="#${route}" data-route="${route}" title="${label}"><i class="fa-solid ${icon}" aria-hidden="true"></i><span>${label}</span></a>`).join('')}</div>`;
+    const links=visible.map(([route,label,icon])=>`<a href="#${route}" data-route="${route}" title="${label}"><i class="fa-solid ${icon}" aria-hidden="true"></i><span>${label}</span></a>`).join('');
+    return grouped?`<div class="nav-group"><div class="nav-label">${group}</div>${links}</div>`:links;
   }).join('');
 }
 
-function setSidebar(open){
+function buildNavigation(){
+  renderNavigation($('#desktopNav'));
+  renderNavigation($('#mobileNav'),{grouped:true});
+}
+
+function setMobileNavigation(open){
   $('#sidebar')?.classList.toggle('open',open);
   $('#sidebarBackdrop')?.classList.toggle('visible',open);
   $('#sidebarBackdrop')?.classList.toggle('hidden',!open);
   document.body.classList.toggle('nav-open',open);
   $('#menuBtn')?.setAttribute('aria-expanded',String(open));
 }
-const closeSidebar=()=>setSidebar(false);
-const toggleSidebar=()=>setSidebar(!$('#sidebar')?.classList.contains('open'));
-
-function setCollapsed(collapsed){
-  $('#appView')?.classList.toggle('sidebar-collapsed',collapsed);
-  $('#collapseSidebar')?.setAttribute('aria-pressed',String(collapsed));
-  $('#collapseSidebar i')?.classList.toggle('fa-angles-right',collapsed);
-  $('#collapseSidebar i')?.classList.toggle('fa-angles-left',!collapsed);
-  try{localStorage.setItem('bills.sidebarCollapsed',collapsed?'1':'0')}catch(error){recordRuntimeError(error,'sidebar-preference')}
-}
+const closeMobileNavigation=()=>setMobileNavigation(false);
+const toggleMobileNavigation=()=>setMobileNavigation(!$('#sidebar')?.classList.contains('open'));
 
 function hideAuthLoader(){$('#authLoader')?.classList.add('hidden');document.body.classList.remove('auth-pending')}
 function showAuthLoader(message='Checking your secure session…'){
@@ -219,7 +216,7 @@ function bindSessionSecurity(){
 }
 
 function showApp(){
-  buildNav();hideAuthLoader();
+  buildNavigation();hideAuthLoader();
   $('#loginView')?.classList.add('hidden');
   $('#appView')?.classList.remove('hidden');
   const email=store.user?.email||'Signed in',role=String(store.role||'staff').toUpperCase(),initial=email.charAt(0).toUpperCase();
@@ -228,7 +225,7 @@ function showApp(){
 }
 
 function showLogin(message=''){
-  clearSessionTimers();closeSidebar();hideAuthLoader();
+  clearSessionTimers();closeMobileNavigation();hideAuthLoader();
   $('#appView')?.classList.add('hidden');
   $('#loginView')?.classList.remove('hidden');
   const notice=$('#loginNotice');if(notice)notice.textContent=message;
@@ -253,29 +250,30 @@ async function loadAndStart(){
 }
 
 function bindNavigation(){
-  $('#menuBtn')?.addEventListener('click',toggleSidebar);
-  $('#sidebarClose')?.addEventListener('click',closeSidebar);
-  $('#sidebarBackdrop')?.addEventListener('click',closeSidebar);
-  $('#collapseSidebar')?.addEventListener('click',()=>setCollapsed(!$('#appView')?.classList.contains('sidebar-collapsed')));
+  $('#menuBtn')?.addEventListener('click',toggleMobileNavigation);
+  $('#sidebarClose')?.addEventListener('click',closeMobileNavigation);
+  $('#sidebarBackdrop')?.addEventListener('click',closeMobileNavigation);
   document.addEventListener('click',event=>{
     const trigger=event.target.closest('a[data-route],button[data-route]');
     if(!trigger)return;
-    event.preventDefault();closeSidebar();registerSessionActivity();
+    event.preventDefault();closeMobileNavigation();registerSessionActivity();
     if(trigger.dataset.route)navigate(trigger.dataset.route);
   });
-  window.addEventListener('hashchange',()=>{closeSidebar();registerSessionActivity()});
-  window.addEventListener('resize',()=>{if(window.innerWidth>820)closeSidebar()});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeSidebar()});
+  window.addEventListener('hashchange',()=>{closeMobileNavigation();registerSessionActivity()});
+  window.addEventListener('resize',()=>{if(window.innerWidth>820)closeMobileNavigation()});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMobileNavigation()});
 }
 
 function bindLogout(){
-  const button=$('#logoutBtn');if(!button)return;
-  button.onclick=async()=>{
-    button.disabled=true;sessionEnding=true;clearSessionTimers();showAuthLoader('Signing out securely…');
-    try{await signOut();health.dataLoaded=false;showLogin()}
-    catch(error){recordRuntimeError(error,'sign-out');showLogin(error?.message||'Sign out failed.')}
-    finally{button.disabled=false;sessionEnding=false}
-  };
+  const buttons=['#logoutBtn','#desktopLogoutBtn'].map(selector=>$(selector)).filter(Boolean);
+  buttons.forEach(button=>{
+    button.onclick=async()=>{
+      buttons.forEach(node=>{node.disabled=true});sessionEnding=true;clearSessionTimers();showAuthLoader('Signing out securely…');
+      try{await signOut();health.dataLoaded=false;showLogin()}
+      catch(error){recordRuntimeError(error,'sign-out');showLogin(error?.message||'Sign out failed.')}
+      finally{buttons.forEach(node=>{node.disabled=false});sessionEnding=false}
+    };
+  });
 }
 
 function bindLoginForm(){
@@ -292,10 +290,8 @@ function bindLoginForm(){
 }
 
 async function boot(){
-  showAuthLoader();buildNav();
-  let collapsed=false;
-  try{collapsed=localStorage.getItem('bills.sidebarCollapsed')==='1'}catch(error){recordRuntimeError(error,'sidebar-preference-read')}
-  setCollapsed(collapsed);bindNavigation();bindLogout();bindLoginForm();bindSessionSecurity();
+  showAuthLoader();buildNavigation();bindNavigation();bindLogout();bindLoginForm();bindSessionSecurity();
+  try{localStorage.removeItem('bills.sidebarCollapsed')}catch(error){recordRuntimeError(error,'legacy-sidebar-preference-remove')}
   const year=$('#footerYear');if(year)year.textContent=new Date().getFullYear();
   try{const user=await restoreSession();if(!user){showLogin();return}showApp();await loadAndStart().catch(()=>{})}
   catch(error){recordRuntimeError(error,'session-restore');showLogin('Your saved session expired. Please sign in again.')}
