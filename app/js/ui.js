@@ -27,7 +27,6 @@ const blueprintAreas=[
 const legacyAreas=[
   {label:'Legacy KPI summary',selector:'.dashboard-metrics,.bills-summary,.grid-4,.cost-kpis,.admin-summary-grid'},
   {label:'Legacy KPI card',selector:'.dashboard-metric,.kpi,.cost-kpis>article,.bills-summary>div'},
-  {label:'Legacy layout note',selector:'.dashboard-layout-note'},
   {label:'Legacy hidden helper text',selector:'[data-development-note],.development-note,.tutorial-note'}
 ];
 
@@ -98,7 +97,6 @@ function inspectPage(root){
 
 function installPageHelper(root=document.querySelector('#content')){
   if(!root)return;
-  root.querySelector('.dashboard-layout-note')?.remove();
   $('#globalPageHelper')?.remove();
   const nodes=inspectPage(root);
   if(!nodes.length)return;

@@ -70,21 +70,6 @@ export function dashboardPage(){
       <div class="actions"><button class="btn dashboard-add" data-route="new" type="button"><i class="fa-solid fa-plus"></i> Add Bill</button></div>
     </header>
 
-    <aside class="dashboard-layout-note" id="dashboardLayoutNote">
-      <div><strong><i class="fa-solid fa-wand-magic-sparkles"></i> Dashboard helper</strong><small>Click a name to jump to that area and highlight it.</small></div>
-      <div class="dashboard-layout-tags">
-        <button type="button" data-layout-target="page-header">Page Header</button>
-        <button type="button" data-layout-target="filter-bar">Filter Bar</button>
-        <button type="button" data-layout-target="kpi-row">KPI Row</button>
-        <button type="button" data-layout-target="kpi-card">KPI Cards</button>
-        <button type="button" data-layout-target="primary-panel">Primary Data Panel</button>
-        <button type="button" data-layout-target="secondary-panels">Secondary Panels</button>
-        <button type="button" data-layout-target="card-header">Card Header</button>
-        <button type="button" data-layout-target="card-body">Card Body</button>
-      </div>
-      <button type="button" aria-label="Hide layout helper" id="hideDashboardLayoutNote"><i class="fa-solid fa-xmark"></i></button>
-    </aside>
-
     <section class="dashboard-commandbar" data-layout-area="filter-bar">
       <label>Period<select id="dashPeriod"><option value="today">Today</option><option value="week">This Week</option><option value="month">This Month</option><option value="lastMonth">Last Month</option><option value="threeMonths">Last 3 Months</option><option value="year">This Year</option><option value="custom">Custom Range</option><option value="all">All Time</option></select></label>
       <label class="custom-date">From<input id="dashFrom" type="date" value="${escapeHtml(state.from)}"></label>
@@ -142,18 +127,5 @@ export function dashboardPage(){
   $('#dashPeriod').onchange=event=>{state.period=event.target.value;dashboardPage()};
   $('#dashFrom').onchange=event=>{state.from=event.target.value;if(state.period==='custom')dashboardPage()};
   $('#dashTo').onchange=event=>{state.to=event.target.value;if(state.period==='custom')dashboardPage()};
-  $('#hideDashboardLayoutNote')?.addEventListener('click',()=>$('#dashboardLayoutNote')?.remove());
-  content().querySelectorAll('[data-layout-target]').forEach(button=>button.addEventListener('click',()=>{
-    const targetName=button.dataset.layoutTarget;
-    const targets=[...content().querySelectorAll(`[data-layout-area="${targetName}"]`)];
-    if(!targets.length)return;
-    content().querySelectorAll('.layout-helper-active').forEach(element=>element.classList.remove('layout-helper-active'));
-    targets.forEach(element=>element.classList.add('layout-helper-active'));
-    targets[0].scrollIntoView({behavior:'smooth',block:'center'});
-    button.classList.add('is-active');
-    content().querySelectorAll('[data-layout-target]').forEach(other=>{if(other!==button)other.classList.remove('is-active')});
-    window.clearTimeout(window.__dashboardLayoutTimer);
-    window.__dashboardLayoutTimer=window.setTimeout(()=>targets.forEach(element=>element.classList.remove('layout-helper-active')),2600);
-  }));
   content().querySelectorAll('[data-route]').forEach(element=>{element.onclick=()=>{if(element.dataset.filter){store.filters.bills||={};store.filters.bills.status=element.dataset.filter}location.hash=`#${element.dataset.route}`}});
 }
