@@ -3,7 +3,7 @@
 
 .kpi-summary{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
   gap:var(--sp-2);
 }
 
@@ -55,10 +55,7 @@
   font-variant-numeric:tabular-nums;
   letter-spacing:-.025em;
   line-height:1.08;
-  overflow:visible;
-  overflow-wrap:normal;
-  text-overflow:clip;
-  white-space:normal;
+  overflow-wrap:anywhere;
 }
 
 .kpi-card__meta{
@@ -85,14 +82,6 @@
   outline:0;
   border-color:var(--brand-navy);
   box-shadow:var(--shadow-focus),var(--shadow-md);
-}
-
-@media(max-width:1280px){
-  .kpi-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
-}
-
-@media(max-width:980px){
-  .kpi-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 @media(max-width:700px){
