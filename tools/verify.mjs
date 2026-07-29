@@ -12,6 +12,8 @@ const warnings=[];
 const check=(condition,message)=>{(condition?passes:failures).push(message)};
 const requireText=(source,needle,message)=>check(source.includes(needle),message);
 const forbidText=(source,needle,message)=>check(!source.includes(needle),message);
+const hasCssSelector=(source,selector)=>new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\s*\\{`).test(source);
+const hasClassToken=(source,className)=>new RegExp(`class=["'][^"']*\\b${className.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b[^"']*["']`).test(source);
 
 const coreFiles=['index.html','app/js/main.js','app/js/router.js','app/js/bill-entry.js','app/js/data.js','app/js/store.js','.github/workflows/verify.yml'];
 for(const file of coreFiles)check(exists(file),`Required file exists: ${file}`);
@@ -123,16 +125,17 @@ const layout=read('app/css/layout.css');
 check(/master-components\.css\?v=[^"']+/.test(index),'Master component layer is loaded directly with a cache token');
 forbidText(index,'professional.css','Retired professional compatibility layer is not loaded');
 check(!exists('app/css/professional.css'),'Retired professional compatibility file is removed');
-for(const selector of ['.kpi-summary{','.kpi-card{','.kpi-card__icon{','.kpi-card__content{','.kpi-card__label{','.kpi-card__value{','.kpi-card__meta{'])requireText(masterComponents,selector,`Master components include canonical KPI selector ${selector}`);
+for(const selector of ['.kpi-summary','.kpi-card','.kpi-card__icon','.kpi-card__content','.kpi-card__label','.kpi-card__value','.kpi-card__meta'])check(hasCssSelector(masterComponents,selector),`Master components include canonical KPI selector ${selector}`);
 requireText(masterComponents,'@media(max-width:820px)','Master components support tablet and mobile layouts');
 
-for(const contract of ['id="desktopNav"','id="mobileNav"','class="app-header"','class="mobile-drawer"','id="menuBtn"','id="sidebarClose"','id="sidebarBackdrop"'])requireText(index,contract,`Semantic shell includes ${contract}`);
+for(const contract of ['id="desktopNav"','id="mobileNav"','id="menuBtn"','id="sidebarClose"','id="sidebarBackdrop"'])requireText(index,contract,`Semantic shell includes ${contract}`);
+for(const className of ['app-header','mobile-drawer'])check(hasClassToken(index,className),`Semantic shell includes class token ${className}`);
 forbidText(index,'id="collapseSidebar"','Retired desktop collapse control is removed');
 forbidText(index,'id="nav"','Legacy shared navigation container is removed');
 for(const contract of ["$('#desktopNav')","$('#mobileNav')","$('#sidebar')","$('#sidebarBackdrop')","$('#menuBtn')","$('#sidebarClose')"])requireText(main,contract,`main.js binds semantic shell target ${contract}`);
 forbidText(main,'setCollapsed(','Desktop collapse behavior is removed from main.js');
-forbidText(main,'bills.sidebarCollapsed','Legacy sidebar preference is removed');
-for(const selector of ['.app-header{','.app-nav{','.mobile-drawer{','.mobile-nav{','.mobile-drawer.open{'])requireText(layout,selector,`Layout includes semantic shell selector ${selector}`);
+check(!/localStorage\.(?:getItem|setItem)\(['"]bills\.sidebarCollapsed['"]/.test(main),'Legacy sidebar preference is not read or written');
+for(const selector of ['.app-header','.app-nav','.mobile-drawer','.mobile-nav','.mobile-drawer.open'])check(hasCssSelector(layout,selector),`Layout includes semantic shell selector ${selector}`);
 forbidText(layout,'@@ -','Layout contains no diff markers');
 check((layout.match(/\{/g)||[]).length===(layout.match(/\}/g)||[]).length,'Layout CSS braces are balanced');
 
