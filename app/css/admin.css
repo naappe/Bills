@@ -114,7 +114,19 @@
   width:100%;
   min-width:0;
   display:grid;
-  gap:16px;
+  gap:20px;
+}
+
+.admin-page>.page-head{
+  position:relative;
+  z-index:1;
+  min-height:64px;
+  margin:0;
+  padding:14px 16px;
+  align-items:center;
+  border:1px solid var(--border);
+  border-radius:var(--radius-card);
+  background:var(--surface-muted);
 }
 
 .admin-summary-grid{
