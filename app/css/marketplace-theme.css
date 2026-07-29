@@ -6,11 +6,11 @@
   --brand-gold-700:#2446d8;
   --brand-gold-100:#eef3ff;
   --brand-gold-soft:#6f89ff;
-  --bg:#f6f7fb;
-  --surface:#fff;
-  --surface-muted:#f8f9fc;
-  --surface-hover:#f5f7fb;
-  --border:#dfe4ec;
+  --bg:#edf4f8;
+  --surface:#fffdf9;
+  --surface-muted:#f2f7fa;
+  --surface-hover:#eaf2f7;
+  --border:#d5e0e7;
   --border-strong:#cfd6e2;
   --text:#3f4a5a;
   --text-strong:#141b2d;
@@ -36,6 +36,7 @@
   --sidebar-width:236px;
   --sidebar-collapsed:72px;
 }
+
 *{scrollbar-width:thin;scrollbar-color:#cbd2dd transparent}
 html,body{background:var(--bg)}
 body{color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;line-height:1.45;letter-spacing:-.006em;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
@@ -198,3 +199,34 @@ input:focus,select:focus,textarea:focus{border-color:#7f97ff;outline:0;box-shado
   .bill-row .remove-row{grid-column:2;justify-self:end}
 }
 @media(prefers-reduced-motion:reduce){.btn,.nav a,.kpi-card{transition:none!important}}
+
+/* Calm workspace colour hierarchy: less white, still restrained and professional. */
+html,body,.app,.main{background:#edf4f8!important}
+.app-header,.topbar{background:#f8fbfd!important;border-bottom-color:#cfdae3!important}
+.app-header{box-shadow:0 1px 3px rgba(23,45,70,.06)!important}
+.sidebar,.side-foot{background:#f7fafc!important;border-color:#d5e0e7!important}
+.content{
+  background:
+    radial-gradient(circle at 92% 0,rgba(49,87,246,.055),transparent 30%),
+    linear-gradient(180deg,#edf4f8 0%,#f4f7f8 100%)!important;
+}
+.card,.panel,.data-panel,.px-card,.entry-panel{background:#fffdf9!important;border-color:#d5e0e7!important}
+.card-head{background:#f7fafc!important;border-bottom-color:#d8e2e9!important}
+.toolbar,.bills-toolbar,.date-toolbar,.report-toolbar,.dashboard-commandbar,.product-simple-toolbar,.filters,.report-filters,.cost-workspace{
+  background:#edf5fa!important;
+  border-color:#cbdbe5!important;
+}
+input,select,textarea{background:#fffefb!important;border-color:#ccd9e2!important}
+.btn.secondary,.icon-btn,.btn.icon,.action-col .btn.secondary{background:#f7fafc!important}
+.kpi-card,.entry-total-card{background:#f6f9ff!important;border-color:#d7e1f2!important}
+.kpi-card:nth-child(2),.entry-summary>div:nth-child(1){background:#f2faf6!important;border-color:#d2e7db!important}
+.kpi-card:nth-child(3),.entry-summary>div:nth-child(2){background:#f8f5ff!important;border-color:#e1d9f2!important}
+.kpi-card:nth-child(4),.entry-summary>div:nth-child(3){background:#fff8ed!important;border-color:#eedfc7!important}
+.kpi-card:nth-child(5){background:#f1f8fb!important;border-color:#d3e5ec!important}
+.table th{background:#eaf2f7!important;color:#526477!important;border-bottom-color:#ccdae3!important}
+.table tbody tr:nth-child(odd){background:#fffdf9!important}
+.table tbody tr:nth-child(even){background:#f5f9fb!important}
+.table tbody tr:hover{background:#eaf3f8!important}
+.pager,.pagination{background:#f1f6f9!important;border-top-color:#d5e0e7!important}
+.modal-card,.dialog,.session-warning-card{background:#fffdf9!important}
+.app-footer{background:#e8f0f5!important;border-top-color:#d2dee6!important}
