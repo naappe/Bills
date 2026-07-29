@@ -119,11 +119,12 @@ requireText(cost,'`${keyOf(product.category)}|${product.pack.baseUnit}`','Cost c
 requireText(cost,'data-edit-source','Cost page can open the original bill for editing');
 
 const professional=read('app/css/professional.css');
+const masterComponents=read('app/css/master-components.css');
 const layout=read('app/css/layout.css');
-requireText(index,`professional.css?v=${metaVersion}`,'Professional workspace layer is loaded after route styles');
-for(const route of ['bills','dashboard','vendors','products','product-merge','new','reports','settings','admin'])requireText(professional,`data-current-route="${route}"`,`Professional workspace styles cover ${route}`);
-requireText(professional,'@media(max-width:820px)','Professional workspace supports tablet and mobile layouts');
-requireText(professional,'.content:not([data-current-route="cost"])','Cost remains the reference design while other routes are aligned');
+check(/professional\.css\?v=[^"']+/.test(index),'Professional compatibility layer is loaded with a cache token');
+requireText(professional,"@import url('./master-components.css",'Professional compatibility layer delegates reusable components to master-components.css');
+for(const selector of ['.kpi-summary{','.kpi-card{','.kpi-card__icon{','.kpi-card__content{','.kpi-card__label{','.kpi-card__value{','.kpi-card__meta{'])requireText(masterComponents,selector,`Master components include canonical KPI selector ${selector}`);
+requireText(masterComponents,'@media(max-width:820px)','Master components support tablet and mobile layouts');
 
 for(const contract of ['id="desktopNav"','id="mobileNav"','class="app-header"','class="mobile-drawer"','id="menuBtn"','id="sidebarClose"','id="sidebarBackdrop"'])requireText(index,contract,`Semantic shell includes ${contract}`);
 forbidText(index,'id="collapseSidebar"','Retired desktop collapse control is removed');
