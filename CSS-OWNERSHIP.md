@@ -1,235 +1,249 @@
-# CSS Ownership Map
+# White Saffron Procurement ERP — Canonical CSS Ownership
 
-This document inventories which stylesheet owns each visual component. No merging occurs yet—this is a safe reference for identifying where to make design changes and detecting duplicate or conflicting rules.
+This file defines the required ownership of every CSS layer. It replaces the legacy inventory model in which multiple files competed for buttons, forms, grids, cards, navigation, and responsive behavior.
 
----
+The goal is one authoritative owner per concern.
 
-## File Responsibilities
+## 1. Required load order
+
+```text
+1. tokens.css
+2. app.css
+3. layout.css
+4. master-components.css
+5. page-specific CSS
+6. professional.css only when retained as a compatibility import
+```
+
+A later file must not become a general override layer for an earlier file.
+
+## 2. File ownership
 
 ### `tokens.css`
-**Scope:** Design tokens only (colors, spacing, typography, sizes, shadows, transitions)  
-**Never contains:** Selectors, components, page-specific rules  
-**Read by:** All other stylesheets  
 
-#### Current tokens defined:
-- Colors: `--color-*`, `--brand-*`, `--surface-*`, `--text-*`, `--bg-*`
-- Spacing: `--sp-1`, `--sp-2`, `--sp-3`, `--sp-1-5`, `--sp-5`
-- Typography: `--fs-*` (font sizes), `--weight-*` (font weights), `--font-ui`, `--line-normal`
-- Sizes: `--sidebar-width`, `--header-height`, `--control-height`, `--table-row`, `--nav-height`
-- Radii: `--radius-card`, `--radius-control`
-- Shadows: `--shadow-sm`, `--shadow-md`, `--shadow-focus`
-- Transitions: `--duration-fast`, `--duration-normal`
+Owns values only:
 
----
+- colors
+- typography families, sizes, weights, and line heights
+- spacing scale
+- radii
+- shadows
+- control heights
+- header dimensions
+- content width values
+- transitions
+- breakpoints where represented as custom properties
+
+It must not contain component selectors or page-specific rules.
 
 ### `app.css`
-**Scope:** Base HTML elements, typography reset, login page, form elements  
-**Key selectors:**
-```css
-* { box-sizing: border-box }
-html { font-size: var(--fs-16) }
-body { background, color, font }
-h1, h2, h3, h4, h5, h6 { typography }
-p, ul, ol, li { typography }
-a, button, input, select, textarea { base styles }
 
-.login { full-page container }
-.login-card { card container }
-.login-mark { logo }
-.app { top-level grid }
-.sidebar { flex column }
-.main { flex column }
-.topbar { sticky header }
-```
+Owns the base document layer:
 
-**Also contains:**
-- Page layout grid (`grid-template-columns: var(--sidebar-width) 1fr`)
-- Button base styles (`.btn`)
-- Table base styles (`.table`)
-- Form element sizing
+- box sizing
+- body and root behavior
+- default typography
+- links
+- base media behavior
+- authentication screen foundation
+- generic hidden-state utilities where required
 
-**Overlap risk:** Button and input styles also in `consistency.css` and `system.css`
-
----
-
-### `system.css`
-**Scope:** Composition of tokens into layout behaviors, responsive rules, form controls  
-**Key selectors:**
-```css
-.app, .main, .content { min-width: 0 (prevent flex overflow) }
-.page-head { alignment, sizing }
-.grid-4, .grid-2, .catalog { grid templates with !important }
-.toolbar, .date-toolbar, .bills-toolbar { filter layout }
-.card, .kpi { card styling }
-.btn { button styling (with !important) }
-input, select, textarea { control styling }
-.sidebar, .nav, .side-foot { sidebar structure }
-.table, .table th, .table td { table styling }
-.badge, .pager, .empty { utility components }
-```
-
-**Critical:**
-- Overrides form controls and buttons with `!important`
-- Sets all grid templates with `!important`
-- All responsive breakpoints: `@media (max-width: 820px)`, `@media (max-width: 520px)`
-
-**Overlap risk:** High—duplicates rules from `app.css` and `consistency.css` with `!important`
-
----
+It does not own navigation geometry, page grids, reusable cards, or page-specific components.
 
 ### `layout.css`
-**Scope:** Desktop-specific fixed sidebar and topbar positioning, responsive sidebar drawer  
-**Key selectors:**
-```css
-@media (min-width: 821px) {
-  .app { display: block; position-relative }
-  .sidebar { position: fixed; width: var(--sidebar-width) }
-  .nav { overflow-y: auto; scrollbar hidden }
-  .nav-group, .nav-label, .nav a { spacing and alignment }
-  .nav a.active { box-shadow: inset (active indicator) }
-  .side-foot { flex footer }
-  .main { margin-left: var(--sidebar-width); transition }
-  .topbar { left: var(--sidebar-width); }
-  .content { max-width: none; padding }
-  .sidebar-collapsed { width: 76px }
-  .sidebar-collapsed .nav { icons-only layout }
-}
 
-@media (max-width: 820px) {
-  .main { margin-left: 0 }
-  .content { max-width: none }
-}
+Owns the complete application shell:
+
+- authenticated application root
+- global top header
+- brand area
+- desktop horizontal navigation
+- active navigation layout state
+- account area
+- page context area
+- full-width main region
+- `#content` geometry
+- footer placement
+- mobile menu trigger
+- mobile drawer
+- mobile backdrop
+- shell responsive breakpoints
+
+It must not contain product, vendor, bill, cost, report, or admin page styling.
+
+The canonical desktop layout has no permanent left sidebar and no sidebar content offset.
+
+### `master-components.css`
+
+Owns reusable visual components:
+
+- `.btn` variants
+- input, select, textarea, and label styling
+- cards and card sections
+- toolbars and filter groups
+- tables and table containers
+- KPI components
+- badges
+- pagination
+- modals
+- empty states
+- notices and alerts
+- shared list and summary patterns
+
+Canonical KPI selectors:
+
+```css
+.kpi-summary
+.kpi-card
+.kpi-card__icon
+.kpi-card__content
+.kpi-card__label
+.kpi-card__value
+.kpi-card__meta
 ```
 
-**Owned here:**
-- Fixed sidebar positioning
-- Desktop navigation layout and active states
-- Collapsed sidebar icon-only mode
-- Responsive breakpoint at 821px
-- Sidebar animation: `transform: translateX(-105%)`
+### Page-specific stylesheets
 
-**Depends on:** `--sidebar-width` (80px expanded, 76px collapsed from tokens)
+Examples:
 
----
-
-### `consistency.css`
-**Scope:** Cross-route typography, component hierarchy, shared card/table sizing  
-**Key selectors:**
-```css
-.content { gap, align-content, padding }
-.content > .page-head { h1, p sizing }
-.content > .page-head + .toolbar { margin-top }
-.card, .toolbar, .date-toolbar { border, background }
-.card-head { height, padding, h2, small }
-.card-body { padding }
-.actions { gap, alignment }
-.btn { height, border-radius, font }
-label { gap, color, font }
-input, select, textarea { height, font, focus state }
-.grid-4, .grid-2 { auto-fit grid }
-.kpi { height, padding }
-.table, .table th, .table td { alignment, font }
-.bills-table th:nth-child(n), .bills-table td:nth-child(n) { exact widths }
-.pager { height, padding }
+```text
+products.css
+vendors.css
+reports.css
+admin.css
+dashboard.css
+bills-mobile.css
+cost.css
 ```
 
-**Critical rules:**
+They may own only structures unique to their route, such as:
+
+- product media arrangement
+- vendor profile composition
+- report chart containers
+- admin workflow grids
+- bill-line editor columns
+- cost comparison visualization
+
+They must consume shared components and tokens rather than restyling them.
+
+### `professional.css`
+
+Compatibility entry point only.
+
+Allowed content:
+
 ```css
-.bills-table th:nth-child(1) { width: 120px }
-.bills-table th:nth-child(2) { width: 130px }
-/* ... etc for 6 columns */
+@import url('./master-components.css?v=<version>');
 ```
 
-**Overlap risk:** Button, input, and grid styles also in `system.css` (sometimes with conflicts)
+It must not accumulate selectors, fixes, patches, or page overrides.
 
----
+### `marketplace-theme.css`
 
-### `products.css`
-**Scope:** Product catalogue page layout and card styling  
-**Likely contains:**
-```css
-.product-card { image, title, pricing }
-.product-image { object-fit, sizing }
-.product-meta { brand, category }
-.price-badge { retail vs wholesale }
-.product-filters { search, category, vendor }
-```
+Legacy transition file.
 
-**Should own:** Product grid layout, product card dimensions, filter layout
+It must not remain a competing global design layer. During migration:
 
----
+1. classify each useful rule as token, layout, shared component, or page-specific;
+2. move it to the authoritative owner;
+3. remove duplicate and obsolete rules;
+4. remove the stylesheet import when no required rules remain.
 
-### `vendors.css`
-**Scope:** Vendor directory page layout  
-**Likely contains:**
-```css
-.vendor-card { profile, contact }
-.vendor-meta { statistics, history }
-.vendor-filters { search, region }
-.contact-row { phone, email, address }
-```
+## 3. Legacy files and overlap
 
-**Should own:** Vendor grid, vendor card dimensions
+The current repository may still contain shared rules in:
 
----
+- `system.css`
+- `consistency.css`
+- `kpi.css`
+- `marketplace-theme.css`
+- page CSS
+- inline `<style>` blocks
 
-## Redesign Roadmap (After This Inventory)
+These are migration sources, not permanent competing owners.
 
-### Phase 1: Sidebar & Layout (Highest priority)
-- Increase sidebar width to 250px (update `--sidebar-width` in `tokens.css`)
-- Make collapsed sidebar icons-only (update `layout.css`)
-- Fix sidebar footer layout (update `layout.css`)
-- Verify all pages inherit correct `--sidebar-width`
+Rules must be moved deliberately. Do not silence conflicts by adding another override file.
 
-### Phase 2: Cost (High priority)
-- Fix sidebar clipping — may need to widen content area
-- Verify the desktop table and mobile cards at their responsive breakpoints
-- Keep the cost filters readable at desktop, tablet, and mobile widths
-- Ensure full page width is used — check `.content` max-width
+## 4. Migration map
 
-### Phase 3: Bills Page
-- Improve bill list layout — update `.bills-table` column widths if needed
-- Vendor search integration — add to `.bills-toolbar`
-- Date filter responsive — ensure `.date-toolbar` wraps correctly
-- Responsive table — verify `.bills-mobile.css` works at all breakpoints
+| Legacy concern | Canonical owner |
+|---|---|
+| sidebar and collapsed-sidebar rules | remove during shell migration |
+| desktop top navigation | `layout.css` |
+| mobile drawer | `layout.css` |
+| `.btn` | `master-components.css` |
+| inputs, selects, textareas, labels | `master-components.css` |
+| cards | `master-components.css` |
+| shared grids | `master-components.css` or page CSS when truly page-specific |
+| KPI appearance | `master-components.css` |
+| table foundation | `master-components.css` |
+| exact route-specific table columns | owning page stylesheet |
+| page headers and toolbars | `master-components.css` plus layout arrangement where required |
+| color and spacing constants | `tokens.css` |
+| inline shell styling | `layout.css` or `app.css` |
 
-### Phase 4: Consolidate Duplicates (After visual stability)
-- Merge `app.css` and `system.css` (button and input rules)
-- Consolidate `.grid-*` definitions
-- Remove `!important` flags once consolidation is complete
-- Reduce stylesheet count from 11 to 6-7 files
+## 5. Conflict rules
 
----
+- Do not define the same component in two active files.
+- Do not use selector specificity as an ownership strategy.
+- Do not add `!important` to win internal stylesheet conflicts.
+- Do not add versioned duplicate imports.
+- Do not keep old rules “just in case” after migration verification.
+- Do not mix desktop shell architecture into page stylesheets.
 
-## Testing Checklist for Next Designer
+## 6. Page stylesheet contract
 
-After any CSS change:
+A page stylesheet may:
 
-1. Desktop (821px+): Sidebar expanded, all pages render correctly
-2. Desktop (821px+): Sidebar collapsed, icons visible, content uses full width
-3. Tablet (520px–820px): Sidebar drawer opens/closes, content is readable
-4. Mobile (0–519px): All content readable, no horizontal scroll
-5. Bills page: Table columns visible, filters wrap correctly
-6. Cost: No overflow, full width used
-7. Dashboard: KPI cards responsive, layout doesn't break
-8. Admin: Two-column layout maintained, scrollbars manageable
+- define a route-specific grid
+- define route-specific media sizing
+- arrange canonical cards or controls
+- define a unique chart or editor visualization
 
----
+A page stylesheet may not:
 
-## Files to Review Next
+- replace global typography
+- redefine `.btn`
+- redefine all inputs or selects
+- redefine global cards
+- redefine navigation
+- change the application content offset
+- create another design token system
 
-1. `cost.css` — Check for overflow and width issues
-2. `bills-mobile.css` — Verify responsive rules work correctly
-3. `layout.css` — Sidebar width and collapsed state
-4. `consistency.css` — `.bills-table` column widths
-5. `system.css` — Global grid and button `!important` rules
+## 7. Responsive ownership
 
----
+Shell breakpoints belong to `layout.css`.
 
-## Summary
+Shared component adaptation belongs to `master-components.css`.
 
-The application currently distributes CSS across 11 files with significant overlap in buttons, inputs, grids, and card rules. The core shell (sidebar, topbar, content area) is split between `app.css` and `layout.css`, making it harder to update the layout together.
+Page-specific responsive behavior belongs to that page stylesheet.
 
-**Immediate action:** Update only `tokens.css` and `layout.css` to resize the sidebar and fix collapsed mode. This unblocks visual work without the risk of affecting other components.
+A breakpoint must not contain unrelated rules from multiple ownership layers merely because they share the same screen width.
 
-**After stability:** Consolidate duplicates so each component has one authoritative owner.
+## 8. Removal sequence
+
+When consolidating a legacy rule:
+
+1. identify every selector and dependent DOM contract;
+2. place the final rule in the canonical owner;
+3. test all affected routes and breakpoints;
+4. remove the legacy rule;
+5. confirm computed styles no longer depend on the old file;
+6. remove an empty legacy import only after production verification.
+
+## 9. Completion criteria
+
+CSS consolidation is complete when:
+
+- the desktop shell uses top navigation;
+- no permanent sidebar geometry remains;
+- shared components have one owner;
+- `professional.css` is import-only or removed;
+- `marketplace-theme.css` is removed or page-scoped without global overlap;
+- inline production patches are removed;
+- no internal conflict requires `!important`;
+- every route works at desktop, tablet, and mobile widths;
+- hard refresh loads the intended assets.
+
+`ARCHITECTURE.md` remains the highest authority.
