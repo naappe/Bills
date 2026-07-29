@@ -22,3 +22,14 @@
 #sidebar #nav a.active i{color:#3157f6!important}
 #sidebar .side-account-copy strong{color:#111827!important}
 #sidebar .side-account-copy small{color:#667085!important}
+
+/* Master row-action controls */
+.action-col{width:104px;white-space:nowrap}
+.action-col .actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:nowrap}
+.action-col .btn.small{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:0!important;border-radius:8px!important;box-shadow:none!important}
+.action-col .btn.small i{display:block!important;width:auto!important;margin:0!important;font-size:13px!important;line-height:1!important}
+.action-col [data-edit]{background:#fff!important;border:1px solid var(--border)!important;color:#344054!important}
+.action-col [data-edit]:hover{background:#f5f7fb!important;border-color:#cbd2dd!important;color:#141b2d!important}
+.action-col [data-delete],.action-col [data-request-delete]{background:var(--danger-soft)!important;border:1px solid #efcaca!important;color:var(--danger)!important}
+.action-col [data-delete]:hover,.action-col [data-request-delete]:hover{background:#fee2e2!important;border-color:#e6a9a9!important;color:#a52d2d!important}
+.action-col [data-delete] i,.action-col [data-request-delete] i{color:inherit!important}
