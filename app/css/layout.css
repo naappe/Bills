@@ -328,7 +328,7 @@ html, body {
     place-items: center;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 9px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255,255,0.08);
     color: #fff;
   }
 
@@ -461,6 +461,37 @@ html, body {
     max-width: none;
     margin: 0;
     padding: 18px var(--sp-2);
+  }
+
+  /* Mobile navigation must always be expanded. Desktop collapse state can be
+     persisted in localStorage, but it must never hide drawer labels on phones. */
+  .app.sidebar-collapsed .mobile-drawer .mobile-brand-copy,
+  .app.sidebar-collapsed .mobile-drawer .mobile-nav .nav-label,
+  .app.sidebar-collapsed .mobile-drawer .mobile-nav a span,
+  .app.sidebar-collapsed .mobile-drawer .side-account-copy,
+  .app.sidebar-collapsed .mobile-drawer .side-foot .btn span {
+    display: initial !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .app.sidebar-collapsed .mobile-drawer .mobile-brand-copy,
+  .app.sidebar-collapsed .mobile-drawer .side-account-copy {
+    display: flex !important;
+  }
+
+  .app.sidebar-collapsed .mobile-drawer .mobile-nav .nav-label {
+    display: block !important;
+  }
+
+  .app.sidebar-collapsed .mobile-drawer .mobile-nav a {
+    justify-content: flex-start !important;
+    padding: 0 var(--sp-2) !important;
+  }
+
+  .app.sidebar-collapsed .mobile-drawer .mobile-nav a span,
+  .app.sidebar-collapsed .mobile-drawer .side-foot .btn span {
+    display: inline !important;
   }
 }
 
