@@ -4,6 +4,7 @@ import {dashboardPage} from './dashboard.js?v=5.9.3';
 import {settingsPage} from './settings.js?v=5.9.3';
 import {newBillPage} from './bill-entry.js?v=5.9.3';
 import {billsPage} from './bills.js?v=5.9.3';
+import './bills-layout-fix.js?v=5.9.5';
 import {supplyPage,inventoryPage} from './supply.js?v=5.9.3';
 import {costPage} from './cost.js?v=5.9.5';
 import {priceIntelligencePage} from './price-intelligence.js?v=5.9.5';
