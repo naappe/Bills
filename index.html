@@ -4,109 +4,169 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173b6c">
-  <title>White Saffron Procurement ERP — Master</title>
+  <title>White Saffron Procurement ERP</title>
   <link rel="icon" href="./app-icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="./app/css/master.css?v=1.1.0">
+  <link rel="stylesheet" href="./app/css/master.css?v=2.0.0">
 </head>
 <body>
-  <section class="master-app">
+  <section class="auth-screen" id="authScreen" aria-labelledby="loginTitle">
+    <form class="login-card" id="loginForm">
+      <div class="master-mark login-mark">WS</div>
+      <div>
+        <h1 id="loginTitle">White Saffron ERP</h1>
+        <p>Sign in to review supplier bills.</p>
+      </div>
+      <label class="field">
+        <span>Email</span>
+        <input id="loginEmail" type="email" autocomplete="username" required>
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input id="loginPassword" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn btn-primary" id="loginButton" type="submit">Sign in</button>
+      <div class="alert alert-error" id="loginError" hidden role="alert"></div>
+    </form>
+  </section>
+
+  <section class="master-app" id="app" hidden>
     <header class="master-header">
       <div class="master-brand" aria-label="White Saffron Procurement ERP">
         <div class="master-mark">WS</div>
         <div class="master-brand-copy"><strong>White Saffron</strong><small>Procurement ERP</small></div>
       </div>
-      <nav class="master-nav" aria-label="Primary navigation">
-        <a class="active" href="#dashboard">Dashboard</a><a href="#bills">Bills</a><a href="#products">Supply</a><a href="#vendors">Inventory</a><a href="#cost">Cost</a><a href="#reports">Reports</a><a href="#settings">Settings</a><a href="#admin">Admin</a>
-      </nav>
-      <div class="master-account"><div class="master-account-copy"><strong>MASTER</strong><small>Shell preview</small></div><div class="master-avatar" aria-hidden="true">M</div></div>
+      <nav class="master-nav" id="desktopNav" aria-label="Primary navigation"></nav>
+      <div class="master-account">
+        <div class="master-account-copy"><strong id="accountRole">USER</strong><small id="accountEmail">Signed in</small></div>
+        <div class="master-avatar" id="accountAvatar" aria-hidden="true">U</div>
+        <button class="icon-button" id="logoutButton" type="button" aria-label="Sign out">↪</button>
+      </div>
     </header>
 
     <aside class="master-drawer" id="masterDrawer" aria-label="Mobile navigation">
-      <div class="master-drawer-head"><div class="master-mark">WS</div><div class="master-brand-copy"><strong>White Saffron</strong><small>Procurement ERP</small></div><button class="icon-button" id="closeDrawer" type="button" aria-label="Close navigation">×</button></div>
-      <nav class="master-drawer-nav"><a class="active" href="#dashboard">Dashboard</a><a href="#bills">Bills</a><a href="#products">Supply</a><a href="#vendors">Inventory</a><a href="#cost">Cost</a><a href="#reports">Reports</a><a href="#settings">Settings</a><a href="#admin">Admin</a></nav>
+      <div class="master-drawer-head">
+        <div class="master-mark">WS</div>
+        <div class="master-brand-copy"><strong>White Saffron</strong><small>Procurement ERP</small></div>
+        <button class="icon-button" id="closeDrawer" type="button" aria-label="Close navigation">×</button>
+      </div>
+      <nav class="master-drawer-nav" id="mobileNav"></nav>
     </aside>
     <button class="master-backdrop" id="masterBackdrop" type="button" aria-label="Close navigation"></button>
 
     <main class="master-main">
-      <header class="master-mobilebar"><button class="icon-button" id="openDrawer" type="button" aria-label="Open navigation">☰</button><strong>White Saffron</strong></header>
-      <div class="master-content" id="content">
-        <section class="master-placeholder" data-inspectable="Master content"><div><h1>Master page only</h1><p>Application header, navigation, mobile drawer, content area and footer.</p></div></section>
-      </div>
-      <footer class="master-footer"><div><span>White Saffron Procurement ERP</span><span>Master shell · © <span id="year"></span></span></div></footer>
+      <header class="master-mobilebar">
+        <button class="icon-button" id="openDrawer" type="button" aria-label="Open navigation">☰</button>
+        <strong id="mobileTitle">Bills</strong>
+      </header>
+      <div class="master-content" id="content" tabindex="-1"></div>
+      <footer class="master-footer"><div><span>White Saffron Procurement ERP</span><span>Read-only Bills rebuild · © <span id="year"></span></span></div></footer>
     </main>
   </section>
 
+  <section class="modal-overlay" id="billModal" hidden role="dialog" aria-modal="true" aria-labelledby="billModalTitle">
+    <article class="modal-dialog">
+      <header class="modal-header"><div><h2 id="billModalTitle">Bill details</h2><p id="billModalSubtitle"></p></div><button class="icon-button" id="closeBillModal" type="button" aria-label="Close details">×</button></header>
+      <div class="modal-body" id="billModalBody"></div>
+      <footer class="modal-footer"><button class="btn btn-secondary" id="closeBillModalFooter" type="button">Close</button></footer>
+    </article>
+  </section>
+
   <button class="dev-toggle" id="devToggle" type="button" aria-controls="devPanel" aria-expanded="false">Developer mode</button>
-  <aside class="dev-panel" id="devPanel" aria-label="Developer mode" aria-hidden="true">
-    <header class="dev-panel-head"><div><strong>Developer Mode</strong><small>Master design system</small></div><button class="icon-button" id="closeDev" type="button" aria-label="Close developer mode">×</button></header>
-    <nav class="dev-tabs" aria-label="Developer sections">
-      <button class="active" type="button" data-dev-tab="overview">Overview</button><button type="button" data-dev-tab="components">Components</button><button type="button" data-dev-tab="inspector">Inspector</button>
-    </nav>
-    <div class="dev-body">
-      <section class="dev-view active" data-dev-view="overview">
-        <article class="dev-card"><h2>Design tokens</h2><div class="token-grid"><span><i class="swatch swatch-primary"></i>Primary</span><span><i class="swatch swatch-success"></i>Success</span><span><i class="swatch swatch-warning"></i>Warning</span><span><i class="swatch swatch-danger"></i>Danger</span><span><i class="swatch swatch-surface"></i>Surface</span><span><i class="swatch swatch-background"></i>Background</span></div></article>
-        <article class="dev-card"><h2>Design rules</h2><ul class="dev-checklist"><li>No inline styles</li><li>No page-specific CSS</li><li>Use semantic tokens</li><li>Use shared component classes</li><li>Mobile and keyboard accessible</li><li>One master stylesheet</li></ul></article>
-        <article class="dev-card"><h2>CSS health</h2><dl class="health-grid"><div><dt>Stylesheets</dt><dd id="healthSheets">1</dd></div><div><dt>Inline styles</dt><dd id="healthInline">0</dd></div><div><dt>CSS variables</dt><dd id="healthVars">0</dd></div><div><dt>Focusable controls</dt><dd id="healthControls">0</dd></div></dl></article>
-      </section>
-
-      <section class="dev-view" data-dev-view="components">
-        <article class="dev-card"><h2>Buttons</h2><div class="component-row"><button class="btn btn-primary" type="button">Primary</button><button class="btn btn-secondary" type="button">Secondary</button><button class="btn btn-danger" type="button">Danger</button><button class="btn btn-primary" type="button" disabled>Disabled</button></div></article>
-        <article class="dev-card"><h2>Fields</h2><div class="component-stack"><label>Vendor<input type="text" placeholder="Search vendor"></label><label>Category<select><option>Food</option><option>Beverage</option></select></label><label>Notes<textarea placeholder="Optional notes"></textarea></label></div></article>
-        <article class="dev-card"><h2>Alerts</h2><div class="component-stack"><div class="alert alert-success">Saved successfully.</div><div class="alert alert-warning">Review this entry.</div><div class="alert alert-error">Unable to save.</div></div></article>
-        <article class="dev-card"><h2>Table</h2><div class="table-wrapper"><table><thead><tr><th>Vendor</th><th>Reference</th><th>Amount</th></tr></thead><tbody><tr><td>Sample Supplier</td><td>INV-001</td><td>MVR 1,250.00</td></tr></tbody></table></div></article>
-      </section>
-
-      <section class="dev-view" data-dev-view="inspector">
-        <article class="dev-card"><h2>CSS inspector</h2><p class="dev-muted">Enable selection, then click an element in the master page.</p><button class="btn btn-secondary" id="inspectToggle" type="button" aria-pressed="false">Select element</button><dl class="inspector-grid" id="inspectorOutput"><div><dt>Element</dt><dd>None selected</dd></div></dl></article>
-      </section>
-    </div>
+  <aside class="dev-panel" id="devPanel" hidden aria-label="Developer mode">
+    <header class="dev-head"><div><strong>Developer Mode</strong><small>Master design reference</small></div><button class="icon-button" id="closeDev" type="button" aria-label="Close developer mode">×</button></header>
+    <section class="dev-section"><h2>Design rules</h2><ul><li>One master shell</li><li>One stylesheet</li><li>Shared component classes</li><li>No production data inside this panel</li></ul></section>
+    <section class="dev-section"><h2>Components</h2><div class="dev-stack"><button class="btn btn-primary">Primary</button><button class="btn btn-secondary">Secondary</button><div class="alert alert-success">Saved successfully.</div><div class="alert alert-warning">Review this entry.</div><div class="alert alert-error">Unable to save.</div></div></section>
+    <section class="dev-section"><h2>CSS inspector</h2><p>Hold Alt and click an application element.</p><pre id="cssInspector">No element selected.</pre></section>
   </aside>
 
-  <script>
-    const drawer=document.querySelector('#masterDrawer');
-    const backdrop=document.querySelector('#masterBackdrop');
-    const setDrawer=open=>{drawer.classList.toggle('open',open);backdrop.classList.toggle('visible',open)};
-    document.querySelector('#openDrawer').addEventListener('click',()=>setDrawer(true));
-    document.querySelector('#closeDrawer').addEventListener('click',()=>setDrawer(false));
-    backdrop.addEventListener('click',()=>setDrawer(false));
-    document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',()=>setDrawer(false)));
-    document.querySelector('#year').textContent=new Date().getFullYear();
+  <script type="module">
+    import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-    const devPanel=document.querySelector('#devPanel');
-    const devToggle=document.querySelector('#devToggle');
-    const setDev=open=>{document.body.classList.toggle('dev-open',open);devPanel.setAttribute('aria-hidden',String(!open));devToggle.setAttribute('aria-expanded',String(open));sessionStorage.setItem('bills.dev',open?'1':'0');if(open)refreshHealth()};
-    devToggle.addEventListener('click',()=>setDev(!document.body.classList.contains('dev-open')));
-    document.querySelector('#closeDev').addEventListener('click',()=>setDev(false));
-    document.addEventListener('keydown',event=>{if(event.ctrlKey&&event.shiftKey&&event.key.toLowerCase()==='d'){event.preventDefault();setDev(!document.body.classList.contains('dev-open'))}if(event.key==='Escape'&&document.body.classList.contains('dev-open'))setDev(false)});
-    const params=new URLSearchParams(location.search);
-    if(params.get('dev')==='true'||sessionStorage.getItem('bills.dev')==='1')setDev(true);
+    const SUPABASE_URL='https://tmupbruwmwlrmewhoodn.supabase.co';
+    const SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
+    const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    const $=selector=>document.querySelector(selector);
+    const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const routes={dashboard:'Dashboard',bills:'Bills',products:'Supply',vendors:'Inventory',cost:'Cost',reports:'Reports',settings:'Settings',admin:'Admin'};
+    const state={page:1,pageSize:20,count:0,search:'',vendor:'',from:'',to:'',bills:[],vendors:[],session:null};
 
-    document.querySelectorAll('[data-dev-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-dev-tab]').forEach(item=>item.classList.toggle('active',item===button));document.querySelectorAll('[data-dev-view]').forEach(view=>view.classList.toggle('active',view.dataset.devView===button.dataset.devTab))}));
+    function setDrawer(open){$('#masterDrawer').classList.toggle('open',open);$('#masterBackdrop').classList.toggle('visible',open);document.body.classList.toggle('drawer-open',open)}
+    function setModal(open){$('#billModal').hidden=!open;document.body.classList.toggle('modal-open',open)}
+    function money(value,currency='MVR'){const number=Number(String(value??'').replace(/[^0-9.-]/g,''));return `${currency||'MVR'} ${Number.isFinite(number)?number.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'0.00'}`}
+    function billValue(row,modern,legacy){return row?.[modern]??row?.[legacy]??''}
+    function billDate(row){return row.bill_day||billValue(row,'bill_date','Bill Date')||row.created_at?.slice(0,10)||''}
+    function billVendor(row){return billValue(row,'vendor','Vendor')||'Unknown vendor'}
+    function billNo(row){return billValue(row,'bill_no','Bill No')||`#${row.id}`}
+    function billAmount(row){return row.net_amount??billValue(row,'amount','Amount')??0}
 
-    function refreshHealth(){
-      const rootStyle=getComputedStyle(document.documentElement);
-      const vars=[...document.styleSheets].flatMap(sheet=>{try{return[...sheet.cssRules]}catch{return[]}}).flatMap(rule=>rule.style?[...rule.style].filter(name=>name.startsWith('--')):[]);
-      document.querySelector('#healthSheets').textContent=document.styleSheets.length;
-      document.querySelector('#healthInline').textContent=document.querySelectorAll('[style]').length;
-      document.querySelector('#healthVars').textContent=new Set(vars).size||[...rootStyle].filter(name=>name.startsWith('--')).length;
-      document.querySelector('#healthControls').textContent=document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]').length;
+    function renderNavigation(){const links=Object.entries(routes).map(([route,label])=>`<a href="#${route}" data-route="${route}">${label}</a>`).join('');$('#desktopNav').innerHTML=links;$('#mobileNav').innerHTML=links}
+    function updateActiveRoute(route){document.querySelectorAll('[data-route]').forEach(link=>{const active=link.dataset.route===route;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});$('#mobileTitle').textContent=routes[route]||'Bills'}
+
+    function placeholderPage(route){return `<section class="page-shell"><header class="page-header"><div><h1>${escapeHtml(routes[route])}</h1><p>This route will be rebuilt after the read-only Bills page is verified.</p></div></header><section class="empty-state"><h2>Not rebuilt yet</h2><p>The master shell and navigation are active. No production function has been added to this route.</p></section></section>`}
+
+    function billsSkeleton(){return `<section class="page-shell"><header class="page-header"><div><h1>Bills</h1><p>Search and review supplier purchases.</p></div></header><section class="kpi-grid">${Array.from({length:3},()=>'<article class="card kpi-card"><div class="skeleton skeleton-line wide"></div><div class="skeleton skeleton-line"></div></article>').join('')}</section><section class="card"><div class="card-body"><div class="skeleton skeleton-block"></div></div></section></section>`}
+
+    async function loadVendors(){const {data,error}=await supabase.from('vendors').select('id,name').is('deleted_at',null).eq('is_active',true).order('name');if(error)throw error;state.vendors=data||[]}
+    async function loadBills(){
+      $('#content').innerHTML=billsSkeleton();
+      const start=(state.page-1)*state.pageSize,end=start+state.pageSize-1;
+      let query=supabase.from('bills').select('id,created_at,bill_date,vendor,amount,bill_no,location,tin,currency,"Bill Date","Vendor","Amount","Bill No","Location","TIN",category,payment_status,payment_method,bill_day,gst_total,net_amount,subtotal,due_date,items,approval_status,notes',{count:'exact'}).is('deleted_at',null).is('archived_at',null).order('bill_day',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).range(start,end);
+      if(state.search){const safe=state.search.replace(/[,()]/g,' ');query=query.or(`vendor.ilike.%${safe}%,"Vendor".ilike.%${safe}%,bill_no.ilike.%${safe}%,"Bill No".ilike.%${safe}%`)}
+      if(state.vendor)query=query.or(`vendor.eq.${state.vendor},"Vendor".eq.${state.vendor}`);
+      if(state.from)query=query.gte('bill_day',state.from);
+      if(state.to)query=query.lte('bill_day',state.to);
+      const {data,error,count}=await query;
+      if(error)throw error;
+      state.bills=data||[];state.count=count||0;renderBillsPage();
     }
 
-    let inspectMode=false;
-    const inspectToggle=document.querySelector('#inspectToggle');
-    const output=document.querySelector('#inspectorOutput');
-    inspectToggle.addEventListener('click',()=>{inspectMode=!inspectMode;document.body.classList.toggle('inspect-mode',inspectMode);inspectToggle.setAttribute('aria-pressed',String(inspectMode));inspectToggle.textContent=inspectMode?'Click an element':'Select element'});
-    document.addEventListener('click',event=>{
-      if(!inspectMode||event.target.closest('#devPanel,#devToggle'))return;
-      event.preventDefault();event.stopPropagation();
-      document.querySelectorAll('.dev-selected').forEach(node=>node.classList.remove('dev-selected'));
-      const target=event.target;target.classList.add('dev-selected');inspectMode=false;document.body.classList.remove('inspect-mode');inspectToggle.setAttribute('aria-pressed','false');inspectToggle.textContent='Select element';
-      const style=getComputedStyle(target);const rect=target.getBoundingClientRect();
-      output.innerHTML=`<div><dt>Element</dt><dd>${target.tagName.toLowerCase()}${target.id?'#'+target.id:''}${target.classList.length?'.'+[...target.classList].filter(x=>x!=='dev-selected').join('.'):''}</dd></div><div><dt>Display</dt><dd>${style.display}</dd></div><div><dt>Position</dt><dd>${style.position}</dd></div><div><dt>Size</dt><dd>${Math.round(rect.width)} × ${Math.round(rect.height)} px</dd></div><div><dt>Font</dt><dd>${style.fontSize} / ${style.fontWeight}</dd></div><div><dt>Color</dt><dd>${style.color}</dd></div><div><dt>Background</dt><dd>${style.backgroundColor}</dd></div><div><dt>Padding</dt><dd>${style.padding}</dd></div><div><dt>Radius</dt><dd>${style.borderRadius}</dd></div>`;
-    },true);
+    function renderBillsPage(){
+      const totalPages=Math.max(1,Math.ceil(state.count/state.pageSize));
+      const visibleTotal=state.bills.reduce((sum,row)=>sum+Number(String(billAmount(row)).replace(/[^0-9.-]/g,''))||sum,0);
+      const vendorOptions=state.vendors.map(v=>`<option value="${escapeHtml(v.name)}" ${state.vendor===v.name?'selected':''}>${escapeHtml(v.name)}</option>`).join('');
+      const rows=state.bills.map(row=>`<tr><td><strong>${escapeHtml(billDate(row)||'—')}</strong></td><td><strong>${escapeHtml(billVendor(row))}</strong><small>${escapeHtml(row.category||row.location||row.Location||'')}</small></td><td>${escapeHtml(billNo(row))}</td><td><span class="status-badge">${escapeHtml(row.payment_status||row.approval_status||'Recorded')}</span></td><td class="numeric"><strong>${escapeHtml(money(billAmount(row),row.currency||'MVR'))}</strong></td><td class="actions-cell"><button class="btn btn-secondary btn-small" type="button" data-view-bill="${row.id}">View</button></td></tr>`).join('');
+      $('#content').innerHTML=`<section class="page-shell"><header class="page-header"><div><h1>Bills</h1><p>Read-only supplier bill register connected to Supabase.</p></div><div class="page-actions"><button class="btn btn-secondary" id="refreshBills" type="button">Refresh</button></div></header><section class="kpi-grid"><article class="card kpi-card"><span>Matching bills</span><strong>${state.count.toLocaleString()}</strong></article><article class="card kpi-card"><span>Visible total</span><strong>${money(visibleTotal)}</strong></article><article class="card kpi-card"><span>Vendors</span><strong>${state.vendors.length.toLocaleString()}</strong></article></section><section class="toolbar card"><label class="field search-field"><span>Search</span><input id="billSearch" type="search" value="${escapeHtml(state.search)}" placeholder="Vendor or bill number"></label><label class="field"><span>Vendor</span><select id="vendorFilter"><option value="">All vendors</option>${vendorOptions}</select></label><label class="field"><span>From</span><input id="dateFrom" type="date" value="${escapeHtml(state.from)}"></label><label class="field"><span>To</span><input id="dateTo" type="date" value="${escapeHtml(state.to)}"></label><button class="btn btn-primary" id="applyFilters" type="button">Apply</button><button class="btn btn-secondary" id="clearFilters" type="button">Clear</button></section><section class="card"><header class="card-header"><div><h2>Supplier bills</h2><p>${state.bills.length?`Showing ${startLabel()}–${endLabel()} of ${state.count.toLocaleString()}`:'No matching records'}</p></div></header>${rows?`<div class="table-wrapper"><table><thead><tr><th>Date</th><th>Vendor</th><th>Reference</th><th>Status</th><th class="numeric">Amount</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><h2>No bills found</h2><p>Change the search or date filters and try again.</p></div>`}<footer class="pagination"><button class="btn btn-secondary" id="prevPage" type="button" ${state.page<=1?'disabled':''}>Previous</button><span>Page ${state.page} of ${totalPages}</span><button class="btn btn-secondary" id="nextPage" type="button" ${state.page>=totalPages?'disabled':''}>Next</button></footer></section></section>`;
+      bindBillsEvents();
+    }
+    function startLabel(){return state.count?((state.page-1)*state.pageSize)+1:0}
+    function endLabel(){return Math.min(state.page*state.pageSize,state.count)}
+
+    function bindBillsEvents(){
+      $('#refreshBills')?.addEventListener('click',loadBills);
+      $('#applyFilters')?.addEventListener('click',()=>{state.search=$('#billSearch').value.trim();state.vendor=$('#vendorFilter').value;state.from=$('#dateFrom').value;state.to=$('#dateTo').value;state.page=1;loadBills().catch(showPageError)});
+      $('#clearFilters')?.addEventListener('click',()=>{state.search='';state.vendor='';state.from='';state.to='';state.page=1;loadBills().catch(showPageError)});
+      $('#billSearch')?.addEventListener('keydown',event=>{if(event.key==='Enter')$('#applyFilters').click()});
+      $('#prevPage')?.addEventListener('click',()=>{if(state.page>1){state.page--;loadBills().catch(showPageError)}});
+      $('#nextPage')?.addEventListener('click',()=>{if(state.page*state.pageSize<state.count){state.page++;loadBills().catch(showPageError)}});
+      document.querySelectorAll('[data-view-bill]').forEach(button=>button.addEventListener('click',()=>openBill(Number(button.dataset.viewBill))));
+    }
+
+    function openBill(id){const row=state.bills.find(item=>Number(item.id)===id);if(!row)return;$('#billModalTitle').textContent=billNo(row);$('#billModalSubtitle').textContent=`${billVendor(row)} · ${billDate(row)||'No date'}`;const details=[['Vendor',billVendor(row)],['Bill date',billDate(row)||'—'],['Amount',money(billAmount(row),row.currency||'MVR')],['Subtotal',row.subtotal==null?'—':money(row.subtotal)],['GST',row.gst_total==null?'—':money(row.gst_total)],['Location',row.location||row.Location||'—'],['TIN',row.tin||row.TIN||'—'],['Category',row.category||'—'],['Payment status',row.payment_status||'—'],['Payment method',row.payment_method||'—'],['Approval',row.approval_status||'—'],['Due date',row.due_date||'—']];$('#billModalBody').innerHTML=`<dl class="detail-grid">${details.map(([label,value])=>`<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}</dl>${row.notes?`<section class="detail-notes"><h3>Notes</h3><p>${escapeHtml(row.notes)}</p></section>`:''}`;setModal(true)}
+    function showPageError(error){console.error(error);$('#content').innerHTML=`<section class="page-shell"><div class="alert alert-error"><strong>Unable to load Bills.</strong><br>${escapeHtml(error?.message||error)}</div><button class="btn btn-primary" id="retryBills" type="button">Retry</button></section>`;$('#retryBills')?.addEventListener('click',()=>loadBills().catch(showPageError))}
+
+    async function renderRoute(){const route=(location.hash.slice(1)||'bills').toLowerCase();const valid=routes[route]?route:'bills';updateActiveRoute(valid);setDrawer(false);$('#content').focus({preventScroll:true});if(valid==='bills'){try{if(!state.vendors.length)await loadVendors();await loadBills()}catch(error){showPageError(error)}}else $('#content').innerHTML=placeholderPage(valid)}
+
+    async function showApp(session){state.session=session;$('#authScreen').hidden=true;$('#app').hidden=false;const email=session.user.email||'Signed in';$('#accountEmail').textContent=email;$('#accountAvatar').textContent=email[0]?.toUpperCase()||'U';renderNavigation();if(!location.hash)history.replaceState(null,'','#bills');await renderRoute()}
+    function showLogin(){state.session=null;$('#app').hidden=true;$('#authScreen').hidden=false;$('#loginPassword').value='';$('#loginEmail').focus()}
+
+    $('#loginForm').addEventListener('submit',async event=>{event.preventDefault();const button=$('#loginButton');button.disabled=true;button.classList.add('is-loading');$('#loginError').hidden=true;const {data,error}=await supabase.auth.signInWithPassword({email:$('#loginEmail').value.trim(),password:$('#loginPassword').value});button.disabled=false;button.classList.remove('is-loading');if(error){$('#loginError').textContent=error.message;$('#loginError').hidden=false;return}await showApp(data.session)});
+    $('#logoutButton').addEventListener('click',()=>supabase.auth.signOut());
+    $('#openDrawer').addEventListener('click',()=>setDrawer(true));$('#closeDrawer').addEventListener('click',()=>setDrawer(false));$('#masterBackdrop').addEventListener('click',()=>setDrawer(false));
+    $('#closeBillModal').addEventListener('click',()=>setModal(false));$('#closeBillModalFooter').addEventListener('click',()=>setModal(false));$('#billModal').addEventListener('click',event=>{if(event.target===$('#billModal'))setModal(false)});
+    window.addEventListener('hashchange',()=>renderRoute());
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'){setModal(false);setDrawer(false);setDev(false)}if(event.ctrlKey&&event.shiftKey&&event.key.toLowerCase()==='d'){event.preventDefault();setDev($('#devPanel').hidden)}});
+
+    function setDev(open){$('#devPanel').hidden=!open;$('#devToggle').setAttribute('aria-expanded',String(open));sessionStorage.setItem('dev.open',open?'1':'0')}
+    $('#devToggle').addEventListener('click',()=>setDev($('#devPanel').hidden));$('#closeDev').addEventListener('click',()=>setDev(false));
+    document.addEventListener('click',event=>{if(!$('#devPanel').hidden&&event.altKey&&!event.target.closest('#devPanel,#devToggle')){event.preventDefault();const style=getComputedStyle(event.target),rect=event.target.getBoundingClientRect();$('#cssInspector').textContent=`${event.target.tagName.toLowerCase()}${event.target.id?'#'+event.target.id:''}${[...event.target.classList].map(x=>'.'+x).join('')}\n${Math.round(rect.width)} × ${Math.round(rect.height)}px\ndisplay: ${style.display}\nposition: ${style.position}\npadding: ${style.padding}\nmargin: ${style.margin}\nfont: ${style.fontSize} / ${style.lineHeight}\ncolor: ${style.color}\nbackground: ${style.backgroundColor}`}},true);
+
+    $('#year').textContent=new Date().getFullYear();
+    const params=new URLSearchParams(location.search);if(params.get('dev')==='true'||sessionStorage.getItem('dev.open')==='1')setDev(true);
+    const {data:{session}}=await supabase.auth.getSession();if(session)await showApp(session);else showLogin();
+    supabase.auth.onAuthStateChange((_event,session)=>{if(session&&!state.session)showApp(session);if(!session&&state.session)showLogin()});
   </script>
 </body>
 </html>
