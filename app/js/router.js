@@ -6,11 +6,10 @@ import {newBillPage} from './bill-entry.js?v=5.9.3';
 import {billsPage} from './bills.js?v=5.9.3';
 import {supplyPage,inventoryPage} from './supply.js?v=5.9.3';
 import {costPage} from './cost.js?v=5.9.5';
-import {priceIntelligencePage} from './price-intelligence.js?v=5.9.5';
 import {reportsPage} from './reports.js?v=5.9.3';
 import {adminPage} from './admin.js?v=5.9.3';
 
-const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:supplyPage,vendors:inventoryPage,cost:costPage,'price-intelligence':priceIntelligencePage,reports:reportsPage,settings:settingsPage,admin:adminPage};
+const routes={dashboard:dashboardPage,bills:billsPage,new:newBillPage,products:supplyPage,vendors:inventoryPage,cost:costPage,'price-intelligence':costPage,reports:reportsPage,settings:settingsPage,admin:adminPage};
 const meta={dashboard:['Dashboard','Procurement performance overview'],bills:['Bills','Search, review and manage supplier purchases'],new:['Bill entry','Record purchases and automatically increase stock'],products:['Supply','Products, vendors, prices and stock in one master list'],vendors:['Inventory','Current stock, minimum levels and stock adjustments'],cost:['Cost','Product packing and purchase-cost intelligence'],'price-intelligence':['Cost intelligence','Product packing, normalized prices and purchase history'],reports:['Reports','Procurement analytics'],settings:['Settings','Workspace preferences and account security'],admin:['Admin & users','Configured access and system information']};
 const staffRoutes=new Set(['bills','new','products','vendors']);
 let started=false;
