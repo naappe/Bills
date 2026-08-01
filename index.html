@@ -9,97 +9,104 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-  <link rel="stylesheet" href="./app/css/master.css?v=1.0.0">
+  <link rel="stylesheet" href="./app/css/master.css?v=1.1.0">
 </head>
 <body>
   <section class="master-app">
     <header class="master-header">
       <div class="master-brand" aria-label="White Saffron Procurement ERP">
         <div class="master-mark">WS</div>
-        <div class="master-brand-copy">
-          <strong>White Saffron</strong>
-          <small>Procurement ERP</small>
-        </div>
+        <div class="master-brand-copy"><strong>White Saffron</strong><small>Procurement ERP</small></div>
       </div>
-
       <nav class="master-nav" aria-label="Primary navigation">
-        <a class="active" href="#dashboard">Dashboard</a>
-        <a href="#bills">Bills</a>
-        <a href="#products">Supply</a>
-        <a href="#vendors">Inventory</a>
-        <a href="#cost">Cost</a>
-        <a href="#reports">Reports</a>
-        <a href="#settings">Settings</a>
-        <a href="#admin">Admin</a>
+        <a class="active" href="#dashboard">Dashboard</a><a href="#bills">Bills</a><a href="#products">Supply</a><a href="#vendors">Inventory</a><a href="#cost">Cost</a><a href="#reports">Reports</a><a href="#settings">Settings</a><a href="#admin">Admin</a>
       </nav>
-
-      <div class="master-account">
-        <div class="master-account-copy">
-          <strong>MASTER</strong>
-          <small>Shell preview</small>
-        </div>
-        <div class="master-avatar" aria-hidden="true">M</div>
-      </div>
+      <div class="master-account"><div class="master-account-copy"><strong>MASTER</strong><small>Shell preview</small></div><div class="master-avatar" aria-hidden="true">M</div></div>
     </header>
 
     <aside class="master-drawer" id="masterDrawer" aria-label="Mobile navigation">
-      <div class="master-drawer-head">
-        <div class="master-mark">WS</div>
-        <div class="master-brand-copy">
-          <strong>White Saffron</strong>
-          <small>Procurement ERP</small>
-        </div>
-        <button class="icon-button" id="closeDrawer" type="button" aria-label="Close navigation">×</button>
-      </div>
-      <nav class="master-drawer-nav">
-        <a class="active" href="#dashboard">Dashboard</a>
-        <a href="#bills">Bills</a>
-        <a href="#products">Supply</a>
-        <a href="#vendors">Inventory</a>
-        <a href="#cost">Cost</a>
-        <a href="#reports">Reports</a>
-        <a href="#settings">Settings</a>
-        <a href="#admin">Admin</a>
-      </nav>
+      <div class="master-drawer-head"><div class="master-mark">WS</div><div class="master-brand-copy"><strong>White Saffron</strong><small>Procurement ERP</small></div><button class="icon-button" id="closeDrawer" type="button" aria-label="Close navigation">×</button></div>
+      <nav class="master-drawer-nav"><a class="active" href="#dashboard">Dashboard</a><a href="#bills">Bills</a><a href="#products">Supply</a><a href="#vendors">Inventory</a><a href="#cost">Cost</a><a href="#reports">Reports</a><a href="#settings">Settings</a><a href="#admin">Admin</a></nav>
     </aside>
     <button class="master-backdrop" id="masterBackdrop" type="button" aria-label="Close navigation"></button>
 
     <main class="master-main">
-      <header class="master-mobilebar">
-        <button class="icon-button" id="openDrawer" type="button" aria-label="Open navigation">☰</button>
-        <strong>White Saffron</strong>
-      </header>
-
+      <header class="master-mobilebar"><button class="icon-button" id="openDrawer" type="button" aria-label="Open navigation">☰</button><strong>White Saffron</strong></header>
       <div class="master-content" id="content">
-        <section class="master-placeholder">
-          <div>
-            <h1>Master page only</h1>
-            <p>Application header, navigation, mobile drawer, content area and footer.</p>
-          </div>
-        </section>
+        <section class="master-placeholder" data-inspectable="Master content"><div><h1>Master page only</h1><p>Application header, navigation, mobile drawer, content area and footer.</p></div></section>
       </div>
-
-      <footer class="master-footer">
-        <div>
-          <span>White Saffron Procurement ERP</span>
-          <span>Master shell · © <span id="year"></span></span>
-        </div>
-      </footer>
+      <footer class="master-footer"><div><span>White Saffron Procurement ERP</span><span>Master shell · © <span id="year"></span></span></div></footer>
     </main>
   </section>
+
+  <button class="dev-toggle" id="devToggle" type="button" aria-controls="devPanel" aria-expanded="false">Developer mode</button>
+  <aside class="dev-panel" id="devPanel" aria-label="Developer mode" aria-hidden="true">
+    <header class="dev-panel-head"><div><strong>Developer Mode</strong><small>Master design system</small></div><button class="icon-button" id="closeDev" type="button" aria-label="Close developer mode">×</button></header>
+    <nav class="dev-tabs" aria-label="Developer sections">
+      <button class="active" type="button" data-dev-tab="overview">Overview</button><button type="button" data-dev-tab="components">Components</button><button type="button" data-dev-tab="inspector">Inspector</button>
+    </nav>
+    <div class="dev-body">
+      <section class="dev-view active" data-dev-view="overview">
+        <article class="dev-card"><h2>Design tokens</h2><div class="token-grid"><span><i class="swatch swatch-primary"></i>Primary</span><span><i class="swatch swatch-success"></i>Success</span><span><i class="swatch swatch-warning"></i>Warning</span><span><i class="swatch swatch-danger"></i>Danger</span><span><i class="swatch swatch-surface"></i>Surface</span><span><i class="swatch swatch-background"></i>Background</span></div></article>
+        <article class="dev-card"><h2>Design rules</h2><ul class="dev-checklist"><li>No inline styles</li><li>No page-specific CSS</li><li>Use semantic tokens</li><li>Use shared component classes</li><li>Mobile and keyboard accessible</li><li>One master stylesheet</li></ul></article>
+        <article class="dev-card"><h2>CSS health</h2><dl class="health-grid"><div><dt>Stylesheets</dt><dd id="healthSheets">1</dd></div><div><dt>Inline styles</dt><dd id="healthInline">0</dd></div><div><dt>CSS variables</dt><dd id="healthVars">0</dd></div><div><dt>Focusable controls</dt><dd id="healthControls">0</dd></div></dl></article>
+      </section>
+
+      <section class="dev-view" data-dev-view="components">
+        <article class="dev-card"><h2>Buttons</h2><div class="component-row"><button class="btn btn-primary" type="button">Primary</button><button class="btn btn-secondary" type="button">Secondary</button><button class="btn btn-danger" type="button">Danger</button><button class="btn btn-primary" type="button" disabled>Disabled</button></div></article>
+        <article class="dev-card"><h2>Fields</h2><div class="component-stack"><label>Vendor<input type="text" placeholder="Search vendor"></label><label>Category<select><option>Food</option><option>Beverage</option></select></label><label>Notes<textarea placeholder="Optional notes"></textarea></label></div></article>
+        <article class="dev-card"><h2>Alerts</h2><div class="component-stack"><div class="alert alert-success">Saved successfully.</div><div class="alert alert-warning">Review this entry.</div><div class="alert alert-error">Unable to save.</div></div></article>
+        <article class="dev-card"><h2>Table</h2><div class="table-wrapper"><table><thead><tr><th>Vendor</th><th>Reference</th><th>Amount</th></tr></thead><tbody><tr><td>Sample Supplier</td><td>INV-001</td><td>MVR 1,250.00</td></tr></tbody></table></div></article>
+      </section>
+
+      <section class="dev-view" data-dev-view="inspector">
+        <article class="dev-card"><h2>CSS inspector</h2><p class="dev-muted">Enable selection, then click an element in the master page.</p><button class="btn btn-secondary" id="inspectToggle" type="button" aria-pressed="false">Select element</button><dl class="inspector-grid" id="inspectorOutput"><div><dt>Element</dt><dd>None selected</dd></div></dl></article>
+      </section>
+    </div>
+  </aside>
 
   <script>
     const drawer=document.querySelector('#masterDrawer');
     const backdrop=document.querySelector('#masterBackdrop');
-    const setDrawer=open=>{
-      drawer.classList.toggle('open',open);
-      backdrop.classList.toggle('visible',open);
-    };
+    const setDrawer=open=>{drawer.classList.toggle('open',open);backdrop.classList.toggle('visible',open)};
     document.querySelector('#openDrawer').addEventListener('click',()=>setDrawer(true));
     document.querySelector('#closeDrawer').addEventListener('click',()=>setDrawer(false));
     backdrop.addEventListener('click',()=>setDrawer(false));
     document.querySelectorAll('a[href^="#"]').forEach(link=>link.addEventListener('click',()=>setDrawer(false)));
     document.querySelector('#year').textContent=new Date().getFullYear();
+
+    const devPanel=document.querySelector('#devPanel');
+    const devToggle=document.querySelector('#devToggle');
+    const setDev=open=>{document.body.classList.toggle('dev-open',open);devPanel.setAttribute('aria-hidden',String(!open));devToggle.setAttribute('aria-expanded',String(open));sessionStorage.setItem('bills.dev',open?'1':'0');if(open)refreshHealth()};
+    devToggle.addEventListener('click',()=>setDev(!document.body.classList.contains('dev-open')));
+    document.querySelector('#closeDev').addEventListener('click',()=>setDev(false));
+    document.addEventListener('keydown',event=>{if(event.ctrlKey&&event.shiftKey&&event.key.toLowerCase()==='d'){event.preventDefault();setDev(!document.body.classList.contains('dev-open'))}if(event.key==='Escape'&&document.body.classList.contains('dev-open'))setDev(false)});
+    const params=new URLSearchParams(location.search);
+    if(params.get('dev')==='true'||sessionStorage.getItem('bills.dev')==='1')setDev(true);
+
+    document.querySelectorAll('[data-dev-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-dev-tab]').forEach(item=>item.classList.toggle('active',item===button));document.querySelectorAll('[data-dev-view]').forEach(view=>view.classList.toggle('active',view.dataset.devView===button.dataset.devTab))}));
+
+    function refreshHealth(){
+      const rootStyle=getComputedStyle(document.documentElement);
+      const vars=[...document.styleSheets].flatMap(sheet=>{try{return[...sheet.cssRules]}catch{return[]}}).flatMap(rule=>rule.style?[...rule.style].filter(name=>name.startsWith('--')):[]);
+      document.querySelector('#healthSheets').textContent=document.styleSheets.length;
+      document.querySelector('#healthInline').textContent=document.querySelectorAll('[style]').length;
+      document.querySelector('#healthVars').textContent=new Set(vars).size||[...rootStyle].filter(name=>name.startsWith('--')).length;
+      document.querySelector('#healthControls').textContent=document.querySelectorAll('a[href],button,input,select,textarea,[tabindex]').length;
+    }
+
+    let inspectMode=false;
+    const inspectToggle=document.querySelector('#inspectToggle');
+    const output=document.querySelector('#inspectorOutput');
+    inspectToggle.addEventListener('click',()=>{inspectMode=!inspectMode;document.body.classList.toggle('inspect-mode',inspectMode);inspectToggle.setAttribute('aria-pressed',String(inspectMode));inspectToggle.textContent=inspectMode?'Click an element':'Select element'});
+    document.addEventListener('click',event=>{
+      if(!inspectMode||event.target.closest('#devPanel,#devToggle'))return;
+      event.preventDefault();event.stopPropagation();
+      document.querySelectorAll('.dev-selected').forEach(node=>node.classList.remove('dev-selected'));
+      const target=event.target;target.classList.add('dev-selected');inspectMode=false;document.body.classList.remove('inspect-mode');inspectToggle.setAttribute('aria-pressed','false');inspectToggle.textContent='Select element';
+      const style=getComputedStyle(target);const rect=target.getBoundingClientRect();
+      output.innerHTML=`<div><dt>Element</dt><dd>${target.tagName.toLowerCase()}${target.id?'#'+target.id:''}${target.classList.length?'.'+[...target.classList].filter(x=>x!=='dev-selected').join('.'):''}</dd></div><div><dt>Display</dt><dd>${style.display}</dd></div><div><dt>Position</dt><dd>${style.position}</dd></div><div><dt>Size</dt><dd>${Math.round(rect.width)} × ${Math.round(rect.height)} px</dd></div><div><dt>Font</dt><dd>${style.fontSize} / ${style.fontWeight}</dd></div><div><dt>Color</dt><dd>${style.color}</dd></div><div><dt>Background</dt><dd>${style.backgroundColor}</dd></div><div><dt>Padding</dt><dd>${style.padding}</dd></div><div><dt>Radius</dt><dd>${style.borderRadius}</dd></div>`;
+    },true);
   </script>
 </body>
 </html>
