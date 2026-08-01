@@ -1,6 +1,4 @@
 import {store} from './store.js';
-import './blueprint-details.js?v=5.9.7';
-import './blueprint-links.js?v=5.9.8';
 import {watchSharedUI} from './ui.js?v=5.9.3';
 import {dashboardPage} from './dashboard.js?v=5.9.3';
 import {settingsPage} from './settings.js?v=5.9.3';
