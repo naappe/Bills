@@ -1,5 +1,6 @@
 import {store} from './store.js';
 import './blueprint-details.js?v=5.9.7';
+import './blueprint-links.js?v=5.9.8';
 import {watchSharedUI} from './ui.js?v=5.9.3';
 import {dashboardPage} from './dashboard.js?v=5.9.3';
 import {settingsPage} from './settings.js?v=5.9.3';
@@ -18,10 +19,23 @@ function billsRoutePage(){
   return rendered;
 }
 
-const routes={dashboard:dashboardPage,bills:billsRoutePage,new:newBillPage,products:supplyPage,vendors:inventoryPage,cost:costPage,'price-intelligence':priceIntelligencePage,reports:reportsPage,settings:settingsPage,admin:adminPage};
-const meta={dashboard:'Dashboard',bills:'Bills',new:'Bill entry',products:'Supply',vendors:'Inventory',cost:'Cost','price-intelligence':'Cost intelligence',reports:'Reports',settings:'Settings',admin:'Admin & users'};
-const staffRoutes=new Set(['bills','new','products','vendors']);
+export const routeConfig={
+  dashboard:{title:'Dashboard',roles:['admin'],page:dashboardPage},
+  bills:{title:'Bills',roles:['admin','staff'],page:billsRoutePage},
+  new:{title:'Bill entry',roles:['admin','staff'],page:newBillPage},
+  products:{title:'Supply',roles:['admin','staff'],page:supplyPage},
+  vendors:{title:'Inventory',roles:['admin','staff'],page:inventoryPage},
+  cost:{title:'Cost',roles:['admin'],page:costPage},
+  'price-intelligence':{title:'Cost intelligence',roles:['admin'],page:priceIntelligencePage,hiddenFromPrimaryNav:true},
+  reports:{title:'Reports',roles:['admin'],page:reportsPage},
+  settings:{title:'Settings',roles:['admin'],page:settingsPage},
+  admin:{title:'Admin & users',roles:['admin'],page:adminPage}
+};
+const routes=Object.fromEntries(Object.entries(routeConfig).map(([name,config])=>[name,config.page]));
+const meta=Object.fromEntries(Object.entries(routeConfig).map(([name,config])=>[name,config.title]));
 let started=false;
+
+window.__BILLS_ROUTE_CONFIG__=Object.fromEntries(Object.entries(routeConfig).map(([name,config])=>[name,{title:config.title,roles:[...config.roles],hiddenFromPrimaryNav:Boolean(config.hiddenFromPrimaryNav)}]));
 
 function installCenteredShell(){
   document.querySelector('#topSubtitle')?.remove();
@@ -64,7 +78,7 @@ function installCenteredShell(){
   document.head.appendChild(style);
 }
 
-function allowedRoute(route){return store.role==='admin'||staffRoutes.has(route)}
+function allowedRoute(route){return Boolean(routeConfig[route]?.roles.includes(store.role))}
 function relabelNavigation(){
   const supply=document.querySelector('.nav a[data-route="products"] span');
   const inventory=document.querySelector('.nav a[data-route="vendors"] span');
@@ -77,4 +91,4 @@ function applyRoleNavigation(){relabelNavigation();document.querySelectorAll('.n
 export function navigate(route){const normalized=String(route||'').replace(/^#/,'').toLowerCase(),requested=routes[normalized]?normalized:(store.role==='admin'?'dashboard':'bills'),target=allowedRoute(requested)?requested:'bills';if(location.hash===`#${target}`)renderRoute();else location.hash=`#${target}`}
 export function renderRoute(){installCenteredShell();let route=(location.hash||'').slice(1).toLowerCase();if(!route)route=store.role==='admin'?'dashboard':'bills';if(!routes[route]||!allowedRoute(route)){route='bills';if(location.hash!=='#bills'){history.replaceState(null,'','#bills')}}applyRoleNavigation();const page=routes[route]||billsRoutePage;store.route=route;const activeRoute=route==='price-intelligence'?'cost':route;document.querySelectorAll('.nav a[data-route]').forEach(link=>{const active=link.dataset.route===activeRoute;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});const title=meta[store.route]||meta.bills;const titleNode=document.querySelector('#topTitle'),sidebar=document.querySelector('#sidebar'),content=document.querySelector('#content');if(titleNode)titleNode.textContent=title;sidebar?.classList.remove('open');if(!content)throw new Error('Application content container is missing.');content.dataset.currentRoute=store.route;content.replaceChildren();try{const rendered=page();watchSharedUI(content);Promise.resolve(rendered).then(()=>watchSharedUI(content)).catch(error=>{console.error(`[route:${store.route}]`,error);const message=String(error?.message||error||'Unknown error').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]));content.innerHTML=`<section class="card"><div class="empty"><h2>This page could not open</h2><p>${message}</p><button class="btn" id="retryRoute" type="button">Retry page</button></div></section>`;content.querySelector('#retryRoute')?.addEventListener('click',renderRoute)})}catch(error){console.error(`[route:${store.route}]`,error);const message=String(error?.message||error||'Unknown error').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]));content.innerHTML=`<section class="card"><div class="empty"><h2>This page could not open</h2><p>${message}</p><button class="btn" id="retryRoute" type="button">Retry page</button></div></section>`;content.querySelector('#retryRoute')?.addEventListener('click',renderRoute)}}
 export function startRouter(){installCenteredShell();if(!started){window.addEventListener('hashchange',renderRoute);started=true}renderRoute()}
-window.show=navigate;window.router={navigate,renderRoute,startRouter,get route(){return store.route},get started(){return started}};
+window.show=navigate;window.router={navigate,renderRoute,startRouter,get route(){return store.route},get started(){return started},routeConfig};
