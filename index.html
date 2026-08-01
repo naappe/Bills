@@ -80,9 +80,10 @@
     const SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
     const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const $=selector=>document.querySelector(selector);
-    const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]));
     const routes={dashboard:'Dashboard',bills:'Bills',products:'Supply',vendors:'Inventory',cost:'Cost',reports:'Reports',settings:'Settings',admin:'Admin'};
-    const state={page:1,pageSize:20,count:0,totalActive:0,filteredAmount:0,search:'',vendor:'',from:'',to:'',bills:[],vendors:[],session:null};
+    const sortColumns={date:'bill_day',vendor:'vendor',reference:'bill_no',status:'payment_status',amount:'net_amount'};
+    const state={page:1,pageSize:20,count:0,totalActive:0,filteredAmount:0,search:'',vendor:'',from:'',to:'',sortKey:'date',sortAscending:false,bills:[],vendors:[],session:null};
 
     function setDrawer(open){$('#masterDrawer').classList.toggle('open',open);$('#masterBackdrop').classList.toggle('visible',open);document.body.classList.toggle('drawer-open',open)}
     function setModal(open){$('#billModal').hidden=!open;document.body.classList.toggle('modal-open',open)}
@@ -101,6 +102,16 @@
       if(state.to)query=query.lte('bill_day',state.to);
       return query;
     }
+
+    function applyBillSort(query){
+      const column=sortColumns[state.sortKey]||'bill_day';
+      query=query.order(column,{ascending:state.sortAscending,nullsFirst:false});
+      if(column!=='bill_day')query=query.order('bill_day',{ascending:false,nullsFirst:false});
+      return query.order('created_at',{ascending:false});
+    }
+
+    function sortArrow(key){return state.sortKey===key?(state.sortAscending?' ↑':' ↓'):''}
+    function sortAria(key){return state.sortKey===key?(state.sortAscending?'ascending':'descending'):'none'}
 
     function renderNavigation(){const links=Object.entries(routes).map(([route,label])=>`<a href="#${route}" data-route="${route}">${label}</a>`).join('');$('#desktopNav').innerHTML=links;$('#mobileNav').innerHTML=links}
     function updateActiveRoute(route){document.querySelectorAll('[data-route]').forEach(link=>{const active=link.dataset.route===route;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});$('#mobileTitle').textContent=routes[route]||'Bills'}
@@ -127,8 +138,9 @@
     async function loadBills(){
       $('#content').innerHTML=billsSkeleton();
       const start=(state.page-1)*state.pageSize,end=start+state.pageSize-1;
-      let pageQuery=supabase.from('bills').select('id,created_at,bill_date,vendor,amount,bill_no,location,tin,currency,"Bill Date","Vendor","Amount","Bill No","Location","TIN",category,payment_status,payment_method,bill_day,gst_total,net_amount,subtotal,due_date,items,approval_status,notes',{count:'exact'}).is('deleted_at',null).is('archived_at',null).order('bill_day',{ascending:false,nullsFirst:false}).order('created_at',{ascending:false}).range(start,end);
+      let pageQuery=supabase.from('bills').select('id,created_at,bill_date,vendor,amount,bill_no,location,tin,currency,"Bill Date","Vendor","Amount","Bill No","Location","TIN",category,payment_status,payment_method,bill_day,gst_total,net_amount,subtotal,due_date,items,approval_status,notes',{count:'exact'}).is('deleted_at',null).is('archived_at',null);
       pageQuery=applyBillFilters(pageQuery);
+      pageQuery=applyBillSort(pageQuery).range(start,end);
       const totalQuery=supabase.from('bills').select('id',{count:'exact',head:true}).is('deleted_at',null).is('archived_at',null);
       const [pageResult,totalResult,filteredAmount]=await Promise.all([pageQuery,totalQuery,loadFilteredAmount()]);
       if(pageResult.error)throw pageResult.error;
@@ -144,7 +156,8 @@
       const totalPages=Math.max(1,Math.ceil(state.count/state.pageSize));
       const vendorOptions=state.vendors.map(v=>`<option value="${escapeHtml(v.name)}" ${state.vendor===v.name?'selected':''}>${escapeHtml(v.name)}</option>`).join('');
       const rows=state.bills.map(row=>`<tr><td><strong>${escapeHtml(billDate(row)||'—')}</strong></td><td><strong>${escapeHtml(billVendor(row))}</strong><small>${escapeHtml(row.category||row.location||row.Location||'')}</small></td><td>${escapeHtml(billNo(row))}</td><td><span class="status-badge">${escapeHtml(row.payment_status||row.approval_status||'Recorded')}</span></td><td class="numeric"><strong>${escapeHtml(money(billAmount(row),row.currency||'MVR'))}</strong></td><td class="actions-cell"><button class="btn btn-secondary btn-small" type="button" data-view-bill="${row.id}">View</button></td></tr>`).join('');
-      $('#content').innerHTML=`<section class="page-shell"><header class="page-header"><div><h1>Bills</h1><p>Read-only supplier bill register connected to Supabase.</p></div><div class="page-actions"><button class="btn btn-secondary" id="refreshBills" type="button">Refresh</button></div></header><section class="kpi-grid"><article class="card kpi-card"><span>Total active bills</span><strong>${state.totalActive.toLocaleString()}</strong></article><article class="card kpi-card"><span>Matching bills</span><strong>${state.count.toLocaleString()}</strong></article><article class="card kpi-card"><span>Filtered amount</span><strong>${money(state.filteredAmount)}</strong></article><article class="card kpi-card"><span>Active vendors</span><strong>${state.vendors.length.toLocaleString()}</strong></article></section><section class="toolbar card"><label class="field search-field"><span>Search</span><input id="billSearch" type="search" value="${escapeHtml(state.search)}" placeholder="Vendor or bill number"></label><label class="field"><span>Vendor</span><select id="vendorFilter"><option value="">All vendors</option>${vendorOptions}</select></label><label class="field"><span>From</span><input id="dateFrom" type="date" value="${escapeHtml(state.from)}"></label><label class="field"><span>To</span><input id="dateTo" type="date" value="${escapeHtml(state.to)}"></label><button class="btn btn-primary" id="applyFilters" type="button">Apply</button><button class="btn btn-secondary" id="clearFilters" type="button">Clear</button></section><section class="card"><header class="card-header"><div><h2>Supplier bills</h2><p>${state.bills.length?`Showing ${startLabel()}–${endLabel()} of ${state.count.toLocaleString()}`:'No matching records'}</p></div></header>${rows?`<div class="table-wrapper"><table><thead><tr><th>Date</th><th>Vendor</th><th>Reference</th><th>Status</th><th class="numeric">Amount</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><h2>No bills found</h2><p>Change the search or date filters and try again.</p></div>`}<footer class="pagination"><button class="btn btn-secondary" id="prevPage" type="button" ${state.page<=1?'disabled':''}>Previous</button><span>Page ${state.page} of ${totalPages}</span><button class="btn btn-secondary" id="nextPage" type="button" ${state.page>=totalPages?'disabled':''}>Next</button></footer></section></section>`;
+      const sortButton=(key,label)=>`<button class="btn btn-secondary btn-small" type="button" data-sort="${key}" aria-label="Sort by ${label}">${label}${sortArrow(key)}</button>`;
+      $('#content').innerHTML=`<section class="page-shell"><header class="page-header"><div><h1>Bills</h1><p>Read-only supplier bill register connected to Supabase.</p></div><div class="page-actions"><button class="btn btn-secondary" id="refreshBills" type="button">Refresh</button></div></header><section class="kpi-grid"><article class="card kpi-card"><span>Total active bills</span><strong>${state.totalActive.toLocaleString()}</strong></article><article class="card kpi-card"><span>Matching bills</span><strong>${state.count.toLocaleString()}</strong></article><article class="card kpi-card"><span>Filtered amount</span><strong>${money(state.filteredAmount)}</strong></article><article class="card kpi-card"><span>Active vendors</span><strong>${state.vendors.length.toLocaleString()}</strong></article></section><section class="toolbar card"><label class="field search-field"><span>Search</span><input id="billSearch" type="search" value="${escapeHtml(state.search)}" placeholder="Vendor or bill number"></label><label class="field"><span>Vendor</span><select id="vendorFilter"><option value="">All vendors</option>${vendorOptions}</select></label><label class="field"><span>From</span><input id="dateFrom" type="date" value="${escapeHtml(state.from)}"></label><label class="field"><span>To</span><input id="dateTo" type="date" value="${escapeHtml(state.to)}"></label><button class="btn btn-primary" id="applyFilters" type="button">Apply</button><button class="btn btn-secondary" id="clearFilters" type="button">Clear</button></section><section class="card"><header class="card-header"><div><h2>Supplier bills</h2><p>${state.bills.length?`Showing ${startLabel()}–${endLabel()} of ${state.count.toLocaleString()} · Sorted by ${state.sortKey} ${state.sortAscending?'ascending':'descending'}`:'No matching records'}</p></div></header>${rows?`<div class="table-wrapper"><table><thead><tr><th aria-sort="${sortAria('date')}">${sortButton('date','Date')}</th><th aria-sort="${sortAria('vendor')}">${sortButton('vendor','Vendor')}</th><th aria-sort="${sortAria('reference')}">${sortButton('reference','Reference')}</th><th aria-sort="${sortAria('status')}">${sortButton('status','Status')}</th><th class="numeric" aria-sort="${sortAria('amount')}">${sortButton('amount','Amount')}</th><th><span class="visually-hidden">Actions</span></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><h2>No bills found</h2><p>Change the search or date filters and try again.</p></div>`}<footer class="pagination"><button class="btn btn-secondary" id="prevPage" type="button" ${state.page<=1?'disabled':''}>Previous</button><span>Page ${state.page} of ${totalPages}</span><button class="btn btn-secondary" id="nextPage" type="button" ${state.page>=totalPages?'disabled':''}>Next</button></footer></section></section>`;
       bindBillsEvents();
     }
 
@@ -158,6 +171,7 @@
       $('#billSearch')?.addEventListener('keydown',event=>{if(event.key==='Enter')$('#applyFilters').click()});
       $('#prevPage')?.addEventListener('click',()=>{if(state.page>1){state.page--;loadBills().catch(showPageError)}});
       $('#nextPage')?.addEventListener('click',()=>{if(state.page*state.pageSize<state.count){state.page++;loadBills().catch(showPageError)}});
+      document.querySelectorAll('[data-sort]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.sort;if(state.sortKey===key)state.sortAscending=!state.sortAscending;else{state.sortKey=key;state.sortAscending=!(key==='date'||key==='amount')}state.page=1;loadBills().catch(showPageError)}));
       document.querySelectorAll('[data-view-bill]').forEach(button=>button.addEventListener('click',()=>openBill(Number(button.dataset.viewBill))));
     }
 
@@ -174,11 +188,7 @@
 
     async function renderRoute(){const route=(location.hash.slice(1)||'bills').toLowerCase();const valid=routes[route]?route:'bills';updateActiveRoute(valid);setDrawer(false);$('#content').focus({preventScroll:true});if(valid==='bills'){try{if(!state.vendors.length)await loadVendors();await loadBills()}catch(error){showPageError(error)}}else $('#content').innerHTML=placeholderPage(valid)}
 
-    async function loadRole(){
-      const {data}=await supabase.from('user_roles').select('role,display_name').eq('user_id',state.session.user.id).eq('is_active',true).maybeSingle();
-      $('#accountRole').textContent=(data?.role||'user').toUpperCase();
-    }
-
+    async function loadRole(){const {data}=await supabase.from('user_roles').select('role,display_name').eq('user_id',state.session.user.id).eq('is_active',true).maybeSingle();$('#accountRole').textContent=(data?.role||'user').toUpperCase()}
     async function showApp(session){state.session=session;$('#authScreen').hidden=true;$('#app').hidden=false;const email=session.user.email||'Signed in';$('#accountEmail').textContent=email;$('#accountAvatar').textContent=email[0]?.toUpperCase()||'U';renderNavigation();await loadRole();if(!location.hash)history.replaceState(null,'','#bills');await renderRoute()}
     function showLogin(){state.session=null;$('#app').hidden=true;$('#authScreen').hidden=false;$('#loginPassword').value='';$('#loginEmail').focus()}
 
