@@ -1,0 +1,54 @@
+name: Build read-only Reports page
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/build-reports.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch Reports page into master shell
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          if "reportFrom:''" not in s:
+              s = s.replace("costVendor:''};", "costVendor:'',reportFrom:'',reportTo:''};")
+          marker = "function fail(title,e,fn)"
+          if "async function reports()" not in s:
+              code = r'''
+          async function reports(){$('#content').innerHTML=skeleton('Reports');await loadBase();renderReports()}
+          function reportRows(){return state.bills.filter(r=>{const d=bdate(r);return(!state.reportFrom||d>=state.reportFrom)&&(!state.reportTo||d<=state.reportTo)})}
+          function aggregateReport(rows,keyFn){const map=new Map();rows.forEach(r=>{const key=keyFn(r)||'Unspecified',cur=map.get(key)||{count:0,amount:0};cur.count++;cur.amount+=num(bamount(r));map.set(key,cur)});return[...map.entries()].map(([name,v])=>({name,...v})).sort((a,b)=>b.amount-a.amount)}
+          function renderReports(){const rows=reportRows(),total=rows.reduce((s,r)=>s+num(bamount(r)),0),avg=rows.length?total/rows.length:0,vendorCount=new Set(rows.map(bvendor).filter(Boolean)).size,monthly=aggregateReport(rows,r=>(bdate(r)||'').slice(0,7)),vendors=aggregateReport(rows,bvendor),categories=aggregateReport(rows,r=>r.category||'Uncategorised'),statuses=aggregateReport(rows,r=>r.payment_status||r.approval_status||'Recorded'),table=(items,label)=>items.length?`<div class="table-wrapper"><table><thead><tr><th>${label}</th><th class="numeric">Bills</th><th class="numeric">Amount</th></tr></thead><tbody>${items.map(x=>`<tr><td><strong>${esc(x.name)}</strong></td><td class="numeric">${x.count.toLocaleString()}</td><td class="numeric"><strong>${money(x.amount)}</strong></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty-state"><h2>No report data</h2><p>No bills match the selected range.</p></div>';$('#content').innerHTML=`<section class="page-shell"><header class="page-header"><div><h1>Reports</h1><p>Read-only spending analysis across active supplier bills.</p></div><div class="page-actions"><button class="btn btn-secondary" id="refreshReports">Refresh</button></div></header><section class="toolbar card"><label class="field"><span>From</span><input id="reportFrom" type="date" value="${esc(state.reportFrom)}"></label><label class="field"><span>To</span><input id="reportTo" type="date" value="${esc(state.reportTo)}"></label><button class="btn btn-primary" id="applyReports">Apply</button><button class="btn btn-secondary" id="clearReports">Clear</button></section><section class="kpi-grid"><article class="card kpi-card"><span>Total spending</span><strong>${money(total)}</strong></article><article class="card kpi-card"><span>Bill count</span><strong>${rows.length.toLocaleString()}</strong></article><article class="card kpi-card"><span>Average bill value</span><strong>${money(avg)}</strong></article><article class="card kpi-card"><span>Vendors represented</span><strong>${vendorCount.toLocaleString()}</strong></article></section><section class="card"><header class="card-header"><div><h2>Monthly spending</h2><p>Totals grouped by bill month</p></div><button class="btn btn-secondary btn-small" id="exportMonthly">Export CSV</button></header>${table(monthly,'Month')}</section><section class="card"><header class="card-header"><div><h2>Vendor spending</h2><p>Ranked by total amount</p></div><button class="btn btn-secondary btn-small" id="exportReportVendors">Export CSV</button></header>${table(vendors,'Vendor')}</section><section class="card"><header class="card-header"><div><h2>Category spending</h2><p>Ranked by total amount</p></div><button class="btn btn-secondary btn-small" id="exportReportCategories">Export CSV</button></header>${table(categories,'Category')}</section><section class="card"><header class="card-header"><div><h2>Payment status</h2><p>Bill count and amount by status</p></div><button class="btn btn-secondary btn-small" id="exportStatuses">Export CSV</button></header>${table(statuses,'Status')}</section></section>`;$('#applyReports').onclick=()=>{state.reportFrom=$('#reportFrom').value;state.reportTo=$('#reportTo').value;renderReports()};$('#clearReports').onclick=()=>{state.reportFrom='';state.reportTo='';renderReports()};$('#refreshReports').onclick=()=>{state.bills=[];state.vendors=[];reports().catch(e=>fail('Reports',e,reports))};const exp=(items,name,label)=>download([[label,'Bills','Amount'].join(','),...items.map(x=>[x.name,x.count,x.amount].map(csv).join(','))],name);$('#exportMonthly').onclick=()=>exp(monthly,'Reports_monthly','Month');$('#exportReportVendors').onclick=()=>exp(vendors,'Reports_vendors','Vendor');$('#exportReportCategories').onclick=()=>exp(categories,'Reports_categories','Category');$('#exportStatuses').onclick=()=>exp(statuses,'Reports_statuses','Status')}
+          '''
+              s = s.replace(marker, code + "\n" + marker)
+          s = s.replace("else if(v==='cost')await cost();else $('#content'", "else if(v==='cost')await cost();else if(v==='reports')await reports();else $('#content'")
+          p.write_text(s)
+          PY
+      - name: Validate JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          js=s.split('<script type="module">',1)[1].split('</script>',1)[0]
+          Path('/tmp/check.mjs').write_text(js)
+          PY
+          node --check /tmp/check.mjs
+      - name: Commit Reports page and remove temporary workflow
+        run: |
+          rm .github/workflows/build-reports.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/build-reports.yml
+          git commit -m 'Build read-only Reports page'
+          git push
