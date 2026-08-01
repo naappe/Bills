@@ -29,8 +29,8 @@ function installStyle(){
   document.head.appendChild(style);
 }
 
-function normalizeBillsActions(root=document){
-  const content=root.querySelector?.('#content')||document.querySelector('#content');
+export function normalizeBillsLayout(content=document.querySelector('#content')){
+  installStyle();
   if(!content||content.dataset.currentRoute!=='bills')return;
   const header=content.querySelector('.bills-page-head');
   const addButton=header?.querySelector('[data-route="new"]');
@@ -39,17 +39,5 @@ function normalizeBillsActions(root=document){
     addButton.innerHTML='<i class="fa-solid fa-plus" aria-hidden="true"></i> Add bill';
     exportActions.prepend(addButton);
   }
-  if(header)header.remove();
-}
-
-installStyle();
-const observer=new MutationObserver(()=>normalizeBillsActions());
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',()=>{
-    normalizeBillsActions();
-    observer.observe(document.body,{childList:true,subtree:true});
-  },{once:true});
-}else{
-  normalizeBillsActions();
-  observer.observe(document.body,{childList:true,subtree:true});
+  header?.remove();
 }
