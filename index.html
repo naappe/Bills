@@ -80,7 +80,7 @@
     const SUPABASE_KEY='sb_publishable_LAn1liS2zqMqlB33IQJxIw_NbgWKix1';
     const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const $=selector=>document.querySelector(selector);
-    const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[char]));
+    const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
     const routes={dashboard:'Dashboard',bills:'Bills',products:'Supply',vendors:'Inventory',cost:'Cost',reports:'Reports',settings:'Settings',admin:'Admin'};
     const sortColumns={date:'bill_day',vendor:'vendor',reference:'bill_no',status:'payment_status',amount:'net_amount'};
     const state={page:1,pageSize:20,count:0,totalActive:0,filteredAmount:0,search:'',vendor:'',from:'',to:'',sortKey:'date',sortAscending:false,bills:[],vendors:[],session:null};
@@ -112,6 +112,7 @@
 
     function sortArrow(key){return state.sortKey===key?(state.sortAscending?' ↑':' ↓'):''}
     function sortAria(key){return state.sortKey===key?(state.sortAscending?'ascending':'descending'):'none'}
+    function csvEscape(value){const text=String(value??'').replace(/"/g,'""');return /[",\r\n]/.test(text)?`"${text}"`:text}
 
     function renderNavigation(){const links=Object.entries(routes).map(([route,label])=>`<a href="#${route}" data-route="${route}">${label}</a>`).join('');$('#desktopNav').innerHTML=links;$('#mobileNav').innerHTML=links}
     function updateActiveRoute(route){document.querySelectorAll('[data-route]').forEach(link=>{const active=link.dataset.route===route;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});$('#mobileTitle').textContent=routes[route]||'Bills'}
@@ -133,6 +134,69 @@
         if(rows.length<batchSize)break;
       }
       return total;
+    }
+
+    async function fetchBillsForExport(){
+      const allRows=[];
+      const batchSize=1000;
+      for(let offset=0;;offset+=batchSize){
+        let query=supabase.from('bills').select('id,created_at,bill_date,vendor,amount,bill_no,location,tin,currency,"Bill Date","Vendor","Amount","Bill No","Location","TIN",category,payment_status,payment_method,bill_day,gst_total,net_amount,subtotal,approval_status').is('deleted_at',null).is('archived_at',null);
+        query=applyBillFilters(query);
+        query=applyBillSort(query).range(offset,offset+batchSize-1);
+        const {data,error}=await query;
+        if(error)throw error;
+        const rows=data||[];
+        allRows.push(...rows);
+        if(rows.length<batchSize)break;
+      }
+      return allRows;
+    }
+
+    async function exportBillsCsv(){
+      const button=$('#exportBills');
+      const errorBox=$('#exportError');
+      if(!button)return;
+      button.disabled=true;
+      button.classList.add('is-loading');
+      button.textContent='Exporting…';
+      if(errorBox){errorBox.hidden=true;errorBox.textContent=''}
+      try{
+        const rows=await fetchBillsForExport();
+        if(!rows.length)throw new Error('No matching bills are available to export.');
+        const headers=['Date','Vendor','Reference','Status','Payment Method','Category','Location','TIN','Subtotal','GST','Amount','Approval Status'];
+        const lines=[headers.map(csvEscape).join(',')];
+        rows.forEach(row=>lines.push([
+          billDate(row),
+          billVendor(row),
+          billNo(row),
+          row.payment_status||'Recorded',
+          row.payment_method||'',
+          row.category||'',
+          row.location||row.Location||'',
+          row.tin||row.TIN||'',
+          row.subtotal??'',
+          row.gst_total??'',
+          numericAmount(row),
+          row.approval_status||''
+        ].map(csvEscape).join(',')));
+        const blob=new Blob(['\uFEFF',lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+        const url=URL.createObjectURL(blob);
+        const link=document.createElement('a');
+        const stamp=new Date().toISOString().replace(/[:.]/g,'-');
+        link.href=url;
+        link.download=`Bills_export_${stamp}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),0);
+      }catch(error){
+        console.error('CSV export failed',error);
+        if(errorBox){errorBox.textContent=`Unable to export CSV: ${error?.message||error}`;errorBox.hidden=false}
+      }finally{
+        button.disabled=false;
+        button.classList.remove('is-loading');
+        button.textContent='Export CSV';
+      }
     }
 
     async function loadBills(){
@@ -157,7 +221,7 @@
       const vendorOptions=state.vendors.map(v=>`<option value="${escapeHtml(v.name)}" ${state.vendor===v.name?'selected':''}>${escapeHtml(v.name)}</option>`).join('');
       const rows=state.bills.map(row=>`<tr><td><strong>${escapeHtml(billDate(row)||'—')}</strong></td><td><strong>${escapeHtml(billVendor(row))}</strong><small>${escapeHtml(row.category||row.location||row.Location||'')}</small></td><td>${escapeHtml(billNo(row))}</td><td><span class="status-badge">${escapeHtml(row.payment_status||row.approval_status||'Recorded')}</span></td><td class="numeric"><strong>${escapeHtml(money(billAmount(row),row.currency||'MVR'))}</strong></td><td class="actions-cell"><button class="btn btn-secondary btn-small" type="button" data-view-bill="${row.id}">View</button></td></tr>`).join('');
       const sortButton=(key,label)=>`<button class="btn btn-secondary btn-small" type="button" data-sort="${key}" aria-label="Sort by ${label}">${label}${sortArrow(key)}</button>`;
-      $('#content').innerHTML=`<section class="page-shell"><header class="page-header"><div><h1>Bills</h1><p>Read-only supplier bill register connected to Supabase.</p></div><div class="page-actions"><button class="btn btn-secondary" id="refreshBills" type="button">Refresh</button></div></header><section class="kpi-grid"><article class="card kpi-card"><span>Total active bills</span><strong>${state.totalActive.toLocaleString()}</strong></article><article class="card kpi-card"><span>Matching bills</span><strong>${state.count.toLocaleString()}</strong></article><article class="card kpi-card"><span>Filtered amount</span><strong>${money(state.filteredAmount)}</strong></article><article class="card kpi-card"><span>Active vendors</span><strong>${state.vendors.length.toLocaleString()}</strong></article></section><section class="toolbar card"><label class="field search-field"><span>Search</span><input id="billSearch" type="search" value="${escapeHtml(state.search)}" placeholder="Vendor or bill number"></label><label class="field"><span>Vendor</span><select id="vendorFilter"><option value="">All vendors</option>${vendorOptions}</select></label><label class="field"><span>From</span><input id="dateFrom" type="date" value="${escapeHtml(state.from)}"></label><label class="field"><span>To</span><input id="dateTo" type="date" value="${escapeHtml(state.to)}"></label><button class="btn btn-primary" id="applyFilters" type="button">Apply</button><button class="btn btn-secondary" id="clearFilters" type="button">Clear</button></section><section class="card"><header class="card-header"><div><h2>Supplier bills</h2><p>${state.bills.length?`Showing ${startLabel()}–${endLabel()} of ${state.count.toLocaleString()} · Sorted by ${state.sortKey} ${state.sortAscending?'ascending':'descending'}`:'No matching records'}</p></div></header>${rows?`<div class="table-wrapper"><table><thead><tr><th aria-sort="${sortAria('date')}">${sortButton('date','Date')}</th><th aria-sort="${sortAria('vendor')}">${sortButton('vendor','Vendor')}</th><th aria-sort="${sortAria('reference')}">${sortButton('reference','Reference')}</th><th aria-sort="${sortAria('status')}">${sortButton('status','Status')}</th><th class="numeric" aria-sort="${sortAria('amount')}">${sortButton('amount','Amount')}</th><th><span class="visually-hidden">Actions</span></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><h2>No bills found</h2><p>Change the search or date filters and try again.</p></div>`}<footer class="pagination"><button class="btn btn-secondary" id="prevPage" type="button" ${state.page<=1?'disabled':''}>Previous</button><span>Page ${state.page} of ${totalPages}</span><button class="btn btn-secondary" id="nextPage" type="button" ${state.page>=totalPages?'disabled':''}>Next</button></footer></section></section>`;
+      $('#content').innerHTML=`<section class="page-shell"><header class="page-header"><div><h1>Bills</h1><p>Read-only supplier bill register connected to Supabase.</p></div><div class="page-actions"><button class="btn btn-secondary" id="exportBills" type="button">Export CSV</button><button class="btn btn-secondary" id="refreshBills" type="button">Refresh</button></div></header><div class="alert alert-error" id="exportError" hidden role="alert"></div><section class="kpi-grid"><article class="card kpi-card"><span>Total active bills</span><strong>${state.totalActive.toLocaleString()}</strong></article><article class="card kpi-card"><span>Matching bills</span><strong>${state.count.toLocaleString()}</strong></article><article class="card kpi-card"><span>Filtered amount</span><strong>${money(state.filteredAmount)}</strong></article><article class="card kpi-card"><span>Active vendors</span><strong>${state.vendors.length.toLocaleString()}</strong></article></section><section class="toolbar card"><label class="field search-field"><span>Search</span><input id="billSearch" type="search" value="${escapeHtml(state.search)}" placeholder="Vendor or bill number"></label><label class="field"><span>Vendor</span><select id="vendorFilter"><option value="">All vendors</option>${vendorOptions}</select></label><label class="field"><span>From</span><input id="dateFrom" type="date" value="${escapeHtml(state.from)}"></label><label class="field"><span>To</span><input id="dateTo" type="date" value="${escapeHtml(state.to)}"></label><button class="btn btn-primary" id="applyFilters" type="button">Apply</button><button class="btn btn-secondary" id="clearFilters" type="button">Clear</button></section><section class="card"><header class="card-header"><div><h2>Supplier bills</h2><p>${state.bills.length?`Showing ${startLabel()}–${endLabel()} of ${state.count.toLocaleString()} · Sorted by ${state.sortKey} ${state.sortAscending?'ascending':'descending'}`:'No matching records'}</p></div></header>${rows?`<div class="table-wrapper"><table><thead><tr><th aria-sort="${sortAria('date')}">${sortButton('date','Date')}</th><th aria-sort="${sortAria('vendor')}">${sortButton('vendor','Vendor')}</th><th aria-sort="${sortAria('reference')}">${sortButton('reference','Reference')}</th><th aria-sort="${sortAria('status')}">${sortButton('status','Status')}</th><th class="numeric" aria-sort="${sortAria('amount')}">${sortButton('amount','Amount')}</th><th><span class="visually-hidden">Actions</span></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty-state"><h2>No bills found</h2><p>Change the search or date filters and try again.</p></div>`}<footer class="pagination"><button class="btn btn-secondary" id="prevPage" type="button" ${state.page<=1?'disabled':''}>Previous</button><span>Page ${state.page} of ${totalPages}</span><button class="btn btn-secondary" id="nextPage" type="button" ${state.page>=totalPages?'disabled':''}>Next</button></footer></section></section>`;
       bindBillsEvents();
     }
 
@@ -166,6 +230,7 @@
 
     function bindBillsEvents(){
       $('#refreshBills')?.addEventListener('click',()=>loadBills().catch(showPageError));
+      $('#exportBills')?.addEventListener('click',exportBillsCsv);
       $('#applyFilters')?.addEventListener('click',()=>{state.search=$('#billSearch').value.trim();state.vendor=$('#vendorFilter').value;state.from=$('#dateFrom').value;state.to=$('#dateTo').value;state.page=1;loadBills().catch(showPageError)});
       $('#clearFilters')?.addEventListener('click',()=>{state.search='';state.vendor='';state.from='';state.to='';state.page=1;loadBills().catch(showPageError)});
       $('#billSearch')?.addEventListener('keydown',event=>{if(event.key==='Enter')$('#applyFilters').click()});
