@@ -51,3 +51,4 @@ async function settings(){const prefs=getPrefs(),u=state.session?.user,email=u?.
           git add index.html app/css/master.css .github/workflows/build-settings-page.yml
           git commit -m "Build Settings preferences page"
           git push
+# trigger existing workflow
