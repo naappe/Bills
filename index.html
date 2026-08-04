@@ -2,12 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#3d4a2f">
   <title>White Saffron ERP</title>
-  <meta http-equiv="refresh" content="0;url=./inventory.html">
-  <script>window.location.replace('./inventory.html');</script>
+  <link rel="stylesheet" href="./app/css/final-app.css?v=8.0.0">
 </head>
 <body>
-  <p>Opening <a href="./inventory.html">White Saffron ERP</a>…</p>
+<section class="login" id="auth">
+  <form class="login-card" id="loginForm">
+    <div class="brand"><div class="mark">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
+    <h1>Sign in</h1><p>Inventory, vendors, stock, bills and prices in one workspace.</p>
+    <label class="field"><span>Email</span><input id="email" name="email" type="email" autocomplete="username" required></label>
+    <label class="field"><span>Password</span><input id="password" name="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn primary" id="loginButton" type="submit">Sign in</button>
+    <div class="error hidden" id="loginError" role="alert"></div>
+  </form>
+</section>
+<section class="app hidden" id="app">
+  <header class="topbar">
+    <div class="brand"><div class="mark">WS</div><div><strong>White Saffron</strong><small>Procurement ERP</small></div></div>
+    <button class="btn mobile-menu" id="mobileMenu" type="button">Menu</button>
+    <nav class="nav" aria-label="Main navigation">
+      <button type="button" data-route="inventory">01 Inventory</button>
+      <button type="button" data-route="vendors">02 Vendors</button>
+      <button type="button" data-route="stock">03 Stock</button>
+      <button type="button" data-route="bills">04 Bills</button>
+      <button type="button" data-route="prices">05 Prices</button>
+    </nav>
+    <div class="account"><div><strong id="accountRole">USER</strong><small id="accountEmail"></small></div><button class="btn" id="logout" type="button">Sign out</button></div>
+  </header>
+  <main class="main"><div id="content"></div></main>
+</section>
+<section class="modal hidden" id="modal" aria-modal="true" role="dialog">
+  <article class="dialog"><header class="dialog-head"><div><div class="kicker">New purchase</div><h2>Purchase Bill</h2></div><button class="btn" id="closeModal" type="button">Close</button></header><div class="dialog-body" id="modalBody"></div></article>
+</section>
+<script type="module" src="./app/js/final-app.js?v=8.0.0"></script>
 </body>
 </html>
