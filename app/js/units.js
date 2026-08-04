@@ -9,6 +9,7 @@ export const INVENTORY_UNITS=Object.freeze([
 ]);
 
 export const UNIT_VALUES=Object.freeze(INVENTORY_UNITS.map(unit=>unit.value));
+export const CANONICAL_UNITS=UNIT_VALUES;
 
 export function normalizeUnit(value){
   const raw=String(value||'').trim().toUpperCase();
