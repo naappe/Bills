@@ -7,7 +7,7 @@ const routes=['inventory','vendors','stock','bills','prices'];
 const titles={inventory:['01 Inventory','Inventory','Products, units, stock levels and latest purchasing information.'],vendors:['02 Vendors','Vendors','Supplier contacts and purchasing activity.'],stock:['03 Stock','Stock','Live quantities, minimum levels and replenishment status.'],bills:['04 Bills','Purchase Bills','Search purchases and record new operational bills.'],prices:['05 Prices','Price Intelligence','Latest and previous supplier prices by product.']};
 function setAuth(show){$('#auth').classList.toggle('hidden',!show);$('#app').classList.toggle('hidden',show)}
 function canWrite(){return['admin','manager','staff'].includes(state.role)}
-function nav(){document.querySelectorAll('[data-route]').forEach(b=>b.classList.toggle('active',b.dataset.route===state.route));$('#pageName').textContent=titles[state.route][1])}
+function nav(){document.querySelectorAll('[data-route]').forEach(b=>b.classList.toggle('active',b.dataset.route===state.route));$('#pageName').textContent=titles[state.route][1]}
 function go(route){state.route=routes.includes(route)?route:'inventory';location.hash=state.route;nav();render()}
 async function safe(table,query){try{const r=await query;if(r.error){console.warn(table,r.error);return[]}return r.data||[]}catch(e){console.warn(table,e);return[]}}
 async function load(){const [supply,vendors,bills,prices]=await Promise.all([
