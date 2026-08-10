@@ -1,57 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#3d4a2f">
-  <title>White Saffron ERP</title>
-  <link rel="stylesheet" href="./app/css/final-app.css?v=8.1.0">
-  <style>.form-help{margin:0 0 14px;color:#746d65}.stock-count-list{display:grid;gap:8px;max-height:58vh;overflow:auto}.stock-count-row{display:grid;grid-template-columns:minmax(220px,1fr) 150px 150px 74px;gap:12px;align-items:center;padding:10px 12px;border:1px solid #dfd3c3;border-radius:10px;background:#fcf8f2}.stock-count-row small{display:block;color:#746d65}.stock-count-row .field{margin:0}.stock-toggle{display:grid;justify-items:center;font-size:12px;font-weight:800}.stock-toggle input{width:20px;min-height:20px}.form-actions{justify-content:flex-end;margin-top:16px}@media(max-width:760px){.stock-count-row{grid-template-columns:1fr 1fr}.stock-count-row>div{grid-column:1/-1}}</style>
-<style id="professional-shell">
-:root{--cream:#f4efe7;--paper:#fffdfa;--ink:#24231f;--muted:#706a61;--olive:#35432b;--olive-soft:#edf0e7;--burgundy:#733b3b;--gold:#b59355;--line:#ded4c5;--shadow:0 8px 24px rgba(59,47,35,.055)}
-body{background:linear-gradient(180deg,#f8f4ed 0,#f4efe7 300px)}
-.topbar{height:76px;padding:0 28px;border-bottom:1px solid #d9cfbf;box-shadow:0 2px 12px rgba(56,45,34,.035)}
-.brand{min-width:220px}.mark{width:42px;height:42px;font-size:16px;background:#fffdf9}.brand strong{font-size:17px;letter-spacing:-.01em}.brand small{font-size:11px;letter-spacing:.025em}
-.nav{height:100%;align-items:center;gap:3px}.nav button{height:44px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border:1px solid transparent;border-radius:9px;font-size:13px;letter-spacing:0;color:#625d55}.nav button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.nav button:hover{background:#f2eee7;color:var(--ink)}.nav button.active{background:var(--olive);border-color:var(--olive);color:#fff;box-shadow:0 4px 11px rgba(53,67,43,.16)}
-.account{min-width:205px}.account strong{font-size:11px;letter-spacing:.08em;color:var(--olive)}.account .btn{min-height:38px;padding:8px 12px}
-.main{padding:28px 30px 48px}.hero{min-height:132px;padding:25px 28px;align-items:center;border-radius:14px;box-shadow:var(--shadow)}.hero:after{right:28px;bottom:-35px;font-size:112px}.hero h1{font-size:32px;letter-spacing:-.025em}.hero p{font-size:14px}.kicker{font-family:Lato,sans-serif;font-size:10px;letter-spacing:.13em;color:var(--burgundy)}
-.stats{gap:14px;margin:15px 0}.stat{min-height:100px;padding:17px 18px}.stat strong{font-size:26px}.toolbar{padding:15px 16px}.table-wrap th,.table-wrap td{padding:12px 14px}.table-wrap th{font-size:10px;background:#f3ede4}.badge{padding:5px 9px}
-@media(max-width:1100px){.nav button{padding:0 9px}.nav button svg{display:none}.brand{min-width:auto}.account{min-width:auto}}
-@media(max-width:900px){.topbar{height:68px;padding:0 16px}.main{padding:20px 16px 40px}.nav{display:none}.hero{min-height:auto}}
-</style>
-</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#34452f"><title>White Saffron Procurement ERP</title><link rel="stylesheet" href="./app/css/erp-v9.css?v=9.0.0"></head>
 <body>
-<section class="login" id="auth">
-  <form class="login-card" id="loginForm">
-    <div class="brand"><div class="mark">WS</div><div><strong>White Saffron</strong><small>Procurement &amp; Cost Control</small></div></div>
-    <h1>Sign in</h1><p>Inventory, vendors, stock, bills and prices in one workspace.</p>
-    <label class="field"><span>Email</span><input id="email" name="email" type="email" autocomplete="username" required></label>
-    <label class="field"><span>Password</span><input id="password" name="password" type="password" autocomplete="current-password" required></label>
-    <button class="btn primary" id="loginButton" type="submit">Sign in</button>
-    <div class="error hidden" id="loginError" role="alert"></div>
-  </form>
-</section>
-<section class="app hidden" id="app">
-  <header class="topbar">
-    <div class="brand"><div class="mark">WS</div><div><strong>White Saffron</strong><small>Procurement &amp; Cost Control</small></div></div>
-    <button class="btn mobile-menu" id="mobileMenu" type="button">Menu</button>
-    <span class="hidden" id="pageName">Inventory</span>
-    <nav class="nav" aria-label="Primary navigation">
-      <button type="button" data-route="inventory"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M9 10v9"/></svg><span>Inventory</span></button>
-      <button type="button" data-route="vendors"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Suppliers</span></button>
-      <button type="button" data-route="stock"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16zM3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"/></svg><span>Stock Control</span></button>
-      <button type="button" data-route="bills"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 2h9l4 4v16H6zM14 2v5h5M9 13h7M9 17h7M9 9h2"/></svg><span>Purchase Bills</span></button>
-      <button type="button" data-route="prices"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 3v18h18M7 16l4-5 4 3 5-7"/></svg><span>Price Intelligence</span></button>
-    </nav>
-    <div class="account"><div><strong id="accountRole">USER</strong><small id="accountEmail"></small></div><button class="btn" id="logout" type="button">Sign out</button></div>
-  </header>
-  <main class="main"><div id="content"></div></main>
-</section>
-<section class="modal hidden" id="modal" aria-modal="true" role="dialog">
-  <article class="dialog"><header class="dialog-head"><div><div class="kicker">New purchase</div><h2>Purchase Bill</h2></div><button class="btn" id="closeModal" type="button">Close</button></header><div class="dialog-body" id="modalBody"></div></article>
-</section>
-<script type="module" src="./app/js/final-dom-fixes.js?v=8.1.0"></script>
-<script type="module" src="./app/js/final-app.js?v=8.1.0"></script>
-<script type="module" src="./app/js/spa-navigation-fix.js?v=8.1.0"></script>
-</body>
-</html>
+<section class="login" id="auth"><form class="login-card" id="loginForm"><div class="brand"><div class="mark">WS</div><div><strong>White Saffron</strong><small>Procurement & Cost Control</small></div></div><h1>Welcome back</h1><p>Sign in to manage purchasing, suppliers, inventory and reporting.</p><label><span>Email</span><input id="email" type="email" autocomplete="username" required></label><label><span>Password</span><input id="password" type="password" autocomplete="current-password" required></label><button class="btn primary" id="loginButton">Sign in</button><div class="alert danger hidden" id="loginError"></div></form></section>
+<section class="app-shell hidden" id="erp"><header class="topbar"><div class="brand"><div class="mark">WS</div><div><strong>White Saffron</strong><small>Procurement & Cost Control</small></div></div><span class="hidden" id="pageTitle">Dashboard</span><div></div><div class="topbar-actions"><button class="btn menu-button" id="menuButton" type="button">Menu</button><div class="account"><strong id="accountName"></strong><small id="accountRole"></small></div><button class="btn" id="logout" type="button">Sign out</button></div></header><div class="layout"><aside class="sidebar" id="drawer"><div class="nav-group">Workspace</div><button data-route="dashboard">Dashboard</button><button data-route="products">Products</button><button data-route="stock">Inventory Control</button><button data-route="suppliers">Suppliers</button><button data-route="bills">Purchase Invoices</button><button data-route="prices">Price Analysis</button><button data-route="reports">Reports</button><div class="nav-group">Governance</div><button data-route="approvals">Approvals & Recovery</button><button data-route="admin">Administration</button><button data-route="settings">Settings</button></aside><main class="workspace" id="workspace"></main></div></section>
+<section class="modal hidden" id="modal" role="dialog" aria-modal="true"><article class="dialog"><header class="dialog-head"><h2 id="modalTitle">Dialog</h2><button class="icon-btn" id="modalClose" type="button">Close</button></header><div class="dialog-body" id="modalBody"></div></article></section><div id="toasts" aria-live="polite"></div><script type="module" src="./app/js/erp-v9.js?v=9.0.0"></script></body></html>
