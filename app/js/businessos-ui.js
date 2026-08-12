@@ -11,9 +11,10 @@
     admin:{title:'Administration',desc:'Manage users, roles, access status and operational governance.'},
     settings:{title:'Organisation Settings',desc:'Maintain company, tax, currency and application defaults.'}
   };
-  let busy=false;
+  let scheduled=false;
   const q=s=>document.querySelector(s);
   const currentRoute=()=>((location.hash||'#dashboard').slice(1)||'dashboard');
+  const setText=(el,value)=>{if(el&&el.textContent!==value)el.textContent=value};
 
   function activate(route){
     const btn=q(`[data-route="${route}"]`);
@@ -24,11 +25,10 @@
   function renameHeader(){
     const route=currentRoute(),meta=routeMap[route],head=q('#workspace .page-head');
     if(!meta||!head)return;
-    const h1=head.querySelector('h1'),p=head.querySelector('p'),eye=head.querySelector('.eyebrow');
-    if(h1)h1.textContent=meta.title;
-    if(p)p.textContent=meta.desc;
-    if(eye)eye.textContent='BusinessOS · White Saffron';
-    const pageTitle=q('#pageTitle');if(pageTitle)pageTitle.textContent=meta.title;
+    setText(head.querySelector('h1'),meta.title);
+    setText(head.querySelector('p'),meta.desc);
+    setText(head.querySelector('.eyebrow'),'BusinessOS · White Saffron');
+    setText(q('#pageTitle'),meta.title);
   }
 
   function dashboardLayer(){
@@ -76,9 +76,15 @@
   }
 
   function enhance(){
-    if(busy)return;busy=true;
-    try{renameHeader();dashboardLayer();}
-    finally{busy=false;}
+    scheduled=false;
+    renameHeader();
+    dashboardLayer();
+  }
+
+  function scheduleEnhance(){
+    if(scheduled)return;
+    scheduled=true;
+    requestAnimationFrame(enhance);
   }
 
   document.addEventListener('click',e=>{
@@ -90,9 +96,9 @@
   const start=()=>{
     const ws=q('#workspace');
     if(!ws){setTimeout(start,120);return;}
-    enhance();
-    new MutationObserver(()=>queueMicrotask(enhance)).observe(ws,{childList:true,subtree:true});
-    window.addEventListener('hashchange',()=>setTimeout(enhance,0));
+    scheduleEnhance();
+    new MutationObserver(scheduleEnhance).observe(ws,{childList:true,subtree:false});
+    window.addEventListener('hashchange',scheduleEnhance);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
