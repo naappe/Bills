@@ -4,7 +4,7 @@
     products:{title:'Product Master',desc:'Maintain the purchasing catalogue, canonical units, categories and reorder controls.'},
     stock:{title:'Inventory Ledger',desc:'Trace every stock receipt, usage, return, adjustment and reversal from one movement ledger.'},
     suppliers:{title:'Supplier Management',desc:'Manage supplier profiles, purchasing history, contacts and commercial details.'},
-    bills:{title:'Purchasing',desc:'Create, review, approve and manage supplier purchase invoices and payment status.'},
+    bills:{title:'Purchase Invoices',desc:'Create, review, approve and manage supplier purchase invoices and payment status.'},
     prices:{title:'Price Intelligence',desc:'Track supplier price history, unit-cost movement and purchasing trends.'},
     reports:{title:'Reporting & Analytics',desc:'Export purchasing, inventory, reorder and supplier-spend management reports.'},
     approvals:{title:'Approvals & Recovery',desc:'Control invoice approvals, deletion requests, audit recovery and record restoration.'},
@@ -13,7 +13,6 @@
   };
   let busy=false;
   const q=s=>document.querySelector(s);
-  const qa=s=>[...document.querySelectorAll(s)];
   const currentRoute=()=>((location.hash||'#dashboard').slice(1)||'dashboard');
 
   function activate(route){
@@ -41,19 +40,18 @@
     command.innerHTML=`
       <article class="bos-hero">
         <div class="bos-hero-copy">
-          <span class="bos-kicker">BusinessOS · Procurement Core</span>
+          <span class="bos-kicker">BusinessOS · Procurement v0.2</span>
           <h2>White Saffron operating workspace</h2>
-          <p>Products, suppliers, purchasing, stock movements, approvals, price intelligence and reporting now operate inside one management shell.</p>
-          <span class="bos-status">Core operational modules live</span>
+          <p>Business demand now flows through purchase requests and controlled purchase orders before supplier invoicing, inventory and cost analysis.</p>
+          <span class="bos-chip live">Requests & Purchase Orders · Live</span>
         </div>
-        <div class="bos-version"><strong>BusinessOS v0.1</strong><span>Procurement foundation</span></div>
       </article>
       <article class="bos-flow">
         <div class="bos-flow-title"><strong>Operational flow</strong><span>Current system</span></div>
-        <div class="bos-flow-grid">
-          <button type="button" data-bos-route="suppliers">Supplier<span>Commercial master</span></button>
-          <button type="button" data-bos-route="bills">Purchase Invoice<span>Purchasing record</span></button>
-          <button type="button" data-bos-route="approvals">Approval<span>Governance</span></button>
+        <div class="bos-flow-grid" data-v02="1">
+          <button type="button" data-bos-procurement="requests">Purchase Request<span>Demand & approval</span></button>
+          <button type="button" data-bos-procurement="orders">Purchase Order<span>Supplier commitment</span></button>
+          <button type="button" data-bos-route="bills">Purchase Invoice<span>Supplier billing</span></button>
           <button type="button" data-bos-route="stock">Inventory<span>Movement ledger</span></button>
           <button type="button" data-bos-route="prices">Price Intelligence<span>Cost history</span></button>
           <button type="button" data-bos-route="reports">Reporting<span>Management output</span></button>
@@ -62,16 +60,16 @@
     head.insertAdjacentElement('afterend',command);
 
     const roadmap=document.createElement('div');
-    roadmap.className='bos-roadmap';roadmap.id='bosRoadmap';
+    roadmap.className='bos-roadmap';roadmap.id='bosRoadmap';roadmap.dataset.v02='1';
     roadmap.innerHTML=`<strong>Procurement roadmap</strong>
       <span class="bos-chip live">Product Master · Live</span>
       <span class="bos-chip live">Suppliers · Live</span>
+      <span class="bos-chip live">Purchase Requests · Live</span>
+      <span class="bos-chip live">Purchase Orders · Live</span>
       <span class="bos-chip live">Purchase Invoices · Live</span>
       <span class="bos-chip live">Inventory Ledger · Live</span>
       <span class="bos-chip live">Approvals · Live</span>
       <span class="bos-chip live">Price History · Live</span>
-      <span class="bos-chip next">Purchase Requests · Next</span>
-      <span class="bos-chip next">Purchase Orders · Next</span>
       <span class="bos-chip next">Goods Receipts · Next</span>
       <span class="bos-chip next">Payments · Next</span>`;
     command.insertAdjacentElement('afterend',roadmap);
