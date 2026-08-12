@@ -7,11 +7,12 @@
   <title>BusinessOS · White Saffron</title>
   <link rel="stylesheet" href="./app/css/erp-v9.css?v=9.0.0">
   <link rel="stylesheet" href="./app/css/businessos.css?v=0.1.0">
+  <link rel="stylesheet" href="./app/css/businessos-procurement.css?v=0.2.0">
 </head>
 <body>
 <section class="login" id="auth">
   <form class="login-card" id="loginForm">
-    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement Core</small></div></div>
+    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement v0.2</small></div></div>
     <h1>Welcome back</h1>
     <p>Sign in to manage purchasing, suppliers, inventory, approvals and business reporting.</p>
     <label><span>Email</span><input id="email" type="email" autocomplete="username" required></label>
@@ -23,7 +24,7 @@
 
 <section class="app-shell hidden" id="erp">
   <header class="topbar">
-    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement Core</small></div></div>
+    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement v0.2</small></div></div>
     <span class="hidden" id="pageTitle">Management Dashboard</span>
     <div></div>
     <div class="topbar-actions">
@@ -38,7 +39,9 @@
       <button data-route="dashboard">Management Dashboard</button>
 
       <div class="nav-group">Procurement</div>
-      <button data-route="bills">Purchasing</button>
+      <button data-bos-procurement="requests">Purchase Requests</button>
+      <button data-bos-procurement="orders">Purchase Orders</button>
+      <button data-route="bills">Purchase Invoices</button>
       <button data-route="suppliers">Supplier Management</button>
       <button data-route="products">Product Master</button>
 
@@ -67,5 +70,6 @@
 <div id="toasts" aria-live="polite"></div>
 <script type="module" src="./app/js/erp-v9.js?v=9.0.0"></script>
 <script defer src="./app/js/businessos-ui.js?v=0.1.0"></script>
+<script type="module" src="./app/js/businessos-procurement.js?v=0.2.0"></script>
 </body>
 </html>
