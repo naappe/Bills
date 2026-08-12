@@ -8,13 +8,14 @@
   <link rel="stylesheet" href="./app/css/erp-v9.css?v=9.0.1">
   <link rel="stylesheet" href="./app/css/businessos.css?v=0.2.1">
   <link rel="stylesheet" href="./app/css/businessos-procurement.css?v=0.2.1">
+  <link rel="stylesheet" href="./app/css/businessos-receiving.css?v=0.3.0">
 </head>
 <body>
 <section class="login" id="auth">
   <form class="login-card" id="loginForm">
-    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement v0.2</small></div></div>
+    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement v0.3</small></div></div>
     <h1>Welcome back</h1>
-    <p>Sign in to manage purchasing, suppliers, inventory, approvals and business reporting.</p>
+    <p>Sign in to manage purchasing, receiving, suppliers, inventory, approvals and business reporting.</p>
     <label><span>Email</span><input id="email" type="email" autocomplete="username" required></label>
     <label><span>Password</span><input id="password" type="password" autocomplete="current-password" required></label>
     <button class="btn primary" id="loginButton">Sign in</button>
@@ -24,7 +25,7 @@
 
 <section class="app-shell hidden" id="erp">
   <header class="topbar">
-    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement v0.2</small></div></div>
+    <div class="brand"><div class="mark">BOS</div><div><strong>BusinessOS</strong><small>White Saffron · Procurement v0.3</small></div></div>
     <span class="hidden" id="pageTitle">Management Dashboard</span>
     <div></div>
     <div class="topbar-actions">
@@ -41,6 +42,7 @@
       <div class="nav-group">Procurement</div>
       <button data-bos-procurement="requests">Purchase Requests</button>
       <button data-bos-procurement="orders">Purchase Orders</button>
+      <button data-bos-receiving="receipts">Goods Receipts</button>
       <button data-route="bills">Purchase Invoices</button>
       <button data-route="suppliers">Supplier Management</button>
       <button data-route="products">Product Master</button>
@@ -70,7 +72,8 @@
 <div id="toasts" aria-live="polite"></div>
 <script src="./app/js/businessos-startup.js?v=0.2.1"></script>
 <script type="module" src="./app/js/erp-v9.js?v=9.0.1"></script>
-<script defer src="./app/js/businessos-ui.js?v=0.2.2"></script>
+<script defer src="./app/js/businessos-ui.js?v=0.3.0"></script>
 <script type="module" src="./app/js/businessos-procurement.js?v=0.2.1"></script>
+<script type="module" src="./app/js/businessos-receiving.js?v=0.3.0"></script>
 </body>
 </html>
