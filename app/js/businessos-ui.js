@@ -40,19 +40,19 @@
     command.innerHTML=`
       <article class="bos-hero">
         <div class="bos-hero-copy">
-          <span class="bos-kicker">BusinessOS · Procurement v0.2</span>
+          <span class="bos-kicker">BusinessOS · Procurement v0.3</span>
           <h2>White Saffron operating workspace</h2>
-          <p>Business demand now flows through purchase requests and controlled purchase orders before supplier invoicing, inventory and cost analysis.</p>
-          <span class="bos-chip live">Requests & Purchase Orders · Live</span>
+          <p>Purchasing now flows from demand and purchase orders through controlled goods receipt before supplier invoicing, inventory and cost analysis.</p>
+          <span class="bos-chip live">Requests, POs & Goods Receipts · Live</span>
         </div>
       </article>
       <article class="bos-flow">
         <div class="bos-flow-title"><strong>Operational flow</strong><span>Current system</span></div>
-        <div class="bos-flow-grid" data-v02="1">
+        <div class="bos-flow-grid" data-v02="1" data-v03="1">
           <button type="button" data-bos-procurement="requests">Purchase Request<span>Demand & approval</span></button>
           <button type="button" data-bos-procurement="orders">Purchase Order<span>Supplier commitment</span></button>
+          <button type="button" data-bos-receiving="receipts">Goods Receipt<span>Delivery & stock receipt</span></button>
           <button type="button" data-bos-route="bills">Purchase Invoice<span>Supplier billing</span></button>
-          <button type="button" data-bos-route="stock">Inventory<span>Movement ledger</span></button>
           <button type="button" data-bos-route="prices">Price Intelligence<span>Cost history</span></button>
           <button type="button" data-bos-route="reports">Reporting<span>Management output</span></button>
         </div>
@@ -60,17 +60,18 @@
     head.insertAdjacentElement('afterend',command);
 
     const roadmap=document.createElement('div');
-    roadmap.className='bos-roadmap';roadmap.id='bosRoadmap';roadmap.dataset.v02='1';
+    roadmap.className='bos-roadmap';roadmap.id='bosRoadmap';roadmap.dataset.v02='1';roadmap.dataset.v03='1';
     roadmap.innerHTML=`<strong>Procurement roadmap</strong>
       <span class="bos-chip live">Product Master · Live</span>
       <span class="bos-chip live">Suppliers · Live</span>
       <span class="bos-chip live">Purchase Requests · Live</span>
       <span class="bos-chip live">Purchase Orders · Live</span>
+      <span class="bos-chip live">Goods Receipts · Live</span>
       <span class="bos-chip live">Purchase Invoices · Live</span>
       <span class="bos-chip live">Inventory Ledger · Live</span>
       <span class="bos-chip live">Approvals · Live</span>
       <span class="bos-chip live">Price History · Live</span>
-      <span class="bos-chip next">Goods Receipts · Next</span>
+      <span class="bos-chip next">3-Way Matching · Next</span>
       <span class="bos-chip next">Payments · Next</span>`;
     command.insertAdjacentElement('afterend',roadmap);
   }
